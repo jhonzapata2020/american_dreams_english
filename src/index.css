@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col;
+  }
+}
+
+/* Custom animations for voice recorder waves and active pulses */
+@keyframes audioPulse {
+  0%, 100% {
+    transform: scaleY(0.3);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+.animate-audio-bar-1 { animation: audioPulse 1.2s ease-in-out infinite 0.1s; }
+.animate-audio-bar-2 { animation: audioPulse 1.2s ease-in-out infinite 0.3s; }
+.animate-audio-bar-3 { animation: audioPulse 1.2s ease-in-out infinite 0.2s; }
+.animate-audio-bar-4 { animation: audioPulse 1.2s ease-in-out infinite 0.4s; }
+.animate-audio-bar-5 { animation: audioPulse 1.2s ease-in-out infinite 0.25s; }
+
+/* Clean custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
