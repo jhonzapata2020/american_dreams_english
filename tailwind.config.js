@@ -8,17 +8,21 @@ export default {
     extend: {
       colors: {
         navy: {
-          900: '#0b1329',
-          800: '#111e38',
-          700: '#1d2d50',
-          600: '#2a3f6d',
+          950: '#060f18',
+          900: '#0F2537', // Azul Marino Institucional
+          800: '#1E3A8A',
+          700: '#1d4ed8',
+          50: '#f0f7ff',
+        },
+        crimson: {
+          700: '#991b1b',
+          600: '#DC2626', // Rojo Bandera / Acento de Acción
+          500: '#ef4444',
+          50: '#fef2f2',
         },
         brand: {
-          blue: '#1e3a8a',
-          indigo: '#3730a3',
-          accent: '#059669',
-          accentLight: '#10b981',
           gold: '#d97706',
+          goldLight: '#fef3c7',
         }
       },
       fontFamily: {

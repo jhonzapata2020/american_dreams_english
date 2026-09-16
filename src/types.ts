@@ -1,66 +1,54 @@
-export interface TeacherFeedback {
-  score: number; // 1.0 to 5.0
-  maxScore: number;
-  pronunciationNotes: string;
-  classroomNotes: string;
-  reviewedAt: string;
-  teacherName: string;
-}
+export type Currency = 'USD' | 'COP' | 'EUR';
+export type DonationFrequency = 'monthly' | 'one_time';
+export type PaymentProvider = 'stripe' | 'paypal' | 'redeban' | 'wompi';
 
-export interface Submission {
+export interface DonationTier {
   id: string;
-  challengeId: string;
-  studentId: string;
-  studentName: string;
-  studentLevel: 'A1' | 'A2' | 'B1' | 'B2';
-  studentAvatar: string;
-  audioUrl: string; // Blob URL or synthesized data URL
-  durationSeconds: number;
-  submittedAt: string;
-  status: 'pending' | 'reviewed';
-  feedback?: TeacherFeedback;
-  isSimulated?: boolean;
-}
-
-export interface Challenge {
-  id: string;
+  usdAmount: number;
+  copAmount: number;
   title: string;
-  targetLevel: 'A1' | 'A2' | 'B1' | 'B2';
-  weeklyTopic: string;
-  dueDate: string;
-  description: string;
-  promptText: string;
-  phoneticTips: string[];
-  samplePhrase: string;
+  subtitle: string;
+  impactDescription: string;
+  badge?: string;
+  recommended?: boolean;
 }
 
-export interface Student {
+export interface DonationRequest {
+  tierId?: string;
+  amount: number;
+  currency: Currency;
+  frequency: DonationFrequency;
+  provider: PaymentProvider;
+  coversFee: boolean;
+  donorName: string;
+  donorEmail: string;
+  organizationName?: string;
+  studentId?: string;
+}
+
+export interface ScholarshipRecipient {
   id: string;
   name: string;
-  avatar: string;
-  level: 'A1' | 'A2' | 'B1' | 'B2';
-  totalSubmissions: number;
-  averageScore: number;
+  photoUrl: string;
+  vulnerabilityCondition: 'Víctima Conflicto Armado' | 'Estrato 1-2' | 'SISBÉN A1-B4' | 'Comunidad Rural Turbo';
+  currentCycle: 'A1 Principiante' | 'A2 Elemental' | 'B1 Pre-Intermedio' | 'B2 Intermedio Alto' | 'C1 Avanzado';
+  accumulatedHours: number;
+  targetHours: number;
+  location: string;
+  testimonialSnippet: string;
+  status: 'Activo' | 'En Certificación' | 'Graduado';
 }
 
-export interface Program {
+export interface BusinessSegment {
   id: string;
+  number: string;
   title: string;
+  subtitle: string;
+  description: string;
   badge: string;
-  targetAudience: string;
-  description: string;
-  schedule: string;
   features: string[];
-  levelRange: string;
+  ctaText: string;
+  ctaAction: 'donate' | 'catalog' | 'live' | 'campus';
+  gradientBg: string;
   iconName: string;
-}
-
-export interface PlacementLead {
-  id: string;
-  name: string;
-  phone: string;
-  whatsapp: string;
-  estimatedLevel: string;
-  goal: string;
-  createdAt: string;
 }
