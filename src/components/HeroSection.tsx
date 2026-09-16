@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { 
-  ArrowRight, 
-  Heart, 
   CheckCircle2, 
-  Lock,
+  Sparkles, 
+  ArrowRight, 
+  Lock, 
   Award,
-  Sparkles,
-  BookOpen,
-  Send
+  Headphones,
+  UserCheck
 } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -19,9 +18,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenDonation,
   onExplorePrograms,
 }) => {
-  const [name, setName] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
-  const [program, setProgram] = useState('Clases en Vivo');
+  const [audience, setAudience] = useState<'self' | 'child'>('self');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -33,162 +34,206 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="relative bg-white py-16 md:py-24 px-4 sm:px-6 lg:px-8 border-b border-slate-100 font-sans overflow-hidden">
-      
-      {/* Soft background ambient gradient */}
-      <div className="absolute top-0 right-0 -z-10 w-1/2 h-full bg-gradient-to-l from-slate-50 to-transparent pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* LEFT COLUMN: VALUE PROPOSITION & AUTHORITY (7 COLS) */}
-          <div className="lg:col-span-7 space-y-6 text-left">
+    <section className="bg-white py-10 lg:py-14 border-b border-slate-100 font-sans">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}
+        <div className="lg:col-span-4 flex flex-col items-center justify-center relative">
+          <div className="relative w-full max-w-sm">
             
-            {/* Micro-badge Superior */}
-            <div className="inline-flex items-center space-x-2 bg-slate-100 border border-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold text-slate-700">
-              <span className="text-amber-600 font-extrabold flex items-center gap-1">
-                <Award className="w-3.5 h-3.5 text-amber-500" /> Res. Oficial 2471 Turbo
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="text-navy-900 font-semibold">Pisingo de Oro 🏆</span>
+            {/* Main Instructor Photo Frame */}
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100">
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600"
+                alt="Teacher Anthony - Director Académico"
+                className="w-full h-[360px] object-cover object-top"
+              />
+
+              {/* Gradient Overlay bottom */}
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent pointer-events-none" />
+
+              {/* Floating Badge Bottom Left */}
+              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-lg flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-bold flex-shrink-0 shadow-sm">
+                  <Headphones className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="font-extrabold text-navy-900 text-xs">Teacher Anthony & Equipo</h4>
+                  <p className="text-[10px] text-slate-500 font-semibold">Docentes Certificados C1/C2 MCER</p>
+                </div>
+              </div>
             </div>
 
-            {/* Headline H1 */}
-            <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-              Domina el inglés conversacional y <br className="hidden sm:inline" />
-              <span className="text-navy-900">abre tus puertas al mundo.</span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-lg text-slate-600 max-w-xl leading-relaxed">
-              Programas certificados desde nivel A1 hasta C1. Aprende con clases en vivo, interactúa con tutores expertos y apoya la inclusión bilingüe en Urabá.
-            </p>
-
-            {/* DUAL MAIN CTAS */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
-              
-              <button
-                onClick={onExplorePrograms}
-                className="w-full sm:w-auto bg-navy-900 hover:bg-navy-800 text-white font-bold px-7 py-4 rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 text-base group"
-              >
-                <span>Inscribirme a Clases</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <button
-                onClick={onOpenDonation}
-                className="w-full sm:w-auto bg-white hover:bg-slate-50 text-crimson-600 border border-slate-200 hover:border-crimson-200 font-bold px-6 py-4 rounded-xl shadow-2xs transition-all flex items-center justify-center space-x-2 text-base group"
-              >
-                <Heart className="w-5 h-5 fill-crimson-600/20 text-crimson-600 group-hover:scale-105 transition-transform" />
-                <span>Patrocinar un Becario</span>
-              </button>
-
-            </div>
-
-            {/* MINIMAL SINGLE-LINE TRUST METRICS */}
-            <div className="pt-8 border-t border-slate-100 flex flex-wrap items-center gap-6 text-xs text-slate-500 font-semibold">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-navy-900 font-extrabold text-sm">12+ Años</span>
-                <span>de Experiencia</span>
-              </div>
-              <span className="text-slate-300">•</span>
-              <div className="flex items-center space-x-1.5">
-                <span className="text-navy-900 font-extrabold text-sm">+2,500</span>
-                <span>Alumnos Formados</span>
-              </div>
-              <span className="text-slate-300">•</span>
-              <div className="flex items-center space-x-1.5">
-                <span className="text-emerald-700 font-extrabold text-sm">Certificación</span>
-                <span>MCER A1-C1</span>
-              </div>
+            {/* Overlay Circular Secondary Badge Top Right */}
+            <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-3 rounded-2xl shadow-xl border-2 border-white flex items-center space-x-2 text-xs font-black animate-pulse">
+              <UserCheck className="w-4 h-4 text-white" />
+              <span>Tutoría 1 a 1</span>
             </div>
 
           </div>
+        </div>
 
-          {/* RIGHT COLUMN: CLEAN & ELEGANT LEAD CAPTURE CARD (5 COLS) */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-8 space-y-6">
-              
-              <div>
-                <span className="text-xs font-bold text-crimson-600 uppercase tracking-wider block mb-1">
-                  Atención Personalizada
-                </span>
-                <h3 className="text-2xl font-black text-navy-900">
-                  Solicita tu Asesoría Gratis
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">
-                  Te orientamos sobre el examen de nivelación y las becas disponibles.
-                </p>
-              </div>
+        {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-center) */}
+        <div className="lg:col-span-4 flex flex-col justify-center text-left space-y-5">
+          
+          {/* Eyebrow tag */}
+          <span className="inline-block bg-orange-50 text-orange-600 text-xs font-bold px-3.5 py-1 rounded-full border border-orange-200 w-fit">
+            Cumple tu meta y accede a mejores oportunidades
+          </span>
 
-              {submitted ? (
-                <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-xl text-center space-y-3 animate-fadeIn">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                  <h4 className="font-extrabold text-navy-900 text-base">¡Solicitud Registrada!</h4>
-                  <p className="text-xs text-slate-600">
-                    Un asesor pedagógico te contactará por WhatsApp a la brevedad.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Completo *</label>
-                    <input
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="Ej. María Fernanda Córdoba"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                    />
-                  </div>
+          {/* H1 Headline */}
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+            Logra la <span className="text-orange-600">fluidez en inglés</span> con <span className="text-[#1E3A8A]">American Dream</span>
+          </h1>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Número de WhatsApp *</label>
-                    <input
-                      type="tel"
-                      required
-                      value={whatsapp}
-                      onChange={(e) => setWhatsapp(e.target.value)}
-                      placeholder="+57 300 000 0000"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                    />
-                  </div>
+          {/* Direct Benefit Bullets */}
+          <div className="space-y-3 pt-1 text-sm font-bold text-slate-800">
+            <div className="flex items-center space-x-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                ✓
+              </span>
+              <span>Clases en VIVO y Presenciales en Turbo</span>
+            </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Programa de Interés</label>
-                    <select
-                      value={program}
-                      onChange={(e) => setProgram(e.target.value)}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                    >
-                      <option value="Clases en Vivo">Clases Virtuales en Vivo (Zoom/Teams)</option>
-                      <option value="Sede Turbo">Clases Presenciales Sede Turbo</option>
-                      <option value="Cursos Digitales">Cursos Digitales 4K</option>
-                      <option value="Fondo Becas">Solicitar Beca / Subvención</option>
-                    </select>
-                  </div>
+            <div className="flex items-center space-x-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                ✓
+              </span>
+              <span>Docentes Bilingües Certificados C1/C2</span>
+            </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-crimson-600 hover:bg-crimson-700 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md transition-all text-xs uppercase tracking-wider flex items-center justify-center space-x-2 group"
-                  >
-                    <span>Solicitar Asesoría</span>
-                    <Send className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </button>
+            <div className="flex items-center space-x-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                ✓
+              </span>
+              <span>Metodología Conversacional Práctica</span>
+            </div>
 
-                  <p className="text-[11px] text-slate-400 text-center flex items-center justify-center gap-1">
-                    <Lock className="w-3 h-3 text-slate-400" /> Tus datos están 100% protegidos
-                  </p>
-
-                </form>
-              )}
-
+            <div className="flex items-center space-x-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                ✓
+              </span>
+              <span className="text-orange-700">Fondo de Becas para Jóvenes de Urabá</span>
             </div>
           </div>
 
         </div>
+
+        {/* COLUMNA 3: FORMULARIO FLOTANTE DE CONVERSIÓN (4 COLS - lg:col-span-4) */}
+        <div className="lg:col-span-4">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 md:p-8 space-y-4">
+            
+            {/* Form Title */}
+            <div className="text-center space-y-1">
+              <h3 className="text-xl font-black text-slate-900">
+                Aprende inglés con una <span className="text-[#1E3A8A]">Oferta Especial</span>
+              </h3>
+            </div>
+
+            {/* Audience Switch Pills */}
+            <div className="bg-slate-100 p-1 rounded-full flex items-center text-xs font-bold border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setAudience('self')}
+                className={`flex-1 py-1.5 text-center rounded-full transition-all ${
+                  audience === 'self'
+                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Para mí
+              </button>
+              <button
+                type="button"
+                onClick={() => setAudience('child')}
+                className={`flex-1 py-1.5 text-center rounded-full transition-all ${
+                  audience === 'child'
+                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                Para mi hijo/a
+              </button>
+            </div>
+
+            {/* Form Content */}
+            {submitted ? (
+              <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-2 animate-fadeIn">
+                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
+                <h4 className="font-extrabold text-navy-900 text-sm">¡Inscripción Iniciada!</h4>
+                <p className="text-xs text-slate-600">Un asesor pedagógico te contactará en breve por WhatsApp.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-3">
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Nombre *</label>
+                    <input
+                      type="text"
+                      required
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Nombre"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Apellido *</label>
+                    <input
+                      type="text"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Apellido"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Correo electrónico *</label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="correo@ejemplo.com"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Teléfono / WhatsApp *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+57 300 000 0000"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+
+                {/* Massive Bright Orange CTA Button */}
+                <button
+                  type="submit"
+                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
+                >
+                  <span>Comienza ahora</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
+
+                <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
+                  * Información protegida por Ley de Habeas Data
+                </p>
+
+              </form>
+            )}
+
+          </div>
+        </div>
+
       </div>
     </section>
   );
