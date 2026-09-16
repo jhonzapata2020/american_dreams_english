@@ -34,11 +34,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="bg-white py-8 lg:py-12 border-b border-slate-100 font-sans">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <section className="bg-white pt-6 sm:pt-10 pb-12 lg:py-14 border-b border-slate-100 font-sans">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center relative">
+        <div className="lg:col-span-4 flex flex-col items-center justify-center relative mt-4 sm:mt-0">
           <div className="relative w-full max-w-sm">
             
             {/* Main Instructor Photo Frame */}
@@ -46,16 +46,16 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <img
                 src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600"
                 alt="Teacher Anthony - Director Académico"
-                className="w-full h-[360px] object-cover object-top"
+                className="w-full h-[320px] sm:h-[360px] object-cover object-top"
               />
 
               {/* Gradient Overlay bottom */}
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent pointer-events-none" />
 
               {/* Floating Badge Bottom Left */}
-              <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md p-3 rounded-2xl border border-slate-200 shadow-lg flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-bold flex-shrink-0 shadow-sm">
-                  <Headphones className="w-5 h-5" />
+              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl border border-slate-200 shadow-lg flex items-center space-x-3">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-bold flex-shrink-0 shadow-sm">
+                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
                   <h4 className="font-extrabold text-navy-900 text-xs">Teacher Anthony & Equipo</h4>
@@ -65,8 +65,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Overlay Circular Secondary Badge Top Right */}
-            <div className="absolute -top-3 -right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white p-3 rounded-2xl shadow-xl border-2 border-white flex items-center space-x-2 text-xs font-black animate-pulse">
-              <UserCheck className="w-4 h-4 text-white" />
+            <div className="absolute top-3 right-3 sm:-top-3 sm:-right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2.5 py-1 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl border-2 border-white flex items-center space-x-1.5 text-[11px] sm:text-xs font-black">
+              <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               <span>Tutoría 1 a 1</span>
             </div>
 
