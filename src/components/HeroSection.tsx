@@ -113,8 +113,19 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span className="text-orange-700">Fondo de Becas para Jóvenes de Urabá</span>
+              <span>Garantía de Preparación para Certificación MCER</span>
             </div>
+          </div>
+
+          {/* Botón sutil / disimulado de información de becas */}
+          <div className="pt-1">
+            <button
+              onClick={onOpenDonation}
+              className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors font-medium bg-slate-100/80 hover:bg-slate-200/80 px-3 py-1.5 rounded-full border border-slate-200"
+            >
+              <span>¿Eres estudiante de Urabá y buscas beca?</span>
+              <span className="text-orange-600 font-bold hover:underline">Ver Fondo Social →</span>
+            </button>
           </div>
 
         </div>
@@ -227,6 +238,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
                   * Información protegida por Ley de Habeas Data
                 </p>
+
+                {/* Enlace sutil para becas / donaciones */}
+                <div className="pt-2 text-center border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={onOpenDonation}
+                    className="text-[11px] text-slate-500 hover:text-orange-600 transition-colors font-medium inline-flex items-center justify-center space-x-1"
+                  >
+                    <span>🎓 ¿Buscas postularte al Fondo de Becas Urabá?</span>
+                  </button>
+                </div>
 
               </form>
             )}

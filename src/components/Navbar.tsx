@@ -48,18 +48,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
               Clases en Vivo
             </a>
-            <a 
-              href="#donaciones" 
-              onClick={(e) => {
-                e.preventDefault();
-                const el = document.getElementById('donaciones');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="text-red-600 font-bold hover:text-red-700 transition-colors flex items-center gap-1.5"
-            >
-              <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              Fondo de Becas
-            </a>
           </nav>
 
           {/* CONTROLES Y ACCIONES (LADO DERECHO APP STYLE) */}
@@ -89,7 +77,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* Portal Estudiante (Oculto en pantallas pequeñas para limpiar la barra móvil) */}
+            {/* Portal Estudiante */}
             <button 
               onClick={onOpenStudentPortal} 
               className="hidden md:inline-flex text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0F2537] px-3 py-2 rounded-lg hover:bg-slate-50 transition items-center gap-1.5"
@@ -98,14 +86,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>Portal Estudiante</span>
             </button>
 
-            {/* Donar Beca CTA Button */}
-            <button 
-              onClick={onOpenDonationModal} 
-              className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5"
+            {/* Inscribirme / Matricularse CTA Button */}
+            <a 
+              href="#segmentos"
+              className="bg-[#0F2537] hover:bg-navy-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5"
             >
-              <Heart className="w-3.5 h-3.5 fill-white/20" />
-              <span>Donar Beca</span>
-            </button>
+              <span>Matricularme</span>
+            </a>
 
             {/* Mobile App Menu Toggle Button */}
             <button
@@ -168,14 +155,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span>Clases en Vivo</span>
               <span className="text-xs text-slate-400">→</span>
-            </a>
-            <a 
-              href="#donaciones" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className="py-2 px-3 rounded-xl bg-red-50 text-red-700 font-bold border border-red-100 flex items-center justify-between"
-            >
-              <span>Fondo de Becas Urabá</span>
-              <span className="text-xs text-red-600">❤</span>
             </a>
           </nav>
 
