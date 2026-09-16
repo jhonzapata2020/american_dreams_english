@@ -15,15 +15,24 @@ import { DONATION_TIERS } from '../data/sprint1Data';
 
 interface DonationCardProps {
   initialCurrency?: Currency;
+  forcedTierId?: string;
 }
 
 export const DonationCard: React.FC<DonationCardProps> = ({
-  initialCurrency = 'COP'
+  initialCurrency = 'COP',
+  forcedTierId
 }) => {
   const [frequency, setFrequency] = useState<DonationFrequency>('monthly');
   const [currency, setCurrency] = useState<Currency>(initialCurrency);
-  const [selectedTierId, setSelectedTierId] = useState<string>('tier-2');
+  const [selectedTierId, setSelectedTierId] = useState<string>(forcedTierId || 'tier-2');
   const [customAmount, setCustomAmount] = useState<string>('');
+
+  React.useEffect(() => {
+    if (forcedTierId) {
+      setSelectedTierId(forcedTierId);
+      setCustomAmount('');
+    }
+  }, [forcedTierId]);
   const [coversFee, setCoversFee] = useState<boolean>(true);
   const [donorName, setDonorName] = useState('');
   const [donorEmail, setDonorEmail] = useState('');

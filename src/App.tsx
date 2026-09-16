@@ -12,6 +12,7 @@ import { Currency } from './types';
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
   const [studentPortalNotice, setStudentPortalNotice] = useState(false);
+  const [forcedTierId, setForcedTierId] = useState<string>('tier-2');
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -25,6 +26,10 @@ export function App() {
     setTimeout(() => {
       setStudentPortalNotice(false);
     }, 4000);
+  };
+
+  const handlePreselectTier2 = () => {
+    setForcedTierId('tier-2');
   };
 
   return (
@@ -60,12 +65,10 @@ export function App() {
         {/* 3. TrustLogos / Respaldo Oficial (Cinta Sutil) */}
         <TrustLogos />
 
-        {/* 4. BusinessSegments (4 Unidades de Negocio) */}
+        {/* 4. BusinessSegments (4 Unidades de Negocio con Modales Interactivos) */}
         <BusinessSegments
-          onSelectAction={(action) => {
-            if (action === 'donate') scrollToSection('donaciones');
-            else scrollToSection('donaciones');
-          }}
+          currency={selectedCurrency}
+          onPreselectTier2={handlePreselectTier2}
         />
 
         {/* 5. JennySection (Tutora IA Jenny 24/7 Exclusiva) */}
@@ -73,7 +76,7 @@ export function App() {
 
         {/* 6. DonationSection (Fondo de Becas & Unit Economics con Fondo bg-slate-50) */}
         <section className="bg-slate-50 py-16 border-b border-slate-200">
-          <DonationCard initialCurrency={selectedCurrency} />
+          <DonationCard initialCurrency={selectedCurrency} forcedTierId={forcedTierId} />
         </section>
 
         {/* 7. AuditSection (Dashboard Auditado de Becarios) */}
