@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { DigitalStoreModal } from './components/DigitalStoreModal';
 import { LiveClassesModal } from './components/LiveClassesModal';
 import { PresencialModal } from './components/PresencialModal';
+import { ScholarshipModal } from './components/ScholarshipModal';
 import { Currency } from './types';
 
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
   const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
   const [presencialOpen, setPresencialOpen] = useState(false);
+  const [scholarshipModalOpen, setScholarshipModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -53,11 +55,11 @@ export function App() {
         </div>
       )}
 
-      {/* 1. Navbar (Conectado a los Modales) */}
+      {/* 1. Navbar */}
       <Navbar
         selectedCurrency={selectedCurrency}
         onCurrencyChange={setSelectedCurrency}
-        onOpenDonationModal={() => scrollToSection('donaciones')}
+        onOpenDonationModal={() => setScholarshipModalOpen(true)}
         onOpenStudentPortal={handleOpenStudentPortal}
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
@@ -69,7 +71,7 @@ export function App() {
         
         {/* 2. HeroSection */}
         <HeroSection
-          onOpenDonation={() => scrollToSection('donaciones')}
+          onOpenDonation={() => setScholarshipModalOpen(true)}
           onExplorePrograms={() => scrollToSection('segmentos')}
         />
 
@@ -95,14 +97,14 @@ export function App() {
 
         {/* 7. AuditSection */}
         <ImpactDashboardPreview
-          onOpenDonation={() => scrollToSection('donaciones')}
+          onOpenDonation={() => setScholarshipModalOpen(true)}
         />
 
       </main>
 
       {/* 8. Footer Institucional y Legal */}
       <Footer
-        onOpenDonation={() => scrollToSection('donaciones')}
+        onOpenDonation={() => setScholarshipModalOpen(true)}
       />
 
       {/* MODALES GLOBALES INTERACTIVOS */}
@@ -120,6 +122,12 @@ export function App() {
       <PresencialModal
         isOpen={presencialOpen}
         onClose={() => setPresencialOpen(false)}
+      />
+
+      <ScholarshipModal
+        isOpen={scholarshipModalOpen}
+        onClose={() => setScholarshipModalOpen(false)}
+        currency={selectedCurrency}
       />
 
     </div>
