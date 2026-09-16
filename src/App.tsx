@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { UrgencyBanner } from './components/UrgencyBanner';
-import { TopSubheader } from './components/TopSubheader';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
+import { TrustLogos } from './components/TrustLogos';
+import { BusinessSegments } from './components/BusinessSegments';
 import { AITutorSimulator } from './components/AITutorSimulator';
 import { DonationCard } from './components/DonationCard';
-import { BusinessSegments } from './components/BusinessSegments';
 import { ImpactDashboardPreview } from './components/ImpactDashboardPreview';
-import { ComparisonTable } from './components/ComparisonTable';
 import { Footer } from './components/Footer';
 import { Currency } from './types';
 
@@ -30,7 +28,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-red-600 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white">
       
       {/* Student Portal Modal Notice */}
       {studentPortalNotice && (
@@ -42,13 +40,7 @@ export function App() {
         </div>
       )}
 
-      {/* 1. Urgency & Promo Banner (Open English Style) */}
-      <UrgencyBanner onOpenAction={() => scrollToSection('donaciones')} />
-
-      {/* 2. Top Subheader Tabs & Phone Line */}
-      <TopSubheader onOpenStudentPortal={handleOpenStudentPortal} />
-
-      {/* 3. Main Navbar */}
+      {/* 1. Navbar (Un Solo Piso) */}
       <Navbar
         selectedCurrency={selectedCurrency}
         onCurrencyChange={setSelectedCurrency}
@@ -56,22 +48,19 @@ export function App() {
         onOpenStudentPortal={handleOpenStudentPortal}
       />
 
-      {/* Main Content */}
+      {/* Main Content (Modular & Respira con Generoso Espacio en Blanco) */}
       <main className="flex-1 bg-white">
         
-        {/* 4. High-Converting 3-Column Hero Section */}
+        {/* 2. HeroSection (Equilibrado en 2 Columnas) */}
         <HeroSection
           onOpenDonation={() => scrollToSection('donaciones')}
           onExplorePrograms={() => scrollToSection('segmentos')}
         />
 
-        {/* 5. Interactive AI Tutor Simulator (Jenny AI 24/7) */}
-        <AITutorSimulator />
+        {/* 3. TrustLogos / Respaldo Oficial (Cinta Sutil) */}
+        <TrustLogos />
 
-        {/* 6. Módulo de Donaciones de Impacto (Unit Economics) */}
-        <DonationCard initialCurrency={selectedCurrency} />
-
-        {/* 7. Catálogo de los 4 Segmentos de Negocio */}
+        {/* 4. BusinessSegments (4 Unidades de Negocio) */}
         <BusinessSegments
           onSelectAction={(action) => {
             if (action === 'donate') scrollToSection('donaciones');
@@ -79,17 +68,22 @@ export function App() {
           }}
         />
 
-        {/* 8. Dashboard de Auditoría de Becados en Vivo */}
+        {/* 5. JennySection (Tutora IA Jenny 24/7 Exclusiva) */}
+        <AITutorSimulator />
+
+        {/* 6. DonationSection (Fondo de Becas & Unit Economics con Fondo bg-slate-50) */}
+        <section className="bg-slate-50 py-16 border-b border-slate-200">
+          <DonationCard initialCurrency={selectedCurrency} />
+        </section>
+
+        {/* 7. AuditSection (Dashboard Auditado de Becarios) */}
         <ImpactDashboardPreview
           onOpenDonation={() => scrollToSection('donaciones')}
         />
 
-        {/* 9. Comparativa Directa vs Open English y Academias Tradicionales */}
-        <ComparisonTable />
-
       </main>
 
-      {/* 10. Footer Institucional */}
+      {/* 8. Footer Institucional y Legal */}
       <Footer
         onOpenDonation={() => scrollToSection('donaciones')}
       />
