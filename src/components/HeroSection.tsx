@@ -34,7 +34,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   };
 
   return (
-    <section className="bg-white py-10 lg:py-14 border-b border-slate-100 font-sans">
+    <section className="bg-white py-8 lg:py-12 border-b border-slate-100 font-sans">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         
         {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}

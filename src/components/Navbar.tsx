@@ -19,27 +19,25 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white border-b border-slate-100 shadow-2xs font-sans">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans">
       <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between gap-6">
         
-        {/* LOGO OFICIAL VECTORIAL CON GIRO INTERACTIVO */}
-        <a href="#" className="flex items-center gap-3.5 group py-1">
-          <ShieldLogo className="h-13 md:h-15 w-auto" />
-          <div className="flex flex-col">
-            <span className="text-lg md:text-xl font-black tracking-tight text-[#0F2537] leading-none uppercase">
-              American Dream
-            </span>
-            <span className="text-[10px] md:text-xs font-bold tracking-[0.25em] text-red-600 uppercase mt-1">
-              English Institute
-            </span>
-          </div>
+        {/* LADO IZQUIERDO: ÚNICAMENTE EL ESCUDO SVG DE 48PX DE ALTO */}
+        <a href="#" className="flex items-center group flex-shrink-0" title="American Dream English">
+          <ShieldLogo className="h-12 w-auto max-h-12" />
         </a>
 
-        {/* ENLACES CENTRALES */}
+        {/* CENTRO: LOS 4 ENLACES DE NAVEGACIÓN EN LA MISMA LÍNEA MEDIA HORIZONTAL */}
         <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
-          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">Programas</a>
-          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">Cursos Digitales</a>
-          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">Clases en Vivo</a>
+          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            Programas
+          </a>
+          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            Cursos Digitales
+          </a>
+          <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            Clases en Vivo
+          </a>
           <a 
             href="#donaciones" 
             onClick={(e) => {
@@ -54,10 +52,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </a>
         </nav>
 
-        {/* CONTROLES Y ACCIONES */}
+        {/* LADO DERECHO: CONTROLES Y ACCIONES */}
         <div className="flex items-center gap-3 sm:gap-4">
           
-          {/* Toggle Moneda Minimal */}
+          {/* Toggle compacto de moneda [COP | USD] */}
           <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-lg text-xs font-bold text-slate-700">
             <button 
               onClick={() => onCurrencyChange('COP')}
@@ -81,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </div>
 
-          {/* Portal Estudiante */}
+          {/* Enlace simple "Portal Estudiante" */}
           <button 
             onClick={onOpenStudentPortal} 
             className="text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0F2537] px-3 py-2 rounded-lg hover:bg-slate-50 transition"
@@ -89,10 +87,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             Portal Estudiante
           </button>
 
-          {/* Donar Beca CTA */}
+          {/* Botón rojo pill "Donar Beca" */}
           <button 
             onClick={onOpenDonationModal} 
-            className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2"
+            className="bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-bold px-5 py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2"
           >
             Donar Beca
           </button>

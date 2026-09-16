@@ -4,13 +4,13 @@ interface ShieldLogoProps {
   className?: string;
 }
 
-export const ShieldLogo: React.FC<ShieldLogoProps> = ({ className = "h-14 w-auto" }) => {
+export const ShieldLogo: React.FC<ShieldLogoProps> = ({ className = "h-12 w-auto max-h-12" }) => {
   return (
-    <div className={`relative group inline-block perspective-1000 ${className}`}>
+    <div className={`relative group inline-flex items-center justify-center perspective-1000 ${className}`}>
       {/* SVG Vectorial del Escudo Oficial */}
       <svg
         viewBox="0 0 200 220"
-        className="w-full h-full drop-shadow-md transition-transform duration-700 ease-out group-hover:[transform:rotateY(360deg)] cursor-pointer"
+        className="h-full w-auto max-h-12 drop-shadow-sm transition-transform duration-700 ease-out group-hover:[transform:rotateY(360deg)] cursor-pointer block"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
