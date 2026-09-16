@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { 
   Heart, 
-  CreditCard, 
   ShieldCheck, 
-  Sparkles, 
-  CheckCircle2, 
   Lock, 
-  DollarSign,
-  ArrowRight,
-  Receipt
+  ArrowRight
 } from 'lucide-react';
-import { Currency, DonationFrequency, PaymentProvider } from '../types';
+import { Currency, DonationFrequency } from '../types';
 import { DONATION_TIERS } from '../data/sprint1Data';
+import { DonationModal } from './DonationModal';
 
 interface DonationCardProps {
   initialCurrency?: Currency;
@@ -26,6 +22,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
   const [currency, setCurrency] = useState<Currency>(initialCurrency);
   const [selectedTierId, setSelectedTierId] = useState<string>(forcedTierId || 'tier-2');
   const [customAmount, setCustomAmount] = useState<string>('');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   React.useEffect(() => {
     if (forcedTierId) {
@@ -33,12 +30,6 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       setCustomAmount('');
     }
   }, [forcedTierId]);
-  const [coversFee, setCoversFee] = useState<boolean>(true);
-  const [donorName, setDonorName] = useState('');
-  const [donorEmail, setDonorEmail] = useState('');
-  const [organizationName, setOrganizationName] = useState('');
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [activeGateway, setActiveGateway] = useState<string | null>(null);
 
   const selectedTier = DONATION_TIERS.find(t => t.id === selectedTierId);
   
@@ -50,10 +41,6 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       ? (selectedTier?.usdAmount || 50) 
       : (selectedTier?.copAmount || 200000);
 
-  // Fee calculation (+3.5%)
-  const feeAmount = coversFee ? baseAmount * 0.035 : 0;
-  const totalAmount = baseAmount + feeAmount;
-
   const formatMoney = (amount: number, curr: Currency) => {
     if (curr === 'USD') {
       return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} USD`;
@@ -62,14 +49,6 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       return `€${amount.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} EUR`;
     }
     return `$${Math.round(amount).toLocaleString('es-CO')} COP`;
-  };
-
-  const handleProcessPayment = (provider: PaymentProvider) => {
-    setActiveGateway(provider);
-    setTimeout(() => {
-      setPaymentSuccess(true);
-      setActiveGateway(null);
-    }, 1500);
   };
 
   return (
@@ -88,7 +67,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
         </p>
       </div>
 
-      {/* MAIN DONATION CARD CONTAINER (PRACTICALLY CLEAN WHITE WITH SLATE-200 BORDER) */}
+      {/* MAIN DONATION CARD CONTAINER */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
         
         {/* TOP TOGGLE BAR (FREQUENCY & CURRENCY) */}
@@ -153,21 +132,6 @@ export const DonationCard: React.FC<DonationCardProps> = ({
         {/* CARD BODY */}
         <div className="p-6 sm:p-8 space-y-8 bg-white">
           
-          {/* SUCCESS BANNER */}
-          {paymentSuccess && (
-            <div className="bg-emerald-600 text-white p-6 rounded-2xl shadow-xl space-y-2 animate-fadeIn">
-              <div className="flex items-center space-x-3">
-                <CheckCircle2 className="w-8 h-8 text-emerald-200 flex-shrink-0" />
-                <div>
-                  <h3 className="text-lg font-black">¡Muchas Gracias por tu Compromiso con la Región de Urabá!</h3>
-                  <p className="text-xs text-emerald-100">
-                    Tu donación por {formatMoney(totalAmount, currency)} ha sido procesada con éxito. Se ha enviado el Certificado Tributario deducible de impuestos al correo.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* DONATION TIER LEVEL GRID */}
           <div className="space-y-3">
             <label className="block text-xs font-extrabold text-navy-900 uppercase tracking-wider">
@@ -243,150 +207,38 @@ export const DonationCard: React.FC<DonationCardProps> = ({
             </div>
           </div>
 
-          {/* DONOR INFORMATION FORM */}
-          <div className="space-y-4 pt-2">
-            <label className="block text-xs font-extrabold text-navy-900 uppercase tracking-wider">
-              2. Datos del Donante / Organización
-            </label>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Nombre Completo *</label>
-                <input
-                  type="text"
-                  required
-                  value={donorName}
-                  onChange={(e) => setDonorName(e.target.value)}
-                  placeholder="Ej. Dr. Roberto Gómez"
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Correo Electrónico *</label>
-                <input
-                  type="email"
-                  required
-                  value={donorEmail}
-                  onChange={(e) => setDonorEmail(e.target.value)}
-                  placeholder="roberto@empresa.org"
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Empresa u ONG (Opcional)</label>
-                <input
-                  type="text"
-                  value={organizationName}
-                  onChange={(e) => setOrganizationName(e.target.value)}
-                  placeholder="Ej. Fundación Urabá Bilingüe"
-                  className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* GATEWAY FEE COVERAGE CHECKBOX (+3.5%) */}
-          <div className="bg-amber-500/10 border border-amber-400/40 p-4 rounded-2xl flex items-start space-x-3">
-            <input
-              type="checkbox"
-              id="coverFeeCheckbox"
-              checked={coversFee}
-              onChange={(e) => setCoversFee(e.target.checked)}
-              className="mt-1 h-4 w-4 accent-red-600 rounded cursor-pointer"
-            />
-            <label htmlFor="coverFeeCheckbox" className="text-xs text-slate-800 leading-relaxed cursor-pointer">
-              <strong className="text-navy-900">Cubrir la tarifa de procesamiento de pasarela (+3.5%): </strong>
-              Adiciona <strong className="text-red-700">{formatMoney(feeAmount, currency)}</strong> para asegurar que el 100% de tu contribución neta llegue al estudiante beneficiario.
-            </label>
-          </div>
-
-          {/* DYNAMIC GATEWAY SELECTION SECTION */}
-          <div className="space-y-4 border-t border-slate-200 pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <label className="block text-xs font-extrabold text-navy-900 uppercase tracking-wider">
-                  3. Pasarela de Pago Segura ({currency})
-                </label>
-                <p className="text-xs text-slate-500 font-medium">
-                  {isUSD ? 'Procesamiento en USD / EUR para donantes internacionales.' : 'Procesamiento en COP con medios locales en Colombia.'}
-                </p>
-              </div>
-              
-              <div className="text-right">
-                <span className="text-xs text-slate-500 block font-bold">Total a Procesar:</span>
-                <span className="text-xl font-black text-red-600">
-                  {formatMoney(totalAmount, currency)}
-                </span>
-              </div>
+          {/* ACTION BUTTON & SUMMARY BAR */}
+          <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Aporte Seleccionado:</span>
+              <h4 className="text-lg font-black text-navy-900">
+                {selectedTier && !customAmount ? selectedTier.title : 'Donación Personalizada'}
+              </h4>
+              <p className="text-xs text-slate-600 font-semibold">
+                Monto: <strong className="text-red-600">{formatMoney(baseAmount, currency)}</strong> ({frequency === 'monthly' ? 'Recurrente Mensual' : 'Aporte Único'})
+              </p>
             </div>
 
-            {/* GATEWAY BUTTONS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              
-              {isUSD ? (
-                <>
-                  {/* STRIPE CHECKOUT (USD/EUR) */}
-                  <button
-                    type="button"
-                    disabled={activeGateway === 'stripe'}
-                    onClick={() => handleProcessPayment('stripe')}
-                    className="bg-indigo-700 hover:bg-indigo-800 text-white font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-3 text-sm group"
-                  >
-                    <CreditCard className="w-5 h-5 text-indigo-200" />
-                    <span>{activeGateway === 'stripe' ? 'Procesando Stripe...' : 'Donar con Stripe (Tarjeta USD/EUR)'}</span>
-                  </button>
-
-                  {/* PAYPAL CHECKOUT (USD/EUR) */}
-                  <button
-                    type="button"
-                    disabled={activeGateway === 'paypal'}
-                    onClick={() => handleProcessPayment('paypal')}
-                    className="bg-amber-400 hover:bg-amber-500 text-navy-950 font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-3 text-sm"
-                  >
-                    <DollarSign className="w-5 h-5 text-navy-900" />
-                    <span>{activeGateway === 'paypal' ? 'Conectando PayPal...' : 'Donar con PayPal'}</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* REDEBAN (COP) */}
-                  <button
-                    type="button"
-                    disabled={activeGateway === 'redeban'}
-                    onClick={() => handleProcessPayment('redeban')}
-                    className="bg-navy-900 hover:bg-navy-950 text-white font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-3 text-sm"
-                  >
-                    <Receipt className="w-5 h-5 text-amber-400" />
-                    <span>{activeGateway === 'redeban' ? 'Procesando Redeban...' : 'Donar con Redeban (Tarjetas COP)'}</span>
-                  </button>
-
-                  {/* WOMPI / PSE (COP) */}
-                  <button
-                    type="button"
-                    disabled={activeGateway === 'wompi'}
-                    onClick={() => handleProcessPayment('wompi')}
-                    className="bg-red-600 hover:bg-red-700 text-white font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all flex items-center justify-center space-x-3 text-sm"
-                  >
-                    <CreditCard className="w-5 h-5 text-white" />
-                    <span>{activeGateway === 'wompi' ? 'Conectando Wompi...' : 'Donar con Wompi (PSE / Nequi / Bancolombia)'}</span>
-                  </button>
-                </>
-              )}
-
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2.5 text-sm w-full sm:w-auto"
+            >
+              <Heart className="w-4 h-4 fill-white/20" />
+              <span>Proceder a Donar {formatMoney(baseAmount, currency)}</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
 
           {/* TRANSPARENCY & AUDIT FOOTNOTE */}
-          <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 gap-2">
+          <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-xs text-slate-600 gap-2">
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span>
                 Cada donación emite automáticamente un <strong className="text-navy-900">Certificado Tributario de Donación</strong> y da acceso al Dashboard de Auditoría Pública de Becados.
               </span>
             </div>
-            <span className="text-navy-900 font-bold flex items-center gap-1">
+            <span className="text-navy-900 font-bold flex items-center gap-1 flex-shrink-0">
               <Lock className="w-3.5 h-3.5 text-navy-900" /> Encriptación 256-bit SSL
             </span>
           </div>
@@ -394,6 +246,16 @@ export const DonationCard: React.FC<DonationCardProps> = ({
         </div>
 
       </div>
+
+      {/* DONATION CHECKOUT MODAL */}
+      <DonationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        currency={currency}
+        frequency={frequency}
+        tierTitle={selectedTier && !customAmount ? selectedTier.title : 'Donación Personalizada'}
+        baseAmount={baseAmount}
+      />
 
     </div>
   );
