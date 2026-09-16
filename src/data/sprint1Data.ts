@@ -103,15 +103,15 @@ export const BUSINESS_SEGMENTS: BusinessSegment[] = [
   {
     id: 'seg-4',
     number: '04',
-    title: 'Clases Presenciales en Turbo',
-    subtitle: 'Sede Principal en Urabá, Antioquia',
-    description: '12 años de trayectoria presencial. Aulas climatizadas, biblioteca bilingüe y entrenamiento conversacional los sábados y domingos.',
+    title: 'Clases Presenciales & Sede Urabá',
+    subtitle: 'Acceso en Transporte Público desde Apartadó, Currulao y la Región',
+    description: '12 años de trayectoria presencial. Aulas climatizadas y transporte público directo para estudiantes de Apartadó, Currulao y municipios vecinos.',
     badge: 'Respaldo 12 Años',
     features: [
-      'Resolución Oficial 2471 de la Sec. de Educación de Turbo',
-      'Galardón "Pisingo de Oro" por labor educativa',
-      'Aulas físicas equipadas en el centro de Turbo',
-      'Laboratorio de voz semanal en el smartphone'
+      'Acceso rápido en transporte público desde Apartadó, Currulao y Urabá',
+      'Resolución Oficial 2471 de la Sec. de Educación',
+      'Galardón "Pisingo de Oro" a la Excelencia',
+      'Plataforma Virtual Global con clases en línea 24/7'
     ],
     ctaText: 'Conocer Sede Presencial',
     ctaAction: 'campus',

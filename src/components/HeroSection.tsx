@@ -92,7 +92,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span>Clases en VIVO y Presenciales en Turbo</span>
+              <span>Clases en VIVO e Ilimitadas (Online & Presencial Urabá)</span>
             </div>
 
             <div className="flex items-center space-x-2.5">

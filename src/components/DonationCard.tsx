@@ -84,7 +84,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
           Transforma una Vida con tu Donación de Impacto
         </h2>
         <p className="text-slate-600 text-base leading-relaxed">
-          Cada aporte financia directamente la educación bilingüe presencial y digital de jóvenes en condición de vulnerabilidad en Turbo, Antioquia.
+          Cada aporte financia directamente la educación bilingüe presencial y digital de jóvenes en la Región de Urabá (Apartadó, Turbo, Currulao y municipios aledaños) y nuestra plataforma virtual global.
         </p>
       </div>
 
@@ -159,7 +159,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
               <div className="flex items-center space-x-3">
                 <CheckCircle2 className="w-8 h-8 text-emerald-200 flex-shrink-0" />
                 <div>
-                  <h3 className="text-lg font-black">¡Muchas Gracias por tu Compromiso con Turbo!</h3>
+                  <h3 className="text-lg font-black">¡Muchas Gracias por tu Compromiso con la Región de Urabá!</h3>
                   <p className="text-xs text-emerald-100">
                     Tu donación por {formatMoney(totalAmount, currency)} ha sido procesada con éxito. Se ha enviado el Certificado Tributario deducible de impuestos al correo.
                   </p>

@@ -95,8 +95,8 @@ export const PresencialModal: React.FC<PresencialModalProps> = ({
 
               <div className="space-y-2 text-xs">
                 <p>
-                  <strong>Dirección Sede Principal:</strong><br />
-                  Calle 103 # 13-36, Barrio Buenos Aires, Turbo, Antioquia.
+                  <strong>Acceso Regional Urabá:</strong><br />
+                  Sede física en Calle 103 # 13-36, B. Buenos Aires. De fácil llegada en transporte público directo desde <strong>Apartadó, Currulao, Necoclí, Carepa y Chigorodó</strong>.
                 </p>
                 <p>
                   <strong>Teléfono / WhatsApp Admisiones:</strong><br />
@@ -104,7 +104,7 @@ export const PresencialModal: React.FC<PresencialModalProps> = ({
                 </p>
                 <p>
                   <strong>Instalaciones:</strong><br />
-                  Aulas físicas climatizadas, biblioteca bilingüe y laboratorio de audio.
+                  Aulas climatizadas, laboratorio de audio y campus virtual global.
                 </p>
               </div>
             </div>
