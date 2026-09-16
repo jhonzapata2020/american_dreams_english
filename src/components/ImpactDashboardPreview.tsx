@@ -1,16 +1,17 @@
 import React from 'react';
 import { 
   ShieldCheck, 
-  Award, 
   MapPin, 
-  Clock, 
   Heart, 
+  Users, 
+  Clock, 
+  Award, 
   CheckCircle2, 
-  ArrowRight,
-  Sparkles,
-  Users
+  GraduationCap,
+  UserCheck,
+  Lock
 } from 'lucide-react';
-import { SCHOLARSHIP_RECIPIENTS } from '../data/sprint1Data';
+import { SCHOLARSHIP_RECIPIENTS, COHORT_METRICS } from '../data/sprint1Data';
 
 interface ImpactDashboardPreviewProps {
   onOpenDonation: () => void;
@@ -23,111 +24,173 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200 font-sans">
       <div className="max-w-7xl mx-auto">
         
-        {/* HEADER */}
+        {/* HEADER DEL COMPONENTE */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="space-y-2">
+            <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Transparencia & Auditoría Pública</span>
+              <span>Transparencia & Cumplimiento Ley 1581 (Habeas Data)</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
-              Dashboard Auditado de Becados en Urabá
+              Fondo de Becas & Transparencia Académica
             </h2>
-            <p className="text-slate-600 text-sm max-w-2xl mt-1">
-              Cada donante recibe un código único de seguimiento para verificar en tiempo real el progreso pedagógico, la asistencia presencial y las horas certificadas de su estudiante asignado.
+            <p className="text-slate-600 text-sm max-w-3xl leading-relaxed">
+              Seguimiento al avance pedagógico de nuestros becarios en Urabá bajo estándares del Marco Común Europeo (MCER). Datos anonimizados en cumplimiento de la Ley 1581 de 2012 de Protección de Datos Personales.
             </p>
           </div>
 
           <button
             onClick={onOpenDonation}
-            className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-6 py-3 rounded-xl shadow-md glow-crimson transition-all text-xs flex items-center space-x-2 flex-shrink-0"
+            className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all text-xs flex items-center space-x-2 flex-shrink-0"
           >
             <Heart className="w-4 h-4 fill-white/20" />
             <span>Patrocinar a un Becario</span>
           </button>
         </div>
 
-        {/* RECIPIENT CARDS GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {SCHOLARSHIP_RECIPIENTS.map((rec) => {
-            const progressPercent = Math.round((rec.accumulatedHours / rec.targetHours) * 100);
+        {/* BLOQUE SUPERIOR: MÉTRICAS CONSOLIDADAS DE IMPACTO (4 CARDS) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes Beneficiados</span>
+              <div className="p-2 bg-blue-50 text-blue-700 rounded-xl">
+                <Users className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-navy-900">
+              {COHORT_METRICS.totalActiveScholars} <span className="text-crimson-600 text-xl">+</span>
+            </div>
+            <p className="text-xs text-slate-500 font-medium">Becarios activos en formación</p>
+          </div>
 
-            return (
-              <div
-                key={rec.id}
-                className="bg-slate-50 border border-slate-200 rounded-3xl p-6 clean-card-shadow space-y-4 hover:border-navy-900 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  
-                  {/* Top Status */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="bg-navy-900 text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                      ID Auditado: {rec.id}
-                    </span>
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-300">
-                      {rec.status}
-                    </span>
-                  </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Horas Impartidas</span>
+              <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+                <Clock className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-navy-900">
+              {COHORT_METRICS.totalFundedHours.toLocaleString()} <span className="text-emerald-600 text-xl">Hrs</span>
+            </div>
+            <p className="text-xs text-slate-500 font-medium">Horas de clase financiadas</p>
+          </div>
 
-                  {/* Profile Header */}
-                  <div className="flex items-center space-x-4 mb-4">
-                    <img
-                      src={rec.photoUrl}
-                      alt={rec.name}
-                      className="w-14 h-14 rounded-full object-cover ring-2 ring-navy-900/20"
-                    />
-                    <div>
-                      <h3 className="font-extrabold text-navy-900 text-base">{rec.name}</h3>
-                      <p className="text-xs text-crimson-600 font-bold bg-crimson-50 px-2 py-0.5 rounded inline-block mt-0.5">
-                        {rec.vulnerabilityCondition}
-                      </p>
-                    </div>
-                  </div>
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Retención & Asistencia</span>
+              <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
+                <UserCheck className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-navy-900">
+              {COHORT_METRICS.completionRate}
+            </div>
+            <p className="text-xs text-slate-500 font-medium">Tasa de permanencia académica</p>
+          </div>
 
-                  {/* Location & Cycle */}
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 space-y-1.5 text-xs text-slate-700 mb-4">
+          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Certificaciones Otorgadas</span>
+              <div className="p-2 bg-amber-50 text-amber-700 rounded-xl">
+                <Award className="w-5 h-5" />
+              </div>
+            </div>
+            <div className="text-3xl font-black text-navy-900">
+              {COHORT_METRICS.certifiedStudentsMCER}
+            </div>
+            <p className="text-xs text-slate-500 font-medium">Estudiantes certificados MCER</p>
+          </div>
+
+        </div>
+
+        {/* BLOQUE INFERIOR: TARJETAS DE PROGRESO ACADÉMICO ANONIMIZADAS */}
+        <div className="space-y-4 mb-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-extrabold text-navy-900 uppercase tracking-wider">
+              Auditoría en Vivo por Becario Anonimizado:
+            </h3>
+            <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
+              <Lock className="w-3.5 h-3.5 text-slate-400" /> Identidad protegida según Ley 1581
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {SCHOLARSHIP_RECIPIENTS.map((rec) => {
+              const progressPercent = Math.round((rec.accumulatedHours / rec.targetHours) * 100);
+
+              return (
+                <div
+                  key={rec.id}
+                  className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                >
+                  <div className="space-y-4">
+                    
+                    {/* Header de Tarjeta */}
                     <div className="flex items-center justify-between">
-                      <span className="text-slate-500 font-semibold">Sede / Ubicación:</span>
-                      <span className="font-bold text-navy-900 flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-crimson-600" /> {rec.location}
+                      <span className="bg-navy-900 text-white text-[11px] font-extrabold px-3 py-1 rounded-full font-mono">
+                        {rec.anonymizedCode}
+                      </span>
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-300">
+                        {rec.academicStatus}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between border-t border-slate-100 pt-1.5">
-                      <span className="text-slate-500 font-semibold">Nivel MCER Actual:</span>
-                      <span className="font-extrabold text-navy-900">{rec.currentCycle}</span>
+
+                    {/* Avatar Abstracto & Categoría Unificada */}
+                    <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                      <div className="w-12 h-12 rounded-2xl bg-navy-900 text-amber-400 flex items-center justify-center font-black text-sm shadow-sm flex-shrink-0">
+                        <GraduationCap className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-extrabold text-navy-900 block">
+                          {rec.programCategory}
+                        </span>
+                        <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                          <MapPin className="w-3 h-3 text-crimson-600" /> {rec.location}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Progreso Académico MCER */}
+                    <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
+                      <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                        <span className="text-slate-500">Nivel MCER:</span>
+                        <span className="text-navy-900 font-extrabold">{rec.currentCycle}</span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-[11px] font-semibold text-slate-600">
+                          <span>Horas Completadas:</span>
+                          <span className="font-mono text-navy-900">{rec.accumulatedHours} / {rec.targetHours} Hrs ({progressPercent}%)</span>
+                        </div>
+                        <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                          <div
+                            className="bg-navy-900 h-full transition-all duration-500"
+                            style={{ width: `${progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Testimonio de Meta Profesional (Sin condiciones personales) */}
+                    <p className="text-xs text-slate-600 italic bg-white p-3.5 rounded-2xl border border-slate-200 leading-relaxed">
+                      "{rec.impactAchievementQuote}"
+                    </p>
+
                   </div>
 
-                  {/* Progress Bar */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-bold text-slate-700">
-                      <span>Horas Completadas:</span>
-                      <span className="text-navy-900 font-mono">{rec.accumulatedHours} / {rec.targetHours} Hrs ({progressPercent}%)</span>
-                    </div>
-                    <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-gradient-to-r from-navy-900 to-crimson-600 h-full transition-all duration-500"
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
+                  {/* Footer de Tarjeta */}
+                  <div className="pt-3 border-t border-slate-100 text-center">
+                    <span className="text-[10px] text-slate-400 font-medium block">
+                      Auditoría de asistencia y notas certificada por American Dream English S.A.S.
+                    </span>
                   </div>
 
-                  {/* Quote */}
-                  <p className="text-xs text-slate-600 italic mt-4 bg-white p-3 rounded-xl border border-slate-200">
-                    "{rec.testimonialSnippet}"
-                  </p>
-
                 </div>
-
-                <div className="pt-4 border-t border-slate-200 text-center">
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    Certificado Tributario de Donación Emitido al Padrino
-                  </span>
-                </div>
-
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
 
       </div>

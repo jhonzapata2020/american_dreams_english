@@ -1,4 +1,11 @@
-import { DonationTier, BusinessSegment, ScholarshipRecipient } from '../types';
+import { DonationTier, BusinessSegment, ScholarshipRecipient, CohortMetrics } from '../types';
+
+export const COHORT_METRICS: CohortMetrics = {
+  totalActiveScholars: 64,
+  totalFundedHours: 3840,
+  completionRate: '92%',
+  certifiedStudentsMCER: 48,
+};
 
 export const DONATION_TIERS: DonationTier[] = [
   {
@@ -7,7 +14,7 @@ export const DONATION_TIERS: DonationTier[] = [
     copAmount: 140000,
     title: 'Acceso Digital & Material',
     subtitle: 'Nivel Inicial',
-    impactDescription: 'Financia 1 mes de acceso a la plataforma digital de audio, libros virtuales y licencias educativas para 1 estudiante de Turbo.',
+    impactDescription: 'Financia 1 mes de acceso a la plataforma digital de audio, libros virtuales y licencias educativas para 1 estudiante de Urabá.',
   },
   {
     id: 'tier-2',
@@ -15,7 +22,7 @@ export const DONATION_TIERS: DonationTier[] = [
     copAmount: 200000,
     title: 'Beca Parcial Mensual',
     subtitle: 'Apoyo Directo',
-    impactDescription: 'Cubre el 50% de la mensualidad presencial y el acompañamiento docente para un joven de estrato 1 o 2 en Urabá.',
+    impactDescription: 'Cubre el 50% de la mensualidad presencial y el acompañamiento docente para un estudiante en Urabá.',
     recommended: true,
     badge: 'Más Elegido'
   },
@@ -33,7 +40,7 @@ export const DONATION_TIERS: DonationTier[] = [
     copAmount: 6000000,
     title: 'Beca Total Bilingüe',
     subtitle: 'Programa A1 a B2',
-    impactDescription: 'Transforma una vida: Beca integral desde cero hasta la certificación B2 laboral, garantizando inserción comercial en Turbo.',
+    impactDescription: 'Transformación integral: Beca completa desde nivel inicial hasta la certificación B2 laboral, garantizando inserción comercial.',
     badge: 'Impacto Transformador'
   }
 ];
@@ -44,13 +51,13 @@ export const BUSINESS_SEGMENTS: BusinessSegment[] = [
     number: '01',
     title: 'Subvenciones y Fondo de Becas Internacionales',
     subtitle: 'Impacto Social Directo en Urabá',
-    description: 'Recaudación de fondos y alianzas de cooperación internacional para becar a jóvenes de estratos 1 y 2, y víctimas del conflicto armado en Turbo, Antioquia.',
+    description: 'Recaudación de fondos y alianzas de cooperación internacional para becar a jóvenes con talento en Turbo, Antioquia.',
     badge: 'Responsabilidad Social',
     features: [
-      'Auditoría pública con código único por becario',
-      'Certificados tributarios de donación',
-      'Informe trimestral de progreso pedagógico',
-      'Alianza con ONG y organismos de cooperación'
+      'Auditoría pública con código único anonimizado por becario',
+      'Certificados tributarios de donación deducibles',
+      'Informe trimestral de progreso pedagógico MCER',
+      'Alianza con organismos de cooperación e inclusión'
     ],
     ctaText: 'Donar a Fondo de Becas',
     ctaAction: 'donate',
@@ -116,38 +123,35 @@ export const BUSINESS_SEGMENTS: BusinessSegment[] = [
 export const SCHOLARSHIP_RECIPIENTS: ScholarshipRecipient[] = [
   {
     id: 'bec-101',
-    name: 'Yurleidis Córdoba Palacios',
-    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300',
-    vulnerabilityCondition: 'Víctima Conflicto Armado',
+    anonymizedCode: 'Becario #URB-101',
+    programCategory: 'Programa Talento & Bilingüismo Urabá',
     currentCycle: 'B1 Pre-Intermedio',
     accumulatedHours: 95,
     targetHours: 120,
-    location: 'Barrio Jesús Mora • Turbo',
-    testimonialSnippet: 'El inglés me abrió puertas para trabajar en atención al cliente y aspirar a vacantes en el puerto marítimo de Turbo.',
-    status: 'Activo'
+    location: 'Distrito de Turbo, Antioquia',
+    impactAchievementQuote: 'El inglés me ha abierto puertas para calificar a procesos de selección en operaciones de comercio internacional en Urabá.',
+    academicStatus: 'En curso'
   },
   {
     id: 'bec-102',
-    name: 'Mateo Andrés Ramos',
-    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300',
-    vulnerabilityCondition: 'Estrato 1-2',
+    anonymizedCode: 'Becario #URB-102',
+    programCategory: 'Programa Talento & Bilingüismo Urabá',
     currentCycle: 'A2 Elemental',
     accumulatedHours: 60,
     targetHours: 120,
-    location: 'Corregimiento El Tres • Turbo',
-    testimonialSnippet: 'Gracias al padrino internacional que financió mi beca, hoy puedo practicar audios todos los días desde mi celular.',
-    status: 'Activo'
+    location: 'Distrito de Turbo, Antioquia',
+    impactAchievementQuote: 'Gracias al fondo de becas puedo practicar audios de pronunciación diariamente y avanzar en mis metas académicas.',
+    academicStatus: 'En curso'
   },
   {
     id: 'bec-103',
-    name: 'Kelly Johanna Martínez',
-    photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=300',
-    vulnerabilityCondition: 'SISBÉN A1-B4',
+    anonymizedCode: 'Becario #URB-103',
+    programCategory: 'Programa Talento & Bilingüismo Urabá',
     currentCycle: 'B2 Intermedio Alto',
     accumulatedHours: 118,
     targetHours: 120,
-    location: 'Barrio Buenos Aires • Turbo',
-    testimonialSnippet: 'Estoy a pocas horas de certificar el nivel B2. El apoyo del fondo de becas cambió mi expectativa profesional.',
-    status: 'En Certificación'
+    location: 'Distrito de Turbo, Antioquia',
+    impactAchievementQuote: 'Estoy a pocas horas de certificar el nivel B2 laboral. El acompañamiento pedagógico ha sido determinante.',
+    academicStatus: 'En certificación'
   }
 ];

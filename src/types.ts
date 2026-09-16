@@ -28,15 +28,21 @@ export interface DonationRequest {
 
 export interface ScholarshipRecipient {
   id: string;
-  name: string;
-  photoUrl: string;
-  vulnerabilityCondition: 'Víctima Conflicto Armado' | 'Estrato 1-2' | 'SISBÉN A1-B4' | 'Comunidad Rural Turbo';
+  anonymizedCode: string; // Ej. 'Becario #URB-101'
+  programCategory: string; // Ej. 'Programa Talento & Bilingüismo Urabá'
   currentCycle: 'A1 Principiante' | 'A2 Elemental' | 'B1 Pre-Intermedio' | 'B2 Intermedio Alto' | 'C1 Avanzado';
   accumulatedHours: number;
   targetHours: number;
-  location: string;
-  testimonialSnippet: string;
-  status: 'Activo' | 'En Certificación' | 'Graduado';
+  location: string; // Ej. 'Distrito de Turbo, Antioquia'
+  academicStatus: 'En curso' | 'En certificación' | 'Graduado';
+  impactAchievementQuote: string; // Testimonio enfocado únicamente en la meta profesional/académica
+}
+
+export interface CohortMetrics {
+  totalActiveScholars: number;
+  totalFundedHours: number;
+  completionRate: string;
+  certifiedStudentsMCER: number;
 }
 
 export interface BusinessSegment {
