@@ -7,6 +7,9 @@ interface NavbarProps {
   onCurrencyChange: (currency: Currency) => void;
   onOpenDonationModal: () => void;
   onOpenStudentPortal: () => void;
+  onOpenProgramas?: () => void;
+  onOpenCursosDigitales?: () => void;
+  onOpenClasesEnVivo?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -14,6 +17,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onCurrencyChange,
   onOpenDonationModal,
   onOpenStudentPortal,
+  onOpenProgramas,
+  onOpenCursosDigitales,
+  onOpenClasesEnVivo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -21,7 +27,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-16 sm:h-18">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between relative">
         
-        {/* LOGO OFICIAL CON ESCALADO RESPONSIVO (Ajustado para App Móvil sin pisar el Hero) */}
+        {/* LOGO OFICIAL CON ESCALADO RESPONSIVO */}
         <a 
           href="#" 
           className="relative sm:absolute left-0 sm:left-6 top-0 sm:top-0.5 z-20 group inline-flex items-center focus:outline-none flex-shrink-0"
@@ -39,15 +45,27 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* ENLACES CENTRALES (DESKTOP) */}
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
-            <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            <button 
+              type="button"
+              onClick={onOpenProgramas}
+              className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
+            >
               Programas
-            </a>
-            <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            </button>
+            <button 
+              type="button"
+              onClick={onOpenCursosDigitales}
+              className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
+            >
               Cursos Digitales
-            </a>
-            <a href="#segmentos" className="hover:text-[#0F2537] transition-colors">
+            </button>
+            <button 
+              type="button"
+              onClick={onOpenClasesEnVivo}
+              className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
+            >
               Clases en Vivo
-            </a>
+            </button>
           </nav>
 
           {/* CONTROLES Y ACCIONES (LADO DERECHO APP STYLE) */}
@@ -87,12 +105,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* Inscribirme / Matricularse CTA Button */}
-            <a 
-              href="#segmentos"
-              className="bg-[#0F2537] hover:bg-navy-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5"
+            <button 
+              type="button"
+              onClick={onOpenProgramas}
+              className="bg-[#0F2537] hover:bg-navy-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span>Matricularme</span>
-            </a>
+            </button>
 
             {/* Mobile App Menu Toggle Button */}
             <button
@@ -132,30 +151,30 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           <nav className="flex flex-col space-y-2.5 text-sm font-semibold text-slate-800">
-            <a 
-              href="#segmentos" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between"
+            <button 
+              type="button"
+              onClick={() => { setMobileMenuOpen(false); if (onOpenProgramas) onOpenProgramas(); }} 
+              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
               <span>Programas Académicos</span>
               <span className="text-xs text-slate-400">→</span>
-            </a>
-            <a 
-              href="#segmentos" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between"
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setMobileMenuOpen(false); if (onOpenCursosDigitales) onOpenCursosDigitales(); }} 
+              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
               <span>Cursos Digitales 4K</span>
               <span className="text-xs text-slate-400">→</span>
-            </a>
-            <a 
-              href="#segmentos" 
-              onClick={() => setMobileMenuOpen(false)} 
-              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between"
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setMobileMenuOpen(false); if (onOpenClasesEnVivo) onOpenClasesEnVivo(); }} 
+              className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
               <span>Clases en Vivo</span>
               <span className="text-xs text-slate-400">→</span>
-            </a>
+            </button>
           </nav>
 
           <div className="pt-2 flex flex-col gap-2">

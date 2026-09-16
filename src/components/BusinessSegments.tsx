@@ -18,12 +18,18 @@ interface BusinessSegmentsProps {
   currency?: Currency;
   onSelectAction?: (action: 'donate' | 'catalog' | 'live' | 'campus') => void;
   onPreselectTier2?: () => void;
+  onOpenDigitalStore?: () => void;
+  onOpenLiveClasses?: () => void;
+  onOpenPresencial?: () => void;
 }
 
 export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
   currency = 'COP',
   onSelectAction,
   onPreselectTier2,
+  onOpenDigitalStore,
+  onOpenLiveClasses,
+  onOpenPresencial,
 }) => {
   const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
@@ -47,11 +53,11 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
         el.scrollIntoView({ behavior: 'smooth' });
       }
     } else if (action === 'catalog') {
-      setDigitalStoreOpen(true);
+      if (onOpenDigitalStore) onOpenDigitalStore(); else setDigitalStoreOpen(true);
     } else if (action === 'live') {
-      setLiveClassesOpen(true);
+      if (onOpenLiveClasses) onOpenLiveClasses(); else setLiveClassesOpen(true);
     } else if (action === 'campus') {
-      setPresencialOpen(true);
+      if (onOpenPresencial) onOpenPresencial(); else setPresencialOpen(true);
     }
 
     if (onSelectAction) {

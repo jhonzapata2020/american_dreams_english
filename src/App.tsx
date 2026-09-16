@@ -7,12 +7,20 @@ import { AITutorSimulator } from './components/AITutorSimulator';
 import { DonationCard } from './components/DonationCard';
 import { ImpactDashboardPreview } from './components/ImpactDashboardPreview';
 import { Footer } from './components/Footer';
+import { DigitalStoreModal } from './components/DigitalStoreModal';
+import { LiveClassesModal } from './components/LiveClassesModal';
+import { PresencialModal } from './components/PresencialModal';
 import { Currency } from './types';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
   const [studentPortalNotice, setStudentPortalNotice] = useState(false);
   const [forcedTierId, setForcedTierId] = useState<string>('tier-2');
+
+  // Modals global state
+  const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
+  const [liveClassesOpen, setLiveClassesOpen] = useState(false);
+  const [presencialOpen, setPresencialOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId);
@@ -45,41 +53,47 @@ export function App() {
         </div>
       )}
 
-      {/* 1. Navbar (Un Solo Piso) */}
+      {/* 1. Navbar (Conectado a los Modales) */}
       <Navbar
         selectedCurrency={selectedCurrency}
         onCurrencyChange={setSelectedCurrency}
         onOpenDonationModal={() => scrollToSection('donaciones')}
         onOpenStudentPortal={handleOpenStudentPortal}
+        onOpenProgramas={() => setPresencialOpen(true)}
+        onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
+        onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
       />
 
-      {/* Main Content (Modular & Respira con Generoso Espacio en Blanco) */}
+      {/* Main Content */}
       <main className="flex-1 bg-white">
         
-        {/* 2. HeroSection (Equilibrado en 2 Columnas) */}
+        {/* 2. HeroSection */}
         <HeroSection
           onOpenDonation={() => scrollToSection('donaciones')}
           onExplorePrograms={() => scrollToSection('segmentos')}
         />
 
-        {/* 3. TrustLogos / Respaldo Oficial (Cinta Sutil) */}
+        {/* 3. TrustLogos */}
         <TrustLogos />
 
-        {/* 4. BusinessSegments (4 Unidades de Negocio con Modales Interactivos) */}
+        {/* 4. BusinessSegments */}
         <BusinessSegments
           currency={selectedCurrency}
           onPreselectTier2={handlePreselectTier2}
+          onOpenDigitalStore={() => setDigitalStoreOpen(true)}
+          onOpenLiveClasses={() => setLiveClassesOpen(true)}
+          onOpenPresencial={() => setPresencialOpen(true)}
         />
 
-        {/* 5. JennySection (Tutora IA Jenny 24/7 Exclusiva) */}
+        {/* 5. JennySection */}
         <AITutorSimulator />
 
-        {/* 6. DonationSection (Fondo de Becas & Unit Economics con Fondo bg-slate-50) */}
+        {/* 6. DonationSection */}
         <section className="bg-slate-50 py-16 border-b border-slate-200">
           <DonationCard initialCurrency={selectedCurrency} forcedTierId={forcedTierId} />
         </section>
 
-        {/* 7. AuditSection (Dashboard Auditado de Becarios) */}
+        {/* 7. AuditSection */}
         <ImpactDashboardPreview
           onOpenDonation={() => scrollToSection('donaciones')}
         />
@@ -89,6 +103,23 @@ export function App() {
       {/* 8. Footer Institucional y Legal */}
       <Footer
         onOpenDonation={() => scrollToSection('donaciones')}
+      />
+
+      {/* MODALES GLOBALES INTERACTIVOS */}
+      <DigitalStoreModal
+        isOpen={digitalStoreOpen}
+        onClose={() => setDigitalStoreOpen(false)}
+        currency={selectedCurrency}
+      />
+
+      <LiveClassesModal
+        isOpen={liveClassesOpen}
+        onClose={() => setLiveClassesOpen(false)}
+      />
+
+      <PresencialModal
+        isOpen={presencialOpen}
+        onClose={() => setPresencialOpen(false)}
       />
 
     </div>
