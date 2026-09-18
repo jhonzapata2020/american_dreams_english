@@ -44,9 +44,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Main Instructor Photo Frame */}
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100">
               <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600"
+                src="/teacher-anthony.jpg"
                 alt="Teacher Anthony - Director Académico"
-                className="w-full h-[320px] sm:h-[360px] object-cover object-top"
+                className="w-full h-[360px] sm:h-[400px] object-cover object-top"
               />
 
               {/* Gradient Overlay bottom */}
