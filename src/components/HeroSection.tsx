@@ -46,7 +46,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <img
                 src="/teacher-anthony.jpg"
                 alt="Teacher Anthony - Director Académico"
-                className="w-full h-[360px] sm:h-[400px] object-cover object-top"
+                className="w-full h-[480px] sm:h-[540px] md:h-[570px] object-cover object-center transform hover:scale-[1.02] transition-transform duration-500"
               />
 
               {/* Gradient Overlay bottom */}
