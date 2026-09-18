@@ -65,7 +65,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Overlay Circular Secondary Badge Top Right */}
-            <div className="absolute top-3 right-3 sm:-top-3 sm:-right-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white px-2.5 py-1 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl border-2 border-white flex items-center space-x-1.5 text-[11px] sm:text-xs font-black">
+            <div className="absolute top-3 right-3 sm:-top-3 sm:-right-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-2.5 py-1 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl border-2 border-white flex items-center space-x-1.5 text-[11px] sm:text-xs font-black">
               <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
               <span>Tutoría 1 a 1</span>
             </div>
@@ -77,13 +77,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="lg:col-span-4 flex flex-col justify-center text-left space-y-5">
           
           {/* Eyebrow tag */}
-          <span className="inline-block bg-orange-50 text-orange-600 text-xs font-bold px-3.5 py-1 rounded-full border border-orange-200 w-fit">
+          <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
             Abre las puertas del mundo al dominar el inglés
           </span>
 
           {/* H1 Headline */}
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
-            Logra la <span className="text-orange-600">fluidez en inglés</span> con <span className="text-[#1E3A8A]">American Dream</span>
+            Logra la <span className="text-red-600">fluidez en inglés</span> con <span className="text-[#1E3A8A]">American Dream</span>
           </h1>
 
           {/* Direct Benefit Bullets */}
@@ -124,7 +124,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors font-medium bg-slate-100/80 hover:bg-slate-200/80 px-3 py-1.5 rounded-full border border-slate-200"
             >
               <span>¿Eres estudiante de Urabá y buscas beca?</span>
-              <span className="text-orange-600 font-bold hover:underline">Ver Fondo Social →</span>
+              <span className="text-red-600 font-bold hover:underline">Ver Fondo Social →</span>
             </button>
           </div>
 
@@ -186,7 +186,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Nombre"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
                     />
                   </div>
                   <div>
@@ -197,7 +197,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Apellido"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
                     />
                   </div>
                 </div>
@@ -210,7 +210,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="correo@ejemplo.com"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
                   />
                 </div>
 
@@ -222,14 +222,14 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+57 300 000 0000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
                   />
                 </div>
 
-                {/* Massive Bright Orange CTA Button */}
+                {/* Massive Official Crimson Red CTA Button */}
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
                 >
                   <span>Comienza ahora</span>
                   <ArrowRight className="w-5 h-5" />
