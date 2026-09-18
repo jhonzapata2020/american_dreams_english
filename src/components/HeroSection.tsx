@@ -78,7 +78,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           {/* Eyebrow tag */}
           <span className="inline-block bg-orange-50 text-orange-600 text-xs font-bold px-3.5 py-1 rounded-full border border-orange-200 w-fit">
-            Cumple tu meta y accede a mejores oportunidades
+            Abre las puertas del mundo al dominar el inglés
           </span>
 
           {/* H1 Headline */}
