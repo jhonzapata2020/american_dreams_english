@@ -1,74 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  BookOpen, 
-  Video, 
-  Headphones, 
-  Sparkles, 
   CheckCircle2, 
-  CreditCard, 
-  Lock, 
   ShoppingBag,
-  ArrowRight
+  ArrowRight,
+  RefreshCw
 } from 'lucide-react';
 import { Currency, PaymentProvider } from '../types';
+import { createClient } from '../utils/supabase/client';
+import { formatMoney } from '../utils/formatters';
 
-interface Product {
+export interface Product {
   id: string;
   title: string;
-  category: 'ebooks' | 'masterclass' | 'audios';
+  category: 'ebooks' | 'masterclass' | 'audios' | string;
   formatBadge: string;
-  formatIcon: 'video' | 'pdf' | 'audio';
   usdPrice: number;
   copPrice: number;
   description: string;
   thumbnail: string;
+  active?: boolean;
 }
 
-const DIGITAL_PRODUCTS: Product[] = [
+const FALLBACK_PRODUCTS: Product[] = [
   {
-    id: 'prod-1',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     title: 'Masterclass 4K: Fonética y Pronunciación Nativa',
     category: 'masterclass',
     formatBadge: 'Video 4K',
-    formatIcon: 'video',
     usdPrice: 19,
     copPrice: 75000,
     description: 'Aprende los 44 fonemas del inglés con explicaciones en video 4K de docentes bilingües certificados.',
-    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400'
+    thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400',
+    active: true
   },
   {
-    id: 'prod-2',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     title: 'E-Book: Inglés Práctico para Negocios y Comercio Marítimo',
     category: 'ebooks',
     formatBadge: 'PDF Interactivo',
-    formatIcon: 'pdf',
     usdPrice: 12,
     copPrice: 48000,
     description: 'Guía con vocabulario clave para entrevistas, logística comercial y comercio en puertos internacionales.',
-    thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=400'
+    thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=400',
+    active: true
   },
   {
-    id: 'prod-3',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a13',
     title: 'Pack Completo A1-A2: Guías + Audios de Inmersión',
     category: 'audios',
     formatBadge: 'Audios + PDF',
-    formatIcon: 'audio',
     usdPrice: 29,
     copPrice: 115000,
     description: 'Más de 50 archivos de audio fonético descargables para entrenar el oído desde el celular.',
-    thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=400'
+    thumbnail: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=400',
+    active: true
   },
   {
-    id: 'prod-4',
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
     title: 'Guía Rápida de Conectores y Fluidez B1-B2',
     category: 'ebooks',
     formatBadge: 'PDF Descargable',
-    formatIcon: 'pdf',
     usdPrice: 9,
     copPrice: 36000,
     description: 'Resumen estructurado de conectores gramaticales para desenvolverte en debates y entrevistas.',
-    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=400'
+    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=400',
+    active: true
   }
 ];
 
@@ -83,6 +80,8 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   onClose,
   currency,
 }) => {
+  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'ebooks' | 'masterclass' | 'audios'>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [checkoutStep, setCheckoutStep] = useState<boolean>(false);
@@ -92,6 +91,47 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   const [selectedGateway, setSelectedGateway] = useState<PaymentProvider>('wompi');
   const [isProcessing, setIsProcessing] = useState(false);
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
+
+  const supabase = createClient();
+
+  // Consulta dinámica a la tabla public.products filtrando por active = true
+  const fetchActiveProducts = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('active', true)
+        .order('created_at', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        const mappedProducts: Product[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          category: item.category || 'ebooks',
+          formatBadge: item.format_badge || 'Digital 4K',
+          usdPrice: Number(item.price_usd) || 0,
+          copPrice: Number(item.price_cop) || 0,
+          description: item.description || '',
+          thumbnail: item.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400',
+          active: item.active
+        }));
+        setProducts(mappedProducts);
+      } else {
+        setProducts(FALLBACK_PRODUCTS);
+      }
+    } catch (err) {
+      setProducts(FALLBACK_PRODUCTS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchActiveProducts();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -105,7 +145,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 
   if (!isOpen) return null;
 
-  const filteredProducts = DIGITAL_PRODUCTS.filter(p => {
+  const filteredProducts = products.filter(p => {
     if (activeCategory === 'all') return true;
     return p.category === activeCategory;
   });
@@ -113,10 +153,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   const isUSD = currency === 'USD' || currency === 'EUR';
 
   const formatPrice = (prod: Product) => {
-    if (isUSD) {
-      return `$${prod.usdPrice} USD`;
-    }
-    return `$${prod.copPrice.toLocaleString('es-CO')} COP`;
+    return formatMoney(isUSD ? prod.usdPrice : prod.copPrice, isUSD ? 'USD' : 'COP');
   };
 
   const handleStartCheckout = (product: Product) => {
@@ -150,8 +187,8 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-white">Tienda de Infoproductos Digitales 4K</h3>
-              <p className="text-xs text-slate-300">Aprende a tu propio ritmo con descarga inmediata</p>
+              <h3 className="font-extrabold text-lg text-white">Catálogo Dinámico de Infoproductos (public.products)</h3>
+              <p className="text-xs text-slate-300">Precios actualizados en tiempo real en COP y USD</p>
             </div>
           </div>
 
@@ -345,55 +382,62 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                 </button>
               </div>
 
-              {/* Product Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredProducts.map((prod) => (
-                  <div
-                    key={prod.id}
-                    className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:border-navy-900 transition-all group"
-                  >
-                    <div>
-                      <div className="relative h-40 overflow-hidden">
-                        <img
-                          src={prod.thumbnail}
-                          alt={prod.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <span className="absolute top-3 right-3 bg-navy-900 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow">
-                          {prod.formatBadge}
-                        </span>
-                      </div>
-
-                      <div className="p-5 space-y-2">
-                        <h4 className="font-extrabold text-navy-900 text-sm leading-snug">
-                          {prod.title}
-                        </h4>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          {prod.description}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-200/60 mt-4">
+              {loading ? (
+                <div className="p-12 text-center text-slate-500 text-xs">
+                  <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-navy-900" />
+                  Cargando catálogo dinámico desde Supabase...
+                </div>
+              ) : (
+                /* Product Cards Grid */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {filteredProducts.map((prod) => (
+                    <div
+                      key={prod.id}
+                      className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:border-navy-900 transition-all group"
+                    >
                       <div>
-                        <span className="text-[10px] text-slate-400 font-bold block">Precio Oficial:</span>
-                        <span className="text-lg font-black text-crimson-600">
-                          {formatPrice(prod)}
-                        </span>
+                        <div className="relative h-40 overflow-hidden">
+                          <img
+                            src={prod.thumbnail}
+                            alt={prod.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <span className="absolute top-3 right-3 bg-navy-900 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow">
+                            {prod.formatBadge}
+                          </span>
+                        </div>
+
+                        <div className="p-5 space-y-2">
+                          <h4 className="font-extrabold text-navy-900 text-sm leading-snug">
+                            {prod.title}
+                          </h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            {prod.description}
+                          </p>
+                        </div>
                       </div>
 
-                      <button
-                        onClick={() => handleStartCheckout(prod)}
-                        className="bg-navy-900 hover:bg-navy-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5"
-                      >
-                        <span>Comprar Ahora</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                      <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-200/60 mt-4">
+                        <div>
+                          <span className="text-[10px] text-slate-400 font-bold block">Precio Oficial:</span>
+                          <span className="text-lg font-black text-crimson-600">
+                            {formatPrice(prod)}
+                          </span>
+                        </div>
 
-                  </div>
-                ))}
-              </div>
+                        <button
+                          onClick={() => handleStartCheckout(prod)}
+                          className="bg-navy-900 hover:bg-navy-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5"
+                        >
+                          <span>Comprar Ahora</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           )}
 

@@ -10,6 +10,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { Currency, DonationFrequency, PaymentProvider } from '../types';
+import { formatMoney } from '../utils/formatters';
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -51,15 +52,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const feeAmount = coversFee ? baseAmount * 0.035 : 0;
   const totalAmount = baseAmount + feeAmount;
 
-  const formatMoney = (amount: number, curr: Currency) => {
-    if (curr === 'USD') {
-      return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} USD`;
-    }
-    if (curr === 'EUR') {
-      return `€${amount.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} EUR`;
-    }
-    return `$${Math.round(amount).toLocaleString('es-CO')} COP`;
-  };
+  // Usa la función determinista formatMoney de formatters.ts
 
   const handleProcessPayment = (provider: PaymentProvider, e: React.FormEvent) => {
     e.preventDefault();

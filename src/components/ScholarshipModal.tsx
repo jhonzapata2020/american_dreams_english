@@ -14,7 +14,8 @@ import {
   DollarSign
 } from 'lucide-react';
 import { Currency, PaymentProvider } from '../types';
-import { DONATION_TIERS } from '../data/sprint1Data';
+import { DONATION_TIERS, SCHOLARSHIP_RECIPIENTS } from '../data/sprint1Data';
+import { formatCOPK } from '../utils/formatters';
 
 interface ScholarshipModalProps {
   isOpen: boolean;
@@ -298,8 +299,8 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                           }`}
                         >
                           <span className="font-bold block text-xs">{t.title}</span>
-                          <span className={`text-xs font-extrabold ${selectedTierId === t.id ? 'text-amber-400' : 'text-red-600'}`}>
-                            {isUSD ? `$${t.usdAmount} USD` : `$${(t.copAmount / 1000).toLocaleString()}k COP`}
+                          <span className={`text-xs font-extrabold ${selectedTierId === t.id ? 'text-amber-400' : 'text-red-600'}`} suppressHydrationWarning>
+                            {isUSD ? `$${t.usdAmount} USD` : `$${formatCOPK(t.copAmount)}k COP`}
                           </span>
                         </button>
                       ))}

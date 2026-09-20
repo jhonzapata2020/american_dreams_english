@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, 
   ShieldCheck, 
@@ -8,6 +8,7 @@ import {
 import { Currency, DonationFrequency } from '../types';
 import { DONATION_TIERS } from '../data/sprint1Data';
 import { DonationModal } from './DonationModal';
+import { formatCOPK, formatMoney } from '../utils/formatters';
 
 interface DonationCardProps {
   initialCurrency?: Currency;
@@ -23,8 +24,13 @@ export const DonationCard: React.FC<DonationCardProps> = ({
   const [selectedTierId, setSelectedTierId] = useState<string>(forcedTierId || 'tier-2');
   const [customAmount, setCustomAmount] = useState<string>('');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
     if (forcedTierId) {
       setSelectedTierId(forcedTierId);
       setCustomAmount('');
@@ -40,16 +46,6 @@ export const DonationCard: React.FC<DonationCardProps> = ({
     : isUSD 
       ? (selectedTier?.usdAmount || 50) 
       : (selectedTier?.copAmount || 200000);
-
-  const formatMoney = (amount: number, curr: Currency) => {
-    if (curr === 'USD') {
-      return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} USD`;
-    }
-    if (curr === 'EUR') {
-      return `€${amount.toLocaleString('de-DE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })} EUR`;
-    }
-    return `$${Math.round(amount).toLocaleString('es-CO')} COP`;
-  };
 
   return (
     <div id="donaciones" className="max-w-5xl mx-auto px-4 py-12 font-sans">
@@ -143,7 +139,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                 const isSelected = selectedTierId === tier.id && !customAmount;
                 const displayPrice = isUSD 
                   ? `$${tier.usdAmount} USD` 
-                  : `$${(tier.copAmount / 1000).toLocaleString()}k COP`;
+                  : `$${formatCOPK(tier.copAmount)}k COP`;
 
                 return (
                   <div
@@ -167,8 +163,8 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                       <span className={`text-xs font-bold block mb-1 ${isSelected ? 'text-amber-300' : 'text-slate-500'}`}>
                         {tier.subtitle}
                       </span>
-                      <div className="text-2xl font-black mb-2">
-                        {displayPrice}
+                      <div className="text-2xl font-black mb-2" suppressHydrationWarning>
+                        {isMounted ? displayPrice : `$${formatCOPK(tier.copAmount)}k COP`}
                       </div>
                       <h4 className="text-sm font-bold mb-2">
                         {tier.title}
@@ -215,7 +211,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                 {selectedTier && !customAmount ? selectedTier.title : 'Donación Personalizada'}
               </h4>
               <p className="text-xs text-slate-600 font-semibold">
-                Monto: <strong className="text-red-600">{formatMoney(baseAmount, currency)}</strong> ({frequency === 'monthly' ? 'Recurrente Mensual' : 'Aporte Único'})
+                Monto: <strong className="text-red-600" suppressHydrationWarning>{formatMoney(baseAmount, currency)}</strong> ({frequency === 'monthly' ? 'Recurrente Mensual' : 'Aporte Único'})
               </p>
             </div>
 
@@ -225,7 +221,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
               className="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2.5 text-sm w-full sm:w-auto"
             >
               <Heart className="w-4 h-4 fill-white/20" />
-              <span>Proceder a Donar {formatMoney(baseAmount, currency)}</span>
+              <span suppressHydrationWarning>Proceder a Donar {formatMoney(baseAmount, currency)}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
