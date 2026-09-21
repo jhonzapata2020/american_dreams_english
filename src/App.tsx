@@ -22,7 +22,6 @@ import StudentDashboardPage from './app/dashboard/student/page';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
-  const [studentPortalNotice, setStudentPortalNotice] = useState(false);
   const [forcedTierId, setForcedTierId] = useState<string>('tier-2');
 
   // Client path detection for hybrid SPA & SSR routing
@@ -75,16 +74,6 @@ export function App() {
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white">
       
-      {/* Student Portal Modal Notice */}
-      {studentPortalNotice && (
-        <div className="fixed top-24 right-6 z-50 bg-navy-900 text-white p-4 rounded-2xl shadow-2xl border border-slate-700 animate-fadeIn max-w-sm">
-          <h4 className="font-extrabold text-sm text-amber-400">Portal Estudiante & Docente</h4>
-          <p className="text-xs text-slate-300 mt-1">
-            Redireccionando al área de acceso con credenciales de la Secretaría de Educación de Turbo...
-          </p>
-        </div>
-      )}
-
       {/* 1. Navbar */}
       <Navbar
         selectedCurrency={selectedCurrency}
