@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
-import { Menu, X, UserCheck, Heart } from 'lucide-react';
+import { Menu, X, UserCheck, LogIn } from 'lucide-react';
 
 interface NavbarProps {
   selectedCurrency: Currency;
   onCurrencyChange: (currency: Currency) => void;
   onOpenDonationModal: () => void;
-  onOpenStudentPortal: () => void;
+  onOpenStudentPortal?: () => void;
   onOpenProgramas?: () => void;
   onOpenCursosDigitales?: () => void;
   onOpenClasesEnVivo?: () => void;
@@ -27,9 +27,9 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-16 sm:h-18">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between relative">
         
-        {/* LOGO OFICIAL CON ESCALADO RESPONSIVO */}
+        {/* LOGO OFICIAL */}
         <a 
-          href="#" 
+          href="/" 
           className="relative sm:absolute left-0 sm:left-6 top-0 sm:top-0.5 z-20 group inline-flex items-center focus:outline-none flex-shrink-0"
           title="American Dream English"
         >
@@ -68,10 +68,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          {/* CONTROLES Y ACCIONES (LADO DERECHO APP STYLE) */}
-          <div className="flex items-center gap-2 sm:gap-4 ml-auto">
+          {/* CONTROLES Y ACCIONES (LADO DERECHO) */}
+          <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             
-            {/* Toggle compacto de moneda [COP | USD] (Desktop/Tablet) */}
+            {/* Toggle compacto de moneda [COP | USD] */}
             <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-lg text-xs font-bold text-slate-700">
               <button 
                 onClick={() => onCurrencyChange('COP')}
@@ -95,14 +95,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* Portal Estudiante */}
-            <button 
-              onClick={onOpenStudentPortal} 
-              className="hidden md:inline-flex text-xs sm:text-sm font-semibold text-slate-700 hover:text-[#0F2537] px-3 py-2 rounded-lg hover:bg-slate-50 transition items-center gap-1.5"
+            {/* BOTÓN INICIAR SESIÓN / PORTAL RBAC */}
+            <a 
+              href="/login" 
+              className="inline-flex text-xs sm:text-sm font-bold text-navy-900 hover:text-navy-950 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 transition items-center gap-1.5 shadow-2xs"
             >
-              <UserCheck className="w-4 h-4 text-slate-500" />
-              <span>Portal Estudiante</span>
-            </button>
+              <LogIn className="w-4 h-4 text-navy-900" />
+              <span>Iniciar Sesión / Portal</span>
+            </a>
 
             {/* Inscribirme / Matricularse CTA Button */}
             <button 
@@ -178,13 +178,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           <div className="pt-2 flex flex-col gap-2">
-            <button
-              onClick={() => { setMobileMenuOpen(false); onOpenStudentPortal(); }}
-              className="w-full py-3 rounded-xl text-xs font-bold text-navy-900 border-2 border-navy-900 text-center flex items-center justify-center gap-2"
+            <a
+              href="/login"
+              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-navy-900 hover:bg-navy-950 text-center flex items-center justify-center gap-2 shadow-sm"
             >
-              <UserCheck className="w-4 h-4 text-navy-900" />
-              <span>Acceder al Portal Estudiante</span>
-            </button>
+              <LogIn className="w-4 h-4 text-white" />
+              <span>Iniciar Sesión / Portal RBAC</span>
+            </a>
           </div>
         </div>
       )}
