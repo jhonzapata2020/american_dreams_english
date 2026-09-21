@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
-import { Menu, X, UserCheck, LogIn } from 'lucide-react';
+import { Menu, X, LogIn } from 'lucide-react';
 
 interface NavbarProps {
   selectedCurrency: Currency;
@@ -22,6 +22,11 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenClasesEnVivo,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleGoToLogin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.location.href = '/login';
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-16 sm:h-18">
@@ -97,11 +102,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* BOTÓN INICIAR SESIÓN / PORTAL RBAC */}
             <a 
-              href="/login" 
-              className="inline-flex text-xs sm:text-sm font-bold text-navy-900 hover:text-navy-950 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 transition items-center gap-1.5 shadow-2xs"
+              href="/login"
+              onClick={handleGoToLogin}
+              className="inline-flex text-xs sm:text-sm font-bold text-navy-900 hover:text-navy-950 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 transition items-center gap-1.5 shadow-2xs cursor-pointer"
             >
               <LogIn className="w-4 h-4 text-navy-900" />
-              <span>Iniciar Sesión / Portal</span>
+              <span>Portal / Iniciar Sesión</span>
             </a>
 
             {/* Inscribirme / Matricularse CTA Button */}
@@ -180,10 +186,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="pt-2 flex flex-col gap-2">
             <a
               href="/login"
-              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-navy-900 hover:bg-navy-950 text-center flex items-center justify-center gap-2 shadow-sm"
+              onClick={handleGoToLogin}
+              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-navy-900 hover:bg-navy-950 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               <LogIn className="w-4 h-4 text-white" />
-              <span>Iniciar Sesión / Portal RBAC</span>
+              <span>Portal / Iniciar Sesión</span>
             </a>
           </div>
         </div>
