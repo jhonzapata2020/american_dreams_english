@@ -32,10 +32,7 @@ export function App() {
   };
 
   const handleOpenStudentPortal = () => {
-    setStudentPortalNotice(true);
-    setTimeout(() => {
-      setStudentPortalNotice(false);
-    }, 4000);
+    window.location.href = '/login';
   };
 
   const handlePreselectTier2 = () => {

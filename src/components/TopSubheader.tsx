@@ -74,13 +74,13 @@ export const TopSubheader: React.FC<TopSubheaderProps> = ({ onOpenStudentPortal 
             <span className="text-navy-900">+57 (604) 827-2471</span>
           </div>
 
-          <button
-            onClick={onOpenStudentPortal}
+          <a
+            href="/login"
             className="flex items-center gap-1 text-navy-900 hover:text-red-600 font-extrabold transition-colors"
           >
             <UserCheck className="w-3.5 h-3.5 text-navy-900" />
-            <span>Acceso Estudiantes</span>
-          </button>
+            <span>Portales RBAC (Login)</span>
+          </a>
 
         </div>
 

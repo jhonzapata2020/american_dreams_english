@@ -116,8 +116,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
         <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[11px] gap-2">
           <p>© {new Date().getFullYear()} American Dream English S.A.S. & Corplex Solutions S.A.S. Todos los derechos reservados.</p>
           <div className="flex space-x-4">
-            <a href="#" className="hover:text-slate-300 transition-colors">Términos de Servicio</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Política de Privacidad (Habeas Data)</a>
+            <a href="/login" className="hover:text-amber-400 font-bold text-slate-300 transition-colors">Portales & Acceso RBAC</a>
+            <a href="#" className="hover:text-slate-300 transition-colors">Política de Privacidad</a>
             <a href="#" className="hover:text-slate-300 transition-colors">Transparencia de Fondos</a>
           </div>
         </div>
