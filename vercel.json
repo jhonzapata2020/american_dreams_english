@@ -1,5 +1,7 @@
 {
   "framework": "nextjs",
-  "buildCommand": "next build",
-  "outputDirectory": ".next"
+  "rewrites": [
+    { "source": "/login", "destination": "/" },
+    { "source": "/dashboard/:path*", "destination": "/" }
+  ]
 }

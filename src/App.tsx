@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { TrustLogos } from './components/TrustLogos';
@@ -13,10 +13,26 @@ import { PresencialModal } from './components/PresencialModal';
 import { ScholarshipModal } from './components/ScholarshipModal';
 import { Currency } from './types';
 
+// Views for client-side route fallback
+import { LoginView } from './components/views/LoginView';
+import AdminDashboardPage from './app/dashboard/admin/page';
+import AdminProductsPage from './app/dashboard/admin/products/page';
+import TeacherDashboardPage from './app/dashboard/teacher/page';
+import StudentDashboardPage from './app/dashboard/student/page';
+
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
   const [studentPortalNotice, setStudentPortalNotice] = useState(false);
   const [forcedTierId, setForcedTierId] = useState<string>('tier-2');
+
+  // Client path detection for hybrid SPA & SSR routing
+  const [currentPath, setCurrentPath] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentPath(window.location.pathname);
+    }
+  }, []);
 
   // Modals global state
   const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
@@ -38,6 +54,23 @@ export function App() {
   const handlePreselectTier2 = () => {
     setForcedTierId('tier-2');
   };
+
+  // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
+  if (currentPath === '/login') {
+    return <LoginView />;
+  }
+  if (currentPath === '/dashboard/admin') {
+    return <AdminDashboardPage />;
+  }
+  if (currentPath === '/dashboard/admin/products') {
+    return <AdminProductsPage />;
+  }
+  if (currentPath === '/dashboard/teacher') {
+    return <TeacherDashboardPage />;
+  }
+  if (currentPath === '/dashboard/student') {
+    return <StudentDashboardPage />;
+  }
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white">
