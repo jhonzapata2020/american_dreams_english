@@ -6,8 +6,10 @@ import {
   Lock, 
   Award,
   Headphones,
-  UserCheck
+  UserCheck,
+  Loader2
 } from 'lucide-react';
+import { createClient } from '../utils/supabase/client';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -24,13 +26,44 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => {
-      onExplorePrograms();
-    }, 1500);
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const supabase = createClient();
+      const audienceType = audience === 'self' ? 'para_mi' : 'para_mi_hijo';
+
+      const { error } = await supabase.from('leads').insert([
+        {
+          first_name: firstName,
+          last_name: lastName,
+          email: email,
+          phone: phone,
+          audience: audienceType,
+        },
+      ]);
+
+      if (error) {
+        console.error('Error al registrar prospecto:', error);
+        setErrorMessage('No se pudieron enviar tus datos. Por favor intenta de nuevo.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setSubmitted(true);
+      setTimeout(() => {
+        onExplorePrograms();
+      }, 1500);
+    } catch (err) {
+      console.error('Error inesperado al registrar prospecto:', err);
+      setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -176,6 +209,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
+                {errorMessage && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                    {errorMessage}
+                  </div>
+                )}
                 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
@@ -183,10 +221,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     <input
                       type="text"
                       required
+                      disabled={isSubmitting}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="Nombre"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                     />
                   </div>
                   <div>
@@ -194,10 +233,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     <input
                       type="text"
                       required
+                      disabled={isSubmitting}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Apellido"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                     />
                   </div>
                 </div>
@@ -207,10 +247,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <input
                     type="email"
                     required
+                    disabled={isSubmitting}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="correo@ejemplo.com"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                   />
                 </div>
 
@@ -219,20 +260,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <input
                     type="tel"
                     required
+                    disabled={isSubmitting}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="+57 300 000 0000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                   />
                 </div>
 
                 {/* Massive Official Crimson Red CTA Button */}
                 <button
                   type="submit"
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
+                  disabled={isSubmitting}
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
                 >
-                  <span>Comienza ahora</span>
-                  <ArrowRight className="w-5 h-5" />
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Guardando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Comienza ahora</span>
+                      <ArrowRight className="w-5 h-5" />
+                    </>
+                  )}
                 </button>
 
                 <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
