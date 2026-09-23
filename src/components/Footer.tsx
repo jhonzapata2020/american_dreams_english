@@ -85,7 +85,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
             <ul className="space-y-2.5 text-slate-400">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-crimson-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Sede:</strong> Calle 103 # 13-36, B. Buenos Aires, Turbo, Antioquia.</span>
+                <span><strong>Sede:</strong> Km 1,5 Vía nacional, Vereda Casanova, Turbo, Antioquia.</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-amber-400 flex-shrink-0" />
