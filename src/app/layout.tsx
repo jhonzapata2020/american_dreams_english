@@ -26,13 +26,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="es">
+    <html lang="es" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="shortcut icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="apple-touch-icon" href="/logo-american-dream.png" />
       </head>
-      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased">
+      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased" suppressHydrationWarning>
         {children}
       </body>
     </html>
