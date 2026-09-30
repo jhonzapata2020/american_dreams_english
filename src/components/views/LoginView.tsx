@@ -13,11 +13,13 @@ import {
   Shield,
   Eye,
   EyeOff,
-  ArrowLeft,
-  Sparkles
+  ArrowLeft
 } from 'lucide-react'
 
+type UserRole = 'student' | 'teacher' | 'admin'
+
 export function LoginView() {
+  const [selectedRole, setSelectedRole] = useState<UserRole>('student')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -46,7 +48,7 @@ export function LoginView() {
           .eq('id', data.user.id)
           .single()
 
-        const role = profile?.role || 'student'
+        const role = profile?.role || selectedRole
         setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo a tu portal...` })
         
         setTimeout(() => {
@@ -66,24 +68,38 @@ export function LoginView() {
     }
   }
 
-  const navigateToRole = (rolePath: string) => {
-    window.location.href = rolePath
+  const roleLabels = {
+    student: 'Estudiante',
+    teacher: 'Docente',
+    admin: 'Admin'
+  }
+
+  const rolePlaceholders = {
+    student: 'estudiante@americandream.edu.co',
+    teacher: 'docente@americandream.edu.co',
+    admin: 'admin@americandream.edu.co'
+  }
+
+  const roleGradients = {
+    student: 'from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-950/60',
+    teacher: 'from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-blue-950/60',
+    admin: 'from-crimson-600 to-crimson-700 hover:from-crimson-500 hover:to-crimson-600 shadow-crimson-950/60'
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-4 sm:p-6 font-sans relative overflow-hidden select-none">
+    <div className="min-h-screen max-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-3 sm:p-4 font-sans relative overflow-hidden select-none">
       
       {/* GLOW DECORATIONS (SOFT AMBIENT LIGHTS FOR NEUTRAL BACKGROUND) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[450px] h-[450px] bg-red-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
       
       {/* TOP NAV BAR LINK */}
-      <header className="w-full max-w-5xl mx-auto flex items-center justify-between z-10 py-2">
+      <header className="w-full max-w-4xl mx-auto flex items-center justify-between z-10 py-1">
         <a 
           href="/" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors bg-white hover:bg-slate-200 border border-slate-300 px-4 py-2 rounded-full shadow-sm backdrop-blur-md"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors bg-white hover:bg-slate-200 border border-slate-300 px-3.5 py-1.5 rounded-full shadow-sm backdrop-blur-md"
         >
-          <ArrowLeft className="w-4 h-4 text-slate-600" />
+          <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />
           <span>Volver al Inicio</span>
         </a>
         <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
@@ -93,28 +109,70 @@ export function LoginView() {
       </header>
 
       {/* LOGIN CARD MAIN SECTION */}
-      <main className="flex-1 flex items-center justify-center py-8 z-10">
-        <div className="max-w-md w-full bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-900/30 space-y-6 transition-all duration-300">
+      <main className="flex-1 flex items-center justify-center py-2 z-10">
+        <div className="max-w-md w-full bg-[#0F1C2E] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-slate-900/30 space-y-4 transition-all duration-300">
           
-          {/* BRANDING: OFFICIAL LOGO REPLACEMENT */}
-          <div className="text-center space-y-3">
+          {/* BRANDING: LOGO REPLACEMENT & HEADLINE */}
+          <div className="text-center space-y-2">
             <a href="/" className="inline-block group">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-20 sm:h-24 w-auto mx-auto object-contain filter drop-shadow-xl group-hover:scale-105 transition-transform duration-300"
+                className="h-12 sm:h-14 w-auto mx-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
               />
             </a>
             <div>
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">Portal de Acceso Unificado</h1>
-              <p className="text-xs text-slate-400 mt-1 font-medium">Ingresa tus credenciales o selecciona tu perfil</p>
+              <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">Portal de Acceso Unificado</h1>
+              <p className="text-[11px] text-slate-400 font-medium">Selecciona tu perfil de ingreso</p>
             </div>
+          </div>
+
+          {/* ROLE SEGMENTED SELECTOR TABS */}
+          <div className="bg-[#08101C] p-1 rounded-2xl border border-slate-800 flex items-center gap-1 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setSelectedRole('student')}
+              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                selectedRole === 'student'
+                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5" />
+              <span>Estudiante</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedRole('teacher')}
+              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                selectedRole === 'teacher'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-950/40 font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Docente</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedRole('admin')}
+              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                selectedRole === 'admin'
+                  ? 'bg-crimson-600 text-white shadow-md shadow-crimson-950/40 font-black'
+                  : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              <Shield className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </button>
           </div>
 
           {/* NOTIFICATION MESSAGE */}
           {message && (
             <div
-              className={`p-3.5 rounded-2xl text-xs font-semibold flex items-center gap-2.5 border animate-fadeIn ${
+              className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 border animate-fadeIn ${
                 message.type === 'success'
                   ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                   : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
@@ -130,44 +188,44 @@ export function LoginView() {
           )}
 
           {/* LOGIN FORM */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-3.5">
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
-                Correo Electrónico
+              <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">
+                Correo Electrónico ({roleLabels[selectedRole]})
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="usuario@americandream.edu.co"
-                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-crimson-500 focus:ring-2 focus:ring-crimson-500/20 transition-all"
+                  placeholder={rolePlaceholders[selectedRole]}
+                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500/30 transition-all"
                 />
               </div>
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">
                   Contraseña
                 </label>
               </div>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-3 pl-10 pr-10 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-crimson-500 focus:ring-2 focus:ring-crimson-500/20 transition-all"
+                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-2.5 pl-10 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500/30 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3.5 text-slate-500 hover:text-slate-300 transition-colors"
+                  className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -177,70 +235,18 @@ export function LoginView() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-crimson-600 to-crimson-700 hover:from-crimson-500 hover:to-crimson-600 active:scale-[0.99] text-white font-extrabold py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg shadow-crimson-950/60 hover:shadow-crimson-600/30 cursor-pointer disabled:opacity-50"
+              className={`w-full bg-gradient-to-r ${roleGradients[selectedRole]} active:scale-[0.99] text-white font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50 mt-1`}
             >
-              <span>{loading ? 'Autenticando...' : 'Ingresar al Portal'}</span>
+              <span>{loading ? 'Autenticando...' : `Ingresar como ${roleLabels[selectedRole]}`}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
-
-          {/* ACCESO RÁPIDO POR ROL (RBAC) */}
-          <div className="pt-4 border-t border-slate-800/80 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">
-                Acceso Directo por Rol (RBAC)
-              </span>
-              <span className="text-[10px] bg-slate-800 text-slate-300 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-400" /> Auto-redirección
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2.5">
-              
-              {/* Admin Button */}
-              <button
-                type="button"
-                onClick={() => navigateToRole('/dashboard/admin')}
-                className="p-3 bg-[#08101C] hover:bg-slate-800/80 border border-slate-800 hover:border-crimson-500/60 rounded-2xl flex flex-col items-center text-center space-y-1.5 transition-all group cursor-pointer shadow-sm hover:shadow-md hover:shadow-crimson-950/40"
-              >
-                <div className="p-1.5 rounded-xl bg-crimson-500/10 text-crimson-400 group-hover:scale-110 transition-transform">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <span className="text-[11px] font-bold text-slate-200">Admin</span>
-              </button>
-
-              {/* Teacher Button */}
-              <button
-                type="button"
-                onClick={() => navigateToRole('/dashboard/teacher')}
-                className="p-3 bg-[#08101C] hover:bg-slate-800/80 border border-slate-800 hover:border-blue-500/60 rounded-2xl flex flex-col items-center text-center space-y-1.5 transition-all group cursor-pointer shadow-sm hover:shadow-md hover:shadow-blue-950/40"
-              >
-                <div className="p-1.5 rounded-xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
-                  <Users className="w-4 h-4" />
-                </div>
-                <span className="text-[11px] font-bold text-slate-200">Docente</span>
-              </button>
-
-              {/* Student Button */}
-              <button
-                type="button"
-                onClick={() => navigateToRole('/dashboard/student')}
-                className="p-3 bg-[#08101C] hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/60 rounded-2xl flex flex-col items-center text-center space-y-1.5 transition-all group cursor-pointer shadow-sm hover:shadow-md hover:shadow-emerald-950/40"
-              >
-                <div className="p-1.5 rounded-xl bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
-                  <GraduationCap className="w-4 h-4" />
-                </div>
-                <span className="text-[11px] font-bold text-slate-200">Estudiante</span>
-              </button>
-
-            </div>
-          </div>
 
         </div>
       </main>
 
       {/* FOOTER */}
-      <footer className="w-full text-center z-10 py-2">
+      <footer className="w-full text-center z-10 py-1">
         <p className="text-[11px] text-slate-500 font-bold">
           © {new Date().getFullYear()} American Dream English S.A.S. Todos los derechos reservados.
         </p>
