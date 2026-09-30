@@ -119,17 +119,49 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
     }
   };
 
-  const handleProcessPayment = (provider: PaymentProvider, e: React.FormEvent) => {
+  const [donorErrorMessage, setDonorErrorMessage] = useState<string | null>(null);
+
+  const handleProcessPayment = async (provider: PaymentProvider, e: React.FormEvent) => {
     e.preventDefault();
-    if (!donorName || !donorEmail) {
-      alert('Por favor completa tu Nombre y Correo Electrónico.');
+    if (!donorName.trim() || !donorEmail.trim()) {
+      setDonorErrorMessage('Por favor completa tu Nombre Completo y Correo Electrónico.');
       return;
     }
+
     setActiveGateway(provider);
-    setTimeout(() => {
+    setDonorErrorMessage(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('donations').insert([
+        {
+          donor_name: donorName.trim(),
+          donor_email: donorEmail.trim(),
+          currency,
+          frequency: 'monthly',
+          tier_title: selectedTier.title,
+          amount: baseAmount,
+          fee_covered: coversFee,
+          total_amount: totalAmount,
+          gateway_provider: provider,
+          status: 'completed',
+        },
+      ]);
+
+      if (error) {
+        console.error('Error al guardar donación en Supabase:', error);
+        setDonorErrorMessage('No se pudo registrar la donación. Por favor intenta de nuevo.');
+        setActiveGateway(null);
+        return;
+      }
+
       setPaymentSuccess(true);
       setActiveGateway(null);
-    }, 1500);
+    } catch (err) {
+      console.error('Error inesperado durante la donación:', err);
+      setDonorErrorMessage('Ocurrió un error inesperado al procesar la donación.');
+      setActiveGateway(null);
+    }
   };
 
   return (
@@ -339,6 +371,11 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                 </div>
               ) : (
                 <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                  {donorErrorMessage && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                      {donorErrorMessage}
+                    </div>
+                  )}
                   
                   {/* Select Tier Level */}
                   <div>
@@ -350,10 +387,11 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                         <button
                           key={t.id}
                           type="button"
+                          disabled={activeGateway !== null}
                           onClick={() => setSelectedTierId(t.id)}
                           className={`p-3 rounded-xl border text-left transition-all ${
                             selectedTierId === t.id ? 'bg-navy-900 text-white border-navy-900 shadow-sm' : 'bg-slate-50 text-slate-700 border-slate-200'
-                          }`}
+                          } disabled:opacity-60`}
                         >
                           <span className="font-bold block text-xs">{t.title}</span>
                           <span className={`text-xs font-extrabold ${selectedTierId === t.id ? 'text-amber-400' : 'text-red-600'}`} suppressHydrationWarning>
@@ -371,10 +409,11 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                       <input
                         type="text"
                         required
+                        disabled={activeGateway !== null}
                         value={donorName}
                         onChange={(e) => setDonorName(e.target.value)}
                         placeholder="Ej. Dr. Roberto Gómez"
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none disabled:opacity-60"
                       />
                     </div>
 
@@ -383,10 +422,11 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                       <input
                         type="email"
                         required
+                        disabled={activeGateway !== null}
                         value={donorEmail}
                         onChange={(e) => setDonorEmail(e.target.value)}
                         placeholder="roberto@empresa.org"
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none disabled:opacity-60"
                       />
                     </div>
                   </div>

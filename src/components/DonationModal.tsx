@@ -7,10 +7,12 @@ import {
   CreditCard, 
   Receipt, 
   DollarSign, 
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 import { Currency, DonationFrequency, PaymentProvider } from '../types';
 import { formatMoney } from '../utils/formatters';
+import { createClient } from '../utils/supabase/client';
 
 interface DonationModalProps {
   isOpen: boolean;
@@ -35,6 +37,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const [organizationName, setOrganizationName] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [activeGateway, setActiveGateway] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,19 +55,52 @@ export const DonationModal: React.FC<DonationModalProps> = ({
   const feeAmount = coversFee ? baseAmount * 0.035 : 0;
   const totalAmount = baseAmount + feeAmount;
 
-  // Usa la función determinista formatMoney de formatters.ts
-
-  const handleProcessPayment = (provider: PaymentProvider, e: React.FormEvent) => {
+  const handleProcessPayment = async (provider: PaymentProvider, e: React.FormEvent) => {
     e.preventDefault();
-    if (!donorName || !donorEmail) {
-      alert('Por favor completa tu Nombre y Correo Electrónico.');
+    if (!donorName.trim() || !donorEmail.trim()) {
+      setErrorMessage('Por favor completa tu Nombre Completo y Correo Electrónico.');
       return;
     }
+    if (baseAmount <= 0) {
+      setErrorMessage('Por favor selecciona o ingresa un monto válido para la donación.');
+      return;
+    }
+
     setActiveGateway(provider);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('donations').insert([
+        {
+          donor_name: donorName.trim(),
+          donor_email: donorEmail.trim(),
+          organization: organizationName.trim() || null,
+          currency,
+          frequency,
+          tier_title: tierTitle,
+          amount: baseAmount,
+          fee_covered: coversFee,
+          total_amount: totalAmount,
+          gateway_provider: provider,
+          status: 'completed',
+        },
+      ]);
+
+      if (error) {
+        console.error('Error al registrar la donación en Supabase:', error);
+        setErrorMessage('No se pudo registrar la donación. Por favor intenta de nuevo.');
+        setActiveGateway(null);
+        return;
+      }
+
       setPaymentSuccess(true);
       setActiveGateway(null);
-    }, 1500);
+    } catch (err) {
+      console.error('Error inesperado durante la donación:', err);
+      setErrorMessage('Ocurrió un error inesperado al procesar la donación.');
+      setActiveGateway(null);
+    }
   };
 
   return (
@@ -118,6 +154,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
             </div>
           ) : (
             <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+              {errorMessage && (
+                <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                  {errorMessage}
+                </div>
+              )}
               
               {/* DONOR INFORMATION FORM */}
               <div className="space-y-3">
@@ -131,10 +172,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     <input
                       type="text"
                       required
+                      disabled={activeGateway !== null}
                       value={donorName}
                       onChange={(e) => setDonorName(e.target.value)}
                       placeholder="Ej. Dr. Roberto Gómez"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900 disabled:opacity-60"
                     />
                   </div>
 
@@ -143,10 +185,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                     <input
                       type="email"
                       required
+                      disabled={activeGateway !== null}
                       value={donorEmail}
                       onChange={(e) => setDonorEmail(e.target.value)}
                       placeholder="roberto@empresa.org"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900 disabled:opacity-60"
                     />
                   </div>
                 </div>
@@ -155,10 +198,11 @@ export const DonationModal: React.FC<DonationModalProps> = ({
                   <label className="block text-xs font-bold text-slate-700 mb-1">Empresa u ONG (Opcional)</label>
                   <input
                     type="text"
+                    disabled={activeGateway !== null}
                     value={organizationName}
                     onChange={(e) => setOrganizationName(e.target.value)}
                     placeholder="Ej. Fundación Urabá Bilingüe"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900"
+                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-navy-900 disabled:opacity-60"
                   />
                 </div>
               </div>
