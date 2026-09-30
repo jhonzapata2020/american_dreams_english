@@ -11,11 +11,13 @@ import {
   Lock,
   CreditCard,
   Receipt,
-  DollarSign
+  DollarSign,
+  Loader2
 } from 'lucide-react';
 import { Currency, PaymentProvider } from '../types';
 import { DONATION_TIERS, SCHOLARSHIP_RECIPIENTS } from '../data/sprint1Data';
 import { formatCOPK } from '../utils/formatters';
+import { createClient } from '../utils/supabase/client';
 
 interface ScholarshipModalProps {
   isOpen: boolean;
@@ -35,6 +37,8 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
   const [studentPhone, setStudentPhone] = useState('');
   const [municipio, setMunicipio] = useState('Turbo');
   const [studyLevel, setStudyLevel] = useState('Bachillerato');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [applyErrorMessage, setApplyErrorMessage] = useState<string | null>(null);
   const [appliedSuccess, setAppliedSuccess] = useState(false);
 
   // Donor State
@@ -70,15 +74,49 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
     return `$${Math.round(amount).toLocaleString('es-CO')} COP`;
   };
 
-  const handleApplySubmit = (e: React.FormEvent) => {
+  const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setAppliedSuccess(true);
-    setTimeout(() => {
-      const message = encodeURIComponent(
-        `Hola American Dream English, me llamo ${studentName}, vivo en ${municipio} (${studyLevel}) y quiero postularme al Fondo de Becas Urabá.`
-      );
-      window.open(`https://wa.me/573127459728?text=${message}`, '_blank');
-    }, 1200);
+
+    if (!studentName.trim() || !studentPhone.trim() || !municipio || !studyLevel) {
+      setApplyErrorMessage('Por favor completa todos los campos obligatorios (*).');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setApplyErrorMessage(null);
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('scholarship_applications').insert([
+        {
+          full_name: studentName.trim(),
+          phone: studentPhone.trim(),
+          municipio,
+          study_level: studyLevel,
+        },
+      ]);
+
+      if (error) {
+        console.error('Error al guardar la postulación a beca:', error);
+        setApplyErrorMessage('No se pudo procesar la postulación. Por favor intenta de nuevo.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setAppliedSuccess(true);
+      setIsSubmitting(false);
+
+      setTimeout(() => {
+        const message = encodeURIComponent(
+          `Hola American Dream English, me llamo ${studentName}, vivo en ${municipio} (${studyLevel}) y acabo de registrar mi postulación al Fondo de Becas Urabá.`
+        );
+        window.open(`https://wa.me/573127459728?text=${message}`, '_blank');
+      }, 1500);
+    } catch (err) {
+      console.error('Error inesperado al postular:', err);
+      setApplyErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
+      setIsSubmitting(false);
+    }
   };
 
   const handleProcessPayment = (provider: PaymentProvider, e: React.FormEvent) => {
@@ -178,7 +216,12 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                 </div>
               ) : (
                 <form onSubmit={handleApplySubmit} className="space-y-4">
-                  
+                  {applyErrorMessage && (
+                    <div className="p-3.5 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                      {applyErrorMessage}
+                    </div>
+                  )}
+
                   <div className="bg-orange-50 border border-orange-200 p-4 rounded-2xl text-xs text-orange-900 space-y-1">
                     <strong className="font-bold flex items-center gap-1">
                       <Building2 className="w-4 h-4 text-orange-600" /> Requisitos de Postulación:
@@ -193,10 +236,11 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                     <input
                       type="text"
                       required
+                      disabled={isSubmitting}
                       value={studentName}
                       onChange={(e) => setStudentName(e.target.value)}
                       placeholder="Ej. Juan David Gómez"
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-60"
                     />
                   </div>
 
@@ -206,19 +250,21 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                       <input
                         type="tel"
                         required
+                        disabled={isSubmitting}
                         value={studentPhone}
                         onChange={(e) => setStudentPhone(e.target.value)}
                         placeholder="+57 300 000 0000"
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-60"
                       />
                     </div>
 
                     <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1">Municipio de Residencia *</label>
                       <select
+                        disabled={isSubmitting}
                         value={municipio}
                         onChange={(e) => setMunicipio(e.target.value)}
-                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"
+                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium disabled:opacity-60"
                       >
                         <option value="Turbo">Turbo (Sede Principal)</option>
                         <option value="Apartadó">Apartadó</option>
@@ -234,9 +280,10 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Nivel Educativo Actual *</label>
                     <select
+                      disabled={isSubmitting}
                       value={studyLevel}
                       onChange={(e) => setStudyLevel(e.target.value)}
-                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium disabled:opacity-60"
                     >
                       <option value="Primaria">Primaria (Niños 6 - 12 años)</option>
                       <option value="Bachillerato">Bachillerato (13 - 17 años)</option>
@@ -247,11 +294,21 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
 
                   <button
                     type="submit"
-                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all text-xs uppercase tracking-wider flex items-center justify-center space-x-2 mt-4"
+                    disabled={isSubmitting}
+                    className="w-full bg-orange-600 hover:bg-orange-700 disabled:opacity-75 text-white font-extrabold py-4 px-6 rounded-2xl shadow-md transition-all text-xs uppercase tracking-wider flex items-center justify-center space-x-2 mt-4"
                   >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Enviar Postulación a Beca por WhatsApp</span>
-                    <ArrowRight className="w-4 h-4" />
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Enviando Postulación...</span>
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Enviar Postulación a Beca</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
                   </button>
 
                   <p className="text-[10px] text-slate-400 text-center">
