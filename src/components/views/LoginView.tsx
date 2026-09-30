@@ -71,22 +71,22 @@ export function LoginView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#070D18] text-white flex flex-col justify-between p-4 sm:p-6 font-sans relative overflow-hidden select-none">
+    <div className="min-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-4 sm:p-6 font-sans relative overflow-hidden select-none">
       
-      {/* GLOW DECORATIONS (AMBIENT LIGHTS) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-crimson-600/15 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
+      {/* GLOW DECORATIONS (SOFT AMBIENT LIGHTS FOR NEUTRAL BACKGROUND) */}
+      <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
       
       {/* TOP NAV BAR LINK */}
       <header className="w-full max-w-5xl mx-auto flex items-center justify-between z-10 py-2">
         <a 
           href="/" 
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 px-4 py-2 rounded-full backdrop-blur-md"
+          className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors bg-white hover:bg-slate-200 border border-slate-300 px-4 py-2 rounded-full shadow-sm backdrop-blur-md"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="w-4 h-4 text-slate-600" />
           <span>Volver al Inicio</span>
         </a>
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
           <span>Plataforma Segura SSL</span>
         </div>
@@ -94,7 +94,7 @@ export function LoginView() {
 
       {/* LOGIN CARD MAIN SECTION */}
       <main className="flex-1 flex items-center justify-center py-8 z-10">
-        <div className="max-w-md w-full bg-[#0F1C2E]/90 backdrop-blur-xl border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/80 space-y-6 transition-all duration-300">
+        <div className="max-w-md w-full bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-slate-900/30 space-y-6 transition-all duration-300">
           
           {/* BRANDING: OFFICIAL LOGO REPLACEMENT */}
           <div className="text-center space-y-3">
@@ -241,7 +241,7 @@ export function LoginView() {
 
       {/* FOOTER */}
       <footer className="w-full text-center z-10 py-2">
-        <p className="text-[11px] text-slate-500 font-medium">
+        <p className="text-[11px] text-slate-500 font-bold">
           © {new Date().getFullYear()} American Dream English S.A.S. Todos los derechos reservados.
         </p>
       </footer>
