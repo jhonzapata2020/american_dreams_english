@@ -24,7 +24,8 @@ import {
   Inbox,
   Clock,
   AlertTriangle,
-  X
+  X,
+  Pencil
 } from 'lucide-react'
 
 interface StudentItem {
@@ -92,8 +93,136 @@ export default function AdminDashboardPage() {
     municipality: 'Turbo'
   })
 
+  // Modal State for Student Editing
+  const [studentToEdit, setStudentToEdit] = useState<StudentItem | null>(null)
+  const [editStudentData, setEditStudentData] = useState({
+    fullName: '',
+    email: '',
+    mcerLevel: 'A1',
+    municipality: 'Turbo'
+  })
+  const [isUpdatingStudent, setIsUpdatingStudent] = useState(false)
+
+  // Modal State for Student Deletion
+  const [studentToDelete, setStudentToDelete] = useState<StudentItem | null>(null)
+  const [isDeletingStudent, setIsDeletingStudent] = useState(false)
+
   // Floating Toast State
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null)
+
+  const handleOpenEditStudent = (st: StudentItem) => {
+    setStudentToEdit(st)
+    setEditStudentData({
+      fullName: st.student_name,
+      email: st.student_email,
+      mcerLevel: st.mcer_level || 'A1',
+      municipality: st.municipality || 'Turbo'
+    })
+  }
+
+  const handleUpdateStudent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!studentToEdit) return
+
+    setIsUpdatingStudent(true)
+    try {
+      const supabase = createClient()
+      const updatedName = editStudentData.fullName.trim()
+      const updatedEmail = editStudentData.email.trim()
+
+      const payload: any = {
+        full_name: updatedName,
+        email: updatedEmail,
+        academic_level: editStudentData.mcerLevel,
+        mcer_level: editStudentData.mcerLevel,
+        municipality: editStudentData.municipality,
+        origin_location: editStudentData.municipality,
+        updated_at: new Date().toISOString()
+      }
+
+      let { error } = await supabase
+        .from('profiles')
+        .update(payload)
+        .eq('id', studentToEdit.id)
+
+      if (error && error.message?.toLowerCase().includes('column')) {
+        const fallbackPayload: any = {
+          full_name: updatedName,
+          email: updatedEmail,
+          origin_location: editStudentData.municipality,
+          updated_at: new Date().toISOString()
+        }
+        const { error: retryErr } = await supabase
+          .from('profiles')
+          .update(fallbackPayload)
+          .eq('id', studentToEdit.id)
+
+        if (retryErr) throw retryErr
+      } else if (error) {
+        throw error
+      }
+
+      setStudentToEdit(null)
+      setToast({
+        title: '¡Estudiante actualizado!',
+        message: `Los datos de ${updatedName} se han actualizado con éxito.`
+      })
+      setTimeout(() => setToast(null), 4500)
+
+      await fetchAdminData()
+
+    } catch (err: any) {
+      console.error('Error al actualizar estudiante:', err)
+      setToast({
+        title: 'Error al actualizar',
+        message: err.message || 'No se pudo actualizar el perfil del estudiante.'
+      })
+      setTimeout(() => setToast(null), 4500)
+    } finally {
+      setIsUpdatingStudent(false)
+    }
+  }
+
+  const confirmDeleteStudent = async () => {
+    if (!studentToDelete) return
+
+    setIsDeletingStudent(true)
+    try {
+      const supabase = createClient()
+      const deletedName = studentToDelete.student_name
+
+      const { error } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', studentToDelete.id)
+
+      if (error) {
+        throw error
+      }
+
+      setStudentsList((prev) => prev.filter((s) => s.id !== studentToDelete.id))
+      setStudentsCount((prev) => Math.max(0, prev - 1))
+
+      setToast({
+        title: 'Estudiante eliminado',
+        message: `${deletedName} ha sido eliminado de public.profiles.`
+      })
+      setTimeout(() => setToast(null), 4500)
+
+      setStudentToDelete(null)
+      await fetchAdminData()
+
+    } catch (err: any) {
+      console.error('Error al eliminar estudiante:', err)
+      setToast({
+        title: 'Error al eliminar',
+        message: err.message || 'No se pudo eliminar el estudiante.'
+      })
+      setTimeout(() => setToast(null), 4500)
+    } finally {
+      setIsDeletingStudent(false)
+    }
+  }
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -292,6 +421,7 @@ export default function AdminDashboardPage() {
         .from('profiles')
         .select('*')
         .eq('role', 'student')
+        .order('created_at', { ascending: false })
 
       const { data: enrollData } = await supabase
         .from('enrollments')
@@ -718,6 +848,185 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        {/* MODAL FLOTANTE: EDITAR ESTUDIANTE */}
+        {studentToEdit && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                    <Pencil className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold text-white">Editar Estudiante</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Modificar datos en public.profiles</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setStudentToEdit(null)}
+                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Form */}
+              <form onSubmit={handleUpdateStudent} className="space-y-4">
+                {/* Nombre Completo */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    Nombre Completo <span className="text-blue-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editStudentData.fullName}
+                    onChange={(e) => setEditStudentData({ ...editStudentData, fullName: e.target.value })}
+                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {/* Correo Institucional / Personal */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    Correo Institucional / Personal <span className="text-blue-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={editStudentData.email}
+                    onChange={(e) => setEditStudentData({ ...editStudentData, email: e.target.value })}
+                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Nivel MCER */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      Nivel MCER
+                    </label>
+                    <select
+                      value={editStudentData.mcerLevel}
+                      onChange={(e) => setEditStudentData({ ...editStudentData, mcerLevel: e.target.value })}
+                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="A1">A1 - Principiante</option>
+                      <option value="A2">A2 - Elemental</option>
+                      <option value="B1">B1 - Pre-Intermedio</option>
+                      <option value="B2">B2 - Intermedio Alto</option>
+                    </select>
+                  </div>
+
+                  {/* Municipio / Sede */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      Municipio / Sede
+                    </label>
+                    <select
+                      value={editStudentData.municipality}
+                      onChange={(e) => setEditStudentData({ ...editStudentData, municipality: e.target.value })}
+                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="Turbo">Turbo</option>
+                      <option value="Apartadó">Apartadó</option>
+                      <option value="Carepa">Carepa</option>
+                      <option value="Chigorodó">Chigorodó</option>
+                      <option value="Necoclí">Necoclí</option>
+                      <option value="Arboletes">Arboletes</option>
+                      <option value="Mutatá">Mutatá</option>
+                      <option value="San Pedro de Urabá">San Pedro de Urabá</option>
+                      <option value="Medellín">Medellín</option>
+                      <option value="Otra Sede">Otra Sede</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+                  <button
+                    type="button"
+                    disabled={isUpdatingStudent}
+                    onClick={() => setStudentToEdit(null)}
+                    className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isUpdatingStudent}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-blue-600/20 flex items-center gap-2 cursor-pointer"
+                  >
+                    {isUpdatingStudent ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Guardando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Pencil className="w-3.5 h-3.5" />
+                        <span>Guardar Cambios</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL CONFIRMACIÓN ELIMINACIÓN DE ESTUDIANTE */}
+        {studentToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-[#0F172A] border border-slate-800/80 shadow-2xl rounded-2xl p-6 max-w-md w-full space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
+                  <AlertTriangle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-white">¿Eliminar estudiante?</h3>
+                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                    ¿Estás seguro de que deseas eliminar a <strong className="text-white font-bold">{studentToDelete.student_name}</strong>? Se eliminará el registro de <code className="text-emerald-400 font-mono text-[11px]">public.profiles</code>.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/70">
+                <button
+                  type="button"
+                  disabled={isDeletingStudent}
+                  onClick={() => setStudentToDelete(null)}
+                  className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  disabled={isDeletingStudent}
+                  onClick={confirmDeleteStudent}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-red-600/20 flex items-center gap-2 cursor-pointer"
+                >
+                  {isDeletingStudent ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Eliminando...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Eliminar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 5 KPI METRIC CARDS */}
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-pulse">
@@ -990,7 +1299,7 @@ export default function AdminDashboardPage() {
               Cargando matrículas desde Supabase...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-4">
+            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
               <Users className="w-10 h-10 text-slate-600 mx-auto" />
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-300 text-sm">No hay estudiantes registrados en Supabase</h4>
@@ -1000,15 +1309,6 @@ export default function AdminDashboardPage() {
                     : 'Aún no existen registros en la tabla public.profiles con rol student.'}
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => setIsAddStudentOpen(true)}
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md cursor-pointer"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Registrar Primer Estudiante</span>
-              </button>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-slate-800/70">
@@ -1066,14 +1366,33 @@ export default function AdminDashboardPage() {
                             {st.status === 'completed' ? '✓ Completado' : '● Activa'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right">
+                        <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
                           <Link
                             href="/dashboard/student"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 px-3 py-1.5 rounded-xl border border-slate-700/70 transition"
+                            title="Ver Aula"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 px-2.5 py-1.5 rounded-xl border border-slate-700/70 transition"
                           >
-                            <span>Ver Aula</span>
+                            <span>Aula</span>
                             <ArrowRight className="w-3 h-3 text-emerald-400" />
                           </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEditStudent(st)}
+                            title="Editar estudiante"
+                            className="bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/30 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                          >
+                            <Pencil className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setStudentToDelete(st)}
+                            title="Eliminar estudiante"
+                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </td>
                       </tr>
                     )
