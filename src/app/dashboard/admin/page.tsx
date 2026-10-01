@@ -324,13 +324,29 @@ export default function AdminDashboardPage() {
     try {
       const supabase = createClient()
 
-      // 1. KPI Student Profiles Count
-      const { count: cStudents } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'student')
+      // 1. KPI Student Profiles Count & List via Secure API Route (Service Role) to bypass RLS
+      let studentProfiles: any[] = []
+      try {
+        const res = await fetch('/api/admin/students')
+        const result = await res.json()
+        if (res.ok && result.students) {
+          studentProfiles = result.students
+        }
+      } catch (e) {
+        console.warn('Fallo al obtener estudiantes por API /api/admin/students, usando fallback cliente:', e)
+      }
 
-      setStudentsCount(cStudents || 0)
+      // Fallback si la API devuelve array vacío o falla por red
+      if (!studentProfiles || studentProfiles.length === 0) {
+        const { data: fallbackProfiles } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'student')
+          .order('created_at', { ascending: false })
+        if (fallbackProfiles) studentProfiles = fallbackProfiles
+      }
+
+      setStudentsCount(studentProfiles.length)
 
       // 2. KPI Teacher Profiles Count
       const { count: cTeachers } = await supabase
@@ -417,12 +433,6 @@ export default function AdminDashboardPage() {
       }
 
       // 7. Tabla Estudiantes: Profiles with role='student' + Enrollments
-      const { data: studentProfiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('role', 'student')
-        .order('created_at', { ascending: false })
-
       const { data: enrollData } = await supabase
         .from('enrollments')
         .select(`

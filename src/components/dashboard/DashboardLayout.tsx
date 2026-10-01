@@ -55,6 +55,20 @@ export function DashboardLayout({
   const [userEmail, setUserEmail] = useState<string>('')
   const [loadingUser, setLoadingUser] = useState<boolean>(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false)
+  const [currentHash, setCurrentHash] = useState<string>('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setCurrentHash(window.location.hash)
+    }
+
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash)
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [pathname])
 
   useEffect(() => {
     async function loadUserProfile() {
@@ -224,7 +238,18 @@ export function DashboardLayout({
 
             {currentNavItems.map((item) => {
               const Icon = item.icon
-              const isActive = pathname === item.href || activeTab === item.label
+              const [itemPath, itemHash] = item.href.split('#')
+              const formattedItemHash = itemHash ? `#${itemHash}` : ''
+
+              let isActive = false
+
+              if (activeTab === item.label) {
+                isActive = true
+              } else if (formattedItemHash) {
+                isActive = pathname === itemPath && currentHash === formattedItemHash
+              } else {
+                isActive = pathname === itemPath && (!currentHash || currentHash === '#')
+              }
 
               return (
                 <Link
