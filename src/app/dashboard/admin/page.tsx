@@ -101,35 +101,21 @@ export default function AdminDashboardPage() {
 
     setIsSubmittingStudent(true)
     try {
-      const supabase = createClient()
-      const newId = crypto.randomUUID()
-
-      const payload: any = {
-        id: newId,
-        full_name: newStudentData.fullName.trim(),
-        email: newStudentData.email.trim(),
-        role: 'student',
-        municipality: newStudentData.municipality,
-        origin_location: newStudentData.municipality
-      }
-
-      let { error } = await supabase.from('profiles').insert([payload])
-
-      // Fallback if DB schema lacks municipality column
-      if (error && error.message?.toLowerCase().includes('municipality')) {
-        delete payload.municipality
-        const res = await supabase.from('profiles').insert([payload])
-        error = res.error
-      }
-
-      if (error) {
-        console.error('Error al registrar estudiante:', error)
-        setToast({
-          title: 'Error al registrar',
-          message: error.message || 'No se pudo crear el perfil del estudiante en Supabase.'
+      const res = await fetch('/api/admin/create-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: newStudentData.fullName,
+          email: newStudentData.email,
+          municipality: newStudentData.municipality,
+          mcerLevel: newStudentData.mcerLevel
         })
-        setTimeout(() => setToast(null), 4000)
-        return
+      })
+
+      const result = await res.json()
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Error al registrar estudiante')
       }
 
       const registeredName = newStudentData.fullName.trim()
@@ -143,23 +129,7 @@ export default function AdminDashboardPage() {
         municipality: 'Turbo'
       })
 
-      // Update local state immediately for instant feedback
-      setStudentsCount((prev) => prev + 1)
-      setStudentsList((prev) => [
-        {
-          id: newId,
-          student_name: registeredName,
-          student_email: payload.email,
-          mcer_level: newStudentData.mcerLevel,
-          completed_hours: 0,
-          total_hours: 120,
-          status: 'active',
-          municipality: newStudentData.municipality
-        },
-        ...prev
-      ])
-
-      // Trigger floating Toast
+      // Trigger success Toast notification
       setToast({
         title: 'Estudiante registrado con éxito',
         message: `${registeredName} ha sido registrado como estudiante activo.`
@@ -170,7 +140,12 @@ export default function AdminDashboardPage() {
       await fetchAdminData()
 
     } catch (err: any) {
-      console.error('Error inesperado al crear estudiante:', err)
+      console.error('Error al registrar estudiante:', err)
+      setToast({
+        title: 'Error al registrar',
+        message: err.message || 'No se pudo registrar el estudiante.'
+      })
+      setTimeout(() => setToast(null), 4000)
     } finally {
       setIsSubmittingStudent(false)
     }
