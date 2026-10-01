@@ -169,7 +169,7 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    <div className="min-h-screen bg-[#f4f5f8] text-slate-800 font-sans flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#f1f4f8] text-slate-800 font-sans flex flex-col lg:flex-row">
       
       {/* MOBILE TOP BAR */}
       <div className="lg:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">

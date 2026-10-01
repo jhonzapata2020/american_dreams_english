@@ -44,7 +44,7 @@ interface ScholarshipApp {
   phone: string
   municipality: string
   academic_level: string
-  status: 'pending' | 'approved' | 'contacted'
+  status: 'pending' | 'approved' | 'rejected' | 'contacted'
   created_at?: string
 }
 
@@ -528,6 +528,31 @@ export default function AdminDashboardPage() {
     }
   }
 
+  const handleRejectApplication = async (appId: string, studentName: string) => {
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('scholarship_applications')
+        .update({ status: 'rejected' })
+        .eq('id', appId)
+
+      if (error) {
+        console.error('Error al descartar postulación en Supabase:', error)
+      }
+
+      setApplications((prev) => prev.filter((app) => app.id !== appId))
+      setPendingBecasCount((prev) => Math.max(0, prev - 1))
+
+      setToast({
+        title: 'Postulación descartada',
+        message: `La solicitud de ${studentName} ha sido descartada.`
+      })
+      setTimeout(() => setToast(null), 3500)
+    } catch (err) {
+      console.error('Error inesperado al descartar beca:', err)
+    }
+  }
+
   const confirmDeleteLead = async () => {
     if (!leadToDelete) return
 
@@ -626,7 +651,7 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardLayout currentRole="admin" title="Panel de Administración General">
-      <div className="relative min-h-screen bg-[#f4f5f8] text-slate-800 font-sans p-1 sm:p-2 rounded-3xl overflow-hidden select-none space-y-8 max-w-7xl mx-auto">
+      <div className="relative min-h-screen bg-[#f1f4f8] text-slate-800 font-sans p-1 sm:p-2 rounded-3xl overflow-hidden select-none space-y-8 max-w-7xl mx-auto">
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
@@ -654,7 +679,7 @@ export default function AdminDashboardPage() {
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/80 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
+            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -703,7 +728,7 @@ export default function AdminDashboardPage() {
         {/* MODAL FLOTANTE: REGISTRAR NUEVO ESTUDIANTE */}
         {isAddStudentOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
               {/* Modal Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -835,7 +860,7 @@ export default function AdminDashboardPage() {
         {/* MODAL FLOTANTE: EDITAR ESTUDIANTE */}
         {studentToEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
               {/* Modal Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
@@ -965,7 +990,7 @@ export default function AdminDashboardPage() {
         {/* MODAL CONFIRMACIÓN ELIMINACIÓN DE ESTUDIANTE */}
         {studentToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/80 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
+            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -1015,7 +1040,7 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
           
           {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
-          <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
+          <div className="lg:col-span-2 bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
             <div>
               <div className="flex items-center justify-between gap-3 mb-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
@@ -1048,7 +1073,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (1 col) */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
               <div className="p-2 bg-red-50 text-red-600 rounded-2xl border border-red-100">
@@ -1096,7 +1121,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* BENTO WIDGET 3: BECAS URABÁ (1 col) */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
               <div className="p-2 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200">
@@ -1144,8 +1169,8 @@ export default function AdminDashboardPage() {
 
         </div>
 
-        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-5 text-slate-800 relative z-10">
+        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (LAYOUT HORIZONTAL COMPACTO) */}
+        <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 relative z-10">
           <div className="flex items-center justify-between mb-4 px-1">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-red-600" />
@@ -1154,47 +1179,47 @@ export default function AdminDashboardPage() {
             <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {/* Button 1: Agregar Estudiante */}
             <button
               type="button"
               onClick={() => setIsAddStudentOpen(true)}
-              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
+              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
             >
-              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+              <div className="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                 <UserPlus className="w-4 h-4 text-red-600" />
               </div>
-              <div className="mt-3">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Crear perfil en profiles</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors truncate">+ Agregar Estudiante</p>
+                <p className="text-[10px] text-slate-500 truncate">Crear perfil en profiles</p>
               </div>
             </button>
 
             {/* Button 2: Catálogo Cursos */}
             <Link
               href="/dashboard/admin/products"
-              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between"
+              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
             >
-              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                 <Package className="w-4 h-4 text-slate-700" />
               </div>
-              <div className="mt-3">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Catálogo Cursos</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Gestionar productos RBAC</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Catálogo Cursos</p>
+                <p className="text-[10px] text-slate-500 truncate">Gestionar productos RBAC</p>
               </div>
             </Link>
 
             {/* Button 3: Prospectos Web */}
             <a
               href="#leads"
-              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between"
+              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
             >
-              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                 <Inbox className="w-4 h-4 text-slate-700" />
               </div>
-              <div className="mt-3">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Prospectos Web</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">{leadsCount} registros recibidos</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Prospectos Web</p>
+                <p className="text-[10px] text-slate-500 truncate">{leadsCount} registros recibidos</p>
               </div>
             </a>
 
@@ -1203,21 +1228,21 @@ export default function AdminDashboardPage() {
               type="button"
               onClick={fetchAdminData}
               disabled={refreshing}
-              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
+              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
             >
-              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                 <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
               </div>
-              <div className="mt-3">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Sincronizar BD</p>
-                <p className="text-[10px] text-slate-500 mt-0.5">Refrescar desde Supabase</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Sincronizar BD</p>
+                <p className="text-[10px] text-slate-500 truncate">Refrescar desde Supabase</p>
               </div>
             </button>
           </div>
         </div>
 
         {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER */}
-        <div id="estudiantes" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
+        <div id="estudiantes" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
           
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
@@ -1261,7 +1286,7 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              {/* Botón + Agregar Estudiante (Rojo Institucional) */}
+              {/* Botón + Agregar Estudiante */}
               <button
                 type="button"
                 onClick={() => setIsAddStudentOpen(true)}
@@ -1300,7 +1325,7 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-6 text-center">Nivel MCER</th>
                     <th className="py-4 px-6">Progreso de Horas</th>
                     <th className="py-4 px-6 text-center">Estado Matrícula</th>
-                    <th className="py-4 px-6 text-right">Acciones</th>
+                    <th className="py-4 px-6 text-right w-56 whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1356,7 +1381,7 @@ export default function AdminDashboardPage() {
                             {st.status === 'completed' ? '✓ Completado' : '● Activa'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right space-x-1.5 whitespace-nowrap">
+                        <td className="py-4 px-6 text-right w-56 whitespace-nowrap space-x-1.5">
                           <Link
                             href="/dashboard/student"
                             title="Ver Aula"
@@ -1395,7 +1420,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* BENTO MODULE 2: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
-        <div id="leads" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
+        <div id="leads" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
@@ -1503,7 +1528,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* BENTO MODULE 3: POSTULACIONES BECAS URABÁ */}
-        <div id="becas" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
+        <div id="becas" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
           
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
@@ -1572,15 +1597,26 @@ export default function AdminDashboardPage() {
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right space-x-2">
+                      <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                         {app.status !== 'approved' && (
-                          <button
-                            onClick={() => handleApproveApplication(app.id, app.full_name)}
-                            className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
-                          >
-                            <Check className="w-3.5 h-3.5" />
-                            <span>Aprobar</span>
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleApproveApplication(app.id, app.full_name)}
+                              className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
+                            >
+                              <Check className="w-3.5 h-3.5" />
+                              <span>Aprobar</span>
+                            </button>
+
+                            <button
+                              onClick={() => handleRejectApplication(app.id, app.full_name)}
+                              title="Descartar postulación"
+                              className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 font-medium py-1.5 px-2.5 rounded-xl transition-colors text-xs cursor-pointer"
+                            >
+                              <X className="w-3.5 h-3.5 text-slate-500" />
+                              <span>Descartar</span>
+                            </button>
+                          </>
                         )}
 
                         <button
