@@ -97,47 +97,88 @@ export default function AdminDashboardPage() {
 
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newStudentData.fullName.trim() || !newStudentData.email.trim()) return
+    const fullName = newStudentData.fullName.trim()
+    const email = newStudentData.email.trim()
+    const municipality = newStudentData.municipality
+    const mcerLevel = newStudentData.mcerLevel
+
+    if (!fullName || !email) return
 
     setIsSubmittingStudent(true)
     try {
-      const res = await fetch('/api/admin/create-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fullName: newStudentData.fullName,
-          email: newStudentData.email,
-          municipality: newStudentData.municipality,
-          mcerLevel: newStudentData.mcerLevel
-        })
-      })
+      const supabase = createClient()
+      const newId = crypto.randomUUID()
 
-      const result = await res.json()
-
-      if (!res.ok || !result.success) {
-        throw new Error(result.error || 'Error al registrar estudiante')
+      // 1. Ejecutar inserción en public.profiles con cliente Supabase
+      const profilePayload: any = {
+        id: newId,
+        full_name: fullName,
+        email: email,
+        role: 'student',
+        municipality: municipality,
+        origin_location: municipality
       }
 
-      const registeredName = newStudentData.fullName.trim()
+      let { error: insertError } = await supabase.from('profiles').insert([profilePayload])
 
-      // Close modal and reset form
-      setIsAddStudentOpen(false)
+      // Fallback si la columna municipality no existe en la tabla profiles de Supabase
+      if (insertError && insertError.message?.toLowerCase().includes('municipality')) {
+        delete profilePayload.municipality
+        const res = await supabase.from('profiles').insert([profilePayload])
+        insertError = res.error
+      }
+
+      // Fallback secundario a la API Route si el cliente reporta algún error de inserción
+      if (insertError) {
+        console.warn('Inserción directa reportó error, ejecutando endpoint backend:', insertError.message)
+        const apiRes = await fetch('/api/admin/create-student', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullName, email, municipality, mcerLevel })
+        })
+        const apiResult = await apiRes.json()
+        if (!apiRes.ok || !apiResult.success) {
+          throw new Error(apiResult.error || insertError.message || 'Error al registrar estudiante')
+        }
+      }
+
+      // 2. Si no hubo error: Notificar, cerrar el modal y limpiar formulario
+      setToast({
+        title: 'Estudiante registrado con éxito',
+        message: `${fullName} ha sido registrado como estudiante activo.`
+      })
+      setTimeout(() => setToast(null), 4000)
+
+      setIsAddStudentOpen(false) // Cerrar el modal
       setNewStudentData({
         fullName: '',
         email: '',
         mcerLevel: 'A1',
         municipality: 'Turbo'
-      })
+      }) // Limpiar los inputs del formulario
 
-      // Trigger success Toast notification
-      setToast({
-        title: 'Estudiante registrado con éxito',
-        message: `${registeredName} ha sido registrado como estudiante activo.`
-      })
-      setTimeout(() => setToast(null), 4000)
+      // Actualizar la lista local e incremento inmediato del contador
+      setStudentsCount((prev) => prev + 1)
+      setStudentsList((prev) => [
+        {
+          id: newId,
+          student_name: fullName,
+          student_email: email,
+          mcer_level: mcerLevel,
+          completed_hours: 0,
+          total_hours: 120,
+          status: 'active',
+          municipality: municipality
+        },
+        ...prev
+      ])
 
-      // Refresh data from Supabase
-      await fetchAdminData()
+      // 3. Re-consultar public.profiles para que la tabla y los KPIs se actualicen de inmediato
+      try {
+        await fetchAdminData()
+      } catch (syncErr) {
+        console.warn('Advertencia al resincronizar datos:', syncErr)
+      }
 
     } catch (err: any) {
       console.error('Error al registrar estudiante:', err)
