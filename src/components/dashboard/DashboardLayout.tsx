@@ -176,7 +176,7 @@ export function DashboardLayout({
       <div className="w-full max-w-[1550px] min-h-[90vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-[#0c1322] text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-flex items-center">
               <img 
@@ -202,23 +202,25 @@ export function DashboardLayout({
           </button>
         </div>
 
-        {/* 2. SIDEBAR INTEGRADO EN AZUL MARINO NOCHE PROFUNDO (#0c1322) */}
+        {/* 2. SIDEBAR INTEGRADO EN AZUL MARINO INSTITUCIONAL (bg-slate-900) */}
         <aside
-          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-[#0c1322] text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-slate-900 text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           <div className="p-6 space-y-6 overflow-y-auto flex-1">
             
-            {/* LOGO INSTITUCIONAL ORIGINAL (ESCUDO ROJO, AZUL Y BLANCO) */}
+            {/* LOGO INSTITUCIONAL ORIGINAL CON CONTENEDOR DE REALCE */}
             <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/80">
-              <Link href="/" className="mb-3 block hover:scale-105 transition-transform">
-                <img 
-                  src="/logo-american-dream.png" 
-                  alt="American Dream English" 
-                  className="h-16 w-auto object-contain drop-shadow-md mx-auto" 
-                />
-              </Link>
+              <div className="w-full p-3 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-3">
+                <Link href="/" className="block hover:scale-105 transition-transform">
+                  <img 
+                    src="/logo-american-dream.png" 
+                    alt="American Dream English" 
+                    className="h-16 w-auto object-contain drop-shadow-md mx-auto" 
+                  />
+                </Link>
+              </div>
               <h2 className="text-sm font-black text-white tracking-wide">
                 AMERICAN DREAM ENGLISH
               </h2>
