@@ -480,12 +480,12 @@ export default function AdminProductsPage() {
           )}
 
           {/* TOP TOOLBAR (Matching "Clientes" Reference Header Layout) */}
-          <div className="space-y-4">
+          <div className="space-y-4 mb-6">
             
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
               
               {/* Title Header */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 whitespace-nowrap">
                 <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
                   Catálogo de Productos & Precios
                 </h1>
@@ -495,10 +495,10 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Controls Group: Search, Dropdown Selectors, Add Button */}
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-wrap lg:flex-nowrap items-center gap-2.5">
                 
                 {/* Search Input */}
-                <div className="relative min-w-[200px] flex-1 sm:flex-initial">
+                <div className="relative w-full sm:w-56 md:w-64 flex-shrink-0">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="text"
@@ -508,19 +508,19 @@ export default function AdminProductsPage() {
                       setSearchTerm(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-xs rounded-2xl pl-9 pr-4 py-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-700 placeholder-slate-400 text-xs rounded-xl pl-9 pr-4 py-2.5 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500 transition-all"
                   />
                 </div>
 
                 {/* Dropdown: Categoría */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <select
                     value={selectedCategory}
                     onChange={(e) => {
                       setSelectedCategory(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs rounded-2xl pl-3.5 pr-8 py-2.5 cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
+                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs md:text-sm py-2 pl-3 pr-8 rounded-xl cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
                   >
                     <option value="all">Categoría (Todas)</option>
                     <option value="presencial">Presenciales</option>
@@ -529,53 +529,53 @@ export default function AdminProductsPage() {
                     <option value="audios">Audios</option>
                     <option value="digital">Digital</option>
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
 
                 {/* Dropdown: Moneda */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <select
                     value={selectedCurrency}
                     onChange={(e) => {
                       setSelectedCurrency(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs rounded-2xl pl-3.5 pr-8 py-2.5 cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
+                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs md:text-sm py-2 pl-3 pr-8 rounded-xl cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
                   >
                     <option value="all">Moneda (Todas)</option>
                     <option value="cop">Solo COP</option>
                     <option value="usd">Solo USD</option>
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
 
                 {/* Dropdown: Visibilidad */}
-                <div className="relative">
+                <div className="relative flex-shrink-0">
                   <select
                     value={selectedVisibility}
                     onChange={(e) => {
                       setSelectedVisibility(e.target.value)
                       setCurrentPage(1)
                     }}
-                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs rounded-2xl pl-3.5 pr-8 py-2.5 cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
+                    className="appearance-none bg-slate-50 border border-slate-200 text-slate-700 font-medium text-xs md:text-sm py-2 pl-3 pr-8 rounded-xl cursor-pointer hover:bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
                   >
                     <option value="all">Visibilidad (Todas)</option>
                     <option value="active">Activos</option>
                     <option value="inactive">Inactivos</option>
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3.5 pointer-events-none" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-3 pointer-events-none" />
                 </div>
 
-                {/* Golden Amber Action Button (Matching "Novo cliente" in reference image) */}
+                {/* Golden Amber Action Button (Matching "Nuevo producto" in reference image) */}
                 <button
                   onClick={() => {
                     resetCreateForm()
                     setIsCreateModalOpen(true)
                   }}
-                  className="bg-[#f5c045] hover:bg-[#e4b034] text-slate-900 font-bold text-xs rounded-2xl px-5 py-2.5 shadow-sm shadow-amber-200/60 flex items-center gap-2 transition-all active:scale-95"
+                  className="bg-[#f5c045] hover:bg-[#e4b034] text-slate-900 font-bold text-xs rounded-xl px-4 py-2.5 shadow-sm shadow-amber-200/60 flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap flex-shrink-0"
                 >
                   <Plus className="w-4 h-4 stroke-[3]" />
-                  <span>Novo producto</span>
+                  <span>+ Nuevo Producto</span>
                 </button>
 
               </div>
@@ -647,7 +647,7 @@ export default function AdminProductsPage() {
           </div>
 
           {/* STYLED PRODUCTS TABLE (Dark Institutional Deep Navy Header Header Bar) */}
-          <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-sm">
+          <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-sm w-full">
             
             {loading ? (
               <div className="p-12 text-center text-slate-400 text-xs space-y-3">
@@ -666,8 +666,8 @@ export default function AdminProductsPage() {
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-700 border-collapse">
+              <div className="overflow-x-auto w-full">
+                <table className="w-full min-w-[850px] text-left text-xs text-slate-700 border-collapse">
                   
                   {/* Header Row: Deep Navy Dark Blue (#0c1f2d) */}
                   <thead>
