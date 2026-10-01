@@ -598,27 +598,27 @@ export default function AdminDashboardPage() {
     const val = (aud || '').toLowerCase()
     if (val.includes('hijo') || val.includes('niño') || val.includes('kids')) {
       return (
-        <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 text-[11px] font-bold rounded-lg border border-emerald-500/20 whitespace-nowrap inline-block">
+        <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold rounded-lg border border-emerald-200 whitespace-nowrap inline-block">
           Infantil / Hijos
         </span>
       )
     }
     if (val.includes('empresa') || val.includes('corporativo') || val.includes('b2b')) {
       return (
-        <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 text-[11px] font-bold rounded-lg border border-amber-500/20 whitespace-nowrap inline-block">
+        <span className="px-2.5 py-1 bg-amber-50 text-amber-700 text-[11px] font-semibold rounded-lg border border-amber-200 whitespace-nowrap inline-block">
           Corporativo
         </span>
       )
     }
     if (val.includes('para_mi') || val.includes('personal') || val.includes('adulto') || val === 'self') {
       return (
-        <span className="px-2.5 py-1 bg-zinc-800 text-zinc-300 text-[11px] font-bold rounded-lg border border-zinc-700 whitespace-nowrap inline-block">
+        <span className="px-2.5 py-1 bg-slate-100 text-slate-700 text-[11px] font-semibold rounded-lg border border-slate-200 whitespace-nowrap inline-block">
           Adulto / Personal
         </span>
       )
     }
     return (
-      <span className="px-2.5 py-1 bg-zinc-900 text-zinc-400 text-[11px] font-medium rounded-lg border border-zinc-800 whitespace-nowrap inline-block">
+      <span className="px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-medium rounded-lg border border-slate-200 whitespace-nowrap inline-block">
         {aud || 'General'}
       </span>
     )
@@ -626,27 +626,24 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardLayout currentRole="admin" title="Panel de Administración General">
-      <div className="relative min-h-screen bg-[#09090b] text-zinc-100 font-sans p-1 sm:p-2 rounded-3xl overflow-hidden select-none space-y-8 max-w-7xl mx-auto">
-        
-        {/* SUBTLE AMBIENT BACKGROUND GLOW (MATTE CARBON ACCENT) */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative min-h-screen bg-[#f4f5f8] text-slate-800 font-sans p-1 sm:p-2 rounded-3xl overflow-hidden select-none space-y-8 max-w-7xl mx-auto">
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-[9999] bg-zinc-950/95 border border-emerald-500/50 text-white p-4 rounded-2xl shadow-2xl shadow-black/80 flex items-center justify-between gap-4 animate-fadeIn max-w-sm backdrop-blur-md">
+          <div className="fixed bottom-6 right-6 z-[9999] bg-white border border-emerald-300 text-slate-900 p-4 rounded-2xl shadow-xl shadow-slate-300/40 flex items-center justify-between gap-4 animate-fadeIn max-w-sm backdrop-blur-md">
             <div className="flex items-center gap-3.5">
-              <div className="p-2.5 bg-emerald-500/15 text-emerald-400 rounded-xl border border-emerald-500/30 flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200 flex-shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               </div>
               <div>
-                <h4 className="text-xs font-extrabold text-white">{toast.title}</h4>
-                <p className="text-[11px] text-zinc-300 mt-0.5">{toast.message}</p>
+                <h4 className="text-xs font-extrabold text-slate-900">{toast.title}</h4>
+                <p className="text-[11px] text-slate-600 mt-0.5">{toast.message}</p>
               </div>
             </div>
             <button
               type="button"
               onClick={() => setToast(null)}
-              className="text-zinc-400 hover:text-white p-1 rounded-lg transition-colors flex-shrink-0"
+              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors flex-shrink-0"
               title="Cerrar notificación"
             >
               <X className="w-4 h-4" />
@@ -656,26 +653,26 @@ export default function AdminDashboardPage() {
 
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-zinc-950 border border-zinc-800/80 shadow-2xl rounded-3xl p-6 max-w-md w-full space-y-5">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/80 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
+                <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-white">¿Eliminar prospecto web?</h3>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                    ¿Estás seguro de que deseas eliminar al prospecto <strong className="text-white font-bold">{`${leadToDelete.first_name} ${leadToDelete.last_name}`.trim()}</strong>? Esta acción no se puede deshacer.
+                  <h3 className="text-base font-bold text-slate-900">¿Eliminar prospecto web?</h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    ¿Estás seguro de que deseas eliminar al prospecto <strong className="text-slate-800 font-bold">{`${leadToDelete.first_name} ${leadToDelete.last_name}`.trim()}</strong>? Esta acción no se puede deshacer.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800/60">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   disabled={isDeleting}
                   onClick={() => setLeadToDelete(null)}
-                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold rounded-xl text-xs transition-colors border border-zinc-800"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
                 >
                   Cancelar
                 </button>
@@ -684,7 +681,7 @@ export default function AdminDashboardPage() {
                   type="button"
                   disabled={isDeleting}
                   onClick={confirmDeleteLead}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium rounded-xl text-xs transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                 >
                   {isDeleting ? (
                     <>
@@ -705,24 +702,24 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: REGISTRAR NUEVO ESTUDIANTE */}
         {isAddStudentOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-zinc-950 border border-zinc-800/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-zinc-800/60 pb-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-zinc-800/80 text-zinc-200 rounded-2xl border border-zinc-700/60">
-                    <UserPlus className="w-5 h-5 text-zinc-200" />
+                  <div className="p-2.5 bg-red-50 text-red-600 rounded-2xl border border-red-100">
+                    <UserPlus className="w-5 h-5 text-red-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-white">Registrar Nuevo Estudiante</h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">Crear un nuevo perfil de estudiante bilingüe en Supabase</p>
+                    <h3 className="text-lg font-bold text-slate-900">Registrar Nuevo Estudiante</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Crear un nuevo perfil de estudiante bilingüe en Supabase</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddStudentOpen(false)}
-                  className="text-zinc-400 hover:text-white p-1.5 rounded-xl hover:bg-zinc-900 transition-colors"
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -732,8 +729,8 @@ export default function AdminDashboardPage() {
               <form onSubmit={handleCreateStudent} className="space-y-4">
                 {/* Nombre Completo */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Nombre Completo <span className="text-amber-400">*</span>
+                  <label className="text-xs font-semibold text-slate-700">
+                    Nombre Completo <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
@@ -741,14 +738,14 @@ export default function AdminDashboardPage() {
                     placeholder="Ej: María Alejandra Pérez"
                     value={newStudentData.fullName}
                     onChange={(e) => setNewStudentData({ ...newStudentData, fullName: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
                 </div>
 
                 {/* Correo Institucional / Personal */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Correo Institucional / Personal <span className="text-amber-400">*</span>
+                  <label className="text-xs font-semibold text-slate-700">
+                    Correo Institucional / Personal <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="email"
@@ -756,20 +753,20 @@ export default function AdminDashboardPage() {
                     placeholder="estudiante@americandream.edu.co"
                     value={newStudentData.email}
                     onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Nivel MCER Inicial */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-zinc-300">
+                    <label className="text-xs font-semibold text-slate-700">
                       Nivel MCER Inicial
                     </label>
                     <select
                       value={newStudentData.mcerLevel}
                       onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                     >
                       <option value="A1">A1 - Principiante</option>
                       <option value="A2">A2 - Elemental</option>
@@ -780,13 +777,13 @@ export default function AdminDashboardPage() {
 
                   {/* Municipio / Sede */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-zinc-300">
+                    <label className="text-xs font-semibold text-slate-700">
                       Municipio / Sede
                     </label>
                     <select
                       value={newStudentData.municipality}
                       onChange={(e) => setNewStudentData({ ...newStudentData, municipality: e.target.value })}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                     >
                       <option value="Turbo">Turbo</option>
                       <option value="Apartadó">Apartadó</option>
@@ -803,19 +800,19 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800/60">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     disabled={isSubmittingStudent}
                     onClick={() => setIsAddStudentOpen(false)}
-                    className="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold rounded-xl text-xs transition-colors border border-zinc-800"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingStudent}
-                    className="px-5 py-2.5 bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-bold rounded-xl text-xs transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
                   >
                     {isSubmittingStudent ? (
                       <>
@@ -837,24 +834,24 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: EDITAR ESTUDIANTE */}
         {studentToEdit && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-zinc-950 border border-zinc-800/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/80 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-zinc-800/60 pb-4">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-zinc-800/80 text-zinc-200 rounded-2xl border border-zinc-700/60">
-                    <Pencil className="w-5 h-5 text-zinc-200" />
+                  <div className="p-2.5 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200">
+                    <Pencil className="w-5 h-5 text-slate-700" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-extrabold text-white">Editar Estudiante</h3>
-                    <p className="text-xs text-zinc-400 mt-0.5">Modificar datos en public.profiles</p>
+                    <h3 className="text-lg font-bold text-slate-900">Editar Estudiante</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Modificar datos en public.profiles</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setStudentToEdit(null)}
-                  className="text-zinc-400 hover:text-white p-1.5 rounded-xl hover:bg-zinc-900 transition-colors"
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -864,42 +861,42 @@ export default function AdminDashboardPage() {
               <form onSubmit={handleUpdateStudent} className="space-y-4">
                 {/* Nombre Completo */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Nombre Completo <span className="text-amber-400">*</span>
+                  <label className="text-xs font-semibold text-slate-700">
+                    Nombre Completo <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={editStudentData.fullName}
                     onChange={(e) => setEditStudentData({ ...editStudentData, fullName: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
                 </div>
 
                 {/* Correo Institucional / Personal */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-zinc-300">
-                    Correo Institucional / Personal <span className="text-amber-400">*</span>
+                  <label className="text-xs font-semibold text-slate-700">
+                    Correo Institucional / Personal <span className="text-red-600">*</span>
                   </label>
                   <input
                     type="email"
                     required
                     value={editStudentData.email}
                     onChange={(e) => setEditStudentData({ ...editStudentData, email: e.target.value })}
-                    className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Nivel MCER */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-zinc-300">
+                    <label className="text-xs font-semibold text-slate-700">
                       Nivel MCER
                     </label>
                     <select
                       value={editStudentData.mcerLevel}
                       onChange={(e) => setEditStudentData({ ...editStudentData, mcerLevel: e.target.value })}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                     >
                       <option value="A1">A1 - Principiante</option>
                       <option value="A2">A2 - Elemental</option>
@@ -910,13 +907,13 @@ export default function AdminDashboardPage() {
 
                   {/* Municipio / Sede */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-zinc-300">
+                    <label className="text-xs font-semibold text-slate-700">
                       Municipio / Sede
                     </label>
                     <select
                       value={editStudentData.municipality}
                       onChange={(e) => setEditStudentData({ ...editStudentData, municipality: e.target.value })}
-                      className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                     >
                       <option value="Turbo">Turbo</option>
                       <option value="Apartadó">Apartadó</option>
@@ -933,19 +930,19 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-zinc-800/60">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     disabled={isUpdatingStudent}
                     onClick={() => setStudentToEdit(null)}
-                    className="px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold rounded-xl text-xs transition-colors border border-zinc-800"
+                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isUpdatingStudent}
-                    className="px-5 py-2.5 bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-bold rounded-xl text-xs transition-all shadow-sm flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
                   >
                     {isUpdatingStudent ? (
                       <>
@@ -967,26 +964,26 @@ export default function AdminDashboardPage() {
 
         {/* MODAL CONFIRMACIÓN ELIMINACIÓN DE ESTUDIANTE */}
         {studentToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-zinc-950 border border-zinc-800/80 shadow-2xl rounded-3xl p-6 max-w-md w-full space-y-5">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/80 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
-                <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
+                <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-white">¿Eliminar estudiante?</h3>
-                  <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                    ¿Estás seguro de que deseas eliminar a <strong className="text-white font-bold">{studentToDelete.student_name}</strong>? Se eliminará el registro de <code className="text-zinc-300 font-mono text-[11px]">public.profiles</code>.
+                  <h3 className="text-base font-bold text-slate-900">¿Eliminar estudiante?</h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    ¿Estás seguro de que deseas eliminar a <strong className="text-slate-900 font-bold">{studentToDelete.student_name}</strong>? Se eliminará el registro de <code className="text-slate-700 font-mono text-[11px]">public.profiles</code>.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-zinc-800/60">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   disabled={isDeletingStudent}
                   onClick={() => setStudentToDelete(null)}
-                  className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 font-semibold rounded-xl text-xs transition-colors border border-zinc-800"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
                 >
                   Cancelar
                 </button>
@@ -995,7 +992,7 @@ export default function AdminDashboardPage() {
                   type="button"
                   disabled={isDeletingStudent}
                   onClick={confirmDeleteStudent}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium rounded-xl text-xs transition-all shadow-sm flex items-center gap-2 cursor-pointer"
                 >
                   {isDeletingStudent ? (
                     <>
@@ -1018,65 +1015,65 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
           
           {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
-          <div className="lg:col-span-2 bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-zinc-700/70 transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+          <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
             <div>
               <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/60 text-zinc-300 rounded-full text-xs font-semibold border border-zinc-700/50">
-                  <ShieldCheck className="w-3.5 h-3.5 text-zinc-300" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+                  <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
                   <span>Director Académico</span>
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-medium border border-emerald-500/20">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                   <span>En vivo: {currentTime || 'Live'}</span>
                 </div>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-zinc-100">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
                 American Dream English
               </h1>
-              <p className="text-xs text-zinc-400 mt-1 max-w-md leading-relaxed">
+              <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
                 Panel de Administración General & Control RBAC. Seguimiento bilingüe en tiempo real para la Sede Urabá.
               </p>
             </div>
 
             {/* Glowing line divider */}
-            <div className="mt-6 pt-4 border-t border-zinc-800/60 flex items-center justify-between text-xs text-zinc-400">
+            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
               <span className="flex items-center gap-1.5 text-[11px]">
-                <Building2 className="w-3.5 h-3.5 text-zinc-400" />
+                <Building2 className="w-3.5 h-3.5 text-slate-500" />
                 Sede Principal Turbo & Urabá
               </span>
-              <span className="text-[11px] font-mono text-zinc-500">v2.4.0 Live</span>
+              <span className="text-[11px] font-mono text-slate-400">v2.4.0 Live</span>
             </div>
           </div>
 
           {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (1 col) */}
-          <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-zinc-700/70 transition-all duration-300 flex flex-col justify-between relative group">
+          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Estudiantes</span>
-              <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
+              <div className="p-2 bg-red-50 text-red-600 rounded-2xl border border-red-100">
                 <GraduationCap className="w-4 h-4" />
               </div>
             </div>
 
             <div className="flex items-center justify-between my-3">
               <div>
-                <p className="text-4xl font-extrabold tracking-tight text-white">{studentsCount}</p>
-                <p className="text-[11px] text-zinc-400 mt-0.5 font-medium">Registrados en profiles</p>
+                <p className="text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
+                <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Registrados en profiles</p>
               </div>
 
               {/* Circular Progress SVG Ring */}
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-zinc-800"
+                    className="text-slate-100"
                     strokeWidth="3.5"
                     stroke="currentColor"
                     fill="none"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                   <path
-                    className="text-emerald-400 transition-all duration-1000"
+                    className="text-emerald-500 transition-all duration-1000"
                     strokeDasharray={`${Math.min(100, Math.max(25, studentsCount * 25))}, 100`}
                     strokeWidth="3.5"
                     strokeLinecap="round"
@@ -1085,46 +1082,46 @@ export default function AdminDashboardPage() {
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
-                <span className="absolute text-[10px] font-bold text-emerald-400">100%</span>
+                <span className="absolute text-[10px] font-bold text-emerald-600">100%</span>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px]">
-              <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Sincronizado
               </span>
-              <span className="text-zinc-500">public.profiles</span>
+              <span className="text-slate-400">public.profiles</span>
             </div>
           </div>
 
           {/* BENTO WIDGET 3: BECAS URABÁ (1 col) */}
-          <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-zinc-700/70 transition-all duration-300 flex flex-col justify-between relative group">
+          <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Becas Urabá</span>
-              <div className="p-2 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200">
                 <Heart className="w-4 h-4" />
               </div>
             </div>
 
             <div className="flex items-center justify-between my-3">
               <div>
-                <p className="text-4xl font-extrabold tracking-tight text-white">{pendingBecasCount}</p>
-                <p className="text-[11px] text-amber-400/90 mt-0.5 font-medium">Pendientes por aprobar</p>
+                <p className="text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
+                <p className="text-[11px] text-amber-700 mt-0.5 font-medium">Pendientes por aprobar</p>
               </div>
 
               {/* Circular Glowing Ring */}
               <div className="relative w-16 h-16 flex items-center justify-center">
                 <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                   <path
-                    className="text-zinc-800"
+                    className="text-slate-100"
                     strokeWidth="3.5"
                     stroke="currentColor"
                     fill="none"
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                   <path
-                    className="text-amber-400 transition-all duration-1000"
+                    className="text-amber-500 transition-all duration-1000"
                     strokeDasharray={`${pendingBecasCount > 0 ? 75 : 100}, 100`}
                     strokeWidth="3.5"
                     strokeLinecap="round"
@@ -1133,28 +1130,28 @@ export default function AdminDashboardPage() {
                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                   />
                 </svg>
-                <span className="absolute text-[10px] font-extrabold text-amber-400">
+                <span className="absolute text-[10px] font-extrabold text-amber-600">
                   {pendingBecasCount > 0 ? `${pendingBecasCount}` : 'OK'}
                 </span>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-zinc-800/60 flex items-center justify-between text-[11px]">
-              <span className="text-amber-400 font-semibold">Fondo Social</span>
-              <a href="#becas" className="text-zinc-400 hover:text-white transition-colors">Revisar →</a>
+            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+              <span className="text-amber-700 font-semibold">Fondo Social</span>
+              <a href="#becas" className="text-slate-500 hover:text-slate-800 transition-colors">Revisar →</a>
             </div>
           </div>
 
         </div>
 
         {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
-        <div className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-5 shadow-2xl shadow-black/40 relative z-10">
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-5 text-slate-800 relative z-10">
           <div className="flex items-center justify-between mb-4 px-1">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-zinc-400 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-zinc-300" />
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-red-600" />
               <span>Accesos Rápidos & Gestión Directa</span>
             </h3>
-            <span className="text-[11px] text-zinc-500 font-medium">Bento Shortcuts</span>
+            <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1162,42 +1159,42 @@ export default function AdminDashboardPage() {
             <button
               type="button"
               onClick={() => setIsAddStudentOpen(true)}
-              className="group bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between cursor-pointer"
+              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
             >
-              <div className="p-2.5 bg-zinc-700/40 text-zinc-200 rounded-xl border border-zinc-600/40 w-fit group-hover:scale-110 transition-transform">
-                <UserPlus className="w-4 h-4" />
+              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+                <UserPlus className="w-4 h-4 text-red-600" />
               </div>
               <div className="mt-3">
-                <p className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors">+ Agregar Estudiante</p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">Crear perfil en profiles</p>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Crear perfil en profiles</p>
               </div>
             </button>
 
             {/* Button 2: Catálogo Cursos */}
             <Link
               href="/dashboard/admin/products"
-              className="group bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between"
+              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between"
             >
-              <div className="p-2.5 bg-zinc-700/40 text-zinc-200 rounded-xl border border-zinc-600/40 w-fit group-hover:scale-110 transition-transform">
-                <Package className="w-4 h-4" />
+              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+                <Package className="w-4 h-4 text-slate-700" />
               </div>
               <div className="mt-3">
-                <p className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors">Catálogo Cursos</p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">Gestionar productos RBAC</p>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Catálogo Cursos</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Gestionar productos RBAC</p>
               </div>
             </Link>
 
             {/* Button 3: Prospectos Web */}
             <a
               href="#leads"
-              className="group bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between"
+              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between"
             >
-              <div className="p-2.5 bg-zinc-700/40 text-zinc-200 rounded-xl border border-zinc-600/40 w-fit group-hover:scale-110 transition-transform">
-                <Inbox className="w-4 h-4" />
+              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+                <Inbox className="w-4 h-4 text-slate-700" />
               </div>
               <div className="mt-3">
-                <p className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors">Prospectos Web</p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">{leadsCount} registros recibidos</p>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Prospectos Web</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">{leadsCount} registros recibidos</p>
               </div>
             </a>
 
@@ -1206,29 +1203,29 @@ export default function AdminDashboardPage() {
               type="button"
               onClick={fetchAdminData}
               disabled={refreshing}
-              className="group bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/50 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between cursor-pointer"
+              className="group bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 p-4 rounded-2xl transition-all duration-200 text-left flex flex-col justify-between cursor-pointer"
             >
-              <div className="p-2.5 bg-zinc-700/40 text-zinc-200 rounded-xl border border-zinc-600/40 w-fit group-hover:scale-110 transition-transform">
-                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <div className="p-2.5 bg-white text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform">
+                <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
               </div>
               <div className="mt-3">
-                <p className="text-xs font-bold text-zinc-100 group-hover:text-white transition-colors">Sincronizar BD</p>
-                <p className="text-[10px] text-zinc-400 mt-0.5">Refrescar desde Supabase</p>
+                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors">Sincronizar BD</p>
+                <p className="text-[10px] text-slate-500 mt-0.5">Refrescar desde Supabase</p>
               </div>
             </button>
           </div>
         </div>
 
         {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER */}
-        <div id="estudiantes" className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
+        <div id="estudiantes" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
-              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
-                <Users className="w-5 h-5 text-zinc-300" />
+              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                <Users className="w-5 h-5 text-red-600" />
                 <span>Estudiantes Matriculados & Seguimiento MCER</span>
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Matrículas activas, progreso acumulado en aula y nivel en el Marco Común Europeo.
               </p>
             </div>
@@ -1237,26 +1234,26 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap items-center gap-3">
               {/* Search Bar */}
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="text"
                   placeholder="Buscar estudiante o correo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 
               {/* Level Tabs Filter */}
-              <div className="bg-zinc-950 border border-zinc-800 p-1 rounded-xl flex items-center text-xs font-bold">
+              <div className="bg-slate-50 border border-slate-200 p-1 rounded-xl flex items-center text-xs font-bold">
                 {['all', 'A1', 'A2', 'B1', 'B2'].map((lvl) => (
                   <button
                     key={lvl}
                     onClick={() => setSelectedLevel(lvl)}
                     className={`px-3 py-1.5 rounded-lg transition-all uppercase text-[11px] ${
                       selectedLevel === lvl
-                        ? 'bg-zinc-800 text-white font-extrabold shadow-sm border border-zinc-700'
-                        : 'text-zinc-400 hover:text-white'
+                        ? 'bg-white text-slate-900 font-extrabold shadow-2xs border border-slate-200/80'
+                        : 'text-slate-500 hover:text-slate-900'
                     }`}
                   >
                     {lvl === 'all' ? 'Todos' : lvl}
@@ -1264,11 +1261,11 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              {/* Botón + Agregar Estudiante */}
+              {/* Botón + Agregar Estudiante (Rojo Institucional) */}
               <button
                 type="button"
                 onClick={() => setIsAddStudentOpen(true)}
-                className="px-3.5 py-2 bg-zinc-100 hover:bg-white text-zinc-950 font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>+ Agregar Estudiante</span>
@@ -1278,16 +1275,16 @@ export default function AdminDashboardPage() {
 
           {/* STUDENTS TABLE */}
           {loading ? (
-            <div className="p-8 text-center text-zinc-400 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-zinc-300" />
+            <div className="p-8 text-center text-slate-500 text-xs">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
               Cargando matrículas desde Supabase...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div className="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-10 text-center space-y-2">
-              <Users className="w-10 h-10 text-zinc-600 mx-auto" />
+            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+              <Users className="w-10 h-10 text-slate-400 mx-auto" />
               <div className="space-y-1">
-                <h4 className="font-bold text-zinc-300 text-sm">No hay estudiantes registrados en Supabase</h4>
-                <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+                <h4 className="font-bold text-slate-700 text-sm">No hay estudiantes registrados en Supabase</h4>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   {searchTerm || selectedLevel !== 'all'
                     ? `No se encontraron resultados para "${searchTerm}" o filtro ${selectedLevel}.`
                     : 'Aún no existen registros en la tabla public.profiles con rol student.'}
@@ -1295,9 +1292,9 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-zinc-800/70">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-950/90 text-zinc-400 font-semibold uppercase tracking-wider text-[11px] border-b border-zinc-800/80">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
                   <tr>
                     <th className="py-4 px-6">Alumno & Correo Institucional</th>
                     <th className="py-4 px-6 text-center">Nivel MCER</th>
@@ -1306,24 +1303,24 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-6 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/50">
+                <tbody className="divide-y divide-slate-100">
                   {filteredStudents.map((st) => {
                     const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
                     const initials = getInitials(st.student_name)
 
                     return (
-                      <tr key={st.id} className="hover:bg-zinc-800/30 transition-colors">
+                      <tr key={st.id} className="hover:bg-slate-50/70 transition-colors">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-zinc-800 text-zinc-100 font-extrabold text-xs flex items-center justify-center shadow-sm border border-zinc-700 flex-shrink-0">
+                            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shadow-2xs border border-slate-200 flex-shrink-0">
                               {initials}
                             </div>
                             <div>
-                              <p className="font-bold text-white text-sm">{st.student_name}</p>
+                              <p className="font-bold text-slate-900 text-sm">{st.student_name}</p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-[11px] text-zinc-400">{st.student_email}</span>
+                                <span className="text-[11px] text-slate-500">{st.student_email}</span>
                                 {st.municipality && (
-                                  <span className="px-2 py-0.5 bg-zinc-800 text-zinc-300 text-[10px] font-medium rounded-md border border-zinc-700">
+                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded-md border border-slate-200">
                                     {st.municipality}
                                   </span>
                                 )}
@@ -1332,17 +1329,17 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
-                          <span className="px-3 py-1 bg-zinc-800 text-zinc-200 font-extrabold text-xs rounded-full border border-zinc-700">
+                          <span className="px-3 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-full border border-slate-200">
                             {st.mcer_level}
                           </span>
                         </td>
                         <td className="py-4 px-6">
                           <div className="space-y-1.5 w-48">
-                            <div className="flex justify-between text-[11px] font-semibold text-zinc-300">
+                            <div className="flex justify-between text-[11px] font-semibold text-slate-600">
                               <span>{st.completed_hours} / {st.total_hours}h</span>
-                              <span className="text-emerald-400 font-bold">{percent}%</span>
+                              <span className="text-emerald-600 font-bold">{percent}%</span>
                             </div>
-                            <div className="w-full bg-zinc-950 h-2 rounded-full overflow-hidden border border-zinc-800">
+                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
                               <div
                                 className="bg-emerald-500 h-full rounded-full transition-all duration-500"
                                 style={{ width: `${percent}%` }}
@@ -1353,8 +1350,8 @@ export default function AdminDashboardPage() {
                         <td className="py-4 px-6 text-center">
                           <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
                             st.status === 'completed'
-                              ? 'bg-zinc-800 text-zinc-300 border-zinc-700'
-                              : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              ? 'bg-slate-100 text-slate-600 border-slate-200'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           }`}>
                             {st.status === 'completed' ? '✓ Completado' : '● Activa'}
                           </span>
@@ -1363,17 +1360,17 @@ export default function AdminDashboardPage() {
                           <Link
                             href="/dashboard/student"
                             title="Ver Aula"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-zinc-300 hover:text-white bg-zinc-800/60 hover:bg-zinc-800 px-2.5 py-1.5 rounded-xl border border-zinc-700/50 transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-xl border border-slate-200 transition"
                           >
                             <span>Aula</span>
-                            <ArrowRight className="w-3 h-3 text-zinc-400" />
+                            <ArrowRight className="w-3 h-3 text-slate-500" />
                           </Link>
 
                           <button
                             type="button"
                             onClick={() => handleOpenEditStudent(st)}
                             title="Editar estudiante"
-                            className="bg-zinc-800/60 hover:bg-zinc-800 text-zinc-300 border border-zinc-700/50 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
                           >
                             <Pencil className="w-3.5 h-3.5" />
                           </button>
@@ -1382,7 +1379,7 @@ export default function AdminDashboardPage() {
                             type="button"
                             onClick={() => setStudentToDelete(st)}
                             title="Eliminar estudiante"
-                            className="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -1398,32 +1395,32 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* BENTO MODULE 2: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
-        <div id="leads" className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
+        <div id="leads" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
-              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
-                <Inbox className="w-5 h-5 text-zinc-300" />
+              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                <Inbox className="w-5 h-5 text-slate-700" />
                 <span>Gestión de Prospectos & Leads Web</span>
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Registro en tiempo real desde el formulario de captura público.
               </p>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="relative w-full sm:w-60">
-                <Search className="w-4 h-4 text-zinc-500 absolute left-3.5 top-3" />
+                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
                   type="text"
                   placeholder="Buscar prospecto o email..."
                   value={leadSearchTerm}
                   onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 
-              <span className="px-3 py-1 bg-zinc-800 text-zinc-300 text-xs font-bold rounded-full border border-zinc-700 whitespace-nowrap">
+              <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full border border-slate-200 whitespace-nowrap">
                 {filteredLeads.length} Registros
               </span>
             </div>
@@ -1431,24 +1428,24 @@ export default function AdminDashboardPage() {
 
           {/* LEADS TABLE */}
           {loading ? (
-            <div className="p-8 text-center text-zinc-400 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-zinc-300" />
+            <div className="p-8 text-center text-slate-500 text-xs">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
               Cargando prospectos web desde Supabase...
             </div>
           ) : filteredLeads.length === 0 ? (
-            <div className="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-10 text-center space-y-2">
-              <Inbox className="w-10 h-10 text-zinc-600 mx-auto" />
-              <h4 className="font-bold text-zinc-300 text-sm">No se encontraron prospectos web</h4>
-              <p className="text-xs text-zinc-500 max-w-sm mx-auto">
+            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+              <Inbox className="w-10 h-10 text-slate-400 mx-auto" />
+              <h4 className="font-bold text-slate-700 text-sm">No se encontraron prospectos web</h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
                 {leadSearchTerm
                   ? `No hay coincidencias para "${leadSearchTerm}".`
                   : 'Aún no se han recibido registros en la tabla public.leads.'}
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-zinc-800/70">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-950/90 text-zinc-400 font-semibold uppercase tracking-wider text-[11px] border-b border-zinc-800/80">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
                   <tr>
                     <th className="py-4 px-6 whitespace-nowrap">Nombre del Prospecto</th>
                     <th className="py-4 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
@@ -1457,42 +1454,42 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-6 text-right whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/50">
+                <tbody className="divide-y divide-slate-100">
                   {filteredLeads.map((lead) => {
                     const fullName = `${lead.first_name} ${lead.last_name}`.trim()
                     return (
-                      <tr key={lead.id} className="hover:bg-zinc-800/30 transition-colors">
-                        <td className="py-4 px-6 font-bold text-white text-sm whitespace-nowrap">
+                      <tr key={lead.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-4 px-6 font-bold text-slate-900 text-sm whitespace-nowrap">
                           {fullName}
                         </td>
                         <td className="py-4 px-6 space-y-0.5 whitespace-nowrap">
-                          <p className="text-zinc-200 font-medium">{lead.email}</p>
-                          <p className="text-[11px] text-zinc-400">{lead.phone}</p>
+                          <p className="text-slate-800 font-medium">{lead.email}</p>
+                          <p className="text-[11px] text-slate-500">{lead.phone}</p>
                         </td>
                         <td className="py-4 px-6 whitespace-nowrap">
                           {renderAudienceBadge(lead.audience)}
                         </td>
-                        <td className="py-4 px-6 text-zinc-400 text-[11px] whitespace-nowrap">
+                        <td className="py-4 px-6 text-slate-500 text-[11px] whitespace-nowrap">
                           <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-zinc-500" />
+                            <Clock className="w-3.5 h-3.5 text-slate-400" />
                             {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
                           </span>
                         </td>
                         <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                           <button
                             onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                            className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
                           >
-                            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                             <span>WhatsApp</span>
                           </button>
 
                           <button
                             onClick={() => setLeadToDelete(lead)}
                             title="Eliminar prospecto"
-                            className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                            className="text-slate-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
                           >
-                            <Trash2 className="w-4 h-4 text-zinc-400 hover:text-red-400" />
+                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-600" />
                           </button>
                         </td>
                       </tr>
@@ -1506,42 +1503,42 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* BENTO MODULE 3: POSTULACIONES BECAS URABÁ */}
-        <div id="becas" className="bg-zinc-900/70 backdrop-blur-xl border border-zinc-800/70 rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
+        <div id="becas" className="bg-white rounded-3xl border border-slate-200/80 shadow-sm shadow-slate-200/60 p-6 space-y-6 text-slate-800 relative z-10">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-zinc-800/60 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
-              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
-                <Heart className="w-5 h-5 text-amber-400" />
+              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                <Heart className="w-5 h-5 text-amber-600" />
                 <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
               </h2>
-              <p className="text-xs text-zinc-400 mt-1">
+              <p className="text-xs text-slate-500 mt-1">
                 Revisión y pre-aprobación en tiempo real de solicitudes en public.scholarship_applications.
               </p>
             </div>
 
-            <span className="px-3 py-1 bg-amber-500/10 text-amber-300 text-xs font-bold rounded-full border border-amber-500/20 w-fit">
+            <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-fit">
               {pendingBecasCount} Pendiente(s)
             </span>
           </div>
 
           {/* SCHOLARSHIPS TABLE */}
           {loading ? (
-            <div className="p-8 text-center text-zinc-400 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-400" />
+            <div className="p-8 text-center text-slate-500 text-xs">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
               Cargando postulaciones a becas desde Supabase...
             </div>
           ) : applications.length === 0 ? (
-            <div className="bg-zinc-950/60 border border-zinc-800/60 rounded-2xl p-10 text-center space-y-2">
-              <Heart className="w-10 h-10 text-zinc-600 mx-auto" />
-              <h4 className="font-bold text-zinc-300 text-sm">No hay postulaciones pendientes en Supabase</h4>
-              <p className="text-xs text-zinc-500">
+            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+              <Heart className="w-10 h-10 text-slate-400 mx-auto" />
+              <h4 className="font-bold text-slate-700 text-sm">No hay postulaciones pendientes en Supabase</h4>
+              <p className="text-xs text-slate-500">
                 Todas las solicitudes del Fondo Social Urabá han sido procesadas o están al día.
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-zinc-800/70">
-              <table className="w-full text-left text-xs text-zinc-300">
-                <thead className="bg-zinc-950/90 text-zinc-400 font-semibold uppercase tracking-wider text-[11px] border-b border-zinc-800/80">
+            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
                   <tr>
                     <th className="py-4 px-6">Postulante & Teléfono</th>
                     <th className="py-4 px-6">Municipio Urabá</th>
@@ -1550,27 +1547,27 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-6 text-right">Acciones Rápidas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-zinc-800/50">
+                <tbody className="divide-y divide-slate-100">
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-zinc-800/30 transition-colors">
+                    <tr key={app.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-4 px-6">
-                        <p className="font-bold text-white text-sm">{app.full_name}</p>
-                        <p className="text-[11px] text-zinc-400">{app.phone}</p>
+                        <p className="font-bold text-slate-900 text-sm">{app.full_name}</p>
+                        <p className="text-[11px] text-slate-500">{app.phone}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="px-2.5 py-1 bg-zinc-800 text-amber-300 text-[11px] font-semibold rounded-lg border border-zinc-700 flex items-center gap-1 w-fit">
-                          <Building2 className="w-3 h-3 text-amber-400" />
+                        <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-semibold rounded-lg border border-amber-200 flex items-center gap-1 w-fit">
+                          <Building2 className="w-3 h-3 text-amber-600" />
                           <span>{app.municipality}</span>
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-zinc-300 font-medium">
+                      <td className="py-4 px-6 text-slate-700 font-medium">
                         {app.academic_level}
                       </td>
                       <td className="py-4 px-6 text-center">
                         <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
                           app.status === 'approved'
-                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                            : 'bg-amber-500/10 text-amber-300 border-amber-500/20'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}>
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
@@ -1579,7 +1576,7 @@ export default function AdminDashboardPage() {
                         {app.status !== 'approved' && (
                           <button
                             onClick={() => handleApproveApplication(app.id, app.full_name)}
-                            className="inline-flex items-center gap-1 bg-zinc-100 hover:bg-white text-zinc-950 font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-sm cursor-pointer"
+                            className="inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Aprobar</span>
@@ -1588,9 +1585,9 @@ export default function AdminDashboardPage() {
 
                         <button
                           onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
                         >
-                          <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                          <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                           <span>WhatsApp</span>
                         </button>
                       </td>
