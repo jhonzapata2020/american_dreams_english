@@ -147,21 +147,21 @@ export function DashboardLayout({
 
   const roleStyles: Record<UserRole, { badgeBg: string; badgeText: string; border: string; label: string }> = {
     admin: {
-      badgeBg: 'bg-indigo-500/15',
-      badgeText: 'text-indigo-400',
-      border: 'border-indigo-500/30',
+      badgeBg: 'bg-white/20',
+      badgeText: 'text-white',
+      border: 'border-white/30',
       label: 'Admin General'
     },
     teacher: {
-      badgeBg: 'bg-blue-500/15',
-      badgeText: 'text-blue-400',
-      border: 'border-blue-500/30',
+      badgeBg: 'bg-white/20',
+      badgeText: 'text-white',
+      border: 'border-white/30',
       label: 'Docente Titular'
     },
     student: {
-      badgeBg: 'bg-emerald-500/15',
-      badgeText: 'text-emerald-400',
-      border: 'border-emerald-500/30',
+      badgeBg: 'bg-white/20',
+      badgeText: 'text-white',
+      border: 'border-white/30',
       label: 'Estudiante Becario'
     }
   }
@@ -169,190 +169,198 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    <div className="min-h-screen bg-[#f1f4f8] text-slate-800 font-sans flex flex-col lg:flex-row">
+    // 1. MARCO CONTENEDOR FLOTANTE (App Canvas Unificado Inspirado en eProduct)
+    <div className="min-h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-6 md:p-8 flex items-center justify-center">
       
-      {/* MOBILE TOP BAR */}
-      <div className="lg:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="inline-flex items-center">
-            <img 
-              src="/logo-american-dream.png" 
-              alt="American Dream English" 
-              className="h-10 w-auto object-contain bg-transparent filter drop-shadow-sm" 
-            />
-          </Link>
-          <div>
-            <h1 className="text-xs font-black text-white">American Dream</h1>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
-              {roleBadgeInfo.label}
-            </span>
-          </div>
-        </div>
-
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 text-slate-300 hover:text-white rounded-xl bg-slate-800 border border-slate-700"
-          aria-label="Abrir menú"
-        >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
-      </div>
-
-      {/* SIDEBAR */}
-      <aside
-        className={`fixed lg:sticky top-0 left-0 z-30 w-72 h-screen bg-slate-900 text-slate-200 border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
-      >
-        <div className="p-6 space-y-6 overflow-y-auto flex-1">
-          
-          {/* LOGO & ROLE HEADER */}
-          <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/80">
-            <Link href="/" className="mb-3 block hover:scale-105 transition-transform bg-transparent">
+      {/* UNIFIED CANVAS FRAME (Sidebar + Main Content Inside Single Frame) */}
+      <div className="w-full max-w-[1550px] min-h-[90vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
+        
+        {/* MOBILE TOP BAR */}
+        <div className="lg:hidden bg-[#0f62fe] text-white border-b border-blue-700/60 p-4 flex items-center justify-between sticky top-0 z-40">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="inline-flex items-center">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-16 w-auto object-contain bg-transparent filter drop-shadow-md mx-auto" 
+                className="h-9 w-auto object-contain brightness-0 invert" 
               />
             </Link>
-            <h2 className="text-sm font-black text-white tracking-wide">
-              AMERICAN DREAM ENGLISH
-            </h2>
-            <p className="text-[11px] text-slate-400 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
-
-            {loadingUser ? (
-              <div className="h-6 w-28 bg-slate-800 rounded-full animate-pulse" />
-            ) : (
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>{roleBadgeInfo.label}</span>
+            <div>
+              <h1 className="text-xs font-black text-white">American Dream</h1>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+                {roleBadgeInfo.label}
               </span>
-            )}
+            </div>
           </div>
 
-          {/* NAVIGATION LINKS */}
-          <nav className="space-y-1.5">
-            <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">
-              Navegación Principal
-            </p>
-
-            {currentNavItems.map((item) => {
-              const Icon = item.icon
-              const [itemPath, itemHash] = item.href.split('#')
-              const formattedItemHash = itemHash ? `#${itemHash}` : ''
-
-              let isActive = false
-
-              if (activeTab === item.label) {
-                isActive = true
-              } else if (formattedItemHash) {
-                isActive = pathname === itemPath && currentHash === formattedItemHash
-              } else {
-                isActive = pathname === itemPath && (!currentHash || currentHash === '#')
-              }
-
-              return (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                    isActive
-                      ? 'bg-slate-800 text-white font-semibold shadow-sm border border-slate-700/70'
-                      : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                    <span>{item.label}</span>
-                  </div>
-
-                  {item.badge && (
-                    <span className="px-2 py-0.5 bg-amber-500/15 text-amber-300 text-[9px] font-bold rounded-md border border-amber-500/30">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              )
-            })}
-          </nav>
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-white rounded-xl bg-white/10 border border-white/20"
+            aria-label="Abrir menú"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
 
-        {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-950 space-y-3">
-          
-          {/* USER INFO CARD */}
-          <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3">
-            <div className="min-w-0 flex-1">
+        {/* 2. SIDEBAR INTEGRADO A LA IZQUIERDA (Brand Blue #0f62fe Canvas) */}
+        <aside
+          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-[#0f62fe] text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+            mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
+        >
+          <div className="p-6 space-y-6 overflow-y-auto flex-1">
+            
+            {/* LOGO & ROLE HEADER */}
+            <div className="flex flex-col items-center text-center pb-6 border-b border-white/15">
+              <Link href="/" className="mb-3 block hover:scale-105 transition-transform">
+                <img 
+                  src="/logo-american-dream.png" 
+                  alt="American Dream English" 
+                  className="h-16 w-auto object-contain brightness-0 invert drop-shadow-md mx-auto" 
+                />
+              </Link>
+              <h2 className="text-sm font-black text-white tracking-wide">
+                AMERICAN DREAM ENGLISH
+              </h2>
+              <p className="text-[11px] text-blue-100 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
+
               {loadingUser ? (
-                <div className="space-y-1.5 animate-pulse">
-                  <div className="h-3.5 bg-slate-800 rounded w-3/4" />
-                  <div className="h-2.5 bg-slate-800 rounded w-1/2" />
-                </div>
+                <div className="h-6 w-28 bg-white/20 rounded-full animate-pulse" />
               ) : (
-                <>
-                  <p className="text-xs font-bold text-white truncate">{userName}</p>
-                  <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
-                </>
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>{roleBadgeInfo.label}</span>
+                </span>
               )}
             </div>
 
-            <button
-              onClick={handleSignOut}
-              title="Cerrar Sesión"
-              className="p-2 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-colors border border-transparent hover:border-rose-500/20 flex-shrink-0"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+            {/* NAVIGATION LINKS WITH PROMINENT CURVED WHITE TAB FOR ACTIVE ITEM */}
+            <nav className="space-y-2 pr-0 lg:-mr-6">
+              <p className="text-[10px] font-bold text-blue-200 uppercase tracking-wider px-3 mb-2">
+                Navegación Principal
+              </p>
+
+              {currentNavItems.map((item) => {
+                const Icon = item.icon
+                const [itemPath, itemHash] = item.href.split('#')
+                const formattedItemHash = itemHash ? `#${itemHash}` : ''
+
+                let isActive = false
+
+                if (activeTab === item.label) {
+                  isActive = true
+                } else if (formattedItemHash) {
+                  isActive = pathname === itemPath && currentHash === formattedItemHash
+                } else {
+                  isActive = pathname === itemPath && (!currentHash || currentHash === '#')
+                }
+
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-4 py-3 text-xs font-bold transition-all ${
+                      isActive
+                        ? 'bg-white text-[#0f62fe] rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-sm'
+                        : 'text-blue-100 hover:bg-white/10 hover:text-white rounded-xl mr-4'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#0f62fe]' : 'text-blue-200'}`} />
+                      <span>{item.label}</span>
+                    </div>
+
+                    {item.badge && (
+                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md ${
+                        isActive ? 'bg-blue-50 text-[#0f62fe]' : 'bg-white/20 text-white'
+                      }`}>
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                )
+              })}
+            </nav>
           </div>
 
-          <p className="text-[10px] text-slate-500 text-center font-medium">
-            © 2026 American Dream English S.A.S.
-          </p>
-        </div>
+          {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
+          <div className="p-4 border-t border-white/15 bg-blue-700/40 space-y-3">
+            
+            {/* USER INFO CARD */}
+            <div className="bg-white/15 border border-white/20 p-3 rounded-2xl flex items-center justify-between gap-3 backdrop-blur-sm">
+              <div className="min-w-0 flex-1">
+                {loadingUser ? (
+                  <div className="space-y-1.5 animate-pulse">
+                    <div className="h-3.5 bg-white/30 rounded w-3/4" />
+                    <div className="h-2.5 bg-white/20 rounded w-1/2" />
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs font-bold text-white truncate">{userName}</p>
+                    <p className="text-[10px] text-blue-100 truncate">{userEmail}</p>
+                  </>
+                )}
+              </div>
 
-      </aside>
-
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col min-w-0">
-        
-        {/* HEADER BAR */}
-        <header className="bg-white/90 border-b border-slate-200/80 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md">
-          
-          {/* BREADCRUMB */}
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <Link href="/" className="hover:text-slate-900 transition-colors flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5 text-slate-400" />
-              <span>Inicio</span>
-            </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-slate-600">Dashboard</span>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-slate-900 capitalize font-bold">{title || roleBadgeInfo.label}</span>
-          </div>
-
-          {/* STATUS BADGES & SITE LINK */}
-          <div className="flex items-center gap-3 text-xs">
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium text-[11px]">
-              <Lock className="w-3 h-3 text-emerald-600" />
-              <span>SSL 256-bit Encriptado</span>
+              <button
+                onClick={handleSignOut}
+                title="Cerrar Sesión"
+                className="p-2 text-blue-100 hover:text-white hover:bg-white/20 rounded-xl transition-colors flex-shrink-0"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
 
-            <Link
-              href="/"
-              className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-semibold rounded-xl text-xs transition-colors border border-slate-200 flex items-center gap-1.5"
-            >
-              <Globe className="w-3.5 h-3.5 text-slate-500" />
-              <span>Ver Sitio Público</span>
-            </Link>
+            <p className="text-[10px] text-blue-200 text-center font-medium">
+              © 2026 American Dream English S.A.S.
+            </p>
           </div>
 
-        </header>
+        </aside>
 
-        {/* CONTAINER FOR PAGE CONTENT */}
-        <main className="flex-1 p-6 sm:p-8 overflow-y-auto">
-          {children}
-        </main>
+        {/* 3. ÁREA PRINCIPAL DE CONTENIDO (Panel Blanco Derecha) */}
+        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-8 md:p-10 overflow-y-auto">
+          
+          {/* TOP BREADCRUMB & STATUS BAR */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6">
+            
+            {/* BREADCRUMB */}
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+              <Link href="/" className="hover:text-slate-900 transition-colors flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5 text-slate-400" />
+                <span>Inicio</span>
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-slate-600">Dashboard</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span className="text-slate-900 capitalize font-bold">{title || roleBadgeInfo.label}</span>
+            </div>
+
+            {/* STATUS BADGES */}
+            <div className="flex items-center gap-3 text-xs">
+              <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium text-[11px]">
+                <Lock className="w-3 h-3 text-emerald-600" />
+                <span>SSL 256-bit Encriptado</span>
+              </div>
+
+              <Link
+                href="/"
+                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-semibold rounded-xl text-xs transition-colors border border-slate-200 flex items-center gap-1.5"
+              >
+                <Globe className="w-3.5 h-3.5 text-slate-500" />
+                <span>Ver Sitio Público</span>
+              </Link>
+            </div>
+
+          </div>
+
+          {/* PAGE CONTENT (STUDENT CRUD & BENTO MODULES) */}
+          <main className="flex-1 min-w-0">
+            {children}
+          </main>
+
+        </div>
 
       </div>
 
