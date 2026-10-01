@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '../../utils/supabase/client'
-import { ShieldLogo } from '../ShieldLogo'
 import { 
   LayoutDashboard, 
   Users, 
@@ -161,7 +160,13 @@ export function DashboardLayout({
       {/* MOBILE TOP BAR */}
       <div className="lg:hidden bg-[#0D1322] border-b border-slate-800/70 p-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
-          <ShieldLogo className="h-9 w-auto" />
+          <Link href="/" className="inline-flex items-center">
+            <img 
+              src="/logo-american-dream.png" 
+              alt="American Dream English" 
+              className="h-10 w-auto object-contain bg-transparent filter drop-shadow-sm" 
+            />
+          </Link>
           <div>
             <h1 className="text-xs font-black text-white">American Dream</h1>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
@@ -189,8 +194,12 @@ export function DashboardLayout({
           
           {/* LOGO & ROLE HEADER */}
           <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/70">
-            <Link href="/" className="mb-3 block hover:scale-105 transition-transform">
-              <ShieldLogo className="h-16 w-auto" />
+            <Link href="/" className="mb-3 block hover:scale-105 transition-transform bg-transparent">
+              <img 
+                src="/logo-american-dream.png" 
+                alt="American Dream English" 
+                className="h-16 w-auto object-contain bg-transparent filter drop-shadow-md mx-auto" 
+              />
             </Link>
             <h2 className="text-sm font-black text-white tracking-wide">
               AMERICAN DREAM ENGLISH

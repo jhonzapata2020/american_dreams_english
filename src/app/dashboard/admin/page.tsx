@@ -381,7 +381,7 @@ export default function AdminDashboardPage() {
               className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-2 border border-slate-700/70"
             >
               <RefreshCw className={`w-4 h-4 text-indigo-400 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>Sincronizar Supabase</span>
+              <span>Sincronizar Base de Datos</span>
             </button>
 
             <Link
