@@ -11,21 +11,21 @@ import {
   Heart, 
   DollarSign, 
   Search, 
-  Filter, 
   CheckCircle2, 
-  Clock, 
   MessageCircle, 
   Package, 
   RefreshCw, 
-  AlertCircle,
   ArrowRight,
   ShieldCheck,
   Check,
   Building2,
-  BookOpen
+  UserPlus,
+  Trash2,
+  Inbox,
+  Clock
 } from 'lucide-react'
 
-interface StudentEnrollment {
+interface StudentItem {
   id: string
   student_name: string
   student_email: string
@@ -39,48 +39,41 @@ interface ScholarshipApp {
   id: string
   full_name: string
   phone: string
-  municipio: string
-  study_level: string
+  municipality: string
+  academic_level: string
   status: 'pending' | 'approved' | 'contacted'
   created_at?: string
 }
 
-interface DonationRecord {
+interface WebLead {
   id: string
-  donor_name: string
-  amount: number
-  currency: string
-  tier_title: string
-  status: string
+  first_name: string
+  last_name: string
+  email: string
+  phone: string
+  audience: string
+  created_at?: string
 }
-
-const FALLBACK_ENROLLMENTS: StudentEnrollment[] = [
-  { id: '1', student_name: 'María José Urango', student_email: 'mj.urango@americandream.edu.co', mcer_level: 'B1', completed_hours: 85, total_hours: 120, status: 'active' },
-  { id: '2', student_name: 'Carlos Andrés Palacios', student_email: 'carlos.palacios@americandream.edu.co', mcer_level: 'A2', completed_hours: 40, total_hours: 120, status: 'active' },
-  { id: '3', student_name: 'Laura Vanessa Blandón', student_email: 'laura.blandon@americandream.edu.co', mcer_level: 'B2', completed_hours: 120, total_hours: 120, status: 'completed' },
-  { id: '4', student_name: 'David Esteban Moreno', student_email: 'david.moreno@americandream.edu.co', mcer_level: 'A1', completed_hours: 15, total_hours: 120, status: 'active' },
-  { id: '5', student_name: 'Yurani Flórez Martínez', student_email: 'yurani.florez@americandream.edu.co', mcer_level: 'B1', completed_hours: 92, total_hours: 120, status: 'active' },
-]
-
-const FALLBACK_APPLICATIONS: ScholarshipApp[] = [
-  { id: '101', full_name: 'Juan David Gómez', phone: '+57 312 456 7890', municipio: 'Turbo', study_level: 'Bachillerato', status: 'pending', created_at: '2026-09-29' },
-  { id: '102', full_name: 'Yesenia Sepúlveda', phone: '+57 300 987 6543', municipio: 'Apartadó', study_level: 'Universidad / Técnico', status: 'pending', created_at: '2026-09-28' },
-  { id: '103', full_name: 'Mateo Córdoba', phone: '+57 314 555 1234', municipio: 'Currulao', study_level: 'Bachillerato', status: 'approved', created_at: '2026-09-25' },
-]
 
 export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   
-  // Data States
-  const [enrollments, setEnrollments] = useState<StudentEnrollment[]>([])
-  const [applications, setApplications] = useState<ScholarshipApp[]>([])
-  const [teacherCount, setTeacherCount] = useState<number>(0)
+  // Dynamic Data States (100% Supabase)
+  const [studentsCount, setStudentsCount] = useState<number>(0)
+  const [teachersCount, setTeachersCount] = useState<number>(0)
+  const [pendingBecasCount, setPendingBecasCount] = useState<number>(0)
+  const [leadsCount, setLeadsCount] = useState<number>(0)
   const [totalDonationsAmount, setTotalDonationsAmount] = useState<number>(0)
+
+  const [studentsList, setStudentsList] = useState<StudentItem[]>([])
+  const [applications, setApplications] = useState<ScholarshipApp[]>([])
+  const [leadsList, setLeadsList] = useState<WebLead[]>([])
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedLevel, setSelectedLevel] = useState<string>('all')
+  const [leadSearchTerm, setLeadSearchTerm] = useState('')
 
   // Notification State
   const [toastMsg, setToastMsg] = useState<string | null>(null)
@@ -90,19 +83,116 @@ export default function AdminDashboardPage() {
     try {
       const supabase = createClient()
 
-      // 1. Fetch Enrollments with student profile & course details
-      const { data: enrollData, error: enrollError } = await supabase
+      // 1. KPI Student Profiles Count
+      const { count: cStudents } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'student')
+
+      setStudentsCount(cStudents || 0)
+
+      // 2. KPI Teacher Profiles Count
+      const { count: cTeachers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'teacher')
+
+      setTeachersCount(cTeachers || 0)
+
+      // 3. KPI Pending Scholarship Applications Count
+      const { count: cPendingBecas } = await supabase
+        .from('scholarship_applications')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending')
+
+      setPendingBecasCount(cPendingBecas || 0)
+
+      // 4. KPI Web Leads Count & Fetch List
+      const { count: cLeads } = await supabase
+        .from('leads')
+        .select('*', { count: 'exact', head: true })
+
+      setLeadsCount(cLeads || 0)
+
+      const { data: leadsData } = await supabase
+        .from('leads')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (leadsData && leadsData.length > 0) {
+        const mappedLeads: WebLead[] = leadsData.map((l: any) => ({
+          id: l.id,
+          first_name: l.first_name || l.full_name || 'Prospecto',
+          last_name: l.last_name || '',
+          email: l.email || 'N/A',
+          phone: l.phone || 'N/A',
+          audience: l.audience || 'general',
+          created_at: l.created_at
+        }))
+        setLeadsList(mappedLeads)
+      } else {
+        setLeadsList([])
+      }
+
+      // 5. KPI Total Donations Amount
+      const { data: donData } = await supabase
+        .from('donations')
+        .select('amount, total_amount')
+        .eq('status', 'completed')
+
+      if (donData && donData.length > 0) {
+        const sum = donData.reduce((acc, curr) => acc + Number(curr.amount || curr.total_amount || 0), 0)
+        setTotalDonationsAmount(sum)
+      } else {
+        const { data: allDon } = await supabase.from('donations').select('amount, total_amount')
+        if (allDon && allDon.length > 0) {
+          const sum = allDon.reduce((acc, curr) => acc + Number(curr.amount || curr.total_amount || 0), 0)
+          setTotalDonationsAmount(sum)
+        } else {
+          setTotalDonationsAmount(0)
+        }
+      }
+
+      // 6. Tabla Becarios Urabá (Pending Applications)
+      const { data: appData } = await supabase
+        .from('scholarship_applications')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+
+      if (appData && appData.length > 0) {
+        const mappedApps: ScholarshipApp[] = appData.map((app: any) => ({
+          id: app.id,
+          full_name: app.full_name || 'Postulante Urabá',
+          phone: app.phone || 'N/A',
+          municipality: app.municipality || app.municipio || 'Turbo',
+          academic_level: app.academic_level || app.study_level || 'Bachillerato',
+          status: app.status || 'pending',
+          created_at: app.created_at
+        }))
+        setApplications(mappedApps)
+      } else {
+        setApplications([])
+      }
+
+      // 7. Tabla Estudiantes: Profiles with role='student' + Enrollments
+      const { data: studentProfiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('role', 'student')
+
+      const { data: enrollData } = await supabase
         .from('enrollments')
         .select(`
           id,
           completed_hours,
           status,
-          student:profiles ( full_name, email ),
+          student:profiles ( id, full_name, email ),
           course:courses ( level, total_hours )
         `)
 
-      if (!enrollError && enrollData && enrollData.length > 0) {
-        const mapped: StudentEnrollment[] = enrollData.map((e: any) => ({
+      if (enrollData && enrollData.length > 0) {
+        const mapped: StudentItem[] = enrollData.map((e: any) => ({
           id: e.id,
           student_name: e.student?.full_name || 'Estudiante Bilingüe',
           student_email: e.student?.email || 'estudiante@americandream.edu.co',
@@ -111,53 +201,24 @@ export default function AdminDashboardPage() {
           total_hours: e.course?.total_hours || 120,
           status: e.status === 'completed' ? 'completed' : 'active'
         }))
-        setEnrollments(mapped)
+        setStudentsList(mapped)
+      } else if (studentProfiles && studentProfiles.length > 0) {
+        const mapped: StudentItem[] = studentProfiles.map((sp: any) => ({
+          id: sp.id,
+          student_name: sp.full_name || 'Estudiante Registrado',
+          student_email: sp.email || 'estudiante@americandream.edu.co',
+          mcer_level: 'A1',
+          completed_hours: 0,
+          total_hours: 120,
+          status: 'active'
+        }))
+        setStudentsList(mapped)
       } else {
-        setEnrollments(FALLBACK_ENROLLMENTS)
-      }
-
-      // 2. Fetch Active Teachers Count
-      const { count: teachers, error: teacherError } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact', head: true })
-        .eq('role', 'teacher')
-
-      if (!teacherError && teachers !== null && teachers > 0) {
-        setTeacherCount(teachers)
-      } else {
-        setTeacherCount(8)
-      }
-
-      // 3. Fetch Scholarship Applications
-      const { data: appData, error: appError } = await supabase
-        .from('scholarship_applications')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (!appError && appData && appData.length > 0) {
-        setApplications(appData as ScholarshipApp[])
-      } else {
-        setApplications(FALLBACK_APPLICATIONS)
-      }
-
-      // 4. Fetch Donations total
-      const { data: donData, error: donError } = await supabase
-        .from('donations')
-        .select('total_amount, amount')
-
-      if (!donError && donData && donData.length > 0) {
-        const sum = donData.reduce((acc, curr) => acc + Number(curr.total_amount || curr.amount || 0), 0)
-        setTotalDonationsAmount(sum)
-      } else {
-        setTotalDonationsAmount(4850000)
+        setStudentsList([])
       }
 
     } catch (err) {
-      console.error('Error cargando datos administrativos:', err)
-      setEnrollments(FALLBACK_ENROLLMENTS)
-      setApplications(FALLBACK_APPLICATIONS)
-      setTeacherCount(8)
-      setTotalDonationsAmount(4850000)
+      console.error('Error al cargar datos desde Supabase:', err)
     } finally {
       setLoading(false)
       setRefreshing(false)
@@ -176,30 +237,60 @@ export default function AdminDashboardPage() {
         .update({ status: 'approved' })
         .eq('id', appId)
 
-      if (error) console.error('Error al actualizar DB:', error)
+      if (error) {
+        console.error('Error al aprobar postulación en Supabase:', error)
+      }
 
-      setApplications((prev) =>
-        prev.map((app) => (app.id === appId ? { ...app, status: 'approved' } : app))
-      )
+      setApplications((prev) => prev.filter((app) => app.id !== appId))
+      setPendingBecasCount((prev) => Math.max(0, prev - 1))
 
-      setToastMsg(`¡Postulación de ${studentName} aprobada con éxito!`)
+      setToastMsg(`¡Postulación de ${studentName} aprobada exitosamente!`)
       setTimeout(() => setToastMsg(null), 4000)
     } catch (err) {
-      console.error('Error al aprobar beca:', err)
+      console.error('Error inesperado al aprobar beca:', err)
     }
   }
 
-  const handleContactWhatsApp = (phone: string, name: string, municipio: string) => {
+  const handleDeleteLead = async (leadId: string, leadName: string) => {
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar al prospecto "${leadName}"?`)) {
+      return
+    }
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase
+        .from('leads')
+        .delete()
+        .eq('id', leadId)
+
+      if (error) {
+        console.error('Error al eliminar lead en Supabase:', error)
+        setToastMsg(`No se pudo eliminar: ${error.message}`)
+        setTimeout(() => setToastMsg(null), 4000)
+        return
+      }
+
+      setLeadsList((prev) => prev.filter((l) => l.id !== leadId))
+      setLeadsCount((prev) => Math.max(0, prev - 1))
+
+      setToastMsg(`¡Prospecto "${leadName}" eliminado correctamente!`)
+      setTimeout(() => setToastMsg(null), 4000)
+    } catch (err) {
+      console.error('Error inesperado al eliminar prospecto:', err)
+    }
+  }
+
+  const handleContactWhatsApp = (phone: string, name: string, contextMessage?: string) => {
     const cleanPhone = phone.replace(/\D/g, '')
     const targetPhone = cleanPhone.length > 10 ? cleanPhone : `57${cleanPhone}`
     const msg = encodeURIComponent(
-      `Hola ${name}, te saludamos de la Dirección Académica de American Dream English respecto a tu postulación de beca para ${municipio}.`
+      contextMessage || `Hola ${name}, te saludamos de la Dirección Académica de American Dream English.`
     )
     window.open(`https://wa.me/${targetPhone}?text=${msg}`, '_blank')
   }
 
   // Filter students logic
-  const filteredStudents = enrollments.filter((student) => {
+  const filteredStudents = studentsList.filter((student) => {
     const matchesSearch =
       student.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.student_email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -210,11 +301,27 @@ export default function AdminDashboardPage() {
     return matchesSearch && matchesLevel
   })
 
-  const pendingAppsCount = applications.filter((a) => a.status === 'pending').length
+  // Filter leads logic
+  const filteredLeads = leadsList.filter((lead) => {
+    const fullName = `${lead.first_name} ${lead.last_name}`.toLowerCase()
+    const q = leadSearchTerm.toLowerCase()
+    return fullName.includes(q) || lead.email.toLowerCase().includes(q) || lead.phone.includes(q)
+  })
+
+  const formatAudience = (aud?: string) => {
+    switch (aud) {
+      case 'para_mi':
+        return 'Para Mí (Personal)'
+      case 'para_mi_hijo':
+        return 'Para Mi Hijo (Niño/Joven)'
+      default:
+        return aud || 'General'
+    }
+  }
 
   return (
     <DashboardLayout currentRole="admin" title="Panel de Administración General">
-      <div className="space-y-8 max-w-7xl mx-auto">
+      <div className="space-y-8 max-w-7xl mx-auto font-sans">
 
         {/* HEADER TOP & REFRESH */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 gap-4">
@@ -225,7 +332,7 @@ export default function AdminDashboardPage() {
             </div>
             <h1 className="text-3xl font-black text-white">Panel de Administración General</h1>
             <p className="text-sm text-slate-400 mt-1">
-              Control RBAC, seguimiento de estudiantes bilingües, gestión de becas Urabá y pasarelas de pago.
+              Control RBAC, seguimiento de estudiantes bilingües, prospectos web, becas Urabá y pasarelas.
             </p>
           </div>
 
@@ -252,16 +359,16 @@ export default function AdminDashboardPage() {
         {/* TOAST NOTIFICATION */}
         {toastMsg && (
           <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-2xl flex items-center gap-2 font-bold animate-fadeIn">
-            <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400" />
             <span>{toastMsg}</span>
           </div>
         )}
 
-        {/* 4 KPI METRIC CARDS */}
+        {/* 5 KPI METRIC CARDS */}
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-3xl p-6 h-36 flex flex-col justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-pulse">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-3xl p-5 h-36 flex flex-col justify-between">
                 <div className="h-4 bg-slate-800 rounded w-1/2" />
                 <div className="h-8 bg-slate-800 rounded w-2/3" />
                 <div className="h-3 bg-slate-800 rounded w-3/4" />
@@ -269,68 +376,192 @@ export default function AdminDashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             
-            {/* KPI 1: Total Estudiantes Matriculados */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-emerald-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Estudiantes Activos</span>
-                <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-2xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                  <GraduationCap className="w-5 h-5" />
+            {/* KPI 1: Estudiantes Activos */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-emerald-500/40 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estudiantes</span>
+                <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                  <GraduationCap className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-3xl font-black text-white">{enrollments.length}</p>
-              <p className="text-xs text-slate-400 mt-2 flex items-center gap-1">
-                <span className="text-emerald-400 font-bold">100%</span> en plataforma Supabase
+              <p className="text-2xl font-black text-white">{studentsCount}</p>
+              <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                <span className="text-emerald-400 font-bold">● En vivo</span>
               </p>
             </div>
 
-            {/* KPI 2: Docentes Activos */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-blue-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Docentes Titulares</span>
-                <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20 group-hover:scale-110 transition-transform">
-                  <UserCheck className="w-5 h-5" />
+            {/* KPI 2: Docentes Titulares */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-blue-500/40 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Docentes</span>
+                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
+                  <UserCheck className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-3xl font-black text-white">{teacherCount}</p>
-              <p className="text-xs text-slate-400 mt-2">
-                Profesores certificados Sede Urabá
+              <p className="text-2xl font-black text-white">{teachersCount}</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                profiles ('teacher')
               </p>
             </div>
 
-            {/* KPI 3: Becas Urabá Pendientes */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Becas Pendientes</span>
-                <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20 group-hover:scale-110 transition-transform">
-                  <Heart className="w-5 h-5" />
+            {/* KPI 3: Becas Pendientes */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-amber-500/40 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Becas Urabá</span>
+                <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
+                  <Heart className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-3xl font-black text-white">{pendingAppsCount}</p>
-              <p className="text-xs text-slate-400 mt-2">
-                Postulaciones por revisar en Urabá
+              <p className="text-2xl font-black text-white">{pendingBecasCount}</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Pendientes
               </p>
             </div>
 
-            {/* KPI 4: Fondos Recaudados / Donaciones */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-crimson-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Fondo Recaudado</span>
-                <div className="p-2.5 bg-crimson-600/10 text-crimson-400 rounded-2xl border border-crimson-500/20 group-hover:scale-110 transition-transform">
-                  <DollarSign className="w-5 h-5" />
+            {/* KPI 4: Leads / Prospectos Web */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-purple-500/40 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Leads Web</span>
+                <div className="p-2 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
+                  <Inbox className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">
-                ${totalDonationsAmount.toLocaleString('es-CO')} <span className="text-xs font-normal text-slate-400">COP</span>
+              <p className="text-2xl font-black text-white">{leadsCount}</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                public.leads
               </p>
-              <p className="text-xs text-slate-400 mt-2">
-                Pasarelas Wompi / Redeban / Stripe
+            </div>
+
+            {/* KPI 5: Fondo Recaudado */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-crimson-500/40 transition-all group">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Donaciones</span>
+                <div className="p-2 bg-crimson-600/10 text-crimson-400 rounded-xl border border-crimson-500/20 group-hover:scale-110 transition-transform">
+                  <DollarSign className="w-4 h-4" />
+                </div>
+              </div>
+              <p className="text-xl font-black text-white">
+                ${totalDonationsAmount.toLocaleString('es-CO')}
+              </p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                COP acumulado
               </p>
             </div>
 
           </div>
         )}
+
+        {/* MÓDULO NUEVO: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
+        <div id="leads" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div>
+              <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+                <Inbox className="w-5 h-5 text-purple-400" />
+                <span>Gestión de Prospectos & Leads Web</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Registro directo en tiempo real desde el formulario de captura público.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative w-full sm:w-60">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  placeholder="Buscar prospecto o email..."
+                  value={leadSearchTerm}
+                  onChange={(e) => setLeadSearchTerm(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <span className="px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-black rounded-full border border-purple-500/30 whitespace-nowrap">
+                {filteredLeads.length} Registros
+              </span>
+            </div>
+          </div>
+
+          {/* LEADS TABLE */}
+          {loading ? (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-400" />
+              Cargando prospectos web desde Supabase...
+            </div>
+          ) : filteredLeads.length === 0 ? (
+            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-2">
+              <Inbox className="w-10 h-10 text-slate-600 mx-auto" />
+              <h4 className="font-bold text-slate-300 text-sm">No se encontraron prospectos web</h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {leadSearchTerm
+                  ? `No hay coincidencias para "${leadSearchTerm}".`
+                  : 'Aún no se han recibido registros en la tabla public.leads.'}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/80 text-slate-400 font-extrabold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                  <tr>
+                    <th className="py-3.5 px-4">Nombre del Prospecto</th>
+                    <th className="py-3.5 px-4">Contacto (Correo & Teléfono)</th>
+                    <th className="py-3.5 px-4">Interés / Audiencia</th>
+                    <th className="py-3.5 px-4">Fecha de Registro</th>
+                    <th className="py-3.5 px-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {filteredLeads.map((lead) => {
+                    const fullName = `${lead.first_name} ${lead.last_name}`.trim()
+                    return (
+                      <tr key={lead.id} className="hover:bg-slate-800/40 transition-colors">
+                        <td className="py-4 px-4 font-bold text-white text-sm">
+                          {fullName}
+                        </td>
+                        <td className="py-4 px-4 space-y-0.5">
+                          <p className="text-slate-200 font-medium">{lead.email}</p>
+                          <p className="text-[11px] text-slate-400">{lead.phone}</p>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="px-2.5 py-1 bg-purple-500/20 text-purple-300 text-[11px] font-bold rounded-lg border border-purple-500/30">
+                            {formatAudience(lead.audience)}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-slate-400 text-[11px]">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
+                            className="inline-flex items-center gap-1 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] px-3 py-1.5 rounded-lg transition"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>WhatsApp</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleDeleteLead(lead.id, fullName)}
+                            title="Eliminar prospecto"
+                            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg border border-transparent hover:border-rose-500/20 transition-colors inline-flex items-center justify-center"
+                          >
+                            <Trash2 className="w-4 h-4 text-rose-400" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
 
         {/* MÓDULO PRINCIPAL: ESTUDIANTES MATRICULADOS */}
         <div id="estudiantes" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
@@ -386,12 +617,24 @@ export default function AdminDashboardPage() {
               Cargando matrículas desde Supabase...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-2">
+            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-4">
               <Users className="w-10 h-10 text-slate-600 mx-auto" />
-              <h4 className="font-bold text-slate-300 text-sm">No se encontraron estudiantes</h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                No hay registros que coincidan con la búsqueda "{searchTerm}" o el filtro de nivel {selectedLevel}.
-              </p>
+              <div className="space-y-1">
+                <h4 className="font-bold text-slate-300 text-sm">No hay estudiantes registrados en Supabase</h4>
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                  {searchTerm || selectedLevel !== 'all'
+                    ? `No se encontraron resultados para "${searchTerm}" o filtro ${selectedLevel}.`
+                    : 'Aún no existen registros en la tabla public.profiles con rol student.'}
+                </p>
+              </div>
+
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Registrar Primer Estudiante</span>
+              </Link>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -468,15 +711,15 @@ export default function AdminDashboardPage() {
             <div>
               <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
                 <Heart className="w-5 h-5 text-amber-400" />
-                <span>Postulaciones al Fondo de Becas Urabá</span>
+                <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Revisión y pre-aprobación de solicitudes enviadas por aspirantes de Turbo, Apartadó y municipios vecinos.
+                Revisión y pre-aprobación en tiempo real de solicitudes registradas en public.scholarship_applications.
               </p>
             </div>
 
             <span className="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs font-black rounded-full border border-amber-500/30 w-fit">
-              {pendingAppsCount} Pendiente(s)
+              {pendingBecasCount} Pendiente(s)
             </span>
           </div>
 
@@ -484,14 +727,14 @@ export default function AdminDashboardPage() {
           {loading ? (
             <div className="p-8 text-center text-slate-400 text-xs">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-400" />
-              Cargando postulaciones a becas...
+              Cargando postulaciones a becas desde Supabase...
             </div>
           ) : applications.length === 0 ? (
             <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-2">
               <Heart className="w-10 h-10 text-slate-600 mx-auto" />
-              <h4 className="font-bold text-slate-300 text-sm">No hay postulaciones registradas</h4>
+              <h4 className="font-bold text-slate-300 text-sm">No hay postulaciones pendientes en Supabase</h4>
               <p className="text-xs text-slate-500">
-                Las nuevas postulaciones del Fondo Social Urabá aparecerán automáticamente aquí.
+                Todas las solicitudes del Fondo Social Urabá han sido procesadas o están al día.
               </p>
             </div>
           ) : (
@@ -516,11 +759,11 @@ export default function AdminDashboardPage() {
                       <td className="py-4 px-4">
                         <span className="px-2.5 py-1 bg-slate-800 text-amber-300 text-[11px] font-bold rounded-lg border border-slate-700 flex items-center gap-1 w-fit">
                           <Building2 className="w-3 h-3 text-amber-400" />
-                          <span>{app.municipio}</span>
+                          <span>{app.municipality}</span>
                         </span>
                       </td>
                       <td className="py-4 px-4 text-slate-300 font-medium">
-                        {app.study_level}
+                        {app.academic_level}
                       </td>
                       <td className="py-4 px-4 text-center">
                         <span className={`px-2.5 py-1 text-[10px] font-black rounded-md uppercase ${
@@ -543,7 +786,7 @@ export default function AdminDashboardPage() {
                         )}
 
                         <button
-                          onClick={() => handleContactWhatsApp(app.phone, app.full_name, app.municipio)}
+                          onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
                           className="inline-flex items-center gap-1 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] px-3 py-1.5 rounded-lg transition"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />

@@ -23,7 +23,8 @@ import {
   Globe, 
   Menu, 
   X,
-  ChevronRight
+  ChevronRight,
+  Inbox
 } from 'lucide-react'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
@@ -111,6 +112,7 @@ export function DashboardLayout({
   const navItemsByRole: Record<UserRole, NavItem[]> = {
     admin: [
       { label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard },
+      { label: 'Prospectos & Leads', href: '/dashboard/admin#leads', icon: Inbox, badge: 'Nuevo' },
       { label: 'Estudiantes & Matrículas', href: '/dashboard/admin#estudiantes', icon: Users, badge: 'Prioritario' },
       { label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
       { label: 'Postulaciones Becas Urabá', href: '/dashboard/admin#becas', icon: GraduationCap },
