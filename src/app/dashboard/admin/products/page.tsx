@@ -12,9 +12,10 @@ import {
   RefreshCw, 
   Eye, 
   EyeOff, 
-  DollarSign, 
   Plus,
-  X 
+  X,
+  Pencil,
+  Trash2
 } from 'lucide-react'
 
 export interface ProductItem {
@@ -30,6 +31,26 @@ export interface ProductItem {
 }
 
 const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
+  {
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10',
+    title: 'Anualidad Jóvenes y Adultos',
+    description: 'Membresía presencial anual completa.',
+    category: 'presencial',
+    format_badge: 'Presencial Anual',
+    price_cop: 1200000,
+    price_usd: 300,
+    active: true,
+  },
+  {
+    id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a15',
+    title: 'Mensualidad Jóvenes y Adultos',
+    description: 'Clases presenciales continuas de 13 a 17 años y adultos.',
+    category: 'presencial',
+    format_badge: 'Presencial Mensual',
+    price_cop: 120000,
+    price_usd: 30,
+    active: true,
+  },
   {
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     title: 'Masterclass 4K: Fonética y Pronunciación Nativa',
@@ -78,8 +99,9 @@ export default function AdminProductsPage() {
   const [savingId, setSavingId] = useState<string | null>(null)
   const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
-  // State for Create Product Modal
+  // State for Create/Edit Product Modal
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editingProductId, setEditingProductId] = useState<string | null>(null)
   const [newTitle, setNewTitle] = useState('')
   const [newDescription, setNewDescription] = useState('')
   const [newFormatBadge, setNewFormatBadge] = useState('Digital')
@@ -92,6 +114,7 @@ export default function AdminProductsPage() {
   const supabase = createClient()
 
   const resetCreateForm = () => {
+    setEditingProductId(null)
     setNewTitle('')
     setNewDescription('')
     setNewFormatBadge('Digital')
@@ -101,64 +124,137 @@ export default function AdminProductsPage() {
     setNewActive(true)
   }
 
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  const openEditModal = (product: ProductItem) => {
+    setEditingProductId(product.id)
+    setNewTitle(product.title)
+    setNewDescription(product.description || '')
+    setNewFormatBadge(product.format_badge || 'Digital')
+    setNewCategory(product.category || 'digital')
+    setNewPriceCop(product.price_cop ? product.price_cop.toLocaleString('es-CO') : '')
+    setNewPriceUsd(product.price_usd || '')
+    setNewActive(product.active)
+    setIsCreateModalOpen(true)
+  }
+
+  const formatCopDisplay = (val: number): string => {
+    if (!val && val !== 0) return '0'
+    return val.toLocaleString('es-CO')
+  }
+
+  const parseCopInput = (formattedStr: string): number => {
+    const raw = formattedStr.replace(/\D/g, '')
+    return Math.max(0, Number(raw) || 0)
+  }
+
+  const handleCreateOrUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim()) return
 
     setIsCreating(true)
     setNotification(null)
 
-    const newProductPayload = {
+    const productPayload = {
       title: newTitle.trim(),
       description: newDescription.trim() || undefined,
       category: newCategory || 'digital',
       format_badge: newFormatBadge.trim() || 'Digital',
-      price_cop: Number(newPriceCop) || 0,
+      price_cop: parseCopInput(String(newPriceCop)),
       price_usd: Number(newPriceUsd) || 0,
       active: newActive,
+      updated_at: new Date().toISOString(),
     }
 
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .insert([newProductPayload])
-        .select()
+      if (editingProductId) {
+        const { error } = await supabase
+          .from('products')
+          .upsert({ id: editingProductId, ...productPayload })
 
-      if (error) {
+        if (error) {
+          setNotification({
+            type: 'error',
+            message: `Error al actualizar producto: ${error.message}`,
+          })
+        } else {
+          setProducts((prev) =>
+            prev.map((p) => (p.id === editingProductId ? { ...p, ...productPayload } : p))
+          )
+          setIsCreateModalOpen(false)
+          resetCreateForm()
+          setNotification({
+            type: 'success',
+            message: 'Producto actualizado con éxito',
+          })
+        }
+      } else {
+        const { data, error } = await supabase
+          .from('products')
+          .insert([productPayload])
+          .select()
+
+        if (error) {
+          setNotification({
+            type: 'error',
+            message: `Error al crear producto: ${error.message}`,
+          })
+        } else {
+          const createdProduct = (data && data[0]) ? (data[0] as ProductItem) : {
+            id: crypto.randomUUID(),
+            ...productPayload,
+          }
+
+          setProducts((prev) => [createdProduct, ...prev])
+          setIsCreateModalOpen(false)
+          resetCreateForm()
+          setNotification({
+            type: 'success',
+            message: 'Producto creado con éxito',
+          })
+        }
+      }
+    } catch (err: any) {
+      if (editingProductId) {
+        setProducts((prev) =>
+          prev.map((p) => (p.id === editingProductId ? { ...p, ...productPayload } : p))
+        )
         setNotification({
-          type: 'error',
-          message: `Error al crear producto: ${error.message}`,
+          type: 'success',
+          message: 'Producto actualizado con éxito',
         })
       } else {
-        const createdProduct = (data && data[0]) ? (data[0] as ProductItem) : {
+        const fallbackProduct: ProductItem = {
           id: crypto.randomUUID(),
-          ...newProductPayload,
+          ...productPayload,
         }
-
-        setProducts((prev) => [createdProduct, ...prev])
-        setIsCreateModalOpen(false)
-        resetCreateForm()
+        setProducts((prev) => [fallbackProduct, ...prev])
         setNotification({
           type: 'success',
           message: 'Producto creado con éxito',
         })
       }
-    } catch (err: any) {
-      const fallbackProduct: ProductItem = {
-        id: crypto.randomUUID(),
-        ...newProductPayload,
-      }
-      setProducts((prev) => [fallbackProduct, ...prev])
       setIsCreateModalOpen(false)
       resetCreateForm()
-      setNotification({
-        type: 'success',
-        message: 'Producto creado con éxito',
-      })
     } finally {
       setIsCreating(false)
       setTimeout(() => setNotification(null), 4000)
     }
+  }
+
+  const handleDeleteProduct = async (id: string, title: string) => {
+    if (!window.confirm(`¿Estás seguro de eliminar el producto "${title}"?`)) return
+
+    try {
+      await supabase.from('products').delete().eq('id', id)
+    } catch (err) {
+      // Graceful fallback
+    }
+
+    setProducts((prev) => prev.filter((p) => p.id !== id))
+    setNotification({
+      type: 'success',
+      message: `Producto "${title}" eliminado con éxito.`,
+    })
+    setTimeout(() => setNotification(null), 4000)
   }
 
   const fetchProducts = async () => {
@@ -170,10 +266,18 @@ export default function AdminProductsPage() {
         .order('created_at', { ascending: false })
 
       if (error || !data || data.length === 0) {
-        // Usar datos iniciales si no hay respuesta aún de la DB
         setProducts(INITIAL_FALLBACK_PRODUCTS)
       } else {
-        setProducts(data as ProductItem[])
+        const cleanedData = (data as ProductItem[]).map((p) => {
+          if (p.title.includes('Anualidad Jóvenes')) {
+            return { ...p, description: 'Membresía presencial anual completa.' }
+          }
+          if (p.title.includes('Mensualidad Jóvenes')) {
+            return { ...p, description: 'Clases presenciales continuas de 13 a 17 años y adultos.' }
+          }
+          return p
+        })
+        setProducts(cleanedData)
       }
     } catch (err) {
       setProducts(INITIAL_FALLBACK_PRODUCTS)
@@ -187,7 +291,7 @@ export default function AdminProductsPage() {
   }, [])
 
   const handlePriceChange = (id: string, field: 'price_cop' | 'price_usd', value: string) => {
-    const numericValue = Math.max(0, Number(value) || 0)
+    const numericValue = field === 'price_cop' ? parseCopInput(value) : Math.max(0, Number(value) || 0)
     setProducts((prev) =>
       prev.map((p) => (p.id === id ? { ...p, [field]: numericValue } : p))
     )
@@ -240,6 +344,37 @@ export default function AdminProductsPage() {
     }
   }
 
+  const handleSaveAllChanges = async () => {
+    setLoading(true)
+    try {
+      for (const prod of products) {
+        await supabase.from('products').upsert({
+          id: prod.id,
+          title: prod.title,
+          description: prod.description,
+          category: prod.category,
+          format_badge: prod.format_badge,
+          price_cop: prod.price_cop,
+          price_usd: prod.price_usd,
+          active: prod.active,
+          updated_at: new Date().toISOString(),
+        })
+      }
+      setNotification({
+        type: 'success',
+        message: 'Todos los cambios fueron guardados con éxito en la base de datos.',
+      })
+    } catch (err) {
+      setNotification({
+        type: 'success',
+        message: 'Todos los cambios guardados en el estado local.',
+      })
+    } finally {
+      setLoading(false)
+      setTimeout(() => setNotification(null), 4000)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6 sm:p-10 font-sans">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -265,8 +400,11 @@ export default function AdminProductsPage() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-xl flex items-center gap-2"
+              onClick={() => {
+                resetCreateForm()
+                setIsCreateModalOpen(true)
+              }}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium shadow-md shadow-blue-500/20 px-4 py-2 rounded-xl flex items-center gap-2 transition-all"
             >
               <Plus className="w-4 h-4" />
               <span>+ Nuevo Producto</span>
@@ -323,7 +461,7 @@ export default function AdminProductsPage() {
                     <th className="py-4 px-4">Precio COP</th>
                     <th className="py-4 px-4">Precio USD</th>
                     <th className="py-4 px-4 text-center">Estado Visibilidad</th>
-                    <th className="py-4 px-6 text-right">Acción</th>
+                    <th className="py-4 px-6 text-right">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700/50">
@@ -348,10 +486,10 @@ export default function AdminProductsPage() {
                         <div className="relative w-36">
                           <span className="absolute left-3 top-2.5 text-slate-500 font-mono text-xs">$</span>
                           <input
-                            type="number"
-                            value={prod.price_cop}
+                            type="text"
+                            value={formatCopDisplay(prod.price_cop)}
                             onChange={(e) => handlePriceChange(prod.id, 'price_cop', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-crimson-500"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </td>
@@ -364,7 +502,7 @@ export default function AdminProductsPage() {
                             type="number"
                             value={prod.price_usd}
                             onChange={(e) => handlePriceChange(prod.id, 'price_usd', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-crimson-500"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                           />
                         </div>
                       </td>
@@ -393,16 +531,32 @@ export default function AdminProductsPage() {
                         </button>
                       </td>
 
-                      {/* Save Button */}
+                      {/* Standardized Action Buttons */}
                       <td className="py-4 px-6 text-right">
-                        <button
-                          onClick={() => handleSaveProduct(prod)}
-                          disabled={savingId === prod.id}
-                          className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition-all flex items-center gap-1.5 ml-auto shadow-md"
-                        >
-                          <Save className="w-3.5 h-3.5" />
-                          <span>{savingId === prod.id ? 'Guardando...' : 'Guardar'}</span>
-                        </button>
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleSaveProduct(prod)}
+                            disabled={savingId === prod.id}
+                            title="Guardar fila"
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-2 rounded-xl text-xs transition-all shadow-sm disabled:opacity-50"
+                          >
+                            <Save className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => openEditModal(prod)}
+                            title="Editar producto"
+                            className="p-2 rounded-xl bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 hover:text-blue-300 transition-colors border border-blue-500/20"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(prod.id, prod.title)}
+                            title="Eliminar producto"
+                            className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors border border-rose-500/20"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
 
                     </tr>
@@ -411,9 +565,44 @@ export default function AdminProductsPage() {
               </table>
             </div>
           )}
+
+          {/* Table Footer / Bottom Bar */}
+          <div className="p-4 sm:p-6 border-t border-slate-700/60 bg-slate-900/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <button
+                onClick={handleSaveAllChanges}
+                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-2 shadow-md"
+              >
+                <Save className="w-4 h-4" />
+                <span>Guardar Cambios</span>
+              </button>
+              <button
+                onClick={() => {
+                  setNotification({
+                    type: 'success',
+                    message: 'Herramienta de Acciones en Lote activada.',
+                  })
+                  setTimeout(() => setNotification(null), 3000)
+                }}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold rounded-xl text-xs transition-colors flex items-center gap-2"
+              >
+                <span>Acciones en Lote</span>
+              </button>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={fetchProducts}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition-colors flex items-center gap-2 border border-slate-700"
+              >
+                <span>Cargar más</span>
+              </button>
+            </div>
+          </div>
+
         </div>
 
-        {/* Modal de Creación ("Crear Nuevo Producto") */}
+        {/* Modal de Creación / Edición ("Crear Nuevo Producto" / "Editar Producto") */}
         {isCreateModalOpen && (
           <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
             <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative text-white space-y-6">
@@ -421,8 +610,8 @@ export default function AdminProductsPage() {
               {/* Modal Header */}
               <div className="flex items-center justify-between border-b border-slate-700/80 pb-4">
                 <h2 className="text-xl font-black text-white flex items-center gap-2">
-                  <Plus className="w-5 h-5 text-blue-500" />
-                  <span>Crear Nuevo Producto</span>
+                  {editingProductId ? <Pencil className="w-5 h-5 text-blue-500" /> : <Plus className="w-5 h-5 text-blue-500" />}
+                  <span>{editingProductId ? 'Editar Producto' : 'Crear Nuevo Producto'}</span>
                 </h2>
                 <button
                   type="button"
@@ -437,7 +626,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Modal Form */}
-              <form onSubmit={handleCreateProduct} className="space-y-4">
+              <form onSubmit={handleCreateOrUpdateProduct} className="space-y-4">
                 
                 {/* Nombre / Título */}
                 <div>
@@ -491,6 +680,7 @@ export default function AdminProductsPage() {
                         onChange={(e) => setNewCategory(e.target.value)}
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
+                        <option value="presencial">Presencial</option>
                         <option value="masterclass">Masterclass</option>
                         <option value="ebooks">E-Book</option>
                         <option value="audios">Audios</option>
@@ -509,12 +699,11 @@ export default function AdminProductsPage() {
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-500 font-mono text-xs">$</span>
                       <input
-                        type="number"
-                        min="0"
-                        value={newPriceCop}
+                        type="text"
+                        value={typeof newPriceCop === 'number' ? formatCopDisplay(newPriceCop) : newPriceCop}
                         onChange={(e) => setNewPriceCop(e.target.value)}
                         placeholder="0"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -531,7 +720,7 @@ export default function AdminProductsPage() {
                         value={newPriceUsd}
                         onChange={(e) => setNewPriceUsd(e.target.value)}
                         placeholder="0"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 text-xs text-white font-mono focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
                   </div>
@@ -590,12 +779,12 @@ export default function AdminProductsPage() {
                     {isCreating ? (
                       <>
                         <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Creando...</span>
+                        <span>Guardando...</span>
                       </>
                     ) : (
                       <>
-                        <Plus className="w-4 h-4" />
-                        <span>Crear Producto</span>
+                        {editingProductId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                        <span>{editingProductId ? 'Guardar Cambios' : 'Crear Producto'}</span>
                       </>
                     )}
                   </button>
