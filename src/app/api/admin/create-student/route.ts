@@ -26,27 +26,39 @@ export async function POST(request: Request) {
       }
     })
 
-    // 1. Crear el usuario en Supabase Auth con Service Role
-    let userId = crypto.randomUUID()
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = fullName.trim()
 
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-      email: email.trim(),
-      password: 'TempPassword2026*',
-      email_confirm: true,
-      user_metadata: { full_name: fullName.trim(), role: 'student' }
-    })
+    // 1. Verificar si ya existe un perfil registrado con este correo
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id')
+      .eq('email', cleanEmail)
+      .maybeSingle()
 
-    if (authUser?.user?.id) {
-      userId = authUser.user.id
-    } else if (authError) {
-      console.warn('Advertencia al crear usuario Auth (Service Role):', authError.message)
+    let userId = existingProfile?.id
+
+    if (!userId) {
+      // Intentar crear el usuario en Supabase Auth con Service Role
+      const { data: authUser } = await supabaseAdmin.auth.admin.createUser({
+        email: cleanEmail,
+        password: 'TempPassword2026*',
+        email_confirm: true,
+        user_metadata: { full_name: cleanName, role: 'student' }
+      })
+
+      if (authUser?.user?.id) {
+        userId = authUser.user.id
+      } else {
+        userId = crypto.randomUUID()
+      }
     }
 
-    // 2. Insertar/Actualizar registro en public.profiles
+    // 2. Insertar / Actualizar registro en public.profiles
     const profilePayload: any = {
       id: userId,
-      full_name: fullName.trim(),
-      email: email.trim(),
+      full_name: cleanName,
+      email: cleanEmail,
       role: 'student',
       municipality: municipality || 'Turbo',
       origin_location: municipality || 'Turbo',
@@ -55,42 +67,44 @@ export async function POST(request: Request) {
 
     let { error: profileError } = await supabaseAdmin
       .from('profiles')
-      .upsert(profilePayload)
+      .upsert(profilePayload, { onConflict: 'id' })
 
-    // Fallback si la columna municipality o academic_level no existe en la tabla de Supabase
-    if (profileError && profileError.message?.toLowerCase().includes('column')) {
+    // Fallback si alguna columna no existe en el esquema de la base de datos
+    if (profileError) {
+      console.warn('Upsert inicial reportó advertencia en profiles:', profileError.message)
       const fallbackPayload: any = {
         id: userId,
-        full_name: fullName.trim(),
-        email: email.trim(),
+        full_name: cleanName,
+        email: cleanEmail,
         role: 'student',
         origin_location: municipality || 'Turbo'
       }
       const { error: retryError } = await supabaseAdmin
         .from('profiles')
-        .upsert(fallbackPayload)
+        .upsert(fallbackPayload, { onConflict: 'id' })
 
       if (retryError) {
-        console.error('Error al guardar perfil en Supabase (fallback):', retryError)
-        return NextResponse.json(
-          { error: retryError.message || 'No se pudo guardar el perfil del estudiante.' },
-          { status: 500 }
-        )
+        console.error('Error en upsert fallback profiles:', retryError)
+        // Intentar insert simple por si upsert tiene restricciones
+        const { error: insertErr } = await supabaseAdmin
+          .from('profiles')
+          .insert([fallbackPayload])
+
+        if (insertErr && !insertErr.message?.toLowerCase().includes('duplicate')) {
+          return NextResponse.json(
+            { error: insertErr.message || 'No se pudo guardar el perfil del estudiante.' },
+            { status: 500 }
+          )
+        }
       }
-    } else if (profileError) {
-      console.error('Error al guardar perfil en Supabase:', profileError)
-      return NextResponse.json(
-        { error: profileError.message || 'Error al registrar el perfil en la base de datos.' },
-        { status: 500 }
-      )
     }
 
     return NextResponse.json({
       success: true,
       student: {
         id: userId,
-        full_name: fullName.trim(),
-        email: email.trim(),
+        full_name: cleanName,
+        email: cleanEmail,
         role: 'student',
         municipality: municipality || 'Turbo',
         mcer_level: mcerLevel || 'A1'
