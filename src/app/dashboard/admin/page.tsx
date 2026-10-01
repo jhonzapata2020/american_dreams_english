@@ -144,10 +144,10 @@ export default function AdminDashboardPage() {
 
       // 2. Si no hubo error: Notificar, cerrar el modal y limpiar formulario
       setToast({
-        title: 'Estudiante registrado con éxito',
-        message: `${fullName} ha sido registrado como estudiante activo.`
+        title: '¡Estudiante guardado con éxito!',
+        message: `${fullName} se ha registrado correctamente en la plataforma.`
       })
-      setTimeout(() => setToast(null), 4000)
+      setTimeout(() => setToast(null), 4500)
 
       setIsAddStudentOpen(false) // Cerrar el modal
       setNewStudentData({
@@ -518,14 +518,24 @@ export default function AdminDashboardPage() {
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#0F172A]/95 border border-emerald-500/50 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-fadeIn max-w-sm backdrop-blur-md">
-            <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30 flex-shrink-0">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          <div className="fixed bottom-6 right-6 z-50 bg-[#0F172A]/95 border border-emerald-500/60 text-white p-4 rounded-2xl shadow-2xl shadow-emerald-950/40 flex items-center justify-between gap-4 animate-fadeIn max-w-sm backdrop-blur-md">
+            <div className="flex items-center gap-3.5">
+              <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/40 flex-shrink-0">
+                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div>
+                <h4 className="text-xs font-extrabold text-white">{toast.title}</h4>
+                <p className="text-[11px] text-slate-300 mt-0.5">{toast.message}</p>
+              </div>
             </div>
-            <div>
-              <h4 className="text-xs font-bold text-white">{toast.title}</h4>
-              <p className="text-[11px] text-slate-300 mt-0.5">{toast.message}</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setToast(null)}
+              className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors flex-shrink-0"
+              title="Cerrar notificación"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         )}
 
