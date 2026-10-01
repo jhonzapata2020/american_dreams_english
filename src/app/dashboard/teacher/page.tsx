@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '../../../utils/supabase/client'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { 
   Users, 
   BookOpen, 
@@ -126,7 +127,7 @@ export default function TeacherDashboardPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6 sm:p-10 font-sans">
+    <DashboardLayout currentRole="teacher" title="Portal Docente & Panel Académico">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
@@ -134,9 +135,9 @@ export default function TeacherDashboardPage() {
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-600/20 text-blue-400 rounded-full text-xs font-bold border border-blue-500/30 mb-2">
               <Users className="w-4 h-4" />
-              <span>Rol Autorizado: Docente / Admin</span>
+              <span>Rol Autorizado: Docente Titular</span>
             </div>
-            <h1 className="text-3xl font-black">Portal Docente & Panel Académico</h1>
+            <h1 className="text-3xl font-black text-white">Portal Docente & Panel Académico</h1>
             <p className="text-sm text-slate-400 mt-1">
               {teacherName ? `Bienvenido/a, ${teacherName}` : 'American Dream English - Gestión de Aulas & Avance MCER'}
             </p>
@@ -176,14 +177,14 @@ export default function TeacherDashboardPage() {
           <div className="space-y-8 animate-pulse">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-6 h-36 flex flex-col justify-between">
-                  <div className="h-4 bg-slate-700/70 rounded w-1/2" />
-                  <div className="h-6 bg-slate-700/70 rounded w-3/4" />
-                  <div className="h-3 bg-slate-700/70 rounded w-2/3" />
+                <div key={i} className="bg-slate-900/60 border border-slate-800/60 rounded-3xl p-6 h-36 flex flex-col justify-between">
+                  <div className="h-4 bg-slate-800/70 rounded w-1/2" />
+                  <div className="h-6 bg-slate-800/70 rounded w-3/4" />
+                  <div className="h-3 bg-slate-800/70 rounded w-2/3" />
                 </div>
               ))}
             </div>
-            <div className="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-6 h-64" />
+            <div className="bg-slate-900/60 border border-slate-800/60 rounded-3xl p-6 h-64" />
           </div>
         ) : (
           <>
@@ -191,7 +192,7 @@ export default function TeacherDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* Card 1: Próxima Clase Sincrónica */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-blue-500/50 transition">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-blue-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-blue-400 uppercase tracking-wider">
                   <Calendar className="w-4 h-4" />
                   Próxima Clase Asignada
@@ -216,7 +217,7 @@ export default function TeacherDashboardPage() {
               </div>
 
               {/* Card 2: Estudiantes Inscritos */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-emerald-500/50 transition">
+              <div id="asistencia" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-emerald-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-emerald-400 uppercase tracking-wider">
                   <Users className="w-4 h-4" />
                   Estudiantes Atendidos
@@ -230,7 +231,7 @@ export default function TeacherDashboardPage() {
               </div>
 
               {/* Card 3: Clases Dictadas / Horas */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-amber-500/50 transition">
+              <div id="perfil" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-amber-400 uppercase tracking-wider">
                   <Clock className="w-4 h-4" />
                   Clases & Horas Dictadas
@@ -246,16 +247,16 @@ export default function TeacherDashboardPage() {
             </div>
 
             {/* SECCIÓN DE GESTIÓN DE CLASES Y AULAS */}
-            <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 space-y-5">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
               
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-700 pb-4 gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-4">
                 <h2 className="text-lg font-extrabold text-white flex items-center gap-2">
                   <Video className="w-5 h-5 text-blue-400" />
                   Gestión de Aulas Sincrónicas & Presenciales
                 </h2>
 
                 {/* Filter Switch */}
-                <div className="bg-slate-900 border border-slate-700 p-1 rounded-xl flex items-center text-xs font-bold">
+                <div className="bg-slate-950 border border-slate-800 p-1 rounded-xl flex items-center text-xs font-bold">
                   <button
                     onClick={() => setFilterStatus('all')}
                     className={`px-3 py-1.5 rounded-lg transition ${filterStatus === 'all' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
@@ -279,7 +280,7 @@ export default function TeacherDashboardPage() {
 
               {filteredClasses.length === 0 ? (
                 /* EMPTY STATE FOR TEACHER CLASSES */
-                <div className="bg-slate-900/60 border border-slate-700/80 rounded-2xl p-10 text-center space-y-3">
+                <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-10 text-center space-y-3">
                   <Calendar className="w-10 h-10 text-slate-500 mx-auto" />
                   <h4 className="font-bold text-slate-200 text-sm">No tienes clases asignadas en este filtro</h4>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -289,7 +290,7 @@ export default function TeacherDashboardPage() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredClasses.map((cls) => (
-                    <div key={cls.id} className="bg-slate-900/80 border border-slate-700 p-5 rounded-2xl flex flex-col justify-between space-y-4 hover:border-slate-600 transition">
+                    <div key={cls.id} className="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 hover:border-slate-700 transition">
                       
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -345,6 +346,6 @@ export default function TeacherDashboardPage() {
         )}
 
       </div>
-    </div>
+    </DashboardLayout>
   )
 }

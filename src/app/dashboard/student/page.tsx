@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { createClient } from '../../../utils/supabase/client'
+import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { 
   GraduationCap, 
   BookOpen, 
@@ -162,7 +163,7 @@ export default function StudentDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-6 sm:p-10 font-sans">
+    <DashboardLayout currentRole="student" title="Portal del Estudiante & Becario">
       <div className="max-w-7xl mx-auto space-y-8">
         
         {/* Header */}
@@ -172,7 +173,7 @@ export default function StudentDashboardPage() {
               <GraduationCap className="w-4 h-4" />
               <span>Rol Autorizado: Estudiante</span>
             </div>
-            <h1 className="text-3xl font-black">
+            <h1 className="text-3xl font-black text-white">
               Portal del Estudiante & Becario
             </h1>
             <p className="text-sm text-slate-400 mt-1">
@@ -214,14 +215,14 @@ export default function StudentDashboardPage() {
           <div className="space-y-8 animate-pulse">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-6 h-36 flex flex-col justify-between">
-                  <div className="h-4 bg-slate-700/70 rounded w-1/2" />
-                  <div className="h-6 bg-slate-700/70 rounded w-3/4" />
-                  <div className="h-3 bg-slate-700/70 rounded w-2/3" />
+                <div key={i} className="bg-slate-900/60 border border-slate-800/60 rounded-3xl p-6 h-36 flex flex-col justify-between">
+                  <div className="h-4 bg-slate-800/70 rounded w-1/2" />
+                  <div className="h-6 bg-slate-800/70 rounded w-3/4" />
+                  <div className="h-3 bg-slate-800/70 rounded w-2/3" />
                 </div>
               ))}
             </div>
-            <div className="bg-slate-800/60 border border-slate-700/60 rounded-3xl p-6 h-64" />
+            <div className="bg-slate-900/60 border border-slate-800/60 rounded-3xl p-6 h-64" />
           </div>
         ) : (
           <>
@@ -229,7 +230,7 @@ export default function StudentDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
               {/* Card 1: Nivel MCER */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-emerald-500/50 transition">
+              <div id="progreso" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-emerald-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-emerald-400 uppercase tracking-wider">
                   <Award className="w-4 h-4" />
                   Nivel MCER Actual
@@ -242,7 +243,7 @@ export default function StudentDashboardPage() {
                     <span>Progreso de Horas</span>
                     <span>{completedHours} de {totalHours}h ({progressPercent}%)</span>
                   </div>
-                  <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+                  <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                     <div 
                       className="bg-emerald-500 h-full rounded-full transition-all duration-500" 
                       style={{ width: `${progressPercent}%` }} 
@@ -252,7 +253,7 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Card 2: Materiales & Recursos */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-blue-500/50 transition">
+              <div id="horas" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-blue-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-blue-400 uppercase tracking-wider">
                   <BookOpen className="w-4 h-4" />
                   Materiales Habilitados
@@ -267,7 +268,7 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Card 3: Estado de Beca */}
-              <div className="bg-slate-800 border border-slate-700 rounded-3xl p-6 hover:border-amber-500/50 transition">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 hover:border-amber-500/50 transition">
                 <h3 className="text-xs font-bold mb-2 flex items-center gap-2 text-amber-400 uppercase tracking-wider">
                   <CheckCircle className="w-4 h-4" />
                   Estado de Beca / Matrícula
@@ -286,15 +287,15 @@ export default function StudentDashboardPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
               
               {/* Cursos Matriculados (7 cols) */}
-              <div className="lg:col-span-7 bg-slate-800 border border-slate-700 rounded-3xl p-6 space-y-4">
-                <h2 className="text-lg font-extrabold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
+              <div className="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                <h2 className="text-lg font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                   <BookOpen className="w-5 h-5 text-emerald-400" />
                   Mis Cursos & Módulos Activos
                 </h2>
 
                 {enrollments.length === 0 ? (
                   /* EMPTY STATE FOR ENROLLMENTS */
-                  <div className="bg-slate-900/60 border border-slate-700/80 rounded-2xl p-8 text-center space-y-3">
+                  <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-8 text-center space-y-3">
                     <UserCheck className="w-10 h-10 text-slate-500 mx-auto" />
                     <h4 className="font-bold text-slate-200 text-sm">No tienes cursos matriculados actualmente</h4>
                     <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -310,7 +311,7 @@ export default function StudentDashboardPage() {
                 ) : (
                   <div className="space-y-3">
                     {enrollments.map((enr) => (
-                      <div key={enr.id} className="bg-slate-900/80 border border-slate-700 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div key={enr.id} className="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 text-[10px] font-black rounded-md border border-emerald-500/30">
@@ -331,15 +332,15 @@ export default function StudentDashboardPage() {
               </div>
 
               {/* Próximas Clases Sincrónicas / Presenciales (5 cols) */}
-              <div className="lg:col-span-5 bg-slate-800 border border-slate-700 rounded-3xl p-6 space-y-4">
-                <h2 className="text-lg font-extrabold text-white flex items-center gap-2 border-b border-slate-700 pb-3">
+              <div className="lg:col-span-5 bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4">
+                <h2 className="text-lg font-extrabold text-white flex items-center gap-2 border-b border-slate-800 pb-3">
                   <Calendar className="w-5 h-5 text-blue-400" />
                   Próximas Clases Agendadas
                 </h2>
 
                 {upcomingClasses.length === 0 ? (
                   /* EMPTY STATE FOR CLASSES */
-                  <div className="bg-slate-900/60 border border-slate-700/80 rounded-2xl p-8 text-center space-y-2">
+                  <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-8 text-center space-y-2">
                     <Clock className="w-9 h-9 text-slate-500 mx-auto" />
                     <h4 className="font-bold text-slate-200 text-xs">No hay clases programadas para esta semana</h4>
                     <p className="text-[11px] text-slate-400">
@@ -349,7 +350,7 @@ export default function StudentDashboardPage() {
                 ) : (
                   <div className="space-y-3">
                     {upcomingClasses.map((cls) => (
-                      <div key={cls.id} className="bg-slate-900/80 border border-slate-700 p-4 rounded-2xl space-y-2">
+                      <div key={cls.id} className="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-2">
                         <div className="flex items-start justify-between">
                           <div>
                             <h4 className="font-bold text-xs text-white">{cls.title}</h4>
@@ -394,6 +395,6 @@ export default function StudentDashboardPage() {
         )}
 
       </div>
-    </div>
+    </DashboardLayout>
   )
 }
