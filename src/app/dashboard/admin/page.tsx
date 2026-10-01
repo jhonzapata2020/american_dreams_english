@@ -351,7 +351,7 @@ export default function AdminDashboardPage() {
       )
     }
     return (
-      <span className="px-2.5 py-1 bg-slate-800 text-slate-400 text-[11px] font-medium rounded-lg border border-slate-700 whitespace-nowrap inline-block">
+      <span className="px-2.5 py-1 bg-slate-800 text-slate-400 text-[11px] font-medium rounded-lg border border-slate-700/80 whitespace-nowrap inline-block">
         {aud || 'General'}
       </span>
     )
@@ -362,14 +362,14 @@ export default function AdminDashboardPage() {
       <div className="space-y-8 max-w-7xl mx-auto font-sans">
 
         {/* HEADER TOP & REFRESH */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-6 gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/70 pb-6 gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-crimson-600/20 text-crimson-400 rounded-full text-xs font-bold border border-crimson-500/30 mb-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/15 text-indigo-400 rounded-full text-xs font-semibold border border-indigo-500/30 mb-2">
               <ShieldCheck className="w-4 h-4" />
               <span>Acceso Administrador General</span>
             </div>
-            <h1 className="text-3xl font-black text-white">Panel de Administración General</h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">Panel de Administración General</h1>
+            <p className="text-xs text-slate-400 mt-1">
               Control RBAC, seguimiento de estudiantes bilingües, prospectos web, becas Urabá y pasarelas.
             </p>
           </div>
@@ -378,15 +378,15 @@ export default function AdminDashboardPage() {
             <button
               onClick={fetchAdminData}
               disabled={refreshing}
-              className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition-colors flex items-center gap-2 border border-slate-700"
+              className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-2 border border-slate-700/70"
             >
-              <RefreshCw className={`w-4 h-4 text-crimson-400 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-indigo-400 ${refreshing ? 'animate-spin' : ''}`} />
               <span>Sincronizar Supabase</span>
             </button>
 
             <Link
               href="/dashboard/admin/products"
-              className="px-4 py-2.5 bg-crimson-600 hover:bg-crimson-700 text-white font-bold rounded-xl text-xs transition-colors flex items-center gap-2 shadow-lg shadow-crimson-600/20"
+              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
             >
               <Package className="w-4 h-4" />
               <span>Catálogo Cursos</span>
@@ -396,12 +396,12 @@ export default function AdminDashboardPage() {
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
-          <div className="fixed bottom-6 right-6 z-50 bg-slate-900/95 border border-emerald-500/50 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-fadeIn max-w-sm backdrop-blur-md">
+          <div className="fixed bottom-6 right-6 z-50 bg-[#0F172A]/95 border border-emerald-500/50 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-fadeIn max-w-sm backdrop-blur-md">
             <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30 flex-shrink-0">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <h4 className="text-xs font-black text-white">{toast.title}</h4>
+              <h4 className="text-xs font-bold text-white">{toast.title}</h4>
               <p className="text-[11px] text-slate-300 mt-0.5">{toast.message}</p>
             </div>
           </div>
@@ -410,7 +410,7 @@ export default function AdminDashboardPage() {
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-slate-900 border border-slate-700 shadow-2xl rounded-2xl p-6 max-w-md w-full space-y-5">
+            <div className="bg-[#0F172A] border border-slate-800/80 shadow-2xl rounded-2xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -423,12 +423,12 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/70">
                 <button
                   type="button"
                   disabled={isDeleting}
                   onClick={() => setLeadToDelete(null)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition-colors border border-slate-700"
+                  className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
                 >
                   Cancelar
                 </button>
@@ -460,10 +460,10 @@ export default function AdminDashboardPage() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-pulse">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-3xl p-5 h-36 flex flex-col justify-between">
-                <div className="h-4 bg-slate-800 rounded w-1/2" />
-                <div className="h-8 bg-slate-800 rounded w-2/3" />
-                <div className="h-3 bg-slate-800 rounded w-3/4" />
+              <div key={i} className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 h-36 flex flex-col justify-between">
+                <div className="h-4 bg-slate-800/70 rounded w-1/2" />
+                <div className="h-8 bg-slate-800/70 rounded w-2/3" />
+                <div className="h-3 bg-slate-800/70 rounded w-3/4" />
               </div>
             ))}
           </div>
@@ -471,86 +471,97 @@ export default function AdminDashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             
             {/* KPI 1: Estudiantes Activos */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-emerald-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Estudiantes</span>
+            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Estudiantes</span>
                 <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
                   <GraduationCap className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">{studentsCount}</p>
-              <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
-                <span className="text-emerald-400 font-bold">● En vivo</span>
-              </p>
+              <p className="text-3xl font-bold tracking-tight text-white">{studentsCount}</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>En vivo</span>
+                </span>
+              </div>
             </div>
 
             {/* KPI 2: Docentes Titulares */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-blue-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Docentes</span>
+            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Docentes</span>
                 <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
                   <UserCheck className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">{teachersCount}</p>
-              <p className="text-[11px] text-slate-400 mt-1">
-                profiles ('teacher')
-              </p>
+              <p className="text-3xl font-bold tracking-tight text-white">{teachersCount}</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  Titulares
+                </span>
+              </div>
             </div>
 
             {/* KPI 3: Becas Pendientes */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-amber-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Becas Urabá</span>
+            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Becas Urabá</span>
                 <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
                   <Heart className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">{pendingBecasCount}</p>
-              <p className="text-[11px] text-slate-400 mt-1">
-                Pendientes
-              </p>
+              <p className="text-3xl font-bold tracking-tight text-white">{pendingBecasCount}</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  Pendientes
+                </span>
+              </div>
             </div>
 
             {/* KPI 4: Leads / Prospectos Web */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-purple-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Leads Web</span>
+            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Leads Web</span>
                 <div className="p-2 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
                   <Inbox className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-2xl font-black text-white">{leadsCount}</p>
-              <p className="text-[11px] text-slate-400 mt-1">
-                public.leads
-              </p>
+              <p className="text-3xl font-bold tracking-tight text-white">{leadsCount}</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  public.leads
+                </span>
+              </div>
             </div>
 
             {/* KPI 5: Fondo Recaudado */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-5 hover:border-crimson-500/40 transition-all group">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Donaciones</span>
-                <div className="p-2 bg-crimson-600/10 text-crimson-400 rounded-xl border border-crimson-500/20 group-hover:scale-110 transition-transform">
+            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Donaciones</span>
+                <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 group-hover:scale-110 transition-transform">
                   <DollarSign className="w-4 h-4" />
                 </div>
               </div>
-              <p className="text-xl font-black text-white">
+              <p className="text-2xl font-bold tracking-tight text-white">
                 ${totalDonationsAmount.toLocaleString('es-CO')}
               </p>
-              <p className="text-[11px] text-slate-400 mt-1">
-                COP acumulado
-              </p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
+                  COP acumulado
+                </span>
+              </div>
             </div>
 
           </div>
         )}
 
         {/* MÓDULO: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
-        <div id="leads" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+        <div id="leads" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
             <div>
-              <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
                 <Inbox className="w-5 h-5 text-purple-400" />
                 <span>Gestión de Prospectos & Leads Web</span>
               </h2>
@@ -567,11 +578,11 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar prospecto o email..."
                   value={leadSearchTerm}
                   onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
-              <span className="px-3 py-1 bg-purple-500/20 text-purple-300 text-xs font-black rounded-full border border-purple-500/30 whitespace-nowrap">
+              <span className="px-3 py-1 bg-purple-500/15 text-purple-300 text-xs font-bold rounded-full border border-purple-500/30 whitespace-nowrap">
                 {filteredLeads.length} Registros
               </span>
             </div>
@@ -584,7 +595,7 @@ export default function AdminDashboardPage() {
               Cargando prospectos web desde Supabase...
             </div>
           ) : filteredLeads.length === 0 ? (
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-2">
+            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
               <Inbox className="w-10 h-10 text-slate-600 mx-auto" />
               <h4 className="font-bold text-slate-300 text-sm">No se encontraron prospectos web</h4>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -594,42 +605,42 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/80 text-slate-400 font-extrabold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
                   <tr>
-                    <th className="py-3.5 px-4 whitespace-nowrap">Nombre del Prospecto</th>
-                    <th className="py-3.5 px-4 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
-                    <th className="py-3.5 px-4 text-xs font-semibold text-slate-400 tracking-wider whitespace-nowrap">PERFIL / PROGRAMA</th>
-                    <th className="py-3.5 px-4 whitespace-nowrap">Fecha de Registro</th>
-                    <th className="py-3.5 px-4 text-right whitespace-nowrap">Acciones</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Nombre del Prospecto</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
+                    <th className="py-4 px-6 text-xs font-semibold text-slate-400 tracking-wider whitespace-nowrap">PERFIL / PROGRAMA</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Fecha de Registro</th>
+                    <th className="py-4 px-6 text-right whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-800/50">
                   {filteredLeads.map((lead) => {
                     const fullName = `${lead.first_name} ${lead.last_name}`.trim()
                     return (
-                      <tr key={lead.id} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="py-4 px-4 font-bold text-white text-sm whitespace-nowrap">
+                      <tr key={lead.id} className="hover:bg-slate-800/30 transition-colors">
+                        <td className="py-4 px-6 font-bold text-white text-sm whitespace-nowrap">
                           {fullName}
                         </td>
-                        <td className="py-4 px-4 space-y-0.5 whitespace-nowrap">
+                        <td className="py-4 px-6 space-y-0.5 whitespace-nowrap">
                           <p className="text-slate-200 font-medium">{lead.email}</p>
                           <p className="text-[11px] text-slate-400">{lead.phone}</p>
                         </td>
-                        <td className="py-4 px-4 whitespace-nowrap">
+                        <td className="py-4 px-6 whitespace-nowrap">
                           {renderAudienceBadge(lead.audience)}
                         </td>
-                        <td className="py-4 px-4 text-slate-400 text-[11px] whitespace-nowrap">
+                        <td className="py-4 px-6 text-slate-400 text-[11px] whitespace-nowrap">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5 text-slate-500" />
                             {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-right space-x-2 whitespace-nowrap">
+                        <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
                           <button
                             onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                            className="inline-flex items-center gap-1 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] px-3 py-1.5 rounded-lg transition"
+                            className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs"
                           >
                             <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                             <span>WhatsApp</span>
@@ -638,9 +649,9 @@ export default function AdminDashboardPage() {
                           <button
                             onClick={() => setLeadToDelete(lead)}
                             title="Eliminar prospecto"
-                            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg border border-transparent hover:border-rose-500/20 transition-colors inline-flex items-center justify-center"
+                            className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors inline-flex items-center justify-center"
                           >
-                            <Trash2 className="w-4 h-4 text-rose-400" />
+                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-400" />
                           </button>
                         </td>
                       </tr>
@@ -654,11 +665,11 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* MÓDULO PRINCIPAL: ESTUDIANTES MATRICULADOS */}
-        <div id="estudiantes" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+        <div id="estudiantes" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
             <div>
-              <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
                 <Users className="w-5 h-5 text-emerald-400" />
                 <span>Estudiantes Matriculados & Seguimiento MCER</span>
               </h2>
@@ -677,12 +688,12 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar estudiante o correo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
               {/* Level Tabs Filter */}
-              <div className="bg-slate-950 border border-slate-800 p-1 rounded-xl flex items-center text-xs font-bold">
+              <div className="bg-[#0A0E1A] border border-slate-800/80 p-1 rounded-xl flex items-center text-xs font-bold">
                 {['all', 'A1', 'A2', 'B1', 'B2'].map((lvl) => (
                   <button
                     key={lvl}
@@ -707,7 +718,7 @@ export default function AdminDashboardPage() {
               Cargando matrículas desde Supabase...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-4">
+            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-4">
               <Users className="w-10 h-10 text-slate-600 mx-auto" />
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-300 text-sm">No hay estudiantes registrados en Supabase</h4>
@@ -727,32 +738,32 @@ export default function AdminDashboardPage() {
               </Link>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/80 text-slate-400 font-extrabold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
                   <tr>
-                    <th className="py-3.5 px-4">Alumno & Correo Institucional</th>
-                    <th className="py-3.5 px-4 text-center">Nivel MCER</th>
-                    <th className="py-3.5 px-4">Progreso de Horas</th>
-                    <th className="py-3.5 px-4 text-center">Estado Matrícula</th>
-                    <th className="py-3.5 px-4 text-right">Acción</th>
+                    <th className="py-4 px-6">Alumno & Correo Institucional</th>
+                    <th className="py-4 px-6 text-center">Nivel MCER</th>
+                    <th className="py-4 px-6">Progreso de Horas</th>
+                    <th className="py-4 px-6 text-center">Estado Matrícula</th>
+                    <th className="py-4 px-6 text-right">Acción</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-800/50">
                   {filteredStudents.map((st) => {
                     const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
                     return (
-                      <tr key={st.id} className="hover:bg-slate-800/40 transition-colors">
-                        <td className="py-4 px-4">
+                      <tr key={st.id} className="hover:bg-slate-800/30 transition-colors">
+                        <td className="py-4 px-6">
                           <p className="font-bold text-white text-sm">{st.student_name}</p>
                           <p className="text-[11px] text-slate-400">{st.student_email}</p>
                         </td>
-                        <td className="py-4 px-4 text-center">
-                          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 font-black text-xs rounded-full border border-emerald-500/30">
+                        <td className="py-4 px-6 text-center">
+                          <span className="px-3 py-1 bg-emerald-500/15 text-emerald-400 font-bold text-xs rounded-full border border-emerald-500/25">
                             {st.mcer_level}
                           </span>
                         </td>
-                        <td className="py-4 px-4">
+                        <td className="py-4 px-6">
                           <div className="space-y-1 w-48">
                             <div className="flex justify-between text-[11px] font-semibold text-slate-300">
                               <span>{st.completed_hours} / {st.total_hours}h</span>
@@ -766,19 +777,19 @@ export default function AdminDashboardPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-4 text-center">
-                          <span className={`px-2.5 py-1 text-[10px] font-black rounded-md uppercase ${
+                        <td className="py-4 px-6 text-center">
+                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase ${
                             st.status === 'completed'
-                              ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                              : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              ? 'bg-blue-500/15 text-blue-400 border border-blue-500/25'
+                              : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
                           }`}>
                             {st.status === 'completed' ? '✓ Completado' : '● Activa'}
                           </span>
                         </td>
-                        <td className="py-4 px-4 text-right">
+                        <td className="py-4 px-6 text-right">
                           <Link
                             href="/dashboard/student"
-                            className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg border border-slate-700 transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 px-3 py-1.5 rounded-xl border border-slate-700/70 transition"
                           >
                             <span>Ver Aula</span>
                             <ArrowRight className="w-3 h-3 text-emerald-400" />
@@ -795,11 +806,11 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* MÓDULO SECUNDARIO: ADMISIÓN / BECARIOS URABÁ */}
-        <div id="becas" className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6 shadow-xl">
+        <div id="becas" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
             <div>
-              <h2 className="text-xl font-extrabold text-white flex items-center gap-2">
+              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
                 <Heart className="w-5 h-5 text-amber-400" />
                 <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
               </h2>
@@ -808,7 +819,7 @@ export default function AdminDashboardPage() {
               </p>
             </div>
 
-            <span className="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs font-black rounded-full border border-amber-500/30 w-fit">
+            <span className="px-3 py-1 bg-amber-500/15 text-amber-300 text-xs font-bold rounded-full border border-amber-500/30 w-fit">
               {pendingBecasCount} Pendiente(s)
             </span>
           </div>
@@ -820,7 +831,7 @@ export default function AdminDashboardPage() {
               Cargando postulaciones a becas desde Supabase...
             </div>
           ) : applications.length === 0 ? (
-            <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-10 text-center space-y-2">
+            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
               <Heart className="w-10 h-10 text-slate-600 mx-auto" />
               <h4 className="font-bold text-slate-300 text-sm">No hay postulaciones pendientes en Supabase</h4>
               <p className="text-xs text-slate-500">
@@ -828,47 +839,47 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/80 text-slate-400 font-extrabold uppercase tracking-wider text-[10px] border-b border-slate-800">
+                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
                   <tr>
-                    <th className="py-3.5 px-4">Postulante & Teléfono</th>
-                    <th className="py-3.5 px-4">Municipio Urabá</th>
-                    <th className="py-3.5 px-4">Nivel de Estudios</th>
-                    <th className="py-3.5 px-4 text-center">Estado</th>
-                    <th className="py-3.5 px-4 text-right">Acciones Rápidas</th>
+                    <th className="py-4 px-6">Postulante & Teléfono</th>
+                    <th className="py-4 px-6">Municipio Urabá</th>
+                    <th className="py-4 px-6">Nivel de Estudios</th>
+                    <th className="py-4 px-6 text-center">Estado</th>
+                    <th className="py-4 px-6 text-right">Acciones Rápidas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-slate-800/50">
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-slate-800/40 transition-colors">
-                      <td className="py-4 px-4">
+                    <tr key={app.id} className="hover:bg-slate-800/30 transition-colors">
+                      <td className="py-4 px-6">
                         <p className="font-bold text-white text-sm">{app.full_name}</p>
                         <p className="text-[11px] text-slate-400">{app.phone}</p>
                       </td>
-                      <td className="py-4 px-4">
-                        <span className="px-2.5 py-1 bg-slate-800 text-amber-300 text-[11px] font-bold rounded-lg border border-slate-700 flex items-center gap-1 w-fit">
+                      <td className="py-4 px-6">
+                        <span className="px-2.5 py-1 bg-slate-800/80 text-amber-300 text-[11px] font-semibold rounded-lg border border-slate-700/80 flex items-center gap-1 w-fit">
                           <Building2 className="w-3 h-3 text-amber-400" />
                           <span>{app.municipality}</span>
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-slate-300 font-medium">
+                      <td className="py-4 px-6 text-slate-300 font-medium">
                         {app.academic_level}
                       </td>
-                      <td className="py-4 px-4 text-center">
-                        <span className={`px-2.5 py-1 text-[10px] font-black rounded-md uppercase ${
+                      <td className="py-4 px-6 text-center">
+                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase ${
                           app.status === 'approved'
-                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                            : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
                         }`}>
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-right space-x-2">
+                      <td className="py-4 px-6 text-right space-x-2">
                         {app.status !== 'approved' && (
                           <button
                             onClick={() => handleApproveApplication(app.id, app.full_name)}
-                            className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-lg transition shadow-sm"
+                            className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-sm"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Aprobar</span>
@@ -877,7 +888,7 @@ export default function AdminDashboardPage() {
 
                         <button
                           onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="inline-flex items-center gap-1 bg-emerald-700/30 hover:bg-emerald-700/50 text-emerald-300 border border-emerald-500/30 font-bold text-[11px] px-3 py-1.5 rounded-lg transition"
+                          className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                           <span>WhatsApp</span>

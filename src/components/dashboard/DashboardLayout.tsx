@@ -134,19 +134,19 @@ export function DashboardLayout({
 
   const roleStyles: Record<UserRole, { badgeBg: string; badgeText: string; border: string; label: string }> = {
     admin: {
-      badgeBg: 'bg-crimson-600/20',
-      badgeText: 'text-crimson-400',
-      border: 'border-crimson-500/30',
+      badgeBg: 'bg-indigo-500/15',
+      badgeText: 'text-indigo-400',
+      border: 'border-indigo-500/30',
       label: 'Admin General'
     },
     teacher: {
-      badgeBg: 'bg-blue-600/20',
+      badgeBg: 'bg-blue-500/15',
       badgeText: 'text-blue-400',
       border: 'border-blue-500/30',
       label: 'Docente Titular'
     },
     student: {
-      badgeBg: 'bg-emerald-600/20',
+      badgeBg: 'bg-emerald-500/15',
       badgeText: 'text-emerald-400',
       border: 'border-emerald-500/30',
       label: 'Estudiante Becario'
@@ -156,10 +156,10 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#090D16] text-slate-100 font-sans flex flex-col lg:flex-row">
       
       {/* MOBILE TOP BAR */}
-      <div className="lg:hidden bg-slate-900 border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
+      <div className="lg:hidden bg-[#0D1322] border-b border-slate-800/70 p-4 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-3">
           <ShieldLogo className="h-9 w-auto" />
           <div>
@@ -172,7 +172,7 @@ export function DashboardLayout({
 
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 text-slate-300 hover:text-white rounded-xl bg-slate-800 border border-slate-700"
+          className="p-2 text-slate-300 hover:text-white rounded-xl bg-slate-800/80 border border-slate-700/70"
           aria-label="Abrir menú"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -181,26 +181,26 @@ export function DashboardLayout({
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed lg:sticky top-0 left-0 z-30 w-72 h-screen bg-slate-900 border-r border-slate-800 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed lg:sticky top-0 left-0 z-30 w-72 h-screen bg-[#0D1322] border-r border-slate-800/70 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}
       >
         <div className="p-6 space-y-6 overflow-y-auto flex-1">
           
           {/* LOGO & ROLE HEADER */}
-          <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800">
+          <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/70">
             <Link href="/" className="mb-3 block hover:scale-105 transition-transform">
               <ShieldLogo className="h-16 w-auto" />
             </Link>
             <h2 className="text-sm font-black text-white tracking-wide">
               AMERICAN DREAM ENGLISH
             </h2>
-            <p className="text-[11px] text-slate-400 mb-3">Plataforma Bilingüe Sede Urabá</p>
+            <p className="text-[11px] text-slate-400 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
 
             {loadingUser ? (
-              <div className="h-6 w-28 bg-slate-800 rounded-full animate-pulse" />
+              <div className="h-6 w-28 bg-slate-800/80 rounded-full animate-pulse" />
             ) : (
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-black rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>{roleBadgeInfo.label}</span>
               </span>
@@ -209,7 +209,7 @@ export function DashboardLayout({
 
           {/* NAVIGATION LINKS */}
           <nav className="space-y-1.5">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider px-3 mb-2">
+            <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-2">
               Navegación Principal
             </p>
 
@@ -222,10 +222,10 @@ export function DashboardLayout({
                   key={item.label}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
-                      ? 'bg-crimson-600 text-white shadow-lg shadow-crimson-600/20'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/20 font-bold'
+                      : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
@@ -234,7 +234,7 @@ export function DashboardLayout({
                   </div>
 
                   {item.badge && (
-                    <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[9px] font-black rounded-md border border-amber-500/30">
+                    <span className="px-2 py-0.5 bg-amber-500/15 text-amber-300 text-[9px] font-bold rounded-md border border-amber-500/30">
                       {item.badge}
                     </span>
                   )}
@@ -245,19 +245,19 @@ export function DashboardLayout({
         </div>
 
         {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/90 space-y-3">
+        <div className="p-4 border-t border-slate-800/70 bg-[#0A0E1A] space-y-3">
           
           {/* USER INFO CARD */}
-          <div className="bg-slate-800/80 border border-slate-700/70 p-3 rounded-2xl flex items-center justify-between gap-3">
+          <div className="bg-[#131B2E] border border-slate-800/80 p-3 rounded-2xl flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               {loadingUser ? (
                 <div className="space-y-1.5 animate-pulse">
-                  <div className="h-3.5 bg-slate-700 rounded w-3/4" />
-                  <div className="h-2.5 bg-slate-700 rounded w-1/2" />
+                  <div className="h-3.5 bg-slate-700/80 rounded w-3/4" />
+                  <div className="h-2.5 bg-slate-700/80 rounded w-1/2" />
                 </div>
               ) : (
                 <>
-                  <p className="text-xs font-extrabold text-white truncate">{userName}</p>
+                  <p className="text-xs font-bold text-white truncate">{userName}</p>
                   <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
                 </>
               )}
@@ -283,10 +283,10 @@ export function DashboardLayout({
       <div className="flex-1 flex flex-col min-w-0">
         
         {/* HEADER BAR */}
-        <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20">
+        <header className="bg-[#0D1322]/90 border-b border-slate-800/70 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-20 backdrop-blur-md">
           
           {/* BREADCRUMB */}
-          <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
             <Link href="/" className="hover:text-white transition-colors flex items-center gap-1">
               <Globe className="w-3.5 h-3.5 text-slate-400" />
               <span>Inicio</span>
@@ -294,19 +294,19 @@ export function DashboardLayout({
             <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
             <span className="text-slate-300">Dashboard</span>
             <ChevronRight className="w-3.5 h-3.5 text-slate-600" />
-            <span className="text-white capitalize">{title || roleBadgeInfo.label}</span>
+            <span className="text-white capitalize font-bold">{title || roleBadgeInfo.label}</span>
           </div>
 
           {/* STATUS BADGES & SITE LINK */}
           <div className="flex items-center gap-3 text-xs">
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 font-bold text-[11px]">
+            <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full border border-emerald-500/20 font-medium text-[11px]">
               <Lock className="w-3 h-3" />
               <span>SSL 256-bit Encriptado</span>
             </div>
 
             <Link
               href="/"
-              className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white font-bold rounded-xl text-xs transition-colors border border-slate-700 flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 hover:text-white font-semibold rounded-xl text-xs transition-colors border border-slate-700/70 flex items-center gap-1.5"
             >
               <Globe className="w-3.5 h-3.5 text-blue-400" />
               <span>Ver Sitio Público</span>
