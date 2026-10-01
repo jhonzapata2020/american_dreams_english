@@ -1184,7 +1184,7 @@ export default function AdminDashboardPage() {
 
         </div>
 
-        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
+        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (TEXTOS COMPLETOS SIN TRUNCAR) */}
         <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 relative z-10">
           <div className="flex items-center justify-between mb-4 px-1">
             <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
@@ -1205,8 +1205,8 @@ export default function AdminDashboardPage() {
                 <UserPlus className="w-4 h-4 text-red-600" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-red-700 transition-colors truncate">+ Agregar Estudiante</p>
-                <p className="text-[10px] text-slate-500 truncate">Crear perfil en profiles</p>
+                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Crear perfil en profiles</p>
               </div>
             </button>
 
@@ -1219,8 +1219,8 @@ export default function AdminDashboardPage() {
                 <Package className="w-4 h-4 text-slate-700" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Catálogo Cursos</p>
-                <p className="text-[10px] text-slate-500 truncate">Gestionar productos RBAC</p>
+                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Catálogo Cursos</p>
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Gestionar productos RBAC</p>
               </div>
             </Link>
 
@@ -1233,8 +1233,8 @@ export default function AdminDashboardPage() {
                 <Inbox className="w-4 h-4 text-slate-700" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Prospectos Web</p>
-                <p className="text-[10px] text-slate-500 truncate">{leadsCount} registros recibidos</p>
+                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros recibidos</p>
               </div>
             </a>
 
@@ -1249,8 +1249,8 @@ export default function AdminDashboardPage() {
                 <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-slate-900 group-hover:text-slate-700 transition-colors truncate">Sincronizar BD</p>
-                <p className="text-[10px] text-slate-500 truncate">Refrescar desde Supabase</p>
+                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Refrescar desde Supabase</p>
               </div>
             </button>
           </div>
@@ -1263,7 +1263,7 @@ export default function AdminDashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
               <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                <Users className="w-5 h-5 text-[#0f62fe]" />
+                <Users className="w-5 h-5 text-red-600" />
                 <span>Estudiantes Matriculados & Seguimiento MCER</span>
               </h2>
               <p className="text-xs text-slate-500 mt-1">
@@ -1280,7 +1280,7 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar estudiante o correo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f62fe]/20 focus:border-[#0f62fe]"
+                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 
@@ -1312,7 +1312,7 @@ export default function AdminDashboardPage() {
                 >
                   <span>{tab.label}</span>
                   <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
-                    isActive ? 'bg-[#0f62fe]/10 text-[#0f62fe]' : 'bg-slate-200/70 text-slate-600'
+                    isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-200/70 text-slate-600'
                   }`}>
                     {tab.count}
                   </span>
@@ -1359,20 +1359,20 @@ export default function AdminDashboardPage() {
                     return (
                       <tr 
                         key={st.id} 
-                        className="group relative transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-500/20 cursor-pointer z-10"
+                        className="group relative transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-300/60 cursor-pointer z-10"
                       >
                         {/* CELL 1: AVATAR & NAME */}
-                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0f62fe] group-hover:border-[#0f62fe] bg-white transition-all duration-300">
+                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-[#0f62fe] font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-slate-900 font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
                               {initials}
                             </div>
                             <div>
                               <p className="font-bold text-slate-900 group-hover:text-white text-sm transition-colors">{st.student_name}</p>
                               <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-[11px] text-slate-500 group-hover:text-blue-100 transition-colors">{st.student_email}</span>
+                                <span className="text-[11px] text-slate-500 group-hover:text-slate-300 transition-colors">{st.student_email}</span>
                                 {st.municipality && (
-                                  <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/20 text-slate-600 group-hover:text-white text-[10px] font-medium rounded-md border border-slate-200/80 group-hover:border-white/30 transition-colors">
+                                  <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-600 group-hover:text-white text-[10px] font-medium rounded-md border border-slate-200/80 group-hover:border-white/20 transition-colors">
                                     {st.municipality}
                                   </span>
                                 )}
@@ -1382,22 +1382,22 @@ export default function AdminDashboardPage() {
                         </td>
 
                         {/* CELL 2: MCER LEVEL BADGE */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0f62fe] group-hover:border-[#0f62fe] bg-white text-center transition-all duration-300">
-                          <span className="px-3 py-1 bg-slate-100 group-hover:bg-white/20 text-slate-700 group-hover:text-white font-bold text-xs rounded-full border border-slate-200/80 group-hover:border-white/30 shadow-2xs inline-block transition-colors">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
+                          <span className="px-3 py-1 bg-slate-100 group-hover:bg-white/10 text-slate-700 group-hover:text-white font-bold text-xs rounded-full border border-slate-200/80 group-hover:border-white/20 shadow-2xs inline-block transition-colors">
                             {st.mcer_level}
                           </span>
                         </td>
 
                         {/* CELL 3: SEGMENTED HOURS PROGRESS */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0f62fe] group-hover:border-[#0f62fe] bg-white transition-all duration-300">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
                           <div className="space-y-1.5 w-44">
                             <div className="flex justify-between text-[11px] font-semibold text-slate-600 group-hover:text-white transition-colors">
                               <span>{st.completed_hours} / {st.total_hours}h</span>
-                              <span className="text-emerald-600 group-hover:text-white font-bold">{percent}%</span>
+                              <span className="text-emerald-600 group-hover:text-emerald-400 font-bold">{percent}%</span>
                             </div>
-                            <div className="w-full bg-slate-100 group-hover:bg-white/20 h-2 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/30 transition-colors">
+                            <div className="w-full bg-slate-100 group-hover:bg-white/10 h-2 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/20 transition-colors">
                               <div
-                                className="bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:from-white group-hover:to-blue-100 h-full rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:from-emerald-400 group-hover:to-teal-300 h-full rounded-full transition-all duration-500"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
@@ -1405,25 +1405,25 @@ export default function AdminDashboardPage() {
                         </td>
 
                         {/* CELL 4: STATUS BADGE */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0f62fe] group-hover:border-[#0f62fe] bg-white text-center transition-all duration-300">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
                           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
                             st.status === 'completed'
-                              ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/20 group-hover:text-white group-hover:border-white/30'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-white/20 group-hover:text-white group-hover:border-white/30'
+                              ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20'
+                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-500/20 group-hover:text-emerald-300 group-hover:border-emerald-500/30'
                           } transition-colors`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-white animate-pulse'}`} />
+                            <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-emerald-400 animate-pulse'}`} />
                             <span>{st.status === 'completed' ? 'Completado' : 'Activa'}</span>
                           </span>
                         </td>
 
                         {/* CELL 5: GROUPED ROW ACTIONS (White contrast on hover) */}
-                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0f62fe] group-hover:border-[#0f62fe] bg-white text-right w-56 whitespace-nowrap transition-all duration-300">
+                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-right w-56 whitespace-nowrap transition-all duration-300">
                           <div className="inline-flex items-center justify-end gap-1.5">
                             {/* Botón Aula */}
                             <Link
                               href="/dashboard/student"
                               title="Ver Aula Virtual"
-                              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/20 group-hover:hover:bg-white/30 px-3 py-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/30 transition shadow-2xs"
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/10 group-hover:hover:bg-white/20 px-3 py-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 transition shadow-2xs"
                             >
                               <span>Aula</span>
                               <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-white" />
@@ -1434,7 +1434,7 @@ export default function AdminDashboardPage() {
                               type="button"
                               onClick={() => handleOpenEditStudent(st)}
                               title="Editar estudiante"
-                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/30 hover:bg-slate-100 group-hover:bg-white/20 group-hover:hover:bg-white/30 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-slate-100 group-hover:bg-white/10 group-hover:hover:bg-white/20 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                             >
                               <Pencil className="w-3.5 h-3.5" />
                             </button>
@@ -1444,7 +1444,7 @@ export default function AdminDashboardPage() {
                               type="button"
                               onClick={() => setStudentToDelete(st)}
                               title="Eliminar estudiante"
-                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/30 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/20 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/10 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1482,7 +1482,7 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar prospecto o email..."
                   value={leadSearchTerm}
                   onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f62fe]/20 focus:border-[#0f62fe]"
+                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 

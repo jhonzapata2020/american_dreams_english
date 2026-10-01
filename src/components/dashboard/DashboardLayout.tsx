@@ -147,21 +147,21 @@ export function DashboardLayout({
 
   const roleStyles: Record<UserRole, { badgeBg: string; badgeText: string; border: string; label: string }> = {
     admin: {
-      badgeBg: 'bg-white/20',
-      badgeText: 'text-white',
-      border: 'border-white/30',
+      badgeBg: 'bg-white/10',
+      badgeText: 'text-slate-200',
+      border: 'border-white/15',
       label: 'Admin General'
     },
     teacher: {
-      badgeBg: 'bg-white/20',
-      badgeText: 'text-white',
-      border: 'border-white/30',
+      badgeBg: 'bg-white/10',
+      badgeText: 'text-slate-200',
+      border: 'border-white/15',
       label: 'Docente Titular'
     },
     student: {
-      badgeBg: 'bg-white/20',
-      badgeText: 'text-white',
-      border: 'border-white/30',
+      badgeBg: 'bg-white/10',
+      badgeText: 'text-slate-200',
+      border: 'border-white/15',
       label: 'Estudiante Becario'
     }
   }
@@ -176,13 +176,13 @@ export function DashboardLayout({
       <div className="w-full max-w-[1550px] min-h-[90vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-[#0f62fe] text-white border-b border-blue-700/60 p-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="lg:hidden bg-[#0c1322] text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-3">
             <Link href="/" className="inline-flex items-center">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-9 w-auto object-contain brightness-0 invert" 
+                className="h-9 w-auto object-contain" 
               />
             </Link>
             <div>
@@ -202,30 +202,30 @@ export function DashboardLayout({
           </button>
         </div>
 
-        {/* 2. SIDEBAR INTEGRADO A LA IZQUIERDA (Brand Blue #0f62fe Canvas) */}
+        {/* 2. SIDEBAR INTEGRADO EN AZUL MARINO NOCHE PROFUNDO (#0c1322) */}
         <aside
-          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-[#0f62fe] text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-[#0c1322] text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           <div className="p-6 space-y-6 overflow-y-auto flex-1">
             
-            {/* LOGO & ROLE HEADER */}
-            <div className="flex flex-col items-center text-center pb-6 border-b border-white/15">
+            {/* LOGO INSTITUCIONAL ORIGINAL (ESCUDO ROJO, AZUL Y BLANCO) */}
+            <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/80">
               <Link href="/" className="mb-3 block hover:scale-105 transition-transform">
                 <img 
                   src="/logo-american-dream.png" 
                   alt="American Dream English" 
-                  className="h-16 w-auto object-contain brightness-0 invert drop-shadow-md mx-auto" 
+                  className="h-16 w-auto object-contain drop-shadow-md mx-auto" 
                 />
               </Link>
               <h2 className="text-sm font-black text-white tracking-wide">
                 AMERICAN DREAM ENGLISH
               </h2>
-              <p className="text-[11px] text-blue-100 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
+              <p className="text-[11px] text-slate-400 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
 
               {loadingUser ? (
-                <div className="h-6 w-28 bg-white/20 rounded-full animate-pulse" />
+                <div className="h-6 w-28 bg-slate-800 rounded-full animate-pulse" />
               ) : (
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
                   <ShieldCheck className="w-3.5 h-3.5" />
@@ -234,9 +234,9 @@ export function DashboardLayout({
               )}
             </div>
 
-            {/* NAVIGATION LINKS WITH PROMINENT CURVED WHITE TAB FOR ACTIVE ITEM */}
+            {/* NAVIGATION LINKS WITH PROMINENT WHITE TAB FOR ACTIVE ITEM */}
             <nav className="space-y-2 pr-0 lg:-mr-6">
-              <p className="text-[10px] font-bold text-blue-200 uppercase tracking-wider px-3 mb-2">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
                 Navegación Principal
               </p>
 
@@ -262,18 +262,18 @@ export function DashboardLayout({
                     onClick={() => setMobileMenuOpen(false)}
                     className={`flex items-center justify-between px-4 py-3 text-xs font-bold transition-all ${
                       isActive
-                        ? 'bg-white text-[#0f62fe] rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-sm'
-                        : 'text-blue-100 hover:bg-white/10 hover:text-white rounded-xl mr-4'
+                        ? 'bg-white text-slate-900 rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-sm'
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white rounded-xl mr-4'
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-[#0f62fe]' : 'text-blue-200'}`} />
+                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-900' : 'text-slate-400'}`} />
                       <span>{item.label}</span>
                     </div>
 
                     {item.badge && (
                       <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md ${
-                        isActive ? 'bg-blue-50 text-[#0f62fe]' : 'bg-white/20 text-white'
+                        isActive ? 'bg-slate-100 text-slate-800' : 'bg-white/10 text-slate-300'
                       }`}>
                         {item.badge}
                       </span>
@@ -285,20 +285,20 @@ export function DashboardLayout({
           </div>
 
           {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-          <div className="p-4 border-t border-white/15 bg-blue-700/40 space-y-3">
+          <div className="p-4 border-t border-slate-800/80 bg-[#090e1a] space-y-3">
             
             {/* USER INFO CARD */}
-            <div className="bg-white/15 border border-white/20 p-3 rounded-2xl flex items-center justify-between gap-3 backdrop-blur-sm">
+            <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 {loadingUser ? (
                   <div className="space-y-1.5 animate-pulse">
-                    <div className="h-3.5 bg-white/30 rounded w-3/4" />
-                    <div className="h-2.5 bg-white/20 rounded w-1/2" />
+                    <div className="h-3.5 bg-slate-800 rounded w-3/4" />
+                    <div className="h-2.5 bg-slate-800 rounded w-1/2" />
                   </div>
                 ) : (
                   <>
                     <p className="text-xs font-bold text-white truncate">{userName}</p>
-                    <p className="text-[10px] text-blue-100 truncate">{userEmail}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
                   </>
                 )}
               </div>
@@ -306,13 +306,13 @@ export function DashboardLayout({
               <button
                 onClick={handleSignOut}
                 title="Cerrar Sesión"
-                className="p-2 text-blue-100 hover:text-white hover:bg-white/20 rounded-xl transition-colors flex-shrink-0"
+                className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex-shrink-0"
               >
                 <LogOut className="w-4 h-4" />
               </button>
             </div>
 
-            <p className="text-[10px] text-blue-200 text-center font-medium">
+            <p className="text-[10px] text-slate-500 text-center font-medium">
               © 2026 American Dream English S.A.S.
             </p>
           </div>
