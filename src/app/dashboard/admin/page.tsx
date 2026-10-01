@@ -188,24 +188,27 @@ export default function AdminDashboardPage() {
 
     setIsDeletingStudent(true)
     try {
-      const supabase = createClient()
+      const studentIdToDelete = studentToDelete.id
       const deletedName = studentToDelete.student_name
 
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', studentToDelete.id)
+      const res = await fetch(`/api/admin/students?id=${studentIdToDelete}`, {
+        method: 'DELETE'
+      })
 
-      if (error) {
-        throw error
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        setToast({
+          title: 'Error al eliminar',
+          message: data.error || 'Error al eliminar el estudiante en la base de datos'
+        })
+        setTimeout(() => setToast(null), 4500)
+        return
       }
-
-      setStudentsList((prev) => prev.filter((s) => s.id !== studentToDelete.id))
-      setStudentsCount((prev) => Math.max(0, prev - 1))
 
       setToast({
         title: 'Estudiante eliminado',
-        message: `${deletedName} ha sido eliminado de public.profiles.`
+        message: `${deletedName} ha sido eliminado correctamente.`
       })
       setTimeout(() => setToast(null), 4500)
 
