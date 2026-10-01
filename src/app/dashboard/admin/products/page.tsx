@@ -456,10 +456,10 @@ export default function AdminProductsPage() {
 
   return (
     <DashboardLayout currentRole="admin" activeTab="/dashboard/admin/products" title="Catálogo de Productos">
-      <div className="bg-slate-100/70 min-h-full p-2 sm:p-4 md:p-6 font-sans">
+      <div className="w-full font-sans">
         
-        {/* Floating White Main Container Card (Clientes Reference Style) */}
-        <div className="bg-white rounded-[28px] shadow-xl border border-slate-200/80 p-5 sm:p-8 space-y-6">
+        {/* Floating White Main Container Card */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 space-y-4 w-full shadow-sm">
           
           {/* Notification Toast */}
           {notification && (

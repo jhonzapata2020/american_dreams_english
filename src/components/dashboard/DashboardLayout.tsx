@@ -320,7 +320,7 @@ export function DashboardLayout({
         </aside>
 
         {/* 3. ÁREA PRINCIPAL DE CONTENIDO (Panel Blanco Derecha) */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-8 md:p-10 overflow-y-auto">
+        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-6 md:p-8 overflow-y-auto overflow-x-hidden">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6">
