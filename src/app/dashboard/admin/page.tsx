@@ -24,7 +24,8 @@ import {
   AlertTriangle,
   X,
   Pencil,
-  Sparkles
+  Sparkles,
+  Filter
 } from 'lucide-react'
 
 interface StudentItem {
@@ -600,16 +601,23 @@ export default function AdminDashboardPage() {
     window.open(`https://wa.me/${targetPhone}?text=${msg}`, '_blank')
   }
 
-  // Filter students logic
+  // Filter students logic with Becados Urabá tab support
   const filteredStudents = studentsList.filter((student) => {
     const matchesSearch =
       student.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.student_email.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesLevel =
-      selectedLevel === 'all' || student.mcer_level.toUpperCase() === selectedLevel.toUpperCase()
+    let matchesTab = true
+    if (selectedLevel === 'all') {
+      matchesTab = true
+    } else if (selectedLevel === 'becas') {
+      const mun = (student.municipality || '').toLowerCase()
+      matchesTab = mun !== '' && mun !== 'medellín' && mun !== 'otra sede'
+    } else {
+      matchesTab = student.mcer_level.toUpperCase() === selectedLevel.toUpperCase()
+    }
 
-    return matchesSearch && matchesLevel
+    return matchesSearch && matchesTab
   })
 
   // Filter leads logic
@@ -648,6 +656,14 @@ export default function AdminDashboardPage() {
       </span>
     )
   }
+
+  // Filter Tab List config
+  const studentFilterTabs = [
+    { id: 'all', label: 'Todos los Estudiantes', count: studentsList.length },
+    { id: 'A1', label: 'Nivel A1', count: studentsList.filter(s => s.mcer_level.toUpperCase() === 'A1').length },
+    { id: 'B1', label: 'Nivel B1', count: studentsList.filter(s => s.mcer_level.toUpperCase() === 'B1').length },
+    { id: 'becas', label: 'Becados Urabá', count: studentsList.filter(s => (s.municipality || '').toLowerCase() !== 'medellín' && (s.municipality || '').toLowerCase() !== 'otra sede').length }
+  ]
 
   return (
     <DashboardLayout currentRole="admin" title="Panel de Administración General">
@@ -1241,9 +1257,10 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER */}
+        {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER (eProduct SaaS Style) */}
         <div id="estudiantes" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
           
+          {/* TOP BAR TOOLBAR: HEADING, SEARCH & ACTION BUTTON */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
               <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
@@ -1255,9 +1272,8 @@ export default function AdminDashboardPage() {
               </p>
             </div>
 
-            {/* SEARCH & LEVEL FILTER CONTROLS */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Search Bar */}
+            <div className="flex items-center gap-3">
+              {/* Rounded Search Input with Lupa Icon */}
               <div className="relative w-full sm:w-64">
                 <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                 <input
@@ -1265,32 +1281,15 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar estudiante o correo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 
-              {/* Level Tabs Filter */}
-              <div className="bg-slate-50 border border-slate-200 p-1 rounded-xl flex items-center text-xs font-bold">
-                {['all', 'A1', 'A2', 'B1', 'B2'].map((lvl) => (
-                  <button
-                    key={lvl}
-                    onClick={() => setSelectedLevel(lvl)}
-                    className={`px-3 py-1.5 rounded-lg transition-all uppercase text-[11px] ${
-                      selectedLevel === lvl
-                        ? 'bg-white text-slate-900 font-extrabold shadow-2xs border border-slate-200/80'
-                        : 'text-slate-500 hover:text-slate-900'
-                    }`}
-                  >
-                    {lvl === 'all' ? 'Todos' : lvl}
-                  </button>
-                ))}
-              </div>
-
-              {/* Botón + Agregar Estudiante */}
+              {/* Botón + Agregar Estudiante Corporativo */}
               <button
                 type="button"
                 onClick={() => setIsAddStudentOpen(true)}
-                className="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs rounded-xl shadow-sm shadow-red-200 transition-all hover:scale-[1.02] flex items-center gap-2 cursor-pointer flex-shrink-0"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>+ Agregar Estudiante</span>
@@ -1298,7 +1297,32 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* STUDENTS TABLE */}
+          {/* FILTER TABS (eProduct Style) */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60 text-xs font-semibold overflow-x-auto w-fit">
+            {studentFilterTabs.map((tab) => {
+              const isActive = selectedLevel === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setSelectedLevel(tab.id)}
+                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                    isActive
+                      ? 'bg-white text-slate-900 font-extrabold shadow-sm border border-slate-200/80'
+                      : 'text-slate-500 hover:text-slate-900'
+                  }`}
+                >
+                  <span>{tab.label}</span>
+                  <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
+                    isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-200/70 text-slate-600'
+                  }`}>
+                    {tab.count}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          {/* STUDENTS TABLE WITH ePRODUCT FLOATING ROW EFFECT */}
           {loading ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
@@ -1311,41 +1335,45 @@ export default function AdminDashboardPage() {
                 <h4 className="font-bold text-slate-700 text-sm">No hay estudiantes registrados en Supabase</h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   {searchTerm || selectedLevel !== 'all'
-                    ? `No se encontraron resultados para "${searchTerm}" o filtro ${selectedLevel}.`
+                    ? `No se encontraron resultados para "${searchTerm}" o filtro seleccionado.`
                     : 'Aún no existen registros en la tabla public.profiles con rol student.'}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
-                  <tr>
-                    <th className="py-4 px-6">Alumno & Correo Institucional</th>
-                    <th className="py-4 px-6 text-center">Nivel MCER</th>
-                    <th className="py-4 px-6">Progreso de Horas</th>
-                    <th className="py-4 px-6 text-center">Estado Matrícula</th>
-                    <th className="py-4 px-6 text-right w-56 whitespace-nowrap">Acciones</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                <thead>
+                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2 px-6">Alumno & Correo Institucional</th>
+                    <th className="py-2 px-6 text-center">Nivel MCER</th>
+                    <th className="py-2 px-6">Progreso de Horas</th>
+                    <th className="py-2 px-6 text-center">Estado Matrícula</th>
+                    <th className="py-2 px-6 text-right w-56 whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {filteredStudents.map((st) => {
                     const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
                     const initials = getInitials(st.student_name)
 
                     return (
-                      <tr key={st.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-4 px-6">
+                      <tr 
+                        key={st.id} 
+                        className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                      >
+                        {/* CELL 1: AVATAR & NAME */}
+                        <td className="py-4 px-6 border-y first:border-l last:border-r border-slate-200/70 first:rounded-l-2xl last:rounded-r-2xl group-hover:border-slate-300/80 bg-white transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shadow-2xs border border-slate-200 flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 shadow-2xs flex-shrink-0">
                               {initials}
                             </div>
                             <div>
-                              <p className="font-bold text-slate-900 text-sm">{st.student_name}</p>
+                              <p className="font-bold text-slate-900 text-sm group-hover:text-red-600 transition-colors">{st.student_name}</p>
                               <div className="flex items-center gap-2 mt-0.5">
                                 <span className="text-[11px] text-slate-500">{st.student_email}</span>
                                 {st.municipality && (
-                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded-md border border-slate-200">
+                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-medium rounded-md border border-slate-200/80">
                                     {st.municipality}
                                   </span>
                                 )}
@@ -1353,61 +1381,75 @@ export default function AdminDashboardPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-center">
-                          <span className="px-3 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-full border border-slate-200">
+
+                        {/* CELL 2: MCER LEVEL BADGE */}
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
+                          <span className="px-3 py-1 bg-slate-100 text-slate-700 font-bold text-xs rounded-full border border-slate-200/80 shadow-2xs inline-block">
                             {st.mcer_level}
                           </span>
                         </td>
-                        <td className="py-4 px-6">
-                          <div className="space-y-1.5 w-48">
+
+                        {/* CELL 3: SEGMENTED HOURS PROGRESS */}
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
+                          <div className="space-y-1.5 w-44">
                             <div className="flex justify-between text-[11px] font-semibold text-slate-600">
                               <span>{st.completed_hours} / {st.total_hours}h</span>
                               <span className="text-emerald-600 font-bold">{percent}%</span>
                             </div>
-                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+                            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/60">
                               <div
-                                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full transition-all duration-500"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-center">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
+
+                        {/* CELL 4: STATUS BADGE */}
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
+                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
                             st.status === 'completed'
                               ? 'bg-slate-100 text-slate-600 border-slate-200'
                               : 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           }`}>
-                            {st.status === 'completed' ? '✓ Completado' : '● Activa'}
+                            <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400' : 'bg-emerald-500 animate-pulse'}`} />
+                            <span>{st.status === 'completed' ? 'Completado' : 'Activa'}</span>
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right w-56 whitespace-nowrap space-x-1.5">
-                          <Link
-                            href="/dashboard/student"
-                            title="Ver Aula"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1.5 rounded-xl border border-slate-200 transition"
-                          >
-                            <span>Aula</span>
-                            <ArrowRight className="w-3 h-3 text-slate-500" />
-                          </Link>
 
-                          <button
-                            type="button"
-                            onClick={() => handleOpenEditStudent(st)}
-                            title="Editar estudiante"
-                            className="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
-                          >
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
+                        {/* CELL 5: GROUPED ROW ACTIONS */}
+                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right w-56 whitespace-nowrap transition-colors">
+                          <div className="inline-flex items-center justify-end gap-1.5">
+                            {/* Botón Aula */}
+                            <Link
+                              href="/dashboard/student"
+                              title="Ver Aula Virtual"
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg border border-slate-200/80 transition shadow-2xs"
+                            >
+                              <span>Aula</span>
+                              <ArrowRight className="w-3 h-3 text-slate-500" />
+                            </Link>
 
-                          <button
-                            type="button"
-                            onClick={() => setStudentToDelete(st)}
-                            title="Eliminar estudiante"
-                            className="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 p-1.5 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                            {/* Botón Editar (Cuadrado Elegante) */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditStudent(st)}
+                              title="Editar estudiante"
+                              className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-slate-100 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Botón Eliminar (Cuadrado Rojo Suave) */}
+                            <button
+                              type="button"
+                              onClick={() => setStudentToDelete(st)}
+                              title="Eliminar estudiante"
+                              className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     )
@@ -1441,7 +1483,7 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar prospecto o email..."
                   value={leadSearchTerm}
                   onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 pl-9 pr-3 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                 />
               </div>
 
@@ -1451,7 +1493,7 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* LEADS TABLE */}
+          {/* LEADS TABLE WITH ePRODUCT FLOATING ROWS */}
           {loading ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
@@ -1468,42 +1510,45 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
-                  <tr>
-                    <th className="py-4 px-6 whitespace-nowrap">Nombre del Prospecto</th>
-                    <th className="py-4 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
-                    <th className="py-4 px-6 whitespace-nowrap">Programa / Interés</th>
-                    <th className="py-4 px-6 whitespace-nowrap">Fecha de Registro</th>
-                    <th className="py-4 px-6 text-right whitespace-nowrap">Acciones</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                <thead>
+                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2 px-6 whitespace-nowrap">Nombre del Prospecto</th>
+                    <th className="py-2 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
+                    <th className="py-2 px-6 whitespace-nowrap">Programa / Interés</th>
+                    <th className="py-2 px-6 whitespace-nowrap">Fecha de Registro</th>
+                    <th className="py-2 px-6 text-right whitespace-nowrap">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {filteredLeads.map((lead) => {
                     const fullName = `${lead.first_name} ${lead.last_name}`.trim()
                     return (
-                      <tr key={lead.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-4 px-6 font-bold text-slate-900 text-sm whitespace-nowrap">
+                      <tr 
+                        key={lead.id} 
+                        className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                      >
+                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm whitespace-nowrap transition-colors">
                           {fullName}
                         </td>
-                        <td className="py-4 px-6 space-y-0.5 whitespace-nowrap">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 whitespace-nowrap transition-colors">
                           <p className="text-slate-800 font-medium">{lead.email}</p>
                           <p className="text-[11px] text-slate-500">{lead.phone}</p>
                         </td>
-                        <td className="py-4 px-6 whitespace-nowrap">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white whitespace-nowrap transition-colors">
                           {renderAudienceBadge(lead.audience)}
                         </td>
-                        <td className="py-4 px-6 text-slate-500 text-[11px] whitespace-nowrap">
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3.5 h-3.5 text-slate-400" />
                             {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
                           <button
                             onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
                           >
                             <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                             <span>WhatsApp</span>
@@ -1512,9 +1557,9 @@ export default function AdminDashboardPage() {
                           <button
                             onClick={() => setLeadToDelete(lead)}
                             title="Eliminar prospecto"
-                            className="text-slate-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                            className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                           >
-                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-600" />
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </td>
                       </tr>
@@ -1546,7 +1591,7 @@ export default function AdminDashboardPage() {
             </span>
           </div>
 
-          {/* SCHOLARSHIPS TABLE */}
+          {/* SCHOLARSHIPS TABLE WITH ePRODUCT FLOATING ROWS */}
           {loading ? (
             <div className="p-8 text-center text-slate-500 text-xs">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
@@ -1561,35 +1606,38 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-slate-200/80">
-              <table className="w-full text-left text-xs text-slate-700">
-                <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider text-[11px] border-b border-slate-200/80">
-                  <tr>
-                    <th className="py-4 px-6">Postulante & Teléfono</th>
-                    <th className="py-4 px-6">Municipio Urabá</th>
-                    <th className="py-4 px-6">Nivel de Estudios</th>
-                    <th className="py-4 px-6 text-center">Estado</th>
-                    <th className="py-4 px-6 text-right">Acciones Rápidas</th>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                <thead>
+                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                    <th className="py-2 px-6">Postulante & Teléfono</th>
+                    <th className="py-2 px-6">Municipio Urabá</th>
+                    <th className="py-2 px-6">Nivel de Estudios</th>
+                    <th className="py-2 px-6 text-center">Estado</th>
+                    <th className="py-2 px-6 text-right">Acciones Rápidas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody>
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="py-4 px-6">
+                    <tr 
+                      key={app.id} 
+                      className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                    >
+                      <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
                         <p className="font-bold text-slate-900 text-sm">{app.full_name}</p>
                         <p className="text-[11px] text-slate-500">{app.phone}</p>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
                         <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-semibold rounded-lg border border-amber-200 flex items-center gap-1 w-fit">
                           <Building2 className="w-3 h-3 text-amber-600" />
                           <span>{app.municipality}</span>
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-slate-700 font-medium">
+                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 font-medium transition-colors">
                         {app.academic_level}
                       </td>
-                      <td className="py-4 px-6 text-center">
-                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
+                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
+                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
                           app.status === 'approved'
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -1597,7 +1645,7 @@ export default function AdminDashboardPage() {
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                      <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
                         {app.status !== 'approved' && (
                           <>
                             <button
@@ -1621,7 +1669,7 @@ export default function AdminDashboardPage() {
 
                         <button
                           onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                           <span>WhatsApp</span>
