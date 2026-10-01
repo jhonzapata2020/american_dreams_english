@@ -23,7 +23,8 @@ import {
   Trash2,
   Inbox,
   Clock,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react'
 
 interface StudentItem {
@@ -34,6 +35,7 @@ interface StudentItem {
   completed_hours: number
   total_hours: number
   status: 'active' | 'completed' | 'paused'
+  municipality?: string
 }
 
 interface ScholarshipApp {
@@ -80,8 +82,99 @@ export default function AdminDashboardPage() {
   const [leadToDelete, setLeadToDelete] = useState<WebLead | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
+  // Modal State for New Student Registration
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false)
+  const [isSubmittingStudent, setIsSubmittingStudent] = useState(false)
+  const [newStudentData, setNewStudentData] = useState({
+    fullName: '',
+    email: '',
+    mcerLevel: 'A1',
+    municipality: 'Turbo'
+  })
+
   // Floating Toast State
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null)
+
+  const handleCreateStudent = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newStudentData.fullName.trim() || !newStudentData.email.trim()) return
+
+    setIsSubmittingStudent(true)
+    try {
+      const supabase = createClient()
+      const newId = crypto.randomUUID()
+
+      const payload: any = {
+        id: newId,
+        full_name: newStudentData.fullName.trim(),
+        email: newStudentData.email.trim(),
+        role: 'student',
+        municipality: newStudentData.municipality,
+        origin_location: newStudentData.municipality
+      }
+
+      let { error } = await supabase.from('profiles').insert([payload])
+
+      // Fallback if DB schema lacks municipality column
+      if (error && error.message?.toLowerCase().includes('municipality')) {
+        delete payload.municipality
+        const res = await supabase.from('profiles').insert([payload])
+        error = res.error
+      }
+
+      if (error) {
+        console.error('Error al registrar estudiante:', error)
+        setToast({
+          title: 'Error al registrar',
+          message: error.message || 'No se pudo crear el perfil del estudiante en Supabase.'
+        })
+        setTimeout(() => setToast(null), 4000)
+        return
+      }
+
+      const registeredName = newStudentData.fullName.trim()
+
+      // Close modal and reset form
+      setIsAddStudentOpen(false)
+      setNewStudentData({
+        fullName: '',
+        email: '',
+        mcerLevel: 'A1',
+        municipality: 'Turbo'
+      })
+
+      // Update local state immediately for instant feedback
+      setStudentsCount((prev) => prev + 1)
+      setStudentsList((prev) => [
+        {
+          id: newId,
+          student_name: registeredName,
+          student_email: payload.email,
+          mcer_level: newStudentData.mcerLevel,
+          completed_hours: 0,
+          total_hours: 120,
+          status: 'active',
+          municipality: newStudentData.municipality
+        },
+        ...prev
+      ])
+
+      // Trigger floating Toast
+      setToast({
+        title: 'Estudiante registrado con éxito',
+        message: `${registeredName} ha sido registrado como estudiante activo.`
+      })
+      setTimeout(() => setToast(null), 4000)
+
+      // Refresh data from Supabase
+      await fetchAdminData()
+
+    } catch (err: any) {
+      console.error('Error inesperado al crear estudiante:', err)
+    } finally {
+      setIsSubmittingStudent(false)
+    }
+  }
 
   const fetchAdminData = async () => {
     setRefreshing(true)
@@ -183,7 +276,7 @@ export default function AdminDashboardPage() {
       // 7. Tabla Estudiantes: Profiles with role='student' + Enrollments
       const { data: studentProfiles } = await supabase
         .from('profiles')
-        .select('id, full_name, email')
+        .select('*')
         .eq('role', 'student')
 
       const { data: enrollData } = await supabase
@@ -196,7 +289,30 @@ export default function AdminDashboardPage() {
           course:courses ( level, total_hours )
         `)
 
-      if (enrollData && enrollData.length > 0) {
+      if (studentProfiles && studentProfiles.length > 0) {
+        const enrollMap = new Map<string, any>()
+        if (enrollData && enrollData.length > 0) {
+          enrollData.forEach((e: any) => {
+            const sid = e.student?.id
+            if (sid) enrollMap.set(sid, e)
+          })
+        }
+
+        const mapped: StudentItem[] = studentProfiles.map((sp: any) => {
+          const enroll = enrollMap.get(sp.id)
+          return {
+            id: sp.id,
+            student_name: sp.full_name || 'Estudiante Registrado',
+            student_email: sp.email || 'estudiante@americandream.edu.co',
+            mcer_level: enroll?.course?.level || sp.mcer_level || 'A1',
+            completed_hours: enroll?.completed_hours || 0,
+            total_hours: enroll?.course?.total_hours || 120,
+            status: enroll?.status === 'completed' ? 'completed' : 'active',
+            municipality: sp.municipality || sp.origin_location || 'Turbo'
+          }
+        })
+        setStudentsList(mapped)
+      } else if (enrollData && enrollData.length > 0) {
         const mapped: StudentItem[] = enrollData.map((e: any) => ({
           id: e.id,
           student_name: e.student?.full_name || 'Estudiante Bilingüe',
@@ -204,18 +320,8 @@ export default function AdminDashboardPage() {
           mcer_level: e.course?.level || 'B1',
           completed_hours: e.completed_hours || 0,
           total_hours: e.course?.total_hours || 120,
-          status: e.status === 'completed' ? 'completed' : 'active'
-        }))
-        setStudentsList(mapped)
-      } else if (studentProfiles && studentProfiles.length > 0) {
-        const mapped: StudentItem[] = studentProfiles.map((sp: any) => ({
-          id: sp.id,
-          student_name: sp.full_name || 'Estudiante Registrado',
-          student_email: sp.email || 'estudiante@americandream.edu.co',
-          mcer_level: 'A1',
-          completed_hours: 0,
-          total_hours: 120,
-          status: 'active'
+          status: e.status === 'completed' ? 'completed' : 'active',
+          municipality: 'Turbo'
         }))
         setStudentsList(mapped)
       } else {
@@ -452,6 +558,138 @@ export default function AdminDashboardPage() {
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL FLOTANTE: REGISTRAR NUEVO ESTUDIANTE */}
+        {isAddStudentOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
+            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
+                    <UserPlus className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-extrabold text-white">Registrar Nuevo Estudiante</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Crear un nuevo perfil de estudiante bilingüe</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddStudentOpen(false)}
+                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Modal Form */}
+              <form onSubmit={handleCreateStudent} className="space-y-4">
+                {/* Nombre Completo */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    Nombre Completo <span className="text-emerald-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: María Alejandra Pérez"
+                    value={newStudentData.fullName}
+                    onChange={(e) => setNewStudentData({ ...newStudentData, fullName: e.target.value })}
+                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                {/* Correo Institucional / Personal */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300">
+                    Correo Institucional / Personal <span className="text-emerald-400">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="estudiante@americandream.edu.co"
+                    value={newStudentData.email}
+                    onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
+                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Nivel MCER Inicial */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      Nivel MCER Inicial
+                    </label>
+                    <select
+                      value={newStudentData.mcerLevel}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
+                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="A1">A1 - Principiante</option>
+                      <option value="A2">A2 - Elemental</option>
+                      <option value="B1">B1 - Pre-Intermedio</option>
+                      <option value="B2">B2 - Intermedio Alto</option>
+                    </select>
+                  </div>
+
+                  {/* Municipio / Sede */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300">
+                      Municipio / Sede
+                    </label>
+                    <select
+                      value={newStudentData.municipality}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, municipality: e.target.value })}
+                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="Turbo">Turbo</option>
+                      <option value="Apartadó">Apartadó</option>
+                      <option value="Carepa">Carepa</option>
+                      <option value="Chigorodó">Chigorodó</option>
+                      <option value="Necoclí">Necoclí</option>
+                      <option value="Arboletes">Arboletes</option>
+                      <option value="Mutatá">Mutatá</option>
+                      <option value="San Pedro de Urabá">San Pedro de Urabá</option>
+                      <option value="Medellín">Medellín</option>
+                      <option value="Otra Sede">Otra Sede</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer Buttons */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+                  <button
+                    type="button"
+                    disabled={isSubmittingStudent}
+                    onClick={() => setIsAddStudentOpen(false)}
+                    className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingStudent}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer"
+                  >
+                    {isSubmittingStudent ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Guardando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Guardar Estudiante</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -708,6 +946,16 @@ export default function AdminDashboardPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Botón Agregar Estudiante */}
+              <button
+                type="button"
+                onClick={() => setIsAddStudentOpen(true)}
+                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Agregar Estudiante</span>
+              </button>
             </div>
           </div>
 
@@ -729,13 +977,14 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              <Link
-                href="/login"
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md"
+              <button
+                type="button"
+                onClick={() => setIsAddStudentOpen(true)}
+                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md cursor-pointer"
               >
                 <UserPlus className="w-4 h-4" />
                 <span>Registrar Primer Estudiante</span>
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-slate-800/70">
@@ -756,7 +1005,14 @@ export default function AdminDashboardPage() {
                       <tr key={st.id} className="hover:bg-slate-800/30 transition-colors">
                         <td className="py-4 px-6">
                           <p className="font-bold text-white text-sm">{st.student_name}</p>
-                          <p className="text-[11px] text-slate-400">{st.student_email}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[11px] text-slate-400">{st.student_email}</span>
+                            {st.municipality && (
+                              <span className="px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-medium rounded border border-slate-700">
+                                {st.municipality}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="py-4 px-6 text-center">
                           <span className="px-3 py-1 bg-emerald-500/15 text-emerald-400 font-bold text-xs rounded-full border border-emerald-500/25">
