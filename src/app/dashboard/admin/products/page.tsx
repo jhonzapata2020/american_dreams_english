@@ -30,6 +30,8 @@ export interface ProductItem {
   updated_at?: string
 }
 
+const TRM = 4000
+
 const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
   {
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10',
@@ -57,7 +59,7 @@ const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
     description: 'Aprende los 44 fonemas del inglés con explicaciones en video 4K de docentes bilingües certificados.',
     category: 'masterclass',
     format_badge: 'Video 4K',
-    price_cop: 75000,
+    price_cop: 76000,
     price_usd: 19,
     active: true,
   },
@@ -77,7 +79,7 @@ const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
     description: 'Más de 50 archivos de audio fonético descargables para entrenar el oído desde el celular.',
     category: 'audios',
     format_badge: 'Audios + PDF',
-    price_cop: 115000,
+    price_cop: 116000,
     price_usd: 29,
     active: true,
   },
@@ -131,7 +133,7 @@ export default function AdminProductsPage() {
     setNewFormatBadge(product.format_badge || 'Digital')
     setNewCategory(product.category || 'digital')
     setNewPriceCop(product.price_cop ? product.price_cop.toLocaleString('es-CO') : '')
-    setNewPriceUsd(product.price_usd || '')
+    setNewPriceUsd(product.price_usd || Math.round((product.price_cop || 0) / TRM))
     setNewActive(product.active)
     setIsCreateModalOpen(true)
   }
@@ -146,6 +148,13 @@ export default function AdminProductsPage() {
     return Math.max(0, Number(raw) || 0)
   }
 
+  const handleModalCopChange = (val: string) => {
+    setNewPriceCop(val)
+    const copNum = parseCopInput(val)
+    const calcUsd = Math.round(copNum / TRM)
+    setNewPriceUsd(calcUsd)
+  }
+
   const handleCreateOrUpdateProduct = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newTitle.trim()) return
@@ -153,13 +162,16 @@ export default function AdminProductsPage() {
     setIsCreating(true)
     setNotification(null)
 
+    const copValue = parseCopInput(String(newPriceCop))
+    const usdValue = Number(newPriceUsd) > 0 ? Number(newPriceUsd) : Math.round(copValue / TRM)
+
     const productPayload = {
       title: newTitle.trim(),
       description: newDescription.trim() || undefined,
       category: newCategory || 'digital',
       format_badge: newFormatBadge.trim() || 'Digital',
-      price_cop: parseCopInput(String(newPriceCop)),
-      price_usd: Number(newPriceUsd) || 0,
+      price_cop: copValue,
+      price_usd: usdValue,
       active: newActive,
       updated_at: new Date().toISOString(),
     }
@@ -291,9 +303,26 @@ export default function AdminProductsPage() {
   }, [])
 
   const handlePriceChange = (id: string, field: 'price_cop' | 'price_usd', value: string) => {
-    const numericValue = field === 'price_cop' ? parseCopInput(value) : Math.max(0, Number(value) || 0)
     setProducts((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, [field]: numericValue } : p))
+      prev.map((p) => {
+        if (p.id !== id) return p
+
+        if (field === 'price_cop') {
+          const newCop = parseCopInput(value)
+          const calcUsd = Math.round(newCop / TRM)
+          return {
+            ...p,
+            price_cop: newCop,
+            price_usd: calcUsd,
+          }
+        } else {
+          const newUsd = Math.max(0, Number(value) || 0)
+          return {
+            ...p,
+            price_usd: newUsd,
+          }
+        }
+      })
     )
   }
 
@@ -394,7 +423,7 @@ export default function AdminProductsPage() {
               <span>Gestión Interactiva de Productos</span>
             </h1>
             <p className="text-xs text-slate-400">
-              Edita precios en COP/USD y activa o desactiva la visibilidad pública de los productos en tiempo real.
+              Edita precios en COP/USD (tasa de referencia 1 USD = ${TRM.toLocaleString('es-CO')} COP) y gestiona la visibilidad en tiempo real.
             </p>
           </div>
 
@@ -459,7 +488,7 @@ export default function AdminProductsPage() {
                   <tr>
                     <th className="py-4 px-6">Producto & Formato</th>
                     <th className="py-4 px-4">Precio COP</th>
-                    <th className="py-4 px-4">Precio USD</th>
+                    <th className="py-4 px-4">Precio USD (Auto / Manual)</th>
                     <th className="py-4 px-4 text-center">Estado Visibilidad</th>
                     <th className="py-4 px-6 text-right">Acciones</th>
                   </tr>
@@ -489,7 +518,7 @@ export default function AdminProductsPage() {
                             type="text"
                             value={formatCopDisplay(prod.price_cop)}
                             onChange={(e) => handlePriceChange(prod.id, 'price_cop', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </td>
@@ -500,9 +529,10 @@ export default function AdminProductsPage() {
                           <span className="absolute left-3 top-2.5 text-slate-500 font-mono text-xs">$</span>
                           <input
                             type="number"
+                            min="0"
                             value={prod.price_usd}
                             onChange={(e) => handlePriceChange(prod.id, 'price_usd', e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           />
                         </div>
                       </td>
@@ -701,16 +731,16 @@ export default function AdminProductsPage() {
                       <input
                         type="text"
                         value={typeof newPriceCop === 'number' ? formatCopDisplay(newPriceCop) : newPriceCop}
-                        onChange={(e) => setNewPriceCop(e.target.value)}
+                        onChange={(e) => handleModalCopChange(e.target.value)}
                         placeholder="0"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                      Precio en USD (numérico)
+                      Precio en USD (Autocálculo TRM: ${TRM})
                     </label>
                     <div className="relative">
                       <span className="absolute left-3 top-2.5 text-slate-500 font-mono text-xs">$</span>
@@ -720,7 +750,7 @@ export default function AdminProductsPage() {
                         value={newPriceUsd}
                         onChange={(e) => setNewPriceUsd(e.target.value)}
                         placeholder="0"
-                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pl-7 pr-3 font-mono text-sm tracking-tight text-white focus:outline-none focus:ring-2 focus:ring-blue-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       />
                     </div>
                   </div>
