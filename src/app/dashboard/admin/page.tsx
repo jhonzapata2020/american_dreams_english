@@ -25,7 +25,8 @@ import {
   Clock,
   AlertTriangle,
   X,
-  Pencil
+  Pencil,
+  Sparkles
 } from 'lucide-react'
 
 interface StudentItem {
@@ -62,6 +63,7 @@ interface WebLead {
 export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [currentTime, setCurrentTime] = useState<string>('')
   
   // Dynamic Data States (100% Supabase)
   const [studentsCount, setStudentsCount] = useState<number>(0)
@@ -109,6 +111,25 @@ export default function AdminDashboardPage() {
 
   // Floating Toast State
   const [toast, setToast] = useState<{ title: string; message: string } | null>(null)
+
+  // Live Clock Effect
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date()
+      setCurrentTime(now.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' }))
+    }
+    updateClock()
+    const timer = setInterval(updateClock, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const getInitials = (name: string) => {
+    const parts = name.trim().split(' ')
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[1][0]}`.toUpperCase()
+    }
+    return (name.slice(0, 2) || 'ST').toUpperCase()
+  }
 
   const handleOpenEditStudent = (st: StudentItem) => {
     setStudentToEdit(st)
@@ -270,13 +291,13 @@ export default function AdminDashboardPage() {
       }
 
       // 2. ÉXITO GARANTIZADO: Cierre de Modal, Reset de Formulario y Notificación Toast
-      setIsAddStudentOpen(false) // Cierra el modal de inmediato
+      setIsAddStudentOpen(false)
       setNewStudentData({
         fullName: '',
         email: '',
         mcerLevel: 'A1',
         municipality: 'Turbo'
-      }) // Reinicia los campos
+      })
 
       setToast({
         title: '¡Estudiante guardado con éxito!',
@@ -309,7 +330,6 @@ export default function AdminDashboardPage() {
 
     } catch (err: any) {
       console.error('Error al registrar estudiante:', err)
-      // Cierra el modal y muestra la notificación
       setIsAddStudentOpen(false)
       setToast({
         title: '¡Estudiante guardado con éxito!',
@@ -461,25 +481,13 @@ export default function AdminDashboardPage() {
             id: sp.id,
             student_name: sp.full_name || 'Estudiante Registrado',
             student_email: sp.email || 'estudiante@americandream.edu.co',
-            mcer_level: enroll?.course?.level || sp.mcer_level || 'A1',
+            mcer_level: enroll?.course?.level || sp.mcer_level || sp.academic_level || 'A1',
             completed_hours: enroll?.completed_hours || 0,
             total_hours: enroll?.course?.total_hours || 120,
             status: enroll?.status === 'completed' ? 'completed' : 'active',
             municipality: sp.municipality || sp.origin_location || 'Turbo'
           }
         })
-        setStudentsList(mapped)
-      } else if (enrollData && enrollData.length > 0) {
-        const mapped: StudentItem[] = enrollData.map((e: any) => ({
-          id: e.id,
-          student_name: e.student?.full_name || 'Estudiante Bilingüe',
-          student_email: e.student?.email || 'estudiante@americandream.edu.co',
-          mcer_level: e.course?.level || 'B1',
-          completed_hours: e.completed_hours || 0,
-          total_hours: e.course?.total_hours || 120,
-          status: e.status === 'completed' ? 'completed' : 'active',
-          municipality: 'Turbo'
-        }))
         setStudentsList(mapped)
       } else {
         setStudentsList([])
@@ -543,11 +551,9 @@ export default function AdminDashboardPage() {
         return
       }
 
-      // Update local state
       setLeadsList((prev) => prev.filter((l) => l.id !== leadToDelete.id))
       setLeadsCount((prev) => Math.max(0, prev - 1))
 
-      // Trigger success toast
       setToast({
         title: 'Prospecto eliminado con éxito',
         message: 'El registro ha sido removido de la base de datos.'
@@ -622,40 +628,12 @@ export default function AdminDashboardPage() {
 
   return (
     <DashboardLayout currentRole="admin" title="Panel de Administración General">
-      <div className="space-y-8 max-w-7xl mx-auto font-sans">
-
-        {/* HEADER TOP & REFRESH */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/70 pb-6 gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/15 text-indigo-400 rounded-full text-xs font-semibold border border-indigo-500/30 mb-2">
-              <ShieldCheck className="w-4 h-4" />
-              <span>Acceso Administrador General</span>
-            </div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">Panel de Administración General</h1>
-            <p className="text-xs text-slate-400 mt-1">
-              Control RBAC, seguimiento de estudiantes bilingües, prospectos web, becas Urabá y pasarelas.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={fetchAdminData}
-              disabled={refreshing}
-              className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-2 border border-slate-700/70"
-            >
-              <RefreshCw className={`w-4 h-4 text-indigo-400 ${refreshing ? 'animate-spin' : ''}`} />
-              <span>Sincronizar Base de Datos</span>
-            </button>
-
-            <Link
-              href="/dashboard/admin/products"
-              className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20"
-            >
-              <Package className="w-4 h-4" />
-              <span>Catálogo Cursos</span>
-            </Link>
-          </div>
-        </div>
+      <div className="relative min-h-screen bg-[#070b13] text-slate-100 font-sans p-1 sm:p-2 rounded-3xl overflow-hidden select-none space-y-8 max-w-7xl mx-auto">
+        
+        {/* AMBIENT BACKGROUND GLOW LIGHTS */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[140px] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-600/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
@@ -683,7 +661,7 @@ export default function AdminDashboardPage() {
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-[#0F172A] border border-slate-800/80 shadow-2xl rounded-2xl p-6 max-w-md w-full space-y-5">
+            <div className="bg-[#0c121e] border border-white/[0.08] shadow-2xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -696,12 +674,12 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/70">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
                 <button
                   type="button"
                   disabled={isDeleting}
                   onClick={() => setLeadToDelete(null)}
-                  className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                  className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-white/[0.08]"
                 >
                   Cancelar
                 </button>
@@ -710,7 +688,7 @@ export default function AdminDashboardPage() {
                   type="button"
                   disabled={isDeleting}
                   onClick={confirmDeleteLead}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-red-600/20 flex items-center gap-2"
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-red-600/20 flex items-center gap-2 cursor-pointer"
                 >
                   {isDeleting ? (
                     <>
@@ -732,23 +710,23 @@ export default function AdminDashboardPage() {
         {/* MODAL FLOTANTE: REGISTRAR NUEVO ESTUDIANTE */}
         {isAddStudentOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+            <div className="bg-[#0c121e] border border-white/[0.08] rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
               
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
-                    <UserPlus className="w-5 h-5 text-emerald-400" />
+                  <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
+                    <UserPlus className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
                     <h3 className="text-lg font-extrabold text-white">Registrar Nuevo Estudiante</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">Crear un nuevo perfil de estudiante bilingüe</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Crear un nuevo perfil de estudiante bilingüe en Supabase</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddStudentOpen(false)}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/[0.06] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -759,7 +737,7 @@ export default function AdminDashboardPage() {
                 {/* Nombre Completo */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300">
-                    Nombre Completo <span className="text-emerald-400">*</span>
+                    Nombre Completo <span className="text-blue-400">*</span>
                   </label>
                   <input
                     type="text"
@@ -767,14 +745,14 @@ export default function AdminDashboardPage() {
                     placeholder="Ej: María Alejandra Pérez"
                     value={newStudentData.fullName}
                     onChange={(e) => setNewStudentData({ ...newStudentData, fullName: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 {/* Correo Institucional / Personal */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300">
-                    Correo Institucional / Personal <span className="text-emerald-400">*</span>
+                    Correo Institucional / Personal <span className="text-blue-400">*</span>
                   </label>
                   <input
                     type="email"
@@ -782,7 +760,7 @@ export default function AdminDashboardPage() {
                     placeholder="estudiante@americandream.edu.co"
                     value={newStudentData.email}
                     onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -795,7 +773,7 @@ export default function AdminDashboardPage() {
                     <select
                       value={newStudentData.mcerLevel}
                       onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="A1">A1 - Principiante</option>
                       <option value="A2">A2 - Elemental</option>
@@ -812,7 +790,7 @@ export default function AdminDashboardPage() {
                     <select
                       value={newStudentData.municipality}
                       onChange={(e) => setNewStudentData({ ...newStudentData, municipality: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="Turbo">Turbo</option>
                       <option value="Apartadó">Apartadó</option>
@@ -829,19 +807,19 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06]">
                   <button
                     type="button"
                     disabled={isSubmittingStudent}
                     onClick={() => setIsAddStudentOpen(false)}
-                    className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                    className="px-4 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-white/[0.08]"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingStudent}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-emerald-600/20 flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 cursor-pointer"
                   >
                     {isSubmittingStudent ? (
                       <>
@@ -864,12 +842,12 @@ export default function AdminDashboardPage() {
         {/* MODAL FLOTANTE: EDITAR ESTUDIANTE */}
         {studentToEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+            <div className="bg-[#0c121e] border border-white/[0.08] rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
               
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+              <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20">
+                  <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
                     <Pencil className="w-5 h-5 text-blue-400" />
                   </div>
                   <div>
@@ -880,7 +858,7 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setStudentToEdit(null)}
-                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800 transition-colors"
+                  className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/[0.06] transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -898,7 +876,7 @@ export default function AdminDashboardPage() {
                     required
                     value={editStudentData.fullName}
                     onChange={(e) => setEditStudentData({ ...editStudentData, fullName: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -912,7 +890,7 @@ export default function AdminDashboardPage() {
                     required
                     value={editStudentData.email}
                     onChange={(e) => setEditStudentData({ ...editStudentData, email: e.target.value })}
-                    className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
@@ -925,7 +903,7 @@ export default function AdminDashboardPage() {
                     <select
                       value={editStudentData.mcerLevel}
                       onChange={(e) => setEditStudentData({ ...editStudentData, mcerLevel: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="A1">A1 - Principiante</option>
                       <option value="A2">A2 - Elemental</option>
@@ -942,7 +920,7 @@ export default function AdminDashboardPage() {
                     <select
                       value={editStudentData.municipality}
                       onChange={(e) => setEditStudentData({ ...editStudentData, municipality: e.target.value })}
-                      className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="Turbo">Turbo</option>
                       <option value="Apartadó">Apartadó</option>
@@ -959,12 +937,12 @@ export default function AdminDashboardPage() {
                 </div>
 
                 {/* Footer Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-800/80">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.06]">
                   <button
                     type="button"
                     disabled={isUpdatingStudent}
                     onClick={() => setStudentToEdit(null)}
-                    className="px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                    className="px-4 py-2.5 bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-white/[0.08]"
                   >
                     Cancelar
                   </button>
@@ -994,7 +972,7 @@ export default function AdminDashboardPage() {
         {/* MODAL CONFIRMACIÓN ELIMINACIÓN DE ESTUDIANTE */}
         {studentToDelete && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-[#0F172A] border border-slate-800/80 shadow-2xl rounded-2xl p-6 max-w-md w-full space-y-5">
+            <div className="bg-[#0c121e] border border-white/[0.08] shadow-2xl rounded-3xl p-6 max-w-md w-full space-y-5">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -1002,17 +980,17 @@ export default function AdminDashboardPage() {
                 <div>
                   <h3 className="text-base font-extrabold text-white">¿Eliminar estudiante?</h3>
                   <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                    ¿Estás seguro de que deseas eliminar a <strong className="text-white font-bold">{studentToDelete.student_name}</strong>? Se eliminará el registro de <code className="text-emerald-400 font-mono text-[11px]">public.profiles</code>.
+                    ¿Estás seguro de que deseas eliminar a <strong className="text-white font-bold">{studentToDelete.student_name}</strong>? Se eliminará el registro de <code className="text-cyan-400 font-mono text-[11px]">public.profiles</code>.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800/70">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
                 <button
                   type="button"
                   disabled={isDeletingStudent}
                   onClick={() => setStudentToDelete(null)}
-                  className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-slate-700/70"
+                  className="px-4 py-2 bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 font-semibold rounded-xl text-xs transition-colors border border-white/[0.08]"
                 >
                   Cancelar
                 </button>
@@ -1040,225 +1018,224 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* 5 KPI METRIC CARDS */}
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 animate-pulse">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 h-36 flex flex-col justify-between">
-                <div className="h-4 bg-slate-800/70 rounded w-1/2" />
-                <div className="h-8 bg-slate-800/70 rounded w-2/3" />
-                <div className="h-3 bg-slate-800/70 rounded w-3/4" />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            
-            {/* KPI 1: Estudiantes Activos */}
-            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Estudiantes</span>
-                <div className="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
-                  <GraduationCap className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold tracking-tight text-white">{studentsCount}</p>
-              <div className="mt-2">
-                <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>En vivo</span>
-                </span>
-              </div>
-            </div>
-
-            {/* KPI 2: Docentes Titulares */}
-            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Docentes</span>
-                <div className="p-2 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
-                  <UserCheck className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold tracking-tight text-white">{teachersCount}</p>
-              <div className="mt-2">
-                <span className="inline-flex items-center gap-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  Titulares
-                </span>
-              </div>
-            </div>
-
-            {/* KPI 3: Becas Pendientes */}
-            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Becas Urabá</span>
-                <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
-                  <Heart className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold tracking-tight text-white">{pendingBecasCount}</p>
-              <div className="mt-2">
-                <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  Pendientes
-                </span>
-              </div>
-            </div>
-
-            {/* KPI 4: Leads / Prospectos Web */}
-            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Leads Web</span>
-                <div className="p-2 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
-                  <Inbox className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-3xl font-bold tracking-tight text-white">{leadsCount}</p>
-              <div className="mt-2">
-                <span className="inline-flex items-center gap-1 bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  public.leads
-                </span>
-              </div>
-            </div>
-
-            {/* KPI 5: Fondo Recaudado */}
-            <div className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-5 hover:border-slate-700 transition-all duration-200 shadow-md group">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Donaciones</span>
-                <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 group-hover:scale-110 transition-transform">
-                  <DollarSign className="w-4 h-4" />
-                </div>
-              </div>
-              <p className="text-2xl font-bold tracking-tight text-white">
-                ${totalDonationsAmount.toLocaleString('es-CO')}
-              </p>
-              <div className="mt-2">
-                <span className="inline-flex items-center gap-1 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs px-2.5 py-0.5 rounded-full font-medium">
-                  COP acumulado
-                </span>
-              </div>
-            </div>
-
-          </div>
-        )}
-
-        {/* MÓDULO: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
-        <div id="leads" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
+        {/* BENTO GRID: HEADER & TOP METRIC CARDS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
+          {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
+          <div className="lg:col-span-2 bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-white/[0.14] transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-blue-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+            
             <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                <Inbox className="w-5 h-5 text-purple-400" />
-                <span>Gestión de Prospectos & Leads Web</span>
-              </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                Registro directo en tiempo real desde el formulario de captura público.
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 text-blue-400 rounded-full text-xs font-semibold border border-blue-500/20">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Director Académico</span>
+                </div>
+
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-xs font-medium border border-emerald-500/20">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>En vivo: {currentTime || 'Live'}</span>
+                </div>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                American Dream English
+              </h1>
+              <p className="text-xs text-slate-400 mt-1 max-w-md leading-relaxed">
+                Panel de Administración General & Control RBAC. Seguimiento bilingüe en tiempo real para la Sede Urabá.
               </p>
             </div>
 
-            <div className="flex items-center gap-3">
-              <div className="relative w-full sm:w-60">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
-                <input
-                  type="text"
-                  placeholder="Buscar prospecto o email..."
-                  value={leadSearchTerm}
-                  onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
-
-              <span className="px-3 py-1 bg-purple-500/15 text-purple-300 text-xs font-bold rounded-full border border-purple-500/30 whitespace-nowrap">
-                {filteredLeads.length} Registros
+            {/* Glowing line divider */}
+            <div className="mt-6 pt-4 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
+              <span className="flex items-center gap-1.5 text-[11px]">
+                <Building2 className="w-3.5 h-3.5 text-blue-400" />
+                Sede Principal Turbo & Urabá
               </span>
+              <span className="text-[11px] font-mono text-slate-500">v2.4.0 Live</span>
             </div>
           </div>
 
-          {/* LEADS TABLE */}
-          {loading ? (
-            <div className="p-8 text-center text-slate-400 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-400" />
-              Cargando prospectos web desde Supabase...
+          {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (1 col) */}
+          <div className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-white/[0.14] transition-all duration-300 flex flex-col justify-between relative group">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Estudiantes</span>
+              <div className="p-2 bg-blue-500/10 text-blue-400 rounded-2xl border border-blue-500/20">
+                <GraduationCap className="w-4 h-4" />
+              </div>
             </div>
-          ) : filteredLeads.length === 0 ? (
-            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
-              <Inbox className="w-10 h-10 text-slate-600 mx-auto" />
-              <h4 className="font-bold text-slate-300 text-sm">No se encontraron prospectos web</h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                {leadSearchTerm
-                  ? `No hay coincidencias para "${leadSearchTerm}".`
-                  : 'Aún no se han recibido registros en la tabla public.leads.'}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
-                  <tr>
-                    <th className="py-4 px-6 whitespace-nowrap">Nombre del Prospecto</th>
-                    <th className="py-4 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
-                    <th className="py-4 px-6 text-xs font-semibold text-slate-400 tracking-wider whitespace-nowrap">PERFIL / PROGRAMA</th>
-                    <th className="py-4 px-6 whitespace-nowrap">Fecha de Registro</th>
-                    <th className="py-4 px-6 text-right whitespace-nowrap">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/50">
-                  {filteredLeads.map((lead) => {
-                    const fullName = `${lead.first_name} ${lead.last_name}`.trim()
-                    return (
-                      <tr key={lead.id} className="hover:bg-slate-800/30 transition-colors">
-                        <td className="py-4 px-6 font-bold text-white text-sm whitespace-nowrap">
-                          {fullName}
-                        </td>
-                        <td className="py-4 px-6 space-y-0.5 whitespace-nowrap">
-                          <p className="text-slate-200 font-medium">{lead.email}</p>
-                          <p className="text-[11px] text-slate-400">{lead.phone}</p>
-                        </td>
-                        <td className="py-4 px-6 whitespace-nowrap">
-                          {renderAudienceBadge(lead.audience)}
-                        </td>
-                        <td className="py-4 px-6 text-slate-400 text-[11px] whitespace-nowrap">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-500" />
-                            {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
-                          </span>
-                        </td>
-                        <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
-                          <button
-                            onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                            className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
-                            <span>WhatsApp</span>
-                          </button>
 
-                          <button
-                            onClick={() => setLeadToDelete(lead)}
-                            title="Eliminar prospecto"
-                            className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors inline-flex items-center justify-center"
-                          >
-                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-400" />
-                          </button>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
+            <div className="flex items-center justify-between my-3">
+              <div>
+                <p className="text-4xl font-extrabold tracking-tight text-white">{studentsCount}</p>
+                <p className="text-[11px] text-slate-400 mt-0.5 font-medium">Registrados en profiles</p>
+              </div>
+
+              {/* Circular Progress SVG Ring */}
+              <div className="relative w-16 h-16 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-800"
+                    strokeWidth="3.5"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-cyan-400 transition-all duration-1000"
+                    strokeDasharray={`${Math.min(100, Math.max(25, studentsCount * 25))}, 100`}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className="absolute text-[10px] font-bold text-cyan-400">100%</span>
+              </div>
             </div>
-          )}
+
+            <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px]">
+              <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Sincronizado
+              </span>
+              <span className="text-slate-500">public.profiles</span>
+            </div>
+          </div>
+
+          {/* BENTO WIDGET 3: BECAS URABÁ (1 col) */}
+          <div className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 shadow-2xl shadow-black/40 hover:border-white/[0.14] transition-all duration-300 flex flex-col justify-between relative group">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Becas Urabá</span>
+              <div className="p-2 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20">
+                <Heart className="w-4 h-4" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between my-3">
+              <div>
+                <p className="text-4xl font-extrabold tracking-tight text-white">{pendingBecasCount}</p>
+                <p className="text-[11px] text-amber-300/80 mt-0.5 font-medium">Pendientes por aprobar</p>
+              </div>
+
+              {/* Circular Glowing Ring */}
+              <div className="relative w-16 h-16 flex items-center justify-center">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <path
+                    className="text-slate-800"
+                    strokeWidth="3.5"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                  <path
+                    className="text-amber-400 transition-all duration-1000"
+                    strokeDasharray={`${pendingBecasCount > 0 ? 75 : 100}, 100`}
+                    strokeWidth="3.5"
+                    strokeLinecap="round"
+                    stroke="currentColor"
+                    fill="none"
+                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                  />
+                </svg>
+                <span className="absolute text-[10px] font-extrabold text-amber-400">
+                  {pendingBecasCount > 0 ? `${pendingBecasCount}` : 'OK'}
+                </span>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between text-[11px]">
+              <span className="text-amber-400 font-semibold">Fondo Social</span>
+              <a href="#becas" className="text-slate-400 hover:text-white transition-colors">Revisar →</a>
+            </div>
+          </div>
 
         </div>
 
-        {/* MÓDULO PRINCIPAL: ESTUDIANTES MATRICULADOS */}
-        <div id="estudiantes" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
+        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
+        <div className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-5 shadow-2xl shadow-black/40 relative z-10">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-blue-400" />
+              <span>Accesos Rápidos & Gestión Directa</span>
+            </h3>
+            <span className="text-[11px] text-slate-500 font-medium">Bento Shortcuts</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {/* Button 1: Agregar Estudiante */}
+            <button
+              type="button"
+              onClick={() => setIsAddStudentOpen(true)}
+              className="group bg-[#131b2e]/70 hover:bg-blue-600/20 border border-white/[0.08] hover:border-blue-500/40 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between cursor-pointer"
+            >
+              <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 w-fit group-hover:scale-110 transition-transform">
+                <UserPlus className="w-4 h-4" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xs font-bold text-white group-hover:text-blue-300 transition-colors">+ Agregar Estudiante</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Crear perfil en profiles</p>
+              </div>
+            </button>
+
+            {/* Button 2: Catálogo Cursos */}
+            <Link
+              href="/dashboard/admin/products"
+              className="group bg-[#131b2e]/70 hover:bg-indigo-600/20 border border-white/[0.08] hover:border-indigo-500/40 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between"
+            >
+              <div className="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20 w-fit group-hover:scale-110 transition-transform">
+                <Package className="w-4 h-4" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xs font-bold text-white group-hover:text-indigo-300 transition-colors">Catálogo Cursos</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Gestionar productos RBAC</p>
+              </div>
+            </Link>
+
+            {/* Button 3: Prospectos Web */}
+            <a
+              href="#leads"
+              className="group bg-[#131b2e]/70 hover:bg-purple-600/20 border border-white/[0.08] hover:border-purple-500/40 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between"
+            >
+              <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl border border-purple-500/20 w-fit group-hover:scale-110 transition-transform">
+                <Inbox className="w-4 h-4" />
+              </div>
+              <div className="mt-3">
+                <p className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">Prospectos Web</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">{leadsCount} registros recibidos</p>
+              </div>
+            </a>
+
+            {/* Button 4: Sincronizar Base de Datos */}
+            <button
+              type="button"
+              onClick={fetchAdminData}
+              disabled={refreshing}
+              className="group bg-[#131b2e]/70 hover:bg-emerald-600/20 border border-white/[0.08] hover:border-emerald-500/40 p-4 rounded-2xl transition-all duration-300 text-left flex flex-col justify-between cursor-pointer"
+            >
+              <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 w-fit group-hover:scale-110 transition-transform">
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              </div>
+              <div className="mt-3">
+                <p className="text-xs font-bold text-white group-hover:text-emerald-300 transition-colors">Sincronizar BD</p>
+                <p className="text-[10px] text-slate-400 mt-0.5">Refrescar desde Supabase</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER */}
+        <div id="estudiantes" className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
           
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
             <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                <Users className="w-5 h-5 text-emerald-400" />
+              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
+                <Users className="w-5 h-5 text-blue-400" />
                 <span>Estudiantes Matriculados & Seguimiento MCER</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Matrículas activas, horas acumuladas en aula y nivel según el Marco Común Europeo.
+                Matrículas activas, progreso acumulado en aula y nivel en el Marco Común Europeo.
               </p>
             </div>
 
@@ -1266,25 +1243,25 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap items-center gap-3">
               {/* Search Bar */}
               <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-3" />
+                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="text"
                   placeholder="Buscar estudiante o correo..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-[#0A0E1A] border border-slate-800/80 rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               {/* Level Tabs Filter */}
-              <div className="bg-[#0A0E1A] border border-slate-800/80 p-1 rounded-xl flex items-center text-xs font-bold">
+              <div className="bg-[#070b13] border border-white/[0.08] p-1 rounded-xl flex items-center text-xs font-bold">
                 {['all', 'A1', 'A2', 'B1', 'B2'].map((lvl) => (
                   <button
                     key={lvl}
                     onClick={() => setSelectedLevel(lvl)}
                     className={`px-3 py-1.5 rounded-lg transition-all uppercase text-[11px] ${
                       selectedLevel === lvl
-                        ? 'bg-emerald-600 text-white font-extrabold shadow-sm'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold shadow-sm'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -1293,14 +1270,14 @@ export default function AdminDashboardPage() {
                 ))}
               </div>
 
-              {/* Botón Agregar Estudiante */}
+              {/* Botón + Agregar Estudiante */}
               <button
                 type="button"
                 onClick={() => setIsAddStudentOpen(true)}
-                className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-md shadow-emerald-600/20 cursor-pointer"
+                className="px-3.5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-blue-500/20 cursor-pointer"
               >
                 <UserPlus className="w-4 h-4" />
-                <span>Agregar Estudiante</span>
+                <span>+ Agregar Estudiante</span>
               </button>
             </div>
           </div>
@@ -1308,11 +1285,11 @@ export default function AdminDashboardPage() {
           {/* STUDENTS TABLE */}
           {loading ? (
             <div className="p-8 text-center text-slate-400 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-emerald-400" />
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-400" />
               Cargando matrículas desde Supabase...
             </div>
           ) : filteredStudents.length === 0 ? (
-            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
+            <div className="bg-[#070b13]/60 border border-white/[0.06] rounded-2xl p-10 text-center space-y-2">
               <Users className="w-10 h-10 text-slate-600 mx-auto" />
               <div className="space-y-1">
                 <h4 className="font-bold text-slate-300 text-sm">No hay estudiantes registrados en Supabase</h4>
@@ -1324,57 +1301,66 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
+            <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
+                <thead className="bg-[#070b13]/80 text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-white/[0.08]">
                   <tr>
                     <th className="py-4 px-6">Alumno & Correo Institucional</th>
                     <th className="py-4 px-6 text-center">Nivel MCER</th>
                     <th className="py-4 px-6">Progreso de Horas</th>
                     <th className="py-4 px-6 text-center">Estado Matrícula</th>
-                    <th className="py-4 px-6 text-right">Acción</th>
+                    <th className="py-4 px-6 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody className="divide-y divide-white/[0.04]">
                   {filteredStudents.map((st) => {
                     const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
+                    const initials = getInitials(st.student_name)
+
                     return (
-                      <tr key={st.id} className="hover:bg-slate-800/30 transition-colors">
+                      <tr key={st.id} className="hover:bg-white/[0.03] transition-colors">
                         <td className="py-4 px-6">
-                          <p className="font-bold text-white text-sm">{st.student_name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[11px] text-slate-400">{st.student_email}</span>
-                            {st.municipality && (
-                              <span className="px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-medium rounded border border-slate-700">
-                                {st.municipality}
-                              </span>
-                            )}
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white font-extrabold text-xs flex items-center justify-center shadow-sm border border-white/10 flex-shrink-0">
+                              {initials}
+                            </div>
+                            <div>
+                              <p className="font-bold text-white text-sm">{st.student_name}</p>
+                              <div className="flex items-center gap-2 mt-0.5">
+                                <span className="text-[11px] text-slate-400">{st.student_email}</span>
+                                {st.municipality && (
+                                  <span className="px-2 py-0.5 bg-white/[0.06] text-slate-300 text-[10px] font-medium rounded-md border border-white/[0.08]">
+                                    {st.municipality}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
-                          <span className="px-3 py-1 bg-emerald-500/15 text-emerald-400 font-bold text-xs rounded-full border border-emerald-500/25">
+                          <span className="px-3 py-1 bg-cyan-500/10 text-cyan-400 font-extrabold text-xs rounded-full border border-cyan-500/20">
                             {st.mcer_level}
                           </span>
                         </td>
                         <td className="py-4 px-6">
-                          <div className="space-y-1 w-48">
+                          <div className="space-y-1.5 w-48">
                             <div className="flex justify-between text-[11px] font-semibold text-slate-300">
                               <span>{st.completed_hours} / {st.total_hours}h</span>
-                              <span className="text-emerald-400 font-bold">{percent}%</span>
+                              <span className="text-cyan-400 font-bold">{percent}%</span>
                             </div>
-                            <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                            <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/[0.06]">
                               <div
-                                className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full transition-all duration-500"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
                           </div>
                         </td>
                         <td className="py-4 px-6 text-center">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase ${
+                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
                             st.status === 'completed'
-                              ? 'bg-blue-500/15 text-blue-400 border border-blue-500/25'
-                              : 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
+                              ? 'bg-blue-500/15 text-blue-400 border-blue-500/25'
+                              : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25'
                           }`}>
                             {st.status === 'completed' ? '✓ Completado' : '● Activa'}
                           </span>
@@ -1383,10 +1369,10 @@ export default function AdminDashboardPage() {
                           <Link
                             href="/dashboard/student"
                             title="Ver Aula"
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 px-2.5 py-1.5 rounded-xl border border-slate-700/70 transition"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] px-2.5 py-1.5 rounded-xl border border-white/[0.08] transition"
                           >
                             <span>Aula</span>
-                            <ArrowRight className="w-3 h-3 text-emerald-400" />
+                            <ArrowRight className="w-3 h-3 text-cyan-400" />
                           </Link>
 
                           <button
@@ -1417,17 +1403,125 @@ export default function AdminDashboardPage() {
 
         </div>
 
-        {/* MÓDULO SECUNDARIO: ADMISIÓN / BECARIOS URABÁ */}
-        <div id="becas" className="bg-[#0F172A]/90 border border-slate-800/70 rounded-2xl p-6 space-y-6 shadow-xl">
+        {/* BENTO MODULE 2: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
+        <div id="leads" className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
           
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/70 pb-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
             <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
+                <Inbox className="w-5 h-5 text-purple-400" />
+                <span>Gestión de Prospectos & Leads Web</span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Registro en tiempo real desde el formulario de captura público.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative w-full sm:w-60">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                <input
+                  type="text"
+                  placeholder="Buscar prospecto o email..."
+                  value={leadSearchTerm}
+                  onChange={(e) => setLeadSearchTerm(e.target.value)}
+                  className="w-full bg-[#070b13] border border-white/[0.08] rounded-xl py-2 pl-9 pr-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              <span className="px-3 py-1 bg-purple-500/15 text-purple-300 text-xs font-bold rounded-full border border-purple-500/30 whitespace-nowrap">
+                {filteredLeads.length} Registros
+              </span>
+            </div>
+          </div>
+
+          {/* LEADS TABLE */}
+          {loading ? (
+            <div className="p-8 text-center text-slate-400 text-xs">
+              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-400" />
+              Cargando prospectos web desde Supabase...
+            </div>
+          ) : filteredLeads.length === 0 ? (
+            <div className="bg-[#070b13]/60 border border-white/[0.06] rounded-2xl p-10 text-center space-y-2">
+              <Inbox className="w-10 h-10 text-slate-600 mx-auto" />
+              <h4 className="font-bold text-slate-300 text-sm">No se encontraron prospectos web</h4>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                {leadSearchTerm
+                  ? `No hay coincidencias para "${leadSearchTerm}".`
+                  : 'Aún no se han recibido registros en la tabla public.leads.'}
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-[#070b13]/80 text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-white/[0.08]">
+                  <tr>
+                    <th className="py-4 px-6 whitespace-nowrap">Nombre del Prospecto</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Programa / Interés</th>
+                    <th className="py-4 px-6 whitespace-nowrap">Fecha de Registro</th>
+                    <th className="py-4 px-6 text-right whitespace-nowrap">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.04]">
+                  {filteredLeads.map((lead) => {
+                    const fullName = `${lead.first_name} ${lead.last_name}`.trim()
+                    return (
+                      <tr key={lead.id} className="hover:bg-white/[0.03] transition-colors">
+                        <td className="py-4 px-6 font-bold text-white text-sm whitespace-nowrap">
+                          {fullName}
+                        </td>
+                        <td className="py-4 px-6 space-y-0.5 whitespace-nowrap">
+                          <p className="text-slate-200 font-medium">{lead.email}</p>
+                          <p className="text-[11px] text-slate-400">{lead.phone}</p>
+                        </td>
+                        <td className="py-4 px-6 whitespace-nowrap">
+                          {renderAudienceBadge(lead.audience)}
+                        </td>
+                        <td className="py-4 px-6 text-slate-400 text-[11px] whitespace-nowrap">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5 text-slate-500" />
+                            {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
+                          </span>
+                        </td>
+                        <td className="py-4 px-6 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
+                            className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>WhatsApp</span>
+                          </button>
+
+                          <button
+                            onClick={() => setLeadToDelete(lead)}
+                            title="Eliminar prospecto"
+                            className="text-slate-400 hover:text-red-400 hover:bg-red-500/10 p-2 rounded-xl transition-colors inline-flex items-center justify-center cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-400" />
+                          </button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+        </div>
+
+        {/* BENTO MODULE 3: POSTULACIONES BECAS URABÁ */}
+        <div id="becas" className="bg-[#0c121e]/80 backdrop-blur-xl border border-white/[0.08] rounded-3xl p-6 space-y-6 shadow-2xl shadow-black/40 relative z-10">
+          
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-5">
+            <div>
+              <h2 className="text-xl font-black tracking-tight text-white flex items-center gap-2.5">
                 <Heart className="w-5 h-5 text-amber-400" />
                 <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Revisión y pre-aprobación en tiempo real de solicitudes registradas en public.scholarship_applications.
+                Revisión y pre-aprobación en tiempo real de solicitudes en public.scholarship_applications.
               </p>
             </div>
 
@@ -1443,7 +1537,7 @@ export default function AdminDashboardPage() {
               Cargando postulaciones a becas desde Supabase...
             </div>
           ) : applications.length === 0 ? (
-            <div className="bg-[#0A0E1A]/60 border border-slate-800/70 rounded-2xl p-10 text-center space-y-2">
+            <div className="bg-[#070b13]/60 border border-white/[0.06] rounded-2xl p-10 text-center space-y-2">
               <Heart className="w-10 h-10 text-slate-600 mx-auto" />
               <h4 className="font-bold text-slate-300 text-sm">No hay postulaciones pendientes en Supabase</h4>
               <p className="text-xs text-slate-500">
@@ -1451,9 +1545,9 @@ export default function AdminDashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-xl border border-slate-800/70">
+            <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
               <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-900/50 text-slate-400 font-semibold uppercase tracking-wider text-xs border-b border-slate-800/70">
+                <thead className="bg-[#070b13]/80 text-slate-400 font-semibold uppercase tracking-wider text-[11px] border-b border-white/[0.08]">
                   <tr>
                     <th className="py-4 px-6">Postulante & Teléfono</th>
                     <th className="py-4 px-6">Municipio Urabá</th>
@@ -1462,15 +1556,15 @@ export default function AdminDashboardPage() {
                     <th className="py-4 px-6 text-right">Acciones Rápidas</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/50">
+                <tbody className="divide-y divide-white/[0.04]">
                   {applications.map((app) => (
-                    <tr key={app.id} className="hover:bg-slate-800/30 transition-colors">
+                    <tr key={app.id} className="hover:bg-white/[0.03] transition-colors">
                       <td className="py-4 px-6">
                         <p className="font-bold text-white text-sm">{app.full_name}</p>
                         <p className="text-[11px] text-slate-400">{app.phone}</p>
                       </td>
                       <td className="py-4 px-6">
-                        <span className="px-2.5 py-1 bg-slate-800/80 text-amber-300 text-[11px] font-semibold rounded-lg border border-slate-700/80 flex items-center gap-1 w-fit">
+                        <span className="px-2.5 py-1 bg-white/[0.06] text-amber-300 text-[11px] font-semibold rounded-lg border border-white/[0.08] flex items-center gap-1 w-fit">
                           <Building2 className="w-3 h-3 text-amber-400" />
                           <span>{app.municipality}</span>
                         </span>
@@ -1479,10 +1573,10 @@ export default function AdminDashboardPage() {
                         {app.academic_level}
                       </td>
                       <td className="py-4 px-6 text-center">
-                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase ${
+                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-lg uppercase border ${
                           app.status === 'approved'
-                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/25'
-                            : 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
+                            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25'
+                            : 'bg-amber-500/15 text-amber-300 border-amber-500/25'
                         }`}>
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
@@ -1491,7 +1585,7 @@ export default function AdminDashboardPage() {
                         {app.status !== 'approved' && (
                           <button
                             onClick={() => handleApproveApplication(app.id, app.full_name)}
-                            className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-sm"
+                            className="inline-flex items-center gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-[11px] px-3 py-1.5 rounded-xl transition shadow-sm cursor-pointer"
                           >
                             <Check className="w-3.5 h-3.5" />
                             <span>Aprobar</span>
@@ -1500,7 +1594,7 @@ export default function AdminDashboardPage() {
 
                         <button
                           onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs"
+                          className="bg-emerald-600/15 hover:bg-emerald-600/25 text-emerald-400 border border-emerald-500/30 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
                           <span>WhatsApp</span>
