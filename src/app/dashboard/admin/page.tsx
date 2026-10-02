@@ -25,7 +25,8 @@ import {
   X,
   Pencil,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  BookOpen
 } from 'lucide-react'
 
 interface StudentItem {
@@ -1366,14 +1367,14 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <div className="overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
-                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Alumno & Correo Institucional</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Nivel MCER</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Progreso de Horas</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado Matrícula</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right w-56 whitespace-nowrap rounded-r-xl">Acciones</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Alumno & Correo</th>
+                      <th className="py-2.5 px-2 bg-slate-50/90 border-b border-slate-200/80 text-center">MCER</th>
+                      <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Progreso</th>
+                      <th className="py-2.5 px-2 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 text-right rounded-r-xl">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1384,19 +1385,19 @@ export default function AdminDashboardPage() {
                       return (
                         <tr 
                           key={st.id} 
-                          className="group relative transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-300/50 cursor-pointer z-10"
+                          className="group relative transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-300/50 cursor-pointer z-10"
                         >
-                          <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-slate-900 font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
+                          <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-slate-900 font-extrabold text-xs flex items-center justify-center ring-1 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
                                 {initials}
                               </div>
-                              <div>
-                                <p className="font-bold text-slate-900 group-hover:text-white text-sm transition-colors">{st.student_name}</p>
-                                <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[11px] text-slate-500 group-hover:text-slate-300 transition-colors">{st.student_email}</span>
+                              <div className="min-w-0">
+                                <p className="font-bold text-slate-900 group-hover:text-white text-xs sm:text-sm truncate transition-colors">{st.student_name}</p>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  <span className="text-[10px] text-slate-500 group-hover:text-slate-300 truncate transition-colors">{st.student_email}</span>
                                   {st.municipality && (
-                                    <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-600 group-hover:text-white text-[10px] font-medium rounded-md border border-slate-200/80 group-hover:border-white/20 transition-colors">
+                                    <span className="px-1.5 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-600 group-hover:text-white text-[9px] font-medium rounded border border-slate-200/80 group-hover:border-white/20 transition-colors shrink-0">
                                       {st.municipality}
                                     </span>
                                   )}
@@ -1405,19 +1406,19 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
 
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
-                            <span className="px-3 py-1 bg-slate-100 group-hover:bg-white/10 text-slate-700 group-hover:text-white font-bold text-xs rounded-full border border-slate-200/80 group-hover:border-white/20 shadow-2xs inline-block transition-colors">
+                          <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
+                            <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-700 group-hover:text-white font-bold text-[11px] rounded-full border border-slate-200/80 group-hover:border-white/20 inline-block transition-colors">
                               {st.mcer_level}
                             </span>
                           </td>
 
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
-                            <div className="space-y-1.5 w-44">
-                              <div className="flex justify-between text-[11px] font-semibold text-slate-600 group-hover:text-white transition-colors">
-                                <span>{st.completed_hours} / {st.total_hours}h</span>
+                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
+                            <div className="space-y-1 w-28 sm:w-32">
+                              <div className="flex justify-between text-[10px] font-semibold text-slate-600 group-hover:text-white transition-colors">
+                                <span>{st.completed_hours}/{st.total_hours}h</span>
                                 <span className="text-emerald-600 group-hover:text-emerald-400 font-bold">{percent}%</span>
                               </div>
-                              <div className="w-full bg-slate-100 group-hover:bg-white/10 h-2 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/20 transition-colors">
+                              <div className="w-full bg-slate-100 group-hover:bg-white/10 h-1.5 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/20 transition-colors">
                                 <div
                                   className="bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:from-emerald-400 group-hover:to-teal-300 h-full rounded-full transition-all duration-500"
                                   style={{ width: `${percent}%` }}
@@ -1426,33 +1427,33 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
 
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
+                          <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border ${
                               st.status === 'completed'
-                                ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20'
-                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-500/20 group-hover:text-emerald-300 group-hover:border-emerald-500/30'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/10 group-hover:text-white'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-500/20 group-hover:text-emerald-300'
                             } transition-colors`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-emerald-400 animate-pulse'}`} />
                               <span>{st.status === 'completed' ? 'Completado' : 'Activa'}</span>
                             </span>
                           </td>
 
-                          <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-right w-56 whitespace-nowrap transition-all duration-300">
-                            <div className="inline-flex items-center justify-end gap-1.5">
+                          <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-right transition-all duration-300">
+                            <div className="inline-flex items-center justify-end gap-1">
                               <Link
                                 href="/dashboard/student"
                                 title="Ver Aula Virtual"
-                                className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/10 group-hover:hover:bg-white/20 px-3 py-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 transition shadow-2xs"
+                                className="p-1.5 text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/10 group-hover:hover:bg-white/20 rounded-lg border border-slate-200/80 group-hover:border-white/20 transition shadow-2xs inline-flex items-center gap-1 text-[10px] font-semibold px-2"
                               >
+                                <BookOpen className="w-3.5 h-3.5" />
                                 <span>Aula</span>
-                                <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-white" />
                               </Link>
 
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditStudent(st)}
                                 title="Editar estudiante"
-                                className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-slate-100 group-hover:bg-white/10 group-hover:hover:bg-white/20 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                className="p-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-slate-100 group-hover:bg-white/10 group-hover:hover:bg-white/20 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
                               </button>
@@ -1461,7 +1462,7 @@ export default function AdminDashboardPage() {
                                 type="button"
                                 onClick={() => setStudentToDelete(st)}
                                 title="Eliminar estudiante"
-                                className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/10 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                className="p-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/10 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -1530,15 +1531,15 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto no-scrollbar-x max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+              <div className="overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
                 <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-4 sm:px-5 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Nombre del Prospecto</th>
-                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80">Contacto (Correo & Teléfono)</th>
-                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80">Programa / Interés</th>
-                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Fecha de Registro</th>
-                      <th className="py-3 px-4 sm:px-5 bg-slate-50/90 border-b border-slate-200/80 text-right whitespace-nowrap rounded-r-xl">Acciones</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Prospecto</th>
+                      <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Contacto</th>
+                      <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Interés</th>
+                      <th className="py-2.5 px-2 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Fecha</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 text-right rounded-r-xl">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1549,38 +1550,38 @@ export default function AdminDashboardPage() {
                           key={lead.id} 
                           className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/80 cursor-pointer"
                         >
-                          <td className="py-3 px-4 sm:px-5 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm transition-colors">
+                          <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-xs sm:text-sm transition-colors">
                             {fullName}
                           </td>
-                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 transition-colors">
-                            <p className="text-slate-800 font-medium">{lead.email}</p>
-                            <p className="text-[11px] text-slate-500">{lead.phone}</p>
+                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 transition-colors">
+                            <p className="text-slate-800 font-medium text-xs truncate">{lead.email}</p>
+                            <p className="text-[10px] text-slate-500">{lead.phone}</p>
                           </td>
-                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
+                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
                             {renderAudienceBadge(lead.audience)}
                           </td>
-                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3.5 h-3.5 text-slate-400" />
-                              {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
-                            </span>
+                          <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[10px] whitespace-nowrap transition-colors">
+                            {lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }) : 'Reciente'}
                           </td>
-                          <td className="py-3 px-4 sm:px-5 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
-                            <button
-                              onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
-                            >
-                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                              <span>WhatsApp</span>
-                            </button>
+                          <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right transition-colors">
+                            <div className="inline-flex items-center justify-end gap-1">
+                              <button
+                                onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold py-1 px-2 rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] cursor-pointer shadow-2xs"
+                                title="Contactar vía WhatsApp"
+                              >
+                                <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>WhatsApp</span>
+                              </button>
 
-                            <button
-                              onClick={() => setLeadToDelete(lead)}
-                              title="Eliminar prospecto"
-                              className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                              <button
+                                onClick={() => setLeadToDelete(lead)}
+                                title="Eliminar prospecto"
+                                className="p-1.5 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       )
@@ -1631,37 +1632,37 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               <div className="overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
-                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Postulante & Teléfono</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Municipio Urabá</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Nivel de Estudios</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right rounded-r-xl">Acciones Rápidas</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Postulante</th>
+                      <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Municipio</th>
+                      <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Estudios</th>
+                      <th className="py-2.5 px-2 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado</th>
+                      <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 text-right rounded-r-xl">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {applications.map((app) => (
                       <tr 
                         key={app.id} 
-                        className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                        className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/80 cursor-pointer"
                       >
-                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
-                          <p className="font-bold text-slate-900 text-sm">{app.full_name}</p>
-                          <p className="text-[11px] text-slate-500">{app.phone}</p>
+                        <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
+                          <p className="font-bold text-slate-900 text-xs sm:text-sm">{app.full_name}</p>
+                          <p className="text-[10px] text-slate-500">{app.phone}</p>
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
-                          <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-semibold rounded-lg border border-amber-200 flex items-center gap-1 w-fit">
+                        <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
+                          <span className="px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-semibold rounded-md border border-amber-200 inline-flex items-center gap-1">
                             <Building2 className="w-3 h-3 text-amber-600" />
                             <span>{app.municipality}</span>
                           </span>
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 font-medium transition-colors">
+                        <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 text-xs font-medium transition-colors">
                           {app.academic_level}
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
+                        <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
+                          <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border ${
                             app.status === 'approved'
                               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                               : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -1669,35 +1670,38 @@ export default function AdminDashboardPage() {
                             {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                           </span>
                         </td>
-                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
-                          {app.status !== 'approved' && (
-                            <>
-                              <button
-                                onClick={() => handleApproveApplication(app.id, app.full_name)}
-                                className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
-                              >
-                                <Check className="w-3.5 h-3.5" />
-                                <span>Aprobar</span>
-                              </button>
+                        <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right transition-colors">
+                          <div className="inline-flex items-center justify-end gap-1">
+                            {app.status !== 'approved' && (
+                              <>
+                                <button
+                                  onClick={() => handleApproveApplication(app.id, app.full_name)}
+                                  className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[10px] px-2 py-1 rounded-lg transition shadow-2xs cursor-pointer"
+                                  title="Aprobar beca"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Aprobar</span>
+                                </button>
 
-                              <button
-                                onClick={() => handleRejectApplication(app.id, app.full_name)}
-                                title="Descartar postulación"
-                                className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 font-medium py-1.5 px-2.5 rounded-xl transition-colors text-xs cursor-pointer"
-                              >
-                                <X className="w-3.5 h-3.5 text-slate-500" />
-                                <span>Descartar</span>
-                              </button>
-                            </>
-                          )}
+                                <button
+                                  onClick={() => handleRejectApplication(app.id, app.full_name)}
+                                  title="Descartar postulación"
+                                  className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            )}
 
-                          <button
-                            onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
-                          >
-                            <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                            <span>WhatsApp</span>
-                          </button>
+                            <button
+                              onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
+                              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1 px-2 rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] cursor-pointer shadow-2xs"
+                              title="WhatsApp"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>WhatsApp</span>
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
