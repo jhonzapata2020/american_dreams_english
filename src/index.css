@@ -20,17 +20,28 @@
   box-shadow: 0 8px 25px -4px rgba(220, 38, 38, 0.35);
 }
 
-/* Clean scrollbar */
+/* Hide scrollbars utility */
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar-x::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar,
+.no-scrollbar-x {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Clean & sleek scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 0px;
 }
 ::-webkit-scrollbar-track {
-  background: #f8fafc;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;

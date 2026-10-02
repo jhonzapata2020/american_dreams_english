@@ -159,7 +159,7 @@ export function DashboardLayout({
 
   return (
     // MARCO CONTENEDOR FLOTANTE PERSISTENTE (App Canvas Unificado)
-    <div className="h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 w-screen h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-hidden z-0">
       
       {/* UNIFIED CANVAS FRAME (Fixed Full Height) */}
       <div className="w-full max-w-[1550px] h-full max-h-[94vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">

@@ -1530,15 +1530,15 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
-                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+              <div className="overflow-y-auto overflow-x-auto no-scrollbar-x max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl whitespace-nowrap">Nombre del Prospecto</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Programa / Interés</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Fecha de Registro</th>
-                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right whitespace-nowrap rounded-r-xl">Acciones</th>
+                      <th className="py-3 px-4 sm:px-5 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Nombre del Prospecto</th>
+                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80">Contacto (Correo & Teléfono)</th>
+                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80">Programa / Interés</th>
+                      <th className="py-3 px-4 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Fecha de Registro</th>
+                      <th className="py-3 px-4 sm:px-5 bg-slate-50/90 border-b border-slate-200/80 text-right whitespace-nowrap rounded-r-xl">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1547,25 +1547,25 @@ export default function AdminDashboardPage() {
                       return (
                         <tr 
                           key={lead.id} 
-                          className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                          className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/80 cursor-pointer"
                         >
-                          <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm whitespace-nowrap transition-colors">
+                          <td className="py-3 px-4 sm:px-5 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm transition-colors">
                             {fullName}
                           </td>
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 whitespace-nowrap transition-colors">
+                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 transition-colors">
                             <p className="text-slate-800 font-medium">{lead.email}</p>
                             <p className="text-[11px] text-slate-500">{lead.phone}</p>
                           </td>
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white whitespace-nowrap transition-colors">
+                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
                             {renderAudienceBadge(lead.audience)}
                           </td>
-                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
+                          <td className="py-3 px-4 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
                             <span className="flex items-center gap-1">
                               <Clock className="w-3.5 h-3.5 text-slate-400" />
                               {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
                             </span>
                           </td>
-                          <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
+                          <td className="py-3 px-4 sm:px-5 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
                             <button
                               onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
                               className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
