@@ -197,37 +197,37 @@ export function DashboardLayout({
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
-          <div className="p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
+          <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
             
             {/* LOGO INSTITUCIONAL CON CONTENEDOR DE REALCE */}
-            <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/80">
-              <div className="w-full p-3 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-3">
+            <div className="flex flex-col items-center text-center pb-4 border-b border-slate-800/80">
+              <div className="w-full p-2.5 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-2">
                 <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="block hover:scale-105 transition-transform">
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
-                    className="h-16 w-auto object-contain drop-shadow-md mx-auto" 
+                    className="h-14 w-auto object-contain drop-shadow-md mx-auto" 
                   />
                 </a>
               </div>
-              <h2 className="text-sm font-black text-white tracking-wide">
+              <h2 className="text-xs font-black text-white tracking-wide">
                 AMERICAN DREAM ENGLISH
               </h2>
-              <p className="text-[11px] text-slate-400 mb-3 font-medium">Plataforma Bilingüe Sede Urabá</p>
+              <p className="text-[10px] text-slate-400 mb-2 font-medium">Plataforma Bilingüe Sede Urabá</p>
 
               {loadingUser ? (
-                <div className="h-6 w-28 bg-slate-800 rounded-full animate-pulse" />
+                <div className="h-5 w-24 bg-slate-800 rounded-full animate-pulse" />
               ) : (
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
-                  <ShieldCheck className="w-3.5 h-3.5" />
+                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+                  <ShieldCheck className="w-3 h-3" />
                   <span>{roleBadgeInfo.label}</span>
                 </span>
               )}
             </div>
 
             {/* NAVIGATION LINKS */}
-            <nav className="space-y-2 pr-0 lg:-mr-6">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
+            <nav className="space-y-1.5 pr-0 lg:-mr-5">
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
                 Navegación Principal
               </p>
 
@@ -254,13 +254,13 @@ export function DashboardLayout({
                         onTabChange(item.id)
                       }
                     }}
-                    className={`flex items-center justify-between px-4 py-3 text-xs font-bold transition-all ${
+                    className={`flex items-center justify-between px-3.5 py-2.5 text-xs font-bold transition-all ${
                       isActive
-                        ? 'bg-white text-slate-900 rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-sm'
-                        : 'text-slate-400 hover:bg-white/5 hover:text-white rounded-xl mr-4'
+                        ? 'bg-white text-slate-900 rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-xs sm:text-sm'
+                        : 'text-slate-400 hover:bg-white/5 hover:text-white rounded-xl mr-3.5'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5">
                       <Icon className={`w-4 h-4 ${isActive ? 'text-slate-900' : 'text-slate-400'}`} />
                       <span>{item.label}</span>
                     </div>
@@ -279,13 +279,13 @@ export function DashboardLayout({
           </div>
 
           {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-          <div className="p-4 border-t border-slate-800/80 bg-[#090e1a] space-y-3 shrink-0">
-            <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3">
+          <div className="p-3.5 border-t border-slate-800/80 bg-[#090e1a] space-y-2 shrink-0">
+            <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-2xl flex items-center justify-between gap-2.5">
               <div className="min-w-0 flex-1">
                 {loadingUser ? (
                   <div className="space-y-1.5 animate-pulse">
-                    <div className="h-3.5 bg-slate-800 rounded w-3/4" />
-                    <div className="h-2.5 bg-slate-800 rounded w-1/2" />
+                    <div className="h-3 bg-slate-800 rounded w-3/4" />
+                    <div className="h-2 bg-slate-800 rounded w-1/2" />
                   </div>
                 ) : (
                   <>
@@ -298,13 +298,13 @@ export function DashboardLayout({
               <button
                 onClick={handleSignOut}
                 title="Cerrar Sesión"
-                className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex-shrink-0"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex-shrink-0"
               >
-                <LogOut className="w-4 h-4" />
+                <LogOut className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <p className="text-[10px] text-slate-500 text-center font-medium">
+            <p className="text-[9px] text-slate-500 text-center font-medium">
               © 2026 American Dream English S.A.S.
             </p>
           </div>
@@ -312,10 +312,10 @@ export function DashboardLayout({
         </aside>
 
         {/* ÁREA PRINCIPAL DE CONTENIDO */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-6 md:p-8 overflow-y-auto overflow-x-hidden h-full">
+        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden h-full">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-4 shrink-0">
             
             {/* BREADCRUMB */}
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">

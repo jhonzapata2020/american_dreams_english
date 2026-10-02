@@ -1050,35 +1050,35 @@ export default function AdminDashboardPage() {
         {/* VISTA 1: OVERVIEW / VISIÓN GENERAL                                         */}
         {/* ========================================================================= */}
         {activeTab === 'overview' && (
-          <div className="space-y-6 animate-fadeIn">
+          <div className="space-y-4 animate-fadeIn">
             
             {/* BENTO GRID: HEADER & TOP METRIC CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
               
               {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
-              <div className="lg:col-span-2 bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
+              <div className="lg:col-span-2 bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
                 <div>
-                  <div className="flex items-center justify-between gap-3 mb-4">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+                  <div className="flex items-center justify-between gap-3 mb-3">
+                    <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
                       <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
                       <span>Director Académico</span>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
+                    <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span>En vivo: {currentTime || 'Live'}</span>
                     </div>
                   </div>
 
-                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
                     American Dream English
                   </h1>
-                  <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
+                  <p className="text-xs text-slate-500 mt-0.5 max-w-md leading-relaxed">
                     Panel de Administración General & Control RBAC. Seguimiento bilingüe en tiempo real para la Sede Urabá.
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
                   <span className="flex items-center gap-1.5 text-[11px]">
                     <Building2 className="w-3.5 h-3.5 text-slate-500" />
                     Sede Principal Turbo & Urabá
@@ -1091,22 +1091,22 @@ export default function AdminDashboardPage() {
               <button 
                 type="button"
                 onClick={() => setActiveTab('estudiantes')}
-                className="bg-white shadow-sm border border-slate-200/90 hover:border-red-300 rounded-3xl p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+                className="bg-white shadow-sm border border-slate-200/90 hover:border-red-300 rounded-3xl p-5 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
-                  <div className="p-2 bg-red-50 text-red-600 rounded-2xl border border-red-100 group-hover:scale-105 transition-transform">
+                  <div className="p-1.5 bg-red-50 text-red-600 rounded-2xl border border-red-100 group-hover:scale-105 transition-transform">
                     <GraduationCap className="w-4 h-4" />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between my-3">
+                <div className="flex items-center justify-between my-2">
                   <div>
-                    <p className="text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
+                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
                     <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Registrados en profiles</p>
                   </div>
 
-                  <div className="relative w-16 h-16 flex items-center justify-center">
+                  <div className="relative w-14 h-14 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <path
                         className="text-slate-100"
@@ -1129,7 +1129,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                   <span className="text-emerald-600 font-semibold flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     Sincronizado
@@ -1142,22 +1142,22 @@ export default function AdminDashboardPage() {
               <button 
                 type="button"
                 onClick={() => setActiveTab('becas')}
-                className="bg-white shadow-sm border border-slate-200/90 hover:border-amber-300 rounded-3xl p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+                className="bg-white shadow-sm border border-slate-200/90 hover:border-amber-300 rounded-3xl p-5 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
-                  <div className="p-2 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200 group-hover:scale-105 transition-transform">
+                  <div className="p-1.5 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200 group-hover:scale-105 transition-transform">
                     <Heart className="w-4 h-4" />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between my-3">
+                <div className="flex items-center justify-between my-2">
                   <div>
-                    <p className="text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
+                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
                     <p className="text-[11px] text-amber-700 mt-0.5 font-medium">Pendientes por aprobar</p>
                   </div>
 
-                  <div className="relative w-16 h-16 flex items-center justify-center">
+                  <div className="relative w-14 h-14 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
                       <path
                         className="text-slate-100"
@@ -1182,7 +1182,7 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
                   <span className="text-amber-700 font-semibold">Fondo Social</span>
                   <span className="text-slate-500 font-semibold group-hover:text-amber-700 transition-colors">Revisar →</span>
                 </div>
@@ -1191,8 +1191,8 @@ export default function AdminDashboardPage() {
             </div>
 
             {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
-            <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 relative z-10">
-              <div className="flex items-center justify-between mb-4 px-1">
+            <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-4 sm:p-5 text-slate-800 relative z-10">
+              <div className="flex items-center justify-between mb-3 px-1">
                 <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-red-600" />
                   <span>Accesos Rápidos & Gestión Directa</span>
@@ -1200,19 +1200,19 @@ export default function AdminDashboardPage() {
                 <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
                 {/* Button 1: Agregar Estudiante */}
                 <button
                   type="button"
                   onClick={() => setIsAddStudentOpen(true)}
-                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
                 >
-                  <div className="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                     <UserPlus className="w-4 h-4 text-red-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Crear en profiles</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">Crear en profiles</p>
                   </div>
                 </button>
 
@@ -1220,14 +1220,14 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('estudiantes')}
-                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
                 >
-                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                     <Users className="w-4 h-4 text-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Estudiantes</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{studentsCount} matriculados</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Estudiantes</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{studentsCount} matriculados</p>
                   </div>
                 </button>
 
@@ -1235,28 +1235,28 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('leads')}
-                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
                 >
-                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                     <Inbox className="w-4 h-4 text-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros</p>
                   </div>
                 </button>
 
                 {/* Button 4: Catálogo Cursos */}
                 <Link
                   href="/dashboard/admin/products"
-                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
+                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
                 >
-                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                     <Package className="w-4 h-4 text-slate-700" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Catálogo Cursos</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Gestionar precios</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Catálogo Cursos</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">Gestionar precios</p>
                   </div>
                 </Link>
 
@@ -1265,14 +1265,14 @@ export default function AdminDashboardPage() {
                   type="button"
                   onClick={fetchAdminData}
                   disabled={refreshing}
-                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
                 >
-                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
                     <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
-                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Refrescar Supabase</p>
+                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">Refrescar Supabase</p>
                   </div>
                 </button>
               </div>
