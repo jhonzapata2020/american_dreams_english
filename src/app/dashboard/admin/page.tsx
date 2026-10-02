@@ -24,7 +24,8 @@ import {
   AlertTriangle,
   X,
   Pencil,
-  Sparkles
+  Sparkles,
+  ExternalLink
 } from 'lucide-react'
 
 interface StudentItem {
@@ -59,10 +60,11 @@ interface WebLead {
 }
 
 export default function AdminDashboardPage() {
+  const [activeTab, setActiveTab] = useState<string>('overview')
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [currentTime, setCurrentTime] = useState<string>('')
-  
+
   // Dynamic Data States (100% Supabase)
   const [studentsCount, setStudentsCount] = useState<number>(0)
   const [teachersCount, setTeachersCount] = useState<number>(0)
@@ -259,7 +261,6 @@ export default function AdminDashboardPage() {
     try {
       let studentId = crypto.randomUUID()
 
-      // 1. Enviar directamente al endpoint backend seguro
       const res = await fetch('/api/admin/create-student', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -288,7 +289,6 @@ export default function AdminDashboardPage() {
         }
       }
 
-      // 2. ÉXITO GARANTIZADO: Cierre de Modal, Reset de Formulario y Notificación Toast
       setIsAddStudentOpen(false)
       setNewStudentData({
         fullName: '',
@@ -303,7 +303,6 @@ export default function AdminDashboardPage() {
       })
       setTimeout(() => setToast(null), 4500)
 
-      // Actualizar estado local e incremento del contador KPI
       setStudentsCount((prev) => prev + 1)
       setStudentsList((prev) => [
         {
@@ -319,7 +318,6 @@ export default function AdminDashboardPage() {
         ...prev
       ])
 
-      // 3. Re-consultar public.profiles para sincronización total en segundo plano
       try {
         await fetchAdminData()
       } catch (syncErr) {
@@ -345,7 +343,6 @@ export default function AdminDashboardPage() {
     try {
       const supabase = createClient()
 
-      // 1. KPI Student Profiles Count & List via Secure API Route (Service Role) to bypass RLS
       let studentProfiles: any[] = []
       try {
         const res = await fetch('/api/admin/students')
@@ -357,7 +354,6 @@ export default function AdminDashboardPage() {
         console.warn('Fallo al obtener estudiantes por API /api/admin/students, usando fallback cliente:', e)
       }
 
-      // Fallback si la API devuelve array vacío o falla por red
       if (!studentProfiles || studentProfiles.length === 0) {
         const { data: fallbackProfiles } = await supabase
           .from('profiles')
@@ -369,7 +365,6 @@ export default function AdminDashboardPage() {
 
       setStudentsCount(studentProfiles.length)
 
-      // 2. KPI Teacher Profiles Count
       const { count: cTeachers } = await supabase
         .from('profiles')
         .select('*', { count: 'exact', head: true })
@@ -377,7 +372,6 @@ export default function AdminDashboardPage() {
 
       setTeachersCount(cTeachers || 0)
 
-      // 3. KPI Pending Scholarship Applications Count
       const { count: cPendingBecas } = await supabase
         .from('scholarship_applications')
         .select('*', { count: 'exact', head: true })
@@ -385,7 +379,6 @@ export default function AdminDashboardPage() {
 
       setPendingBecasCount(cPendingBecas || 0)
 
-      // 4. KPI Web Leads Count & Fetch List
       const { count: cLeads } = await supabase
         .from('leads')
         .select('*', { count: 'exact', head: true })
@@ -412,7 +405,6 @@ export default function AdminDashboardPage() {
         setLeadsList([])
       }
 
-      // 5. KPI Total Donations Amount
       const { data: donData } = await supabase
         .from('donations')
         .select('amount, total_amount')
@@ -431,7 +423,6 @@ export default function AdminDashboardPage() {
         }
       }
 
-      // 6. Tabla Becarios Urabá (Pending Applications)
       const { data: appData } = await supabase
         .from('scholarship_applications')
         .select('*')
@@ -453,7 +444,6 @@ export default function AdminDashboardPage() {
         setApplications([])
       }
 
-      // 7. Tabla Estudiantes: Profiles with role='student' + Enrollments
       const { data: enrollData } = await supabase
         .from('enrollments')
         .select(`
@@ -600,7 +590,6 @@ export default function AdminDashboardPage() {
     window.open(`https://wa.me/${targetPhone}?text=${msg}`, '_blank')
   }
 
-  // Filter students logic with Becados Urabá tab support
   const filteredStudents = studentsList.filter((student) => {
     const matchesSearch =
       student.student_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -619,7 +608,6 @@ export default function AdminDashboardPage() {
     return matchesSearch && matchesTab
   })
 
-  // Filter leads logic
   const filteredLeads = leadsList.filter((lead) => {
     const fullName = `${lead.first_name} ${lead.last_name}`.toLowerCase()
     const q = leadSearchTerm.toLowerCase()
@@ -656,7 +644,6 @@ export default function AdminDashboardPage() {
     )
   }
 
-  // Filter Tab List config
   const studentFilterTabs = [
     { id: 'all', label: 'Todos los Estudiantes', count: studentsList.length },
     { id: 'A1', label: 'Nivel A1', count: studentsList.filter(s => s.mcer_level.toUpperCase() === 'A1').length },
@@ -664,9 +651,31 @@ export default function AdminDashboardPage() {
     { id: 'becas', label: 'Becados Urabá', count: studentsList.filter(s => (s.municipality || '').toLowerCase() !== 'medellín' && (s.municipality || '').toLowerCase() !== 'otra sede').length }
   ]
 
+  const getTabTitle = (tab: string) => {
+    switch (tab) {
+      case 'estudiantes':
+        return 'Estudiantes & Matrículas'
+      case 'leads':
+        return 'Prospectos & Leads Web'
+      case 'becas':
+        return 'Postulaciones Becas Urabá'
+      case 'donaciones':
+        return 'Fondos & Donaciones'
+      case 'products':
+        return 'Catálogo Cursos & Precios'
+      default:
+        return 'Visión General'
+    }
+  }
+
   return (
-    <DashboardLayout currentRole="admin" title="Panel de Administración General">
-      <div className="relative min-h-full text-slate-800 font-sans select-none space-y-8">
+    <DashboardLayout 
+      currentRole="admin" 
+      activeTab={activeTab} 
+      onTabChange={setActiveTab}
+      title={getTabTitle(activeTab)}
+    >
+      <div className="relative min-h-full text-slate-800 font-sans select-none space-y-6">
 
         {/* FLOATING SUCCESS TOAST NOTIFICATION */}
         {toast && (
@@ -745,7 +754,6 @@ export default function AdminDashboardPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
-              {/* Modal Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-red-50 text-red-600 rounded-2xl border border-red-100">
@@ -765,9 +773,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              {/* Modal Form */}
               <form onSubmit={handleCreateStudent} className="space-y-4">
-                {/* Nombre Completo */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">
                     Nombre Completo <span className="text-red-600">*</span>
@@ -782,7 +788,6 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
-                {/* Correo Institucional / Personal */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">
                     Correo Institucional / Personal <span className="text-red-600">*</span>
@@ -798,7 +803,6 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Nivel MCER Inicial */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
                       Nivel MCER Inicial
@@ -815,7 +819,6 @@ export default function AdminDashboardPage() {
                     </select>
                   </div>
 
-                  {/* Municipio / Sede */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
                       Municipio / Sede
@@ -839,7 +842,6 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Footer Buttons */}
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                   <button
                     type="button"
@@ -877,7 +879,6 @@ export default function AdminDashboardPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
             <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
               
-              {/* Modal Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200">
@@ -897,9 +898,7 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              {/* Modal Form */}
               <form onSubmit={handleUpdateStudent} className="space-y-4">
-                {/* Nombre Completo */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">
                     Nombre Completo <span className="text-red-600">*</span>
@@ -913,7 +912,6 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
-                {/* Correo Institucional / Personal */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-700">
                     Correo Institucional / Personal <span className="text-red-600">*</span>
@@ -928,7 +926,6 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Nivel MCER */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
                       Nivel MCER
@@ -945,7 +942,6 @@ export default function AdminDashboardPage() {
                     </select>
                   </div>
 
-                  {/* Municipio / Sede */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
                       Municipio / Sede
@@ -969,7 +965,6 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* Footer Buttons */}
                 <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                   <button
                     type="button"
@@ -1051,637 +1046,791 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
-        {/* BENTO GRID: HEADER & TOP METRIC CARDS */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
-          
-          {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
-          <div className="lg:col-span-2 bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
-            <div>
-              <div className="flex items-center justify-between gap-3 mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
-                  <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
-                  <span>Director Académico</span>
+        {/* ========================================================================= */}
+        {/* VISTA 1: OVERVIEW / VISIÓN GENERAL                                         */}
+        {/* ========================================================================= */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6 animate-fadeIn">
+            
+            {/* BENTO GRID: HEADER & TOP METRIC CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 relative z-10">
+              
+              {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (2 cols on lg) */}
+              <div className="lg:col-span-2 bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
+                <div>
+                  <div className="flex items-center justify-between gap-3 mb-4">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
+                      <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Director Académico</span>
+                    </div>
+
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>En vivo: {currentTime || 'Live'}</span>
+                    </div>
+                  </div>
+
+                  <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+                    American Dream English
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
+                    Panel de Administración General & Control RBAC. Seguimiento bilingüe en tiempo real para la Sede Urabá.
+                  </p>
                 </div>
 
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>En vivo: {currentTime || 'Live'}</span>
+                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <span className="flex items-center gap-1.5 text-[11px]">
+                    <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                    Sede Principal Turbo & Urabá
+                  </span>
+                  <span className="text-[11px] font-mono text-slate-400">v2.4.0 Live</span>
                 </div>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-                American Dream English
-              </h1>
-              <p className="text-xs text-slate-500 mt-1 max-w-md leading-relaxed">
-                Panel de Administración General & Control RBAC. Seguimiento bilingüe en tiempo real para la Sede Urabá.
-              </p>
+              {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS */}
+              <button 
+                type="button"
+                onClick={() => setActiveTab('estudiantes')}
+                className="bg-white shadow-sm border border-slate-200/90 hover:border-red-300 rounded-3xl p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
+                  <div className="p-2 bg-red-50 text-red-600 rounded-2xl border border-red-100 group-hover:scale-105 transition-transform">
+                    <GraduationCap className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between my-3">
+                  <div>
+                    <p className="text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Registrados en profiles</p>
+                  </div>
+
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="text-slate-100"
+                        strokeWidth="3.5"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-emerald-500 transition-all duration-1000"
+                        strokeDasharray={`${Math.min(100, Math.max(25, studentsCount * 25))}, 100`}
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <span className="absolute text-[10px] font-bold text-emerald-600">100%</span>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    Sincronizado
+                  </span>
+                  <span className="text-slate-500 font-semibold group-hover:text-red-600 transition-colors">Ver Tabla →</span>
+                </div>
+              </button>
+
+              {/* BENTO WIDGET 3: BECAS URABÁ */}
+              <button 
+                type="button"
+                onClick={() => setActiveTab('becas')}
+                className="bg-white shadow-sm border border-slate-200/90 hover:border-amber-300 rounded-3xl p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
+                  <div className="p-2 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200 group-hover:scale-105 transition-transform">
+                    <Heart className="w-4 h-4" />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between my-3">
+                  <div>
+                    <p className="text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
+                    <p className="text-[11px] text-amber-700 mt-0.5 font-medium">Pendientes por aprobar</p>
+                  </div>
+
+                  <div className="relative w-16 h-16 flex items-center justify-center">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="text-slate-100"
+                        strokeWidth="3.5"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="text-amber-500 transition-all duration-1000"
+                        strokeDasharray={`${pendingBecasCount > 0 ? 75 : 100}, 100`}
+                        strokeWidth="3.5"
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <span className="absolute text-[10px] font-extrabold text-amber-600">
+                      {pendingBecasCount > 0 ? `${pendingBecasCount}` : 'OK'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                  <span className="text-amber-700 font-semibold">Fondo Social</span>
+                  <span className="text-slate-500 font-semibold group-hover:text-amber-700 transition-colors">Revisar →</span>
+                </div>
+              </button>
+
             </div>
 
-            {/* Glowing line divider */}
-            <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-              <span className="flex items-center gap-1.5 text-[11px]">
-                <Building2 className="w-3.5 h-3.5 text-slate-500" />
-                Sede Principal Turbo & Urabá
-              </span>
-              <span className="text-[11px] font-mono text-slate-400">v2.4.0 Live</span>
+            {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
+            <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 relative z-10">
+              <div className="flex items-center justify-between mb-4 px-1">
+                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-red-600" />
+                  <span>Accesos Rápidos & Gestión Directa</span>
+                </h3>
+                <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {/* Button 1: Agregar Estudiante */}
+                <button
+                  type="button"
+                  onClick={() => setIsAddStudentOpen(true)}
+                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                >
+                  <div className="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                    <UserPlus className="w-4 h-4 text-red-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Crear en profiles</p>
+                  </div>
+                </button>
+
+                {/* Button 2: Ver Estudiantes */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('estudiantes')}
+                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                >
+                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                    <Users className="w-4 h-4 text-slate-700" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Estudiantes</p>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{studentsCount} matriculados</p>
+                  </div>
+                </button>
+
+                {/* Button 3: Prospectos Web */}
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('leads')}
+                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                >
+                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                    <Inbox className="w-4 h-4 text-slate-700" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros</p>
+                  </div>
+                </button>
+
+                {/* Button 4: Catálogo Cursos */}
+                <Link
+                  href="/dashboard/admin/products"
+                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
+                >
+                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                    <Package className="w-4 h-4 text-slate-700" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Catálogo Cursos</p>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Gestionar precios</p>
+                  </div>
+                </Link>
+
+                {/* Button 5: Sincronizar Base de Datos */}
+                <button
+                  type="button"
+                  onClick={fetchAdminData}
+                  disabled={refreshing}
+                  className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                >
+                  <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
+                    <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
+                    <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Refrescar Supabase</p>
+                  </div>
+                </button>
+              </div>
             </div>
+
           </div>
+        )}
 
-          {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (1 col) */}
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
-              <div className="p-2 bg-red-50 text-red-600 rounded-2xl border border-red-100">
-                <GraduationCap className="w-4 h-4" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between my-3">
+        {/* ========================================================================= */}
+        {/* VISTA 2: ESTUDIANTES & MATRÍCULAS                                          */}
+        {/* ========================================================================= */}
+        {activeTab === 'estudiantes' && (
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+            
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5 shrink-0">
               <div>
-                <p className="text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
-                <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Registrados en profiles</p>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <Users className="w-5 h-5 text-red-600" />
+                  <span>Estudiantes Matriculados & Seguimiento MCER</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Matrículas activas, progreso acumulado en aula y nivel en el Marco Común Europeo.
+                </p>
               </div>
 
-              {/* Circular Progress SVG Ring */}
-              <div className="relative w-16 h-16 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-slate-100"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              <div className="flex items-center gap-3">
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Buscar estudiante o correo..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
-                  <path
-                    className="text-emerald-500 transition-all duration-1000"
-                    strokeDasharray={`${Math.min(100, Math.max(25, studentsCount * 25))}, 100`}
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-[10px] font-bold text-emerald-600">100%</span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddStudentOpen(true)}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs rounded-xl shadow-sm shadow-red-200 transition-all hover:scale-[1.02] flex items-center gap-2 cursor-pointer flex-shrink-0"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>+ Agregar Estudiante</span>
+                </button>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-              <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Sincronizado
-              </span>
-              <span className="text-slate-400">public.profiles</span>
+            {/* FILTER TABS */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60 text-xs font-semibold overflow-x-auto w-fit shrink-0">
+              {studentFilterTabs.map((tab) => {
+                const isActive = selectedLevel === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSelectedLevel(tab.id)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
+                      isActive
+                        ? 'bg-white text-slate-900 font-extrabold shadow-sm border border-slate-200/80'
+                        : 'text-slate-500 hover:text-slate-900'
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
+                      isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-200/70 text-slate-600'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
+
+            {/* STUDENTS TABLE WITH DEDICATED INTERNAL SCROLLBAR & STICKY HEADER */}
+            {loading ? (
+              <div className="p-8 text-center text-slate-500 text-xs">
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
+                Cargando matrículas desde Supabase...
+              </div>
+            ) : filteredStudents.length === 0 ? (
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+                <Users className="w-10 h-10 text-slate-400 mx-auto" />
+                <div className="space-y-1">
+                  <h4 className="font-bold text-slate-700 text-sm">No hay estudiantes registrados en Supabase</h4>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    {searchTerm || selectedLevel !== 'all'
+                      ? `No se encontraron resultados para "${searchTerm}" o filtro seleccionado.`
+                      : 'Aún no existen registros en la tabla public.profiles con rol student.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                  <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
+                    <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Alumno & Correo Institucional</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Nivel MCER</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Progreso de Horas</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado Matrícula</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right w-56 whitespace-nowrap rounded-r-xl">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.map((st) => {
+                      const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
+                      const initials = getInitials(st.student_name)
+
+                      return (
+                        <tr 
+                          key={st.id} 
+                          className="group relative transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-300/50 cursor-pointer z-10"
+                        >
+                          <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-slate-900 font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
+                                {initials}
+                              </div>
+                              <div>
+                                <p className="font-bold text-slate-900 group-hover:text-white text-sm transition-colors">{st.student_name}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[11px] text-slate-500 group-hover:text-slate-300 transition-colors">{st.student_email}</span>
+                                  {st.municipality && (
+                                    <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-600 group-hover:text-white text-[10px] font-medium rounded-md border border-slate-200/80 group-hover:border-white/20 transition-colors">
+                                      {st.municipality}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
+                            <span className="px-3 py-1 bg-slate-100 group-hover:bg-white/10 text-slate-700 group-hover:text-white font-bold text-xs rounded-full border border-slate-200/80 group-hover:border-white/20 shadow-2xs inline-block transition-colors">
+                              {st.mcer_level}
+                            </span>
+                          </td>
+
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
+                            <div className="space-y-1.5 w-44">
+                              <div className="flex justify-between text-[11px] font-semibold text-slate-600 group-hover:text-white transition-colors">
+                                <span>{st.completed_hours} / {st.total_hours}h</span>
+                                <span className="text-emerald-600 group-hover:text-emerald-400 font-bold">{percent}%</span>
+                              </div>
+                              <div className="w-full bg-slate-100 group-hover:bg-white/10 h-2 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/20 transition-colors">
+                                <div
+                                  className="bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:from-emerald-400 group-hover:to-teal-300 h-full rounded-full transition-all duration-500"
+                                  style={{ width: `${percent}%` }}
+                                />
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
+                              st.status === 'completed'
+                                ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20'
+                                : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-500/20 group-hover:text-emerald-300 group-hover:border-emerald-500/30'
+                            } transition-colors`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-emerald-400 animate-pulse'}`} />
+                              <span>{st.status === 'completed' ? 'Completado' : 'Activa'}</span>
+                            </span>
+                          </td>
+
+                          <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-right w-56 whitespace-nowrap transition-all duration-300">
+                            <div className="inline-flex items-center justify-end gap-1.5">
+                              <Link
+                                href="/dashboard/student"
+                                title="Ver Aula Virtual"
+                                className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/10 group-hover:hover:bg-white/20 px-3 py-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 transition shadow-2xs"
+                              >
+                                <span>Aula</span>
+                                <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-white" />
+                              </Link>
+
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditStudent(st)}
+                                title="Editar estudiante"
+                                className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-slate-100 group-hover:bg-white/10 group-hover:hover:bg-white/20 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => setStudentToDelete(st)}
+                                title="Eliminar estudiante"
+                                className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/10 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
           </div>
+        )}
 
-          {/* BENTO WIDGET 3: BECAS URABÁ (1 col) */}
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative group">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
-              <div className="p-2 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200">
-                <Heart className="w-4 h-4" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between my-3">
+        {/* ========================================================================= */}
+        {/* VISTA 3: PROSPECTOS & LEADS WEB                                            */}
+        {/* ========================================================================= */}
+        {activeTab === 'leads' && (
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 shrink-0">
               <div>
-                <p className="text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
-                <p className="text-[11px] text-amber-700 mt-0.5 font-medium">Pendientes por aprobar</p>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <Inbox className="w-5 h-5 text-slate-700" />
+                  <span>Gestión de Prospectos & Leads Web</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Registro en tiempo real desde el formulario de captura público.
+                </p>
               </div>
 
-              {/* Circular Glowing Ring */}
-              <div className="relative w-16 h-16 flex items-center justify-center">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-slate-100"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              <div className="flex items-center gap-3">
+                <div className="relative w-full sm:w-60">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Buscar prospecto o email..."
+                    value={leadSearchTerm}
+                    onChange={(e) => setLeadSearchTerm(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                   />
-                  <path
-                    className="text-amber-500 transition-all duration-1000"
-                    strokeDasharray={`${pendingBecasCount > 0 ? 75 : 100}, 100`}
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-[10px] font-extrabold text-amber-600">
-                  {pendingBecasCount > 0 ? `${pendingBecasCount}` : 'OK'}
+                </div>
+
+                <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full border border-slate-200 whitespace-nowrap">
+                  {filteredLeads.length} Registros
                 </span>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-              <span className="text-amber-700 font-semibold">Fondo Social</span>
-              <a href="#becas" className="text-slate-500 hover:text-slate-800 transition-colors">Revisar →</a>
-            </div>
-          </div>
-
-        </div>
-
-        {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (TEXTOS COMPLETOS SIN TRUNCAR) */}
-        <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 relative z-10">
-          <div className="flex items-center justify-between mb-4 px-1">
-            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-red-600" />
-              <span>Accesos Rápidos & Gestión Directa</span>
-            </h3>
-            <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* Button 1: Agregar Estudiante */}
-            <button
-              type="button"
-              onClick={() => setIsAddStudentOpen(true)}
-              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
-            >
-              <div className="p-2.5 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                <UserPlus className="w-4 h-4 text-red-600" />
+            {/* LEADS TABLE WITH DEDICATED INTERNAL SCROLLBAR & STICKY HEADER */}
+            {loading ? (
+              <div className="p-8 text-center text-slate-500 text-xs">
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
+                Cargando prospectos web desde Supabase...
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Agregar Estudiante</p>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Crear perfil en profiles</p>
-              </div>
-            </button>
-
-            {/* Button 2: Catálogo Cursos */}
-            <Link
-              href="/dashboard/admin/products"
-              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
-            >
-              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                <Package className="w-4 h-4 text-slate-700" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Catálogo Cursos</p>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Gestionar productos RBAC</p>
-              </div>
-            </Link>
-
-            {/* Button 3: Prospectos Web */}
-            <a
-              href="#leads"
-              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left"
-            >
-              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                <Inbox className="w-4 h-4 text-slate-700" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros recibidos</p>
-              </div>
-            </a>
-
-            {/* Button 4: Sincronizar Base de Datos */}
-            <button
-              type="button"
-              onClick={fetchAdminData}
-              disabled={refreshing}
-              className="group flex flex-row items-center gap-3 p-4 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
-            >
-              <div className="p-2.5 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
-                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">Refrescar desde Supabase</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        {/* BENTO MODULE 1: ESTUDIANTES MATRICULADOS & SEGUIMIENTO MCER (eProduct Interactive Pop-Out Row SaaS) */}
-        <div id="estudiantes" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
-          
-          {/* TOP BAR TOOLBAR: HEADING, SEARCH & ACTION BUTTON */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                <Users className="w-5 h-5 text-red-600" />
-                <span>Estudiantes Matriculados & Seguimiento MCER</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Matrículas activas, progreso acumulado en aula y nivel en el Marco Común Europeo.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Rounded Search Input with Lupa Icon */}
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  placeholder="Buscar estudiante o correo..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                />
-              </div>
-
-              {/* Botón + Agregar Estudiante Corporativo */}
-              <button
-                type="button"
-                onClick={() => setIsAddStudentOpen(true)}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs rounded-xl shadow-sm shadow-red-200 transition-all hover:scale-[1.02] flex items-center gap-2 cursor-pointer flex-shrink-0"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>+ Agregar Estudiante</span>
-              </button>
-            </div>
-          </div>
-
-          {/* FILTER TABS (eProduct Style) */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60 text-xs font-semibold overflow-x-auto w-fit">
-            {studentFilterTabs.map((tab) => {
-              const isActive = selectedLevel === tab.id
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setSelectedLevel(tab.id)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer ${
-                    isActive
-                      ? 'bg-white text-slate-900 font-extrabold shadow-sm border border-slate-200/80'
-                      : 'text-slate-500 hover:text-slate-900'
-                  }`}
-                >
-                  <span>{tab.label}</span>
-                  <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded-md ${
-                    isActive ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-slate-200/70 text-slate-600'
-                  }`}>
-                    {tab.count}
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* STUDENTS TABLE WITH INTERACTIVE ROW POP-OUT EFFECT (eProduct Reference) */}
-          {loading ? (
-            <div className="p-8 text-center text-slate-500 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
-              Cargando matrículas desde Supabase...
-            </div>
-          ) : filteredStudents.length === 0 ? (
-            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
-              <Users className="w-10 h-10 text-slate-400 mx-auto" />
-              <div className="space-y-1">
-                <h4 className="font-bold text-slate-700 text-sm">No hay estudiantes registrados en Supabase</h4>
+            ) : filteredLeads.length === 0 ? (
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+                <Inbox className="w-10 h-10 text-slate-400 mx-auto" />
+                <h4 className="font-bold text-slate-700 text-sm">No se encontraron prospectos web</h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                  {searchTerm || selectedLevel !== 'all'
-                    ? `No se encontraron resultados para "${searchTerm}" o filtro seleccionado.`
-                    : 'Aún no existen registros en la tabla public.profiles con rol student.'}
+                  {leadSearchTerm
+                    ? `No hay coincidencias para "${leadSearchTerm}".`
+                    : 'Aún no se han recibido registros en la tabla public.leads.'}
                 </p>
               </div>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
-                <thead>
-                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                    <th className="py-2 px-6">Alumno & Correo Institucional</th>
-                    <th className="py-2 px-6 text-center">Nivel MCER</th>
-                    <th className="py-2 px-6">Progreso de Horas</th>
-                    <th className="py-2 px-6 text-center">Estado Matrícula</th>
-                    <th className="py-2 px-6 text-right w-56 whitespace-nowrap">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStudents.map((st) => {
-                    const percent = Math.min(100, Math.round((st.completed_hours / st.total_hours) * 100))
-                    const initials = getInitials(st.student_name)
-
-                    return (
-                      <tr 
-                        key={st.id} 
-                        className="group relative transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-300/60 cursor-pointer z-10"
-                      >
-                        {/* CELL 1: AVATAR & NAME */}
-                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
-                          <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-slate-100 group-hover:bg-white text-slate-700 group-hover:text-slate-900 font-extrabold text-xs flex items-center justify-center ring-2 ring-slate-200/60 group-hover:ring-white/40 shadow-2xs flex-shrink-0 transition-colors">
-                              {initials}
-                            </div>
-                            <div>
-                              <p className="font-bold text-slate-900 group-hover:text-white text-sm transition-colors">{st.student_name}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-[11px] text-slate-500 group-hover:text-slate-300 transition-colors">{st.student_email}</span>
-                                {st.municipality && (
-                                  <span className="px-2 py-0.5 bg-slate-100 group-hover:bg-white/10 text-slate-600 group-hover:text-white text-[10px] font-medium rounded-md border border-slate-200/80 group-hover:border-white/20 transition-colors">
-                                    {st.municipality}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* CELL 2: MCER LEVEL BADGE */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
-                          <span className="px-3 py-1 bg-slate-100 group-hover:bg-white/10 text-slate-700 group-hover:text-white font-bold text-xs rounded-full border border-slate-200/80 group-hover:border-white/20 shadow-2xs inline-block transition-colors">
-                            {st.mcer_level}
-                          </span>
-                        </td>
-
-                        {/* CELL 3: SEGMENTED HOURS PROGRESS */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white transition-all duration-300">
-                          <div className="space-y-1.5 w-44">
-                            <div className="flex justify-between text-[11px] font-semibold text-slate-600 group-hover:text-white transition-colors">
-                              <span>{st.completed_hours} / {st.total_hours}h</span>
-                              <span className="text-emerald-600 group-hover:text-emerald-400 font-bold">{percent}%</span>
-                            </div>
-                            <div className="w-full bg-slate-100 group-hover:bg-white/10 h-2 rounded-full overflow-hidden border border-slate-200/60 group-hover:border-white/20 transition-colors">
-                              <div
-                                className="bg-gradient-to-r from-emerald-500 to-teal-500 group-hover:from-emerald-400 group-hover:to-teal-300 h-full rounded-full transition-all duration-500"
-                                style={{ width: `${percent}%` }}
-                              />
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* CELL 4: STATUS BADGE */}
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-center transition-all duration-300">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
-                            st.status === 'completed'
-                              ? 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-white/10 group-hover:text-white group-hover:border-white/20'
-                              : 'bg-emerald-50 text-emerald-700 border-emerald-200 group-hover:bg-emerald-500/20 group-hover:text-emerald-300 group-hover:border-emerald-500/30'
-                          } transition-colors`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${st.status === 'completed' ? 'bg-slate-400 group-hover:bg-white' : 'bg-emerald-500 group-hover:bg-emerald-400 animate-pulse'}`} />
-                            <span>{st.status === 'completed' ? 'Completado' : 'Activa'}</span>
-                          </span>
-                        </td>
-
-                        {/* CELL 5: GROUPED ROW ACTIONS (White contrast on hover) */}
-                        <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:bg-[#0c1322] group-hover:border-[#0c1322] bg-white text-right w-56 whitespace-nowrap transition-all duration-300">
-                          <div className="inline-flex items-center justify-end gap-1.5">
-                            {/* Botón Aula */}
-                            <Link
-                              href="/dashboard/student"
-                              title="Ver Aula Virtual"
-                              className="inline-flex items-center gap-1 text-[11px] font-medium text-slate-700 group-hover:text-white bg-slate-100 hover:bg-slate-200 group-hover:bg-white/10 group-hover:hover:bg-white/20 px-3 py-1.5 rounded-lg border border-slate-200/80 group-hover:border-white/20 transition shadow-2xs"
-                            >
-                              <span>Aula</span>
-                              <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-white" />
-                            </Link>
-
-                            {/* Botón Editar (Cuadrado Elegante) */}
+            ) : (
+              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                  <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
+                    <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl whitespace-nowrap">Nombre del Prospecto</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Programa / Interés</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 whitespace-nowrap">Fecha de Registro</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right whitespace-nowrap rounded-r-xl">Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLeads.map((lead) => {
+                      const fullName = `${lead.first_name} ${lead.last_name}`.trim()
+                      return (
+                        <tr 
+                          key={lead.id} 
+                          className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
+                        >
+                          <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm whitespace-nowrap transition-colors">
+                            {fullName}
+                          </td>
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 whitespace-nowrap transition-colors">
+                            <p className="text-slate-800 font-medium">{lead.email}</p>
+                            <p className="text-[11px] text-slate-500">{lead.phone}</p>
+                          </td>
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white whitespace-nowrap transition-colors">
+                            {renderAudienceBadge(lead.audience)}
+                          </td>
+                          <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
                             <button
-                              type="button"
-                              onClick={() => handleOpenEditStudent(st)}
-                              title="Editar estudiante"
-                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-slate-100 group-hover:bg-white/10 group-hover:hover:bg-white/20 text-slate-600 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
+                              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
                             >
-                              <Pencil className="w-3.5 h-3.5" />
+                              <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>WhatsApp</span>
                             </button>
 
-                            {/* Botón Eliminar (Cuadrado Rojo Suave) */}
                             <button
-                              type="button"
-                              onClick={() => setStudentToDelete(st)}
-                              title="Eliminar estudiante"
-                              className="w-8 h-8 rounded-lg border border-slate-200/80 group-hover:border-white/20 hover:bg-red-50 hover:text-red-600 group-hover:bg-white/10 group-hover:hover:bg-red-600 text-slate-400 group-hover:text-white inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                              onClick={() => setLeadToDelete(lead)}
+                              title="Eliminar prospecto"
+                              className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
-                          </div>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-        </div>
+          </div>
+        )}
 
-        {/* BENTO MODULE 2: GESTIÓN DE PROSPECTOS & LEADS WEB (public.leads) */}
-        <div id="leads" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
-          
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                <Inbox className="w-5 h-5 text-slate-700" />
-                <span>Gestión de Prospectos & Leads Web</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Registro en tiempo real desde el formulario de captura público.
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <div className="relative w-full sm:w-60">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="text"
-                  placeholder="Buscar prospecto o email..."
-                  value={leadSearchTerm}
-                  onChange={(e) => setLeadSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                />
+        {/* ========================================================================= */}
+        {/* VISTA 4: POSTULACIONES BECAS URABÁ                                        */}
+        {/* ========================================================================= */}
+        {activeTab === 'becas' && (
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 shrink-0">
+              <div>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <Heart className="w-5 h-5 text-amber-600" />
+                  <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Revisión y pre-aprobación en tiempo real de solicitudes en public.scholarship_applications.
+                </p>
               </div>
 
-              <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full border border-slate-200 whitespace-nowrap">
-                {filteredLeads.length} Registros
+              <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-fit">
+                {pendingBecasCount} Pendiente(s)
               </span>
             </div>
-          </div>
 
-          {/* LEADS TABLE WITH ePRODUCT FLOATING ROWS */}
-          {loading ? (
-            <div className="p-8 text-center text-slate-500 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
-              Cargando prospectos web desde Supabase...
-            </div>
-          ) : filteredLeads.length === 0 ? (
-            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
-              <Inbox className="w-10 h-10 text-slate-400 mx-auto" />
-              <h4 className="font-bold text-slate-700 text-sm">No se encontraron prospectos web</h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                {leadSearchTerm
-                  ? `No hay coincidencias para "${leadSearchTerm}".`
-                  : 'Aún no se han recibido registros en la tabla public.leads.'}
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
-                <thead>
-                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                    <th className="py-2 px-6 whitespace-nowrap">Nombre del Prospecto</th>
-                    <th className="py-2 px-6 whitespace-nowrap">Contacto (Correo & Teléfono)</th>
-                    <th className="py-2 px-6 whitespace-nowrap">Programa / Interés</th>
-                    <th className="py-2 px-6 whitespace-nowrap">Fecha de Registro</th>
-                    <th className="py-2 px-6 text-right whitespace-nowrap">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLeads.map((lead) => {
-                    const fullName = `${lead.first_name} ${lead.last_name}`.trim()
-                    return (
+            {/* SCHOLARSHIPS TABLE WITH DEDICATED INTERNAL SCROLLBAR & STICKY HEADER */}
+            {loading ? (
+              <div className="p-8 text-center text-slate-500 text-xs">
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
+                Cargando postulaciones a becas desde Supabase...
+              </div>
+            ) : applications.length === 0 ? (
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
+                <Heart className="w-10 h-10 text-slate-400 mx-auto" />
+                <h4 className="font-bold text-slate-700 text-sm">No hay postulaciones pendientes en Supabase</h4>
+                <p className="text-xs text-slate-500">
+                  Todas las solicitudes del Fondo Social Urabá han sido procesadas o están al día.
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
+                  <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
+                    <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Postulante & Teléfono</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Municipio Urabá</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80">Nivel de Estudios</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-center">Estado</th>
+                      <th className="py-3 px-6 bg-slate-50/90 border-b border-slate-200/80 text-right rounded-r-xl">Acciones Rápidas</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {applications.map((app) => (
                       <tr 
-                        key={lead.id} 
+                        key={app.id} 
                         className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
                       >
-                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-sm whitespace-nowrap transition-colors">
-                          {fullName}
+                        <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
+                          <p className="font-bold text-slate-900 text-sm">{app.full_name}</p>
+                          <p className="text-[11px] text-slate-500">{app.phone}</p>
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 whitespace-nowrap transition-colors">
-                          <p className="text-slate-800 font-medium">{lead.email}</p>
-                          <p className="text-[11px] text-slate-500">{lead.phone}</p>
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
+                          <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-semibold rounded-lg border border-amber-200 flex items-center gap-1 w-fit">
+                            <Building2 className="w-3 h-3 text-amber-600" />
+                            <span>{app.municipality}</span>
+                          </span>
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white whitespace-nowrap transition-colors">
-                          {renderAudienceBadge(lead.audience)}
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 font-medium transition-colors">
+                          {app.academic_level}
                         </td>
-                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[11px] whitespace-nowrap transition-colors">
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            {lead.created_at ? new Date(lead.created_at).toLocaleString('es-CO', { dateStyle: 'short', timeStyle: 'short' }) : 'Reciente'}
+                        <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
+                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
+                            app.status === 'approved'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                              : 'bg-amber-50 text-amber-700 border-amber-200'
+                          }`}>
+                            {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                           </span>
                         </td>
                         <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
+                          {app.status !== 'approved' && (
+                            <>
+                              <button
+                                onClick={() => handleApproveApplication(app.id, app.full_name)}
+                                className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                                <span>Aprobar</span>
+                              </button>
+
+                              <button
+                                onClick={() => handleRejectApplication(app.id, app.full_name)}
+                                title="Descartar postulación"
+                                className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 font-medium py-1.5 px-2.5 rounded-xl transition-colors text-xs cursor-pointer"
+                              >
+                                <X className="w-3.5 h-3.5 text-slate-500" />
+                                <span>Descartar</span>
+                              </button>
+                            </>
+                          )}
+
                           <button
-                            onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
+                            onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
                             className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
                           >
                             <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                             <span>WhatsApp</span>
                           </button>
-
-                          <button
-                            onClick={() => setLeadToDelete(lead)}
-                            title="Eliminar prospecto"
-                            className="w-8 h-8 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
                         </td>
                       </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
-        </div>
-
-        {/* BENTO MODULE 3: POSTULACIONES BECAS URABÁ */}
-        <div id="becas" className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10">
-          
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                <Heart className="w-5 h-5 text-amber-600" />
-                <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Revisión y pre-aprobación en tiempo real de solicitudes en public.scholarship_applications.
-              </p>
-            </div>
-
-            <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-fit">
-              {pendingBecasCount} Pendiente(s)
-            </span>
           </div>
+        )}
 
-          {/* SCHOLARSHIPS TABLE WITH ePRODUCT FLOATING ROWS */}
-          {loading ? (
-            <div className="p-8 text-center text-slate-500 text-xs">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
-              Cargando postulaciones a becas desde Supabase...
+        {/* ========================================================================= */}
+        {/* VISTA 5: FONDOS & DONACIONES COLECTIVAS                                   */}
+        {/* ========================================================================= */}
+        {activeTab === 'donaciones' && (
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+            
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 shrink-0">
+              <div>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <Heart className="w-5 h-5 text-red-600" />
+                  <span>Fondos & Donaciones Colectivas Urabá</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Recaudación y becas financiadas a través de la red global de donantes.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="px-3.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
+                  Fondo Social Activo
+                </span>
+              </div>
             </div>
-          ) : applications.length === 0 ? (
-            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-10 text-center space-y-2">
-              <Heart className="w-10 h-10 text-slate-400 mx-auto" />
-              <h4 className="font-bold text-slate-700 text-sm">No hay postulaciones pendientes en Supabase</h4>
-              <p className="text-xs text-slate-500">
-                Todas las solicitudes del Fondo Social Urabá han sido procesadas o están al día.
-              </p>
+
+            {/* DONATIONS METRIC CARDS */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 shrink-0">
+              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Recaudado</p>
+                <p className="text-3xl font-black text-slate-900">
+                  ${totalDonationsAmount.toLocaleString('es-CO')} <span className="text-xs font-normal text-slate-500">COP</span>
+                </p>
+                <p className="text-[11px] text-emerald-600 font-medium">Reconciliado en public.donations</p>
+              </div>
+
+              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Financiadas</p>
+                <p className="text-3xl font-black text-slate-900">
+                  {Math.max(1, Math.floor(studentsCount * 0.4))} <span className="text-xs font-normal text-slate-500">Becarios</span>
+                </p>
+                <p className="text-[11px] text-slate-500 font-medium">Estudiantes de la región Urabá</p>
+              </div>
+
+              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
+                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Aporte Promedio</p>
+                <p className="text-3xl font-black text-slate-900">
+                  $120.000 <span className="text-xs font-normal text-slate-500">COP</span>
+                </p>
+                <p className="text-[11px] text-slate-500 font-medium">Campaña Bilingüe 2026</p>
+              </div>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
-                <thead>
-                  <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                    <th className="py-2 px-6">Postulante & Teléfono</th>
-                    <th className="py-2 px-6">Municipio Urabá</th>
-                    <th className="py-2 px-6">Nivel de Estudios</th>
-                    <th className="py-2 px-6 text-center">Estado</th>
-                    <th className="py-2 px-6 text-right">Acciones Rápidas</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {applications.map((app) => (
-                    <tr 
-                      key={app.id} 
-                      className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-slate-200/80 cursor-pointer"
-                    >
-                      <td className="py-4 px-6 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
-                        <p className="font-bold text-slate-900 text-sm">{app.full_name}</p>
-                        <p className="text-[11px] text-slate-500">{app.phone}</p>
-                      </td>
-                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
-                        <span className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-semibold rounded-lg border border-amber-200 flex items-center gap-1 w-fit">
-                          <Building2 className="w-3 h-3 text-amber-600" />
-                          <span>{app.municipality}</span>
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 font-medium transition-colors">
-                        {app.academic_level}
-                      </td>
-                      <td className="py-4 px-6 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
-                        <span className={`px-2.5 py-1 text-[10px] font-bold rounded-full uppercase border ${
-                          app.status === 'approved'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
-                        }`}>
-                          {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
-                        </span>
-                      </td>
-                      <td className="py-4 px-6 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right space-x-2 whitespace-nowrap transition-colors">
-                        {app.status !== 'approved' && (
-                          <>
-                            <button
-                              onClick={() => handleApproveApplication(app.id, app.full_name)}
-                              className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[11px] px-3 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                              <span>Aprobar</span>
-                            </button>
 
-                            <button
-                              onClick={() => handleRejectApplication(app.id, app.full_name)}
-                              title="Descartar postulación"
-                              className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 font-medium py-1.5 px-2.5 rounded-xl transition-colors text-xs cursor-pointer"
-                            >
-                              <X className="w-3.5 h-3.5 text-slate-500" />
-                              <span>Descartar</span>
-                            </button>
-                          </>
-                        )}
+            {/* DONATIONS ACTION BANNER */}
+            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
+              <div className="space-y-1 text-center md:text-left">
+                <h3 className="text-base font-bold text-white flex items-center gap-2 justify-center md:justify-start">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span>Campaña de Becas Bilingües Urabá</span>
+                </h3>
+                <p className="text-xs text-slate-300 max-w-lg">
+                  Los fondos recaudados financian directamente el 100% de la matrícula, materiales en inglés y certificación MCER para estudiantes de Urabá.
+                </p>
+              </div>
 
-                        <button
-                          onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1.5 px-3 rounded-xl transition-colors inline-flex items-center gap-1.5 text-xs cursor-pointer shadow-2xs"
-                        >
-                          <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>WhatsApp</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <button
+                type="button"
+                onClick={fetchAdminData}
+                className="px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs rounded-xl transition shadow-md whitespace-nowrap flex items-center gap-2"
+              >
+                <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+                <span>Actualizar Recaudación</span>
+              </button>
             </div>
-          )}
 
-        </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VISTA 6: CATÁLOGO DE CURSOS                                               */}
+        {/* ========================================================================= */}
+        {activeTab === 'products' && (
+          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-5 shrink-0">
+              <div>
+                <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
+                  <Package className="w-5 h-5 text-slate-700" />
+                  <span>Catálogo de Cursos & Precios</span>
+                </h2>
+                <p className="text-xs text-slate-500 mt-1">
+                  Mapeo de cursos, niveles MCER, horas académicas y tarifas en COP/USD.
+                </p>
+              </div>
+
+              <Link
+                href="/dashboard/admin/products"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs rounded-xl shadow-sm transition-all flex items-center gap-2"
+              >
+                <span>Ir al Catálogo Completo</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-8 text-center space-y-4">
+              <Package className="w-12 h-12 text-slate-400 mx-auto" />
+              <div className="space-y-1">
+                <h3 className="text-base font-bold text-slate-800">Gestión de Catálogo & Aulas Virtuales</h3>
+                <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+                  Accede al catálogo interactivo completo para configurar la visibilidad de cursos, modalidades presenciales/virtuales y planes de financiamiento.
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href="/dashboard/admin/products"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-md"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Abrir Administrador de Productos</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </DashboardLayout>

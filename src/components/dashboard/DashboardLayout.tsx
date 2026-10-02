@@ -29,6 +29,7 @@ import {
 export type UserRole = 'admin' | 'teacher' | 'student'
 
 interface NavItem {
+  id?: string
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
@@ -39,6 +40,7 @@ interface DashboardLayoutProps {
   children: React.ReactNode
   currentRole?: UserRole
   activeTab?: string
+  onTabChange?: (tabId: string) => void
   title?: string
 }
 
@@ -46,6 +48,7 @@ export function DashboardLayout({
   children,
   currentRole: propRole,
   activeTab,
+  onTabChange,
   title
 }: DashboardLayoutProps) {
   const pathname = usePathname()
@@ -55,20 +58,6 @@ export function DashboardLayout({
   const [userEmail, setUserEmail] = useState<string>('')
   const [loadingUser, setLoadingUser] = useState<boolean>(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false)
-  const [currentHash, setCurrentHash] = useState<string>('')
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setCurrentHash(window.location.hash)
-    }
-
-    const handleHashChange = () => {
-      setCurrentHash(window.location.hash)
-    }
-
-    window.addEventListener('hashchange', handleHashChange)
-    return () => window.removeEventListener('hashchange', handleHashChange)
-  }, [pathname])
 
   useEffect(() => {
     async function loadUserProfile() {
@@ -121,25 +110,25 @@ export function DashboardLayout({
     }
   }
 
-  // Define navigation options by role
+  // Navigation Items by Role (Pure State or Path matching - 100% SSR Safe)
   const navItemsByRole: Record<UserRole, NavItem[]> = {
     admin: [
-      { label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard },
-      { label: 'Prospectos & Leads', href: '/dashboard/admin#leads', icon: Inbox, badge: 'Nuevo' },
-      { label: 'Estudiantes & Matrículas', href: '/dashboard/admin#estudiantes', icon: Users, badge: 'Prioritario' },
-      { label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
-      { label: 'Postulaciones Becas Urabá', href: '/dashboard/admin#becas', icon: GraduationCap },
-      { label: 'Fondos & Donaciones', href: '/dashboard/admin#donaciones', icon: Heart }
+      { id: 'overview', label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard },
+      { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo' },
+      { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/dashboard/admin', icon: Users, badge: 'Prioritario' },
+      { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
+      { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: GraduationCap },
+      { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart }
     ],
     teacher: [
       { label: 'Mis Clases Sincrónicas', href: '/dashboard/teacher', icon: Video },
-      { label: 'Registro de Asistencia', href: '/dashboard/teacher#asistencia', icon: CheckSquare },
-      { label: 'Mi Perfil Docente', href: '/dashboard/teacher#perfil', icon: User }
+      { label: 'Registro de Asistencia', href: '/dashboard/teacher', icon: CheckSquare },
+      { label: 'Mi Perfil Docente', href: '/dashboard/teacher', icon: User }
     ],
     student: [
       { label: 'Mi Aula Virtual', href: '/dashboard/student', icon: BookOpen },
-      { label: 'Progreso MCER', href: '/dashboard/student#progreso', icon: Award },
-      { label: 'Horas Acumuladas', href: '/dashboard/student#horas', icon: Clock }
+      { label: 'Progreso MCER', href: '/dashboard/student', icon: Award },
+      { label: 'Horas Acumuladas', href: '/dashboard/student', icon: Clock }
     ]
   }
 
@@ -169,22 +158,22 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    // 1. MARCO CONTENEDOR FLOTANTE (App Canvas Unificado Inspirado en eProduct)
-    <div className="min-h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-6 md:p-8 flex items-center justify-center">
+    // MARCO CONTENEDOR FLOTANTE PERSISTENTE (App Canvas Unificado)
+    <div className="h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-hidden">
       
-      {/* UNIFIED CANVAS FRAME (Sidebar + Main Content Inside Single Frame) */}
-      <div className="w-full max-w-[1550px] min-h-[90vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
+      {/* UNIFIED CANVAS FRAME (Fixed Full Height) */}
+      <div className="w-full max-w-[1550px] h-full max-h-[94vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40">
+        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40 shrink-0">
           <div className="flex items-center gap-3">
-            <Link href="/" className="inline-flex items-center">
+            <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
                 className="h-9 w-auto object-contain" 
               />
-            </Link>
+            </a>
             <div>
               <h1 className="text-xs font-black text-white">American Dream</h1>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
@@ -202,24 +191,24 @@ export function DashboardLayout({
           </button>
         </div>
 
-        {/* 2. SIDEBAR INTEGRADO EN AZUL MARINO INSTITUCIONAL (bg-slate-900) */}
+        {/* SIDEBAR ESTRICTAMENTE PERSISTENTE (FIJO A LA IZQUIERDA) */}
         <aside
-          className={`fixed lg:relative top-0 left-0 z-30 w-72 min-h-full bg-slate-900 text-white flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
+          className={`fixed lg:relative top-0 left-0 z-30 w-72 h-full bg-slate-900 text-white flex flex-col justify-between shrink-0 transition-transform duration-300 lg:translate-x-0 overflow-hidden ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
-          <div className="p-6 space-y-6 overflow-y-auto flex-1">
+          <div className="p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
             
-            {/* LOGO INSTITUCIONAL ORIGINAL CON CONTENEDOR DE REALCE */}
+            {/* LOGO INSTITUCIONAL CON CONTENEDOR DE REALCE */}
             <div className="flex flex-col items-center text-center pb-6 border-b border-slate-800/80">
               <div className="w-full p-3 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-3">
-                <Link href="/" className="block hover:scale-105 transition-transform">
+                <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="block hover:scale-105 transition-transform">
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
                     className="h-16 w-auto object-contain drop-shadow-md mx-auto" 
                   />
-                </Link>
+                </a>
               </div>
               <h2 className="text-sm font-black text-white tracking-wide">
                 AMERICAN DREAM ENGLISH
@@ -236,7 +225,7 @@ export function DashboardLayout({
               )}
             </div>
 
-            {/* NAVIGATION LINKS WITH PROMINENT WHITE TAB FOR ACTIVE ITEM */}
+            {/* NAVIGATION LINKS */}
             <nav className="space-y-2 pr-0 lg:-mr-6">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
                 Navegación Principal
@@ -244,24 +233,27 @@ export function DashboardLayout({
 
               {currentNavItems.map((item) => {
                 const Icon = item.icon
-                const [itemPath, itemHash] = item.href.split('#')
-                const formattedItemHash = itemHash ? `#${itemHash}` : ''
 
                 let isActive = false
-
-                if (activeTab === item.label) {
+                if (activeTab && item.id) {
+                  isActive = activeTab === item.id || activeTab === item.label
+                } else if (activeTab === item.label) {
                   isActive = true
-                } else if (formattedItemHash) {
-                  isActive = pathname === itemPath && currentHash === formattedItemHash
                 } else {
-                  isActive = pathname === itemPath && (!currentHash || currentHash === '#')
+                  isActive = pathname === item.href
                 }
 
                 return (
                   <Link
                     key={item.label}
                     href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={(e) => {
+                      setMobileMenuOpen(false)
+                      if (onTabChange && item.id && item.href.startsWith('/dashboard/admin') && !item.href.includes('/products')) {
+                        e.preventDefault()
+                        onTabChange(item.id)
+                      }
+                    }}
                     className={`flex items-center justify-between px-4 py-3 text-xs font-bold transition-all ${
                       isActive
                         ? 'bg-white text-slate-900 rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-sm'
@@ -287,9 +279,7 @@ export function DashboardLayout({
           </div>
 
           {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-          <div className="p-4 border-t border-slate-800/80 bg-[#090e1a] space-y-3">
-            
-            {/* USER INFO CARD */}
+          <div className="p-4 border-t border-slate-800/80 bg-[#090e1a] space-y-3 shrink-0">
             <div className="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl flex items-center justify-between gap-3">
               <div className="min-w-0 flex-1">
                 {loadingUser ? (
@@ -321,18 +311,18 @@ export function DashboardLayout({
 
         </aside>
 
-        {/* 3. ÁREA PRINCIPAL DE CONTENIDO (Panel Blanco Derecha) */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-6 md:p-8 overflow-y-auto overflow-x-hidden">
+        {/* ÁREA PRINCIPAL DE CONTENIDO */}
+        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-6 md:p-8 overflow-y-auto overflow-x-hidden h-full">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 mb-6 shrink-0">
             
             {/* BREADCRUMB */}
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-              <Link href="/" className="hover:text-slate-900 transition-colors flex items-center gap-1">
+              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition-colors flex items-center gap-1">
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <span>Inicio</span>
-              </Link>
+              </a>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
               <span className="text-slate-600">Dashboard</span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
@@ -346,18 +336,20 @@ export function DashboardLayout({
                 <span>SSL 256-bit Encriptado</span>
               </div>
 
-              <Link
-                href="/"
+              <a
+                href="https://americandreamenglish.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-semibold rounded-xl text-xs transition-colors border border-slate-200 flex items-center gap-1.5"
               >
                 <Globe className="w-3.5 h-3.5 text-slate-500" />
                 <span>Ver Sitio Público</span>
-              </Link>
+              </a>
             </div>
 
           </div>
 
-          {/* PAGE CONTENT (STUDENT CRUD & BENTO MODULES) */}
+          {/* PAGE CONTENT */}
           <main className="flex-1 min-w-0">
             {children}
           </main>
