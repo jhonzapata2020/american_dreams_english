@@ -201,7 +201,7 @@ export function DashboardLayout({
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
-          <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
+          <div className="p-5 space-y-4 overflow-y-auto overflow-x-hidden no-scrollbar flex-1 min-h-0">
             
             {/* LOGO INSTITUCIONAL CON CONTENEDOR DE REALCE */}
             <div className="flex flex-col items-center text-center pb-4 border-b border-slate-800/80">
@@ -321,7 +321,7 @@ export function DashboardLayout({
         </aside>
 
         {/* ÁREA PRINCIPAL DE CONTENIDO */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden h-full">
+        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-4 shrink-0">

@@ -1365,7 +1365,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+              <div className="overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
                 <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
@@ -1630,7 +1630,7 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+              <div className="overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
                 <table className="w-full text-left text-xs border-separate border-spacing-y-2.5 font-sans">
                   <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
                     <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
