@@ -167,13 +167,17 @@ export function DashboardLayout({
         {/* MOBILE TOP BAR */}
         <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40 shrink-0">
           <div className="flex items-center gap-3">
-            <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
+            <button 
+              type="button" 
+              onClick={() => onTabChange && onTabChange('overview')}
+              className="inline-flex items-center text-left cursor-pointer"
+            >
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
                 className="h-9 w-auto object-contain" 
               />
-            </a>
+            </button>
             <div>
               <h1 className="text-xs font-black text-white">American Dream</h1>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
@@ -202,13 +206,18 @@ export function DashboardLayout({
             {/* LOGO INSTITUCIONAL CON CONTENEDOR DE REALCE */}
             <div className="flex flex-col items-center text-center pb-4 border-b border-slate-800/80">
               <div className="w-full p-2.5 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-2">
-                <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="block hover:scale-105 transition-transform">
+                <button 
+                  type="button"
+                  onClick={() => onTabChange && onTabChange('overview')}
+                  title="Visión General"
+                  className="block hover:scale-105 transition-transform cursor-pointer"
+                >
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
                     className="h-14 w-auto object-contain drop-shadow-md mx-auto" 
                   />
-                </a>
+                </button>
               </div>
               <h2 className="text-xs font-black text-white tracking-wide">
                 AMERICAN DREAM ENGLISH
