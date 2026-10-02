@@ -502,7 +502,7 @@ export default function AdminProductsPage() {
                 className="bg-[#f5c045] hover:bg-[#e4b034] text-slate-900 font-bold text-xs rounded-xl px-4 py-2.5 shadow-sm shadow-amber-200/60 flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap flex-shrink-0 ml-auto"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
-                <span>+ Nuevo Producto</span>
+                <span>Nuevo Producto</span>
               </button>
             </div>
 
