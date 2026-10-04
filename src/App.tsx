@@ -67,8 +67,11 @@ export function App() {
   };
 
   // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
-  if (currentPath === '/admin' || currentPath === '/admin/login') {
+  if (currentPath === '/admin/login') {
     return <AdminLoginPage />;
+  }
+  if (currentPath === '/admin' || currentPath === '/dashboard/admin') {
+    return <AdminDashboardPage />;
   }
   if (currentPath === '/campus/login') {
     return <CampusLoginPage />;

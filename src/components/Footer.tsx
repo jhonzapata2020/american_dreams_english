@@ -115,9 +115,9 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
         {/* BOTTOM COPYRIGHT & LEGAL LINKS */}
         <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[11px] gap-2">
           <div className="flex flex-wrap gap-4">
-            <a href="/admin" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
+            <a href="/admin/login" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-crimson-400" />
-              <span>Panel Administrativo</span>
+              <span>Acceso Administrativo</span>
             </a>
             <a href="/campus/login" className="hover:text-amber-400 text-slate-400 transition-colors">Campus Virtual</a>
             <a href="#" className="hover:text-slate-300 transition-colors">Política de Privacidad</a>

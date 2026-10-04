@@ -275,6 +275,17 @@ export default function CampusLoginPage() {
                     )}
                   </button>
                 </div>
+
+                {/* Enlace Secundario Discreto Directivos / Docentes */}
+                <div className="text-center pt-2">
+                  <a
+                    href="/admin/login"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#002B49] transition-colors hover:underline"
+                  >
+                    <span>¿Eres directivo o docente? Ingresa al portal administrativo</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
+                  </a>
+                </div>
               </form>
 
               {/* Información de Ayuda Rápida */}
@@ -298,12 +309,12 @@ export default function CampusLoginPage() {
           {/* Enlace discreto a Docentes/Admin en el pie */}
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-500">
-              ¿Eres docente o administrativo?{' '}
+              ¿Eres directivo o docente?{' '}
               <a 
                 href="/admin/login" 
                 className="font-bold text-[#002B49] hover:underline hover:text-amber-700 transition-colors"
               >
-                Ingresa aquí
+                Ingresa al portal administrativo →
               </a>
             </p>
           </div>

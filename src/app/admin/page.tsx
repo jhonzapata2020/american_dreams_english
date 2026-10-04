@@ -1,7 +1,7 @@
 'use client'
 
-import AdminLoginPage from './login/page'
+import AdminDashboardPage from '../dashboard/admin/page'
 
 export default function AdminIndexPage() {
-  return <AdminLoginPage />
+  return <AdminDashboardPage />
 }
