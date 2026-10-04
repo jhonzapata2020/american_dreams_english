@@ -38,7 +38,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
   const [loading, setLoading] = useState(true)
   const [courseLevel, setCourseLevel] = useState('A1')
-  const [courseTitle, setCourseTitle] = useState('INGLÉS GENERAL - CICLO A1')
+  const [courseTitle, setCourseTitle] = useState('ENGLISH LEVEL 1 - GENERAL PROGRAM')
   const [courseCode, setCourseCode] = useState('ADE-ING101')
   const [teacherName, setTeacherName] = useState('Lic. Carlos Méndez')
 
