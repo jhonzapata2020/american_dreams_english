@@ -329,7 +329,7 @@ export default function MatriculaPage() {
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-slate-200">
-                <span className="text-slate-500">Total Abonado Hoy:</span>
+                <span className="text-slate-500">Total Pagado Hoy:</span>
                 <span className="font-bold text-emerald-700 font-mono text-sm">{formatCop(totalAmountToPayToday)} COP</span>
               </div>
             </div>
@@ -417,7 +417,7 @@ export default function MatriculaPage() {
                           Solo Matrícula y Reserva de Cupo
                         </h3>
                         <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                          Asegura tu cupo oficial hoy. La mensualidad la abonas antes de la fecha límite de inicio de clases.
+                          Asegura tu cupo oficial hoy. La mensualidad la puedes pagar hasta un día antes del inicio de clases.
                         </p>
                       </div>
 
@@ -952,7 +952,7 @@ export default function MatriculaPage() {
                   <div className="p-3 bg-blue-50/80 border border-blue-200/70 rounded-xl text-blue-900 text-[11px] leading-relaxed flex items-start gap-2 animate-fadeIn">
                     <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                     <span>
-                      📅 Tu cupo oficial quedará asegurado inmediatamente. Recibirás tu credencial del Campus Virtual y la fecha límite para cancelar tu primera mensualidad antes de iniciar clases.
+                      📅 Tu cupo oficial quedará asegurado inmediatamente. Recibirás tu credencial del Campus Virtual y el plazo para pagar tu primera mensualidad hasta un día antes del inicio de clases.
                     </span>
                   </div>
                 )}
