@@ -45,7 +45,7 @@ export interface ProductItem {
 const TRM = 4000
 
 const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
-const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2 MB
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5 MB
 
 const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
   {
@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
       return
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      setImageError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. El máximo es 2 MB.`)
+      setImageError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. El máximo permitido es 5 MB.`)
       return
     }
     setImageError(null)
@@ -1190,7 +1190,7 @@ export default function AdminProductsPage() {
                       <p className="text-xs font-semibold text-slate-700">
                         Arrastra una imagen o haz clic para seleccionar
                       </p>
-                      <p className="text-[10px] text-slate-400">PNG, JPG, JPEG o WEBP · máx. 2 MB</p>
+                      <p className="text-[10px] text-slate-400">PNG, JPG, JPEG o WEBP · máx. 5 MB</p>
                     </div>
                   )}
                   {imageError && (
