@@ -106,7 +106,11 @@ export function DashboardLayout({
     } catch (err) {
       console.error('Error al cerrar sesión:', err)
     } finally {
-      router.push('/login')
+      if (userRole === 'admin') {
+        window.location.href = '/admin/login'
+      } else {
+        window.location.href = '/campus/login'
+      }
     }
   }
 

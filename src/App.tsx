@@ -23,6 +23,7 @@ import MatriculaPage from './app/matricula/page';
 import CampusVirtualPage from './app/campus/page';
 import CampusLoginPage from './app/campus/login/page';
 import AulaVirtualPage from './app/campus/curso/[id]/page';
+import AdminLoginPage from './app/admin/login/page';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
@@ -65,10 +66,13 @@ export function App() {
   };
 
   // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
+  if (currentPath === '/admin' || currentPath === '/admin/login') {
+    return <AdminLoginPage />;
+  }
   if (currentPath === '/campus/login') {
     return <CampusLoginPage />;
   }
-  if (currentPath === '/login' || currentPath === '/admin/login') {
+  if (currentPath === '/login') {
     return <LoginView />;
   }
   if (currentPath === '/matricula') {

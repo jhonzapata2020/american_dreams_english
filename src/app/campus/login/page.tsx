@@ -300,7 +300,7 @@ export default function CampusLoginPage() {
             <p className="text-xs text-slate-500">
               ¿Eres docente o administrativo?{' '}
               <a 
-                href="/login" 
+                href="/admin/login" 
                 className="font-bold text-[#002B49] hover:underline hover:text-amber-700 transition-colors"
               >
                 Ingresa aquí

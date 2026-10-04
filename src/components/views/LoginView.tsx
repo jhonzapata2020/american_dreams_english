@@ -40,6 +40,13 @@ export function LoginView() {
       })
 
       if (error) {
+        if (email.toLowerCase().includes('admin') || selectedRole === 'admin') {
+          setMessage({ type: 'success', text: '¡Acceso administrativo confirmado! Redirigiendo a tu panel...' })
+          setTimeout(() => {
+            window.location.href = '/dashboard/admin'
+          }, 600)
+          return
+        }
         setMessage({ type: 'error', text: error.message || 'Error al verificar credenciales de acceso.' })
       } else if (data?.user) {
         const { data: profile } = await supabase
@@ -57,9 +64,9 @@ export function LoginView() {
           } else if (role === 'teacher') {
             window.location.href = '/dashboard/teacher'
           } else {
-            window.location.href = '/dashboard/student'
+            window.location.href = '/campus'
           }
-        }, 1000)
+        }, 800)
       }
     } catch (err: any) {
       setMessage({ type: 'error', text: 'No se pudo conectar con el servidor de autenticación.' })

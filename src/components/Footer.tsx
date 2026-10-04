@@ -114,9 +114,12 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
 
         {/* BOTTOM COPYRIGHT & LEGAL LINKS */}
         <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[11px] gap-2">
-          <p>© {new Date().getFullYear()} American Dream English S.A.S. & Corplex Solutions S.A.S. Todos los derechos reservados.</p>
-          <div className="flex space-x-4">
-            <a href="/login" className="hover:text-amber-400 font-bold text-slate-300 transition-colors">Portales & Acceso RBAC</a>
+          <div className="flex flex-wrap gap-4">
+            <a href="/admin" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-crimson-400" />
+              <span>Panel Administrativo</span>
+            </a>
+            <a href="/campus/login" className="hover:text-amber-400 text-slate-400 transition-colors">Campus Virtual</a>
             <a href="#" className="hover:text-slate-300 transition-colors">Política de Privacidad</a>
             <a href="#" className="hover:text-slate-300 transition-colors">Transparencia de Fondos</a>
           </div>
