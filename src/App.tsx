@@ -19,6 +19,7 @@ import AdminDashboardPage from './app/dashboard/admin/page';
 import AdminProductsPage from './app/dashboard/admin/products/page';
 import TeacherDashboardPage from './app/dashboard/teacher/page';
 import StudentDashboardPage from './app/dashboard/student/page';
+import MatriculaPage from './app/matricula/page';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
@@ -63,6 +64,9 @@ export function App() {
   // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
   if (currentPath === '/login' || currentPath === '/campus/login') {
     return <LoginView />;
+  }
+  if (currentPath === '/matricula') {
+    return <MatriculaPage />;
   }
   if (currentPath === '/dashboard/admin') {
     return <AdminDashboardPage />;
