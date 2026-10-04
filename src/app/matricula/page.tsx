@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Script from 'next/script'
 import Link from 'next/link'
 import { 
@@ -10,86 +10,52 @@ import {
   CheckCircle2, 
   CreditCard, 
   MessageCircle, 
-  Sparkles, 
   Building2, 
   Globe2, 
-  Loader2,
-  AlertCircle,
-  GraduationCap,
-  BookOpen,
-  Check,
+  Loader2, 
+  AlertCircle, 
+  GraduationCap, 
   Calendar,
-  HelpCircle,
-  UserCheck
+  Check,
+  BookmarkCheck,
+  Info
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 
-// Estructura de programas académicos
+// Catálogo formativo formal
 interface AcademicProgram {
   id: string
   title: string
   targetAudience: 'niños' | 'adultos'
-  periodType: 'mensual' | 'semestral' | 'anual'
-  periodLabel: string
-  priceCop: number
-  priceUsd: number
+  monthlyFeeCop: number
+  monthlyFeeUsd: number
   description: string
   badge: string
-  popular?: boolean
 }
 
-// Costos base institucionales
 const MATRICULA_BASE_COP = 50000
 const MATRICULA_BASE_USD = 13
 const ADDON_EBOOK_MASTERCLASS_COP = 55000
 const ADDON_EBOOK_MASTERCLASS_USD = 14
 
-// Catálogo formal de programas académicos
 const ACADEMIC_PROGRAMS: AcademicProgram[] = [
   {
-    id: 'prog-ninos-mensual',
+    id: 'prog-adultos',
+    title: 'Programa Jóvenes y Adultos',
+    targetAudience: 'adultos',
+    monthlyFeeCop: 200000,
+    monthlyFeeUsd: 50,
+    description: 'Inmersión conversacional, laboratorios fonéticos y preparación progresiva MCER (A1 a B2).',
+    badge: 'Más Solicitado'
+  },
+  {
+    id: 'prog-ninos',
     title: 'Programa Niños (Hasta 12 Años)',
     targetAudience: 'niños',
-    periodType: 'mensual',
-    periodLabel: 'Mensualidad (4 Semanas)',
-    priceCop: 150000,
-    priceUsd: 38,
-    description: 'Metodología lúdica e interactiva, canciones, historias y fonética natural para niños y niñas.',
-    badge: 'Kids & Junior',
-  },
-  {
-    id: 'prog-adultos-mensual',
-    title: 'Jóvenes y Adultos • Plan Mensual',
-    targetAudience: 'adultos',
-    periodType: 'mensual',
-    periodLabel: 'Mensualidad (4 Semanas)',
-    priceCop: 200000,
-    priceUsd: 50,
-    description: 'Inmersión conversacional, laboratorios fonéticos y preparación progresiva según el marco MCER (A1 a B2).',
-    badge: 'Plan Mensual',
-    popular: true,
-  },
-  {
-    id: 'prog-adultos-semestre',
-    title: 'Jóvenes y Adultos • Semestre Intensivo',
-    targetAudience: 'adultos',
-    periodType: 'semestral',
-    periodLabel: 'Semestre (6 Meses / 120 Horas)',
-    priceCop: 1200000,
-    priceUsd: 300,
-    description: 'Ciclo intensivo completo de 1 nivel MCER con acceso ilimitado a laboratorios y tutorías 1 a 1.',
-    badge: 'Más Elegido',
-  },
-  {
-    id: 'prog-adultos-anual',
-    title: 'Jóvenes y Adultos • Anualidad Completa',
-    targetAudience: 'adultos',
-    periodType: 'anual',
-    periodLabel: 'Año Académico Completo (12 Meses)',
-    priceCop: 2400000,
-    priceUsd: 600,
-    description: 'De principiante a bilingüe certificado B2 con garantía laboral y preparación de exámenes internacionales.',
-    badge: 'Mayor Ahorro',
+    monthlyFeeCop: 150000,
+    monthlyFeeUsd: 38,
+    description: 'Metodología lúdica, canciones, cuentos y fonética intuitiva para niños y niñas.',
+    badge: 'Kids & Junior'
   }
 ]
 
@@ -105,15 +71,15 @@ const COUNTRY_CODES = [
 ]
 
 export default function MatriculaPage() {
-  // Estado de programas y modalidades
-  const [selectedProgramId, setSelectedProgramId] = useState<string>('prog-adultos-mensual')
+  // PASO 1: Modalidad de Pago Inicial (Por defecto: Solo Matrícula / Reserva de Cupo)
+  const [paymentMode, setPaymentMode] = useState<'matricula_only' | 'full'>('matricula_only')
+
+  // PASO 2: Programa Formativo, Modalidad y Add-on
+  const [selectedProgramId, setSelectedProgramId] = useState<string>('prog-adultos')
   const [modality, setModality] = useState<'presencial' | 'virtual'>('presencial')
-  
-  // Opciones de cobro y addons
-  const [paymentMode, setPaymentMode] = useState<'full' | 'matricula_only'>('full')
   const [includeAddon, setIncludeAddon] = useState<boolean>(false)
 
-  // Datos del estudiante
+  // PASO 3: Datos del Estudiante
   const [fullName, setFullName] = useState<string>('')
   const [docType, setDocType] = useState<string>('CC')
   const [docNumber, setDocNumber] = useState<string>('')
@@ -123,7 +89,7 @@ export default function MatriculaPage() {
   const [city, setCity] = useState<string>('Turbo')
   const [acceptHabeas, setAcceptHabeas] = useState<boolean>(true)
 
-  // Estados de pasarela y UI
+  // Estados de carga y Wompi
   const [wompiLoaded, setWompiLoaded] = useState<boolean>(false)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
@@ -131,14 +97,15 @@ export default function MatriculaPage() {
   const [transactionRef, setTransactionRef] = useState<string>('')
 
   // Programa seleccionado
-  const selectedProgram = ACADEMIC_PROGRAMS.find((p) => p.id === selectedProgramId) || ACADEMIC_PROGRAMS[1]
+  const selectedProgram = ACADEMIC_PROGRAMS.find((p) => p.id === selectedProgramId) || ACADEMIC_PROGRAMS[0]
 
-  // Cálculo de liquidación
-  const academicTuitionAmount = MATRICULA_BASE_COP
-  const academicPeriodAmount = paymentMode === 'full' ? selectedProgram.priceCop : 0
+  // Liquidación del pago a realizar hoy
+  const matriculaAmount = MATRICULA_BASE_COP
+  const tuitionDueToday = paymentMode === 'full' ? selectedProgram.monthlyFeeCop : 0
+  const pendingTuitionBalance = paymentMode === 'matricula_only' ? selectedProgram.monthlyFeeCop : 0
   const addonAmount = includeAddon ? ADDON_EBOOK_MASTERCLASS_COP : 0
-  const totalAmountToPay = academicTuitionAmount + academicPeriodAmount + addonAmount
-  const totalUsdEquivalent = Math.round(totalAmountToPay / 4000)
+  const totalAmountToPayToday = matriculaAmount + tuitionDueToday + addonAmount
+  const totalUsdEquivalentToday = Math.round(totalAmountToPayToday / 4000)
 
   // Formateador de dinero en COP
   const formatCop = (val: number) => {
@@ -154,7 +121,7 @@ export default function MatriculaPage() {
     e.preventDefault()
     setErrorMessage(null)
 
-    // Validaciones básicas
+    // Validaciones
     if (!fullName.trim()) {
       setErrorMessage('Por favor ingresa tus Nombres y Apellidos completos.')
       return
@@ -200,10 +167,11 @@ export default function MatriculaPage() {
             program_id: selectedProgram.id,
             program_title: selectedProgram.title,
             payment_mode: paymentMode,
-            matricula_cop: MATRICULA_BASE_COP,
-            program_period_cop: selectedProgram.priceCop,
+            matricula_paid_cop: matriculaAmount,
+            tuition_paid_today_cop: tuitionDueToday,
+            pending_tuition_cop: pendingTuitionBalance,
             include_addon: includeAddon,
-            total_liquidated_cop: totalAmountToPay,
+            total_paid_today_cop: totalAmountToPayToday,
             modality: modality,
             city: city,
             reference: reference
@@ -219,7 +187,7 @@ export default function MatriculaPage() {
       try {
         const checkout = new (window as any).WidgetCheckout({
           currency: 'COP',
-          amountInCents: totalAmountToPay * 100,
+          amountInCents: totalAmountToPayToday * 100,
           reference: reference,
           publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || 'pub_test_Q5yDA9xoKdePzhSGeVe9HAUr1jiBmYH8',
           redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
@@ -235,7 +203,7 @@ export default function MatriculaPage() {
 
         checkout.open(function (result: any) {
           const transaction = result?.transaction
-          console.log('Resultado de transacción Wompi:', transaction)
+          console.log('Resultado transacción Wompi:', transaction)
           setIsProcessing(false)
           if (transaction?.status === 'APPROVED' || transaction?.status === 'PENDING') {
             setPaymentSuccess(true)
@@ -244,10 +212,10 @@ export default function MatriculaPage() {
       } catch (widgetErr) {
         console.error('Error al abrir checkout Wompi:', widgetErr)
         setIsProcessing(false)
-        setErrorMessage('No se pudo abrir la pasarela de Wompi. Verifica tu conexión o intenta nuevamente.')
+        setErrorMessage('No se pudo abrir la pasarela de Wompi. Por favor intenta nuevamente.')
       }
     } else {
-      // Simulación de respuesta en caso de bloqueo de scripts o entorno de prueba
+      // Simulación de respuesta en caso de prueba local
       setTimeout(() => {
         setIsProcessing(false)
         setPaymentSuccess(true)
@@ -308,13 +276,13 @@ export default function MatriculaPage() {
         <div className="mb-8 text-center sm:text-left">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-[#002B49] border border-blue-200 rounded-full text-xs font-bold mb-2">
             <GraduationCap className="w-4 h-4 text-[#002B49]" />
-            <span>Matrícula Académica Oficial • Periodo Vigente</span>
+            <span>Matrícula Institucional • Periodo Académico 2026</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            Matrícula y Registro de Estudiantes en <span className="text-[#002B49]">American Dream</span>
+            Formaliza tu Matrícula en <span className="text-[#002B49]">American Dream</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Formaliza tu ingreso institucional y elige tu plan formativo con acompañamiento docente y certificación internacional MCER.
+            Reserva tu cupo oficial hoy con el pago de matrícula y programa tu inicio de clases en la sede presencial o en salas virtuales.
           </p>
         </div>
 
@@ -326,9 +294,9 @@ export default function MatriculaPage() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-black text-slate-900">¡Matrícula Formalizada con Éxito!</h2>
+              <h2 className="text-2xl font-black text-slate-900">¡Matrícula Procesada con Éxito!</h2>
               <p className="text-sm text-slate-600">
-                Bienvenido/a a <strong>American Dream English</strong>. Se ha generado tu recibo de matrícula con el código de referencia:
+                Tu cupo oficial en <strong>American Dream English</strong> ha quedado asegurado. Referencia de pago:
               </p>
               <div className="inline-block bg-slate-100 border border-slate-200 px-4 py-2 rounded-xl font-mono text-xs font-bold text-slate-800 mt-2">
                 {transactionRef}
@@ -341,26 +309,34 @@ export default function MatriculaPage() {
                 <span className="font-bold">{fullName}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Programa Formativo:</span>
+                <span className="text-slate-500">Programa Académico:</span>
                 <span className="font-bold">{selectedProgram.title}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Modalidad:</span>
-                <span className="font-bold capitalize">{modality === 'presencial' ? 'Presencial (Sede Turbo)' : 'Virtual en Vivo (Zoom/Teams)'}</span>
+                <span className="font-bold">{modality === 'presencial' ? 'Presencial (Sede Turbo)' : 'Virtual en Vivo (Zoom/Teams)'}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-500">Modalidad de Pago:</span>
-                <span className="font-bold">{paymentMode === 'full' ? 'Matrícula + Periodo Académico' : 'Solo Reserva y Matrícula'}</span>
+                <span className="text-slate-500">Concepto Pagado Hoy:</span>
+                <span className="font-bold">
+                  {paymentMode === 'matricula_only' ? 'Reserva y Derechos de Matrícula' : 'Matrícula + 1ª Mensualidad'}
+                </span>
               </div>
+              {paymentMode === 'matricula_only' && (
+                <div className="flex justify-between text-amber-800 bg-amber-50/80 p-2 rounded-lg border border-amber-200/60">
+                  <span>Saldo Mensualidad (al iniciar):</span>
+                  <span className="font-bold font-mono">{formatCop(selectedProgram.monthlyFeeCop)} COP</span>
+                </div>
+              )}
               <div className="flex justify-between pt-2 border-t border-slate-200">
-                <span className="text-slate-500">Total Liquidado:</span>
-                <span className="font-bold text-emerald-700 font-mono text-sm">{formatCop(totalAmountToPay)} COP</span>
+                <span className="text-slate-500">Total Abonado Hoy:</span>
+                <span className="font-bold text-emerald-700 font-mono text-sm">{formatCop(totalAmountToPayToday)} COP</span>
               </div>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
               <a
-                href={`https://wa.me/573105001234?text=Hola%20American%20Dream,%20acabo%20de%20formalizar%20mi%20matr%C3%ADcula%20para%20el%20programa%20${encodeURIComponent(selectedProgram.title)}%20con%20referencia%20${transactionRef}`}
+                href={`https://wa.me/573105001234?text=Hola%20American%20Dream,%20acabo%20de%20pagar%20mi%20matr%C3%ADcula%20para%20el%20programa%20${encodeURIComponent(selectedProgram.title)}%20con%20referencia%20${transactionRef}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors"
@@ -381,27 +357,145 @@ export default function MatriculaPage() {
           /* FORMULARIO Y RESUMEN EN 2 COLUMNAS */
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* COLUMNA IZQUIERDA: PROGRAMAS, DATOS Y PASARELA (7 COLS) */}
+            {/* COLUMNA IZQUIERDA: PASOS 1, 2, 3 Y PASARELA (7 COLS) */}
             <div className="lg:col-span-7 space-y-6">
               
               <form onSubmit={handleInitiatePayment} className="space-y-6">
                 
-                {/* 1. SELECCIÓN DE PROGRAMAS FORMATIVOS REALES */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
+                {/* ========================================================= */}
+                {/* PASO 1: MODALIDAD DE PAGO INICIAL (ARRIBA DEL TODO)      */}
+                {/* ========================================================= */}
+                <div className="bg-white border-2 border-blue-900/20 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
                   
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
                         1
                       </span>
-                      <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                        Selecciona tu Programa Académico
-                      </h2>
+                      <div>
+                        <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                          Modalidad de Pago Inicial
+                        </h2>
+                        <p className="text-[11px] text-slate-500">
+                          Elige cómo deseas formalizar tu ingreso hoy
+                        </p>
+                      </div>
                     </div>
-                    <span className="text-[11px] text-slate-400 font-semibold">Planes de Estudio</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
+                      Flexibilidad
+                    </span>
                   </div>
 
-                  {/* Listado de Programas Académicos */}
+                  {/* Las dos tarjetas seleccionables principales */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    
+                    {/* TARJETA 1 (POR DEFECTO / RECOMENDADA): Solo Matrícula y Reserva de Cupo */}
+                    <div
+                      onClick={() => setPaymentMode('matricula_only')}
+                      className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        paymentMode === 'matricula_only'
+                          ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md flex items-center gap-1">
+                            <BookmarkCheck className="w-3 h-3" />
+                            Más Elegido
+                          </span>
+                          <input
+                            type="radio"
+                            name="paymentMode"
+                            checked={paymentMode === 'matricula_only'}
+                            onChange={() => setPaymentMode('matricula_only')}
+                            className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                          />
+                        </div>
+
+                        <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                          Solo Matrícula y Reserva de Cupo
+                        </h3>
+                        <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                          Asegura tu cupo oficial hoy. La mensualidad la abonas antes de la fecha límite de inicio de clases.
+                        </p>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
+                        <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
+                        <span className="font-mono font-black text-base text-[#002B49]">
+                          {formatCop(MATRICULA_BASE_COP)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* TARJETA 2: Matrícula + Periodo Completo */}
+                    <div
+                      onClick={() => setPaymentMode('full')}
+                      className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                        paymentMode === 'full'
+                          ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
+                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-2">
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-900 text-[10px] font-bold rounded-md">
+                            Pago Anticipado
+                          </span>
+                          <input
+                            type="radio"
+                            name="paymentMode"
+                            checked={paymentMode === 'full'}
+                            onChange={() => setPaymentMode('full')}
+                            className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                          />
+                        </div>
+
+                        <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                          Matrícula + Periodo Completo
+                        </h3>
+                        <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                          Cancela tu matrícula ($50.000) más tu primera mensualidad ({formatCop(selectedProgram.monthlyFeeCop)}) de forma anticipada.
+                        </p>
+                      </div>
+
+                      <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
+                        <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
+                        <span className="font-mono font-black text-base text-slate-900">
+                          {formatCop(MATRICULA_BASE_COP + selectedProgram.monthlyFeeCop)}
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                {/* ========================================================= */}
+                {/* PASO 2: SELECCIÓN DE PROGRAMA FORMATIVO Y SEDE            */}
+                {/* ========================================================= */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
+                  
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
+                        2
+                      </span>
+                      <div>
+                        <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                          Selección de Programa Formativo y Sede
+                        </h2>
+                        <p className="text-[11px] text-slate-500">
+                          {paymentMode === 'matricula_only' 
+                            ? 'Define el programa al que pertenecerás (la mensualidad se liquidará al iniciar clases)'
+                            : 'Selecciona tu programa de formación académica'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Listado limpio de programas formativos */}
                   <div className="space-y-2.5">
                     {ACADEMIC_PROGRAMS.map((prog) => {
                       const isSelected = prog.id === selectedProgramId
@@ -409,16 +503,16 @@ export default function MatriculaPage() {
                         <div
                           key={prog.id}
                           onClick={() => setSelectedProgramId(prog.id)}
-                          className={`p-3.5 sm:p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                          className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
                             isSelected
-                              ? 'border-[#002B49] bg-blue-50/40 ring-1 ring-[#002B49]/30 shadow-xs'
-                              : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/70'
+                              ? 'border-[#002B49] bg-blue-50/30 ring-1 ring-[#002B49]/30 shadow-2xs'
+                              : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/60'
                           }`}
                         >
                           <div className="flex items-start gap-3 min-w-0">
                             <input
                               type="radio"
-                              name="selectedProgram"
+                              name="academicProgram"
                               checked={isSelected}
                               onChange={() => setSelectedProgramId(prog.id)}
                               className="mt-1 text-[#002B49] focus:ring-[#002B49] cursor-pointer"
@@ -428,32 +522,21 @@ export default function MatriculaPage() {
                                 <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                                   {prog.title}
                                 </h3>
-                                <span className={`px-2 py-0.5 text-[10px] font-bold rounded-md ${
-                                  prog.popular 
-                                    ? 'bg-amber-100 text-amber-900 border border-amber-200' 
-                                    : 'bg-slate-100 text-slate-700'
-                                }`}>
+                                <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md">
                                   {prog.badge}
                                 </span>
                               </div>
                               <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
                                 {prog.description}
                               </p>
-                              <div className="mt-2 flex items-center gap-2 text-[10px] font-medium text-slate-600">
-                                <span className="inline-block px-2 py-0.5 bg-slate-100 rounded">
-                                  {prog.periodLabel}
-                                </span>
-                              </div>
                             </div>
                           </div>
 
-                          {/* Precio del Plan */}
+                          {/* Tarifa Mensual */}
                           <div className="text-right shrink-0">
-                            <div className="font-mono font-bold text-xs sm:text-sm text-[#002B49]">
-                              {formatCop(prog.priceCop)}
-                            </div>
-                            <div className="text-[10px] font-medium text-slate-400">
-                              ~ ${prog.priceUsd} USD
+                            <div className="text-[10px] font-semibold text-slate-400">Mensualidad:</div>
+                            <div className="font-mono font-bold text-xs sm:text-sm text-slate-800">
+                              {formatCop(prog.monthlyFeeCop)}
                             </div>
                           </div>
                         </div>
@@ -461,10 +544,10 @@ export default function MatriculaPage() {
                     })}
                   </div>
 
-                  {/* Switch de Modalidad */}
+                  {/* Selector de Modalidad */}
                   <div className="pt-2 border-t border-slate-100">
                     <label className="block text-xs font-bold text-slate-700 mb-2">
-                      Modalidad de Estudio
+                      Sede / Modalidad de Estudio
                     </label>
                     <div className="grid grid-cols-2 gap-2.5">
                       <button
@@ -478,8 +561,8 @@ export default function MatriculaPage() {
                       >
                         <Building2 className="w-4 h-4 shrink-0 text-slate-500" />
                         <div>
-                          <div className="text-xs font-bold">Presencial Urabá</div>
-                          <div className="text-[10px] text-slate-400 font-normal">Sede Turbo, Antioquia</div>
+                          <div className="text-xs font-bold">Presencial Turbo</div>
+                          <div className="text-[10px] text-slate-400 font-normal">Sede Urabá Antioqueño</div>
                         </div>
                       </button>
 
@@ -501,80 +584,7 @@ export default function MatriculaPage() {
                     </div>
                   </div>
 
-                  {/* 2. SELECTOR DE PAGO INICIAL FLEXIBLE */}
-                  <div className="pt-3 border-t border-slate-100 space-y-2">
-                    <label className="block text-xs font-bold text-slate-800">
-                      Opciones de Pago Inicial para Matrícula
-                    </label>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      
-                      {/* Opción A: Matrícula + Periodo Completo */}
-                      <div
-                        onClick={() => setPaymentMode('full')}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                          paymentMode === 'full'
-                            ? 'border-emerald-600 bg-emerald-50/40 ring-1 ring-emerald-500/30'
-                            : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-2">
-                          <input
-                            type="radio"
-                            name="paymentMode"
-                            checked={paymentMode === 'full'}
-                            onChange={() => setPaymentMode('full')}
-                            className="mt-0.5 text-emerald-600 focus:ring-emerald-600"
-                          />
-                          <div>
-                            <div className="text-xs font-bold text-slate-900">
-                              Matrícula + Periodo Completo
-                            </div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
-                              Paga los derechos de matrícula ($50.000) más el valor del plan elegido.
-                            </div>
-                            <div className="mt-1 font-mono font-bold text-xs text-emerald-800">
-                              {formatCop(MATRICULA_BASE_COP + selectedProgram.priceCop)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Opción B: Solo Reserva y Derechos de Matrícula */}
-                      <div
-                        onClick={() => setPaymentMode('matricula_only')}
-                        className={`p-3 rounded-xl border cursor-pointer transition-all ${
-                          paymentMode === 'matricula_only'
-                            ? 'border-[#002B49] bg-blue-50/40 ring-1 ring-[#002B49]/30'
-                            : 'border-slate-200 bg-white hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-2">
-                          <input
-                            type="radio"
-                            name="paymentMode"
-                            checked={paymentMode === 'matricula_only'}
-                            onChange={() => setPaymentMode('matricula_only')}
-                            className="mt-0.5 text-[#002B49] focus:ring-[#002B49]"
-                          />
-                          <div>
-                            <div className="text-xs font-bold text-slate-900">
-                              Solo Reserva de Cupo Oficial
-                            </div>
-                            <div className="text-[11px] text-slate-500 mt-0.5">
-                              Abona únicamente los derechos de matrícula. La mensualidad la pagas al iniciar clases.
-                            </div>
-                            <div className="mt-1 font-mono font-bold text-xs text-[#002B49]">
-                              {formatCop(MATRICULA_BASE_COP)}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </div>
-
-                  {/* 3. MATERIAL COMPLEMENTARIO OPCIONAL (ADD-ON) */}
+                  {/* Material Complementario Opcional (Add-on) */}
                   <div className="pt-3 border-t border-slate-100">
                     <label className={`p-3.5 rounded-xl border transition-all flex items-start gap-3 cursor-pointer ${
                       includeAddon
@@ -590,7 +600,7 @@ export default function MatriculaPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-bold text-slate-900">
-                            Añadir Guía E-Book Digital & Masterclass de Entrevistas Bilingües
+                            Añadir Guía E-Book Digital & Masterclass de Entrevistas (+ $55.000 COP)
                           </span>
                           <span className="text-xs font-mono font-bold text-amber-900 shrink-0">
                             +{formatCop(ADDON_EBOOK_MASTERCLASS_COP)}
@@ -605,11 +615,13 @@ export default function MatriculaPage() {
 
                 </div>
 
-                {/* 2. DATOS DEL ESTUDIANTE */}
+                {/* ========================================================= */}
+                {/* PASO 3: DATOS DEL ESTUDIANTE                             */}
+                {/* ========================================================= */}
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
                   <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
                     <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                      2
+                      3
                     </span>
                     <h2 className="text-sm sm:text-base font-bold text-slate-900">
                       Datos del Estudiante para el Registro Académico
@@ -749,12 +761,14 @@ export default function MatriculaPage() {
                   </div>
                 </div>
 
-                {/* 3. PASARELA DE PAGO POWERED BY WOMPI */}
+                {/* ========================================================= */}
+                {/* PASO 4: PASARELA DE PAGO POWERED BY WOMPI BANCOLOMBIA     */}
+                {/* ========================================================= */}
                 <div className="bg-white border-2 border-blue-900/20 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                        3
+                        4
                       </span>
                       <div>
                         <h2 className="text-sm sm:text-base font-bold text-slate-900">
@@ -769,10 +783,9 @@ export default function MatriculaPage() {
                     </span>
                   </div>
 
-                  {/* Canales de Pago Disponibles en Wompi */}
+                  {/* Canales de Pago */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
                     
-                    {/* Botón Bancolombia */}
                     <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
                       <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-[11px]">
                         BC
@@ -781,7 +794,6 @@ export default function MatriculaPage() {
                       <span className="text-[9px] text-slate-400">Transferencia</span>
                     </div>
 
-                    {/* PSE */}
                     <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
                       <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-black text-[11px]">
                         PSE
@@ -790,7 +802,6 @@ export default function MatriculaPage() {
                       <span className="text-[9px] text-slate-400">Todos los bancos</span>
                     </div>
 
-                    {/* Nequi */}
                     <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
                       <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-black text-[11px]">
                         NQ
@@ -799,7 +810,6 @@ export default function MatriculaPage() {
                       <span className="text-[9px] text-slate-400">Débito directo</span>
                     </div>
 
-                    {/* Tarjetas */}
                     <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
                       <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-900 flex items-center justify-center">
                         <CreditCard className="w-4 h-4" />
@@ -825,12 +835,12 @@ export default function MatriculaPage() {
                       ) : (
                         <>
                           <Lock className="w-4 h-4 text-amber-400" />
-                          <span>Pagar {formatCop(totalAmountToPay)} COP de forma segura</span>
+                          <span>Pagar {formatCop(totalAmountToPayToday)} COP de forma segura</span>
                         </>
                       )}
                     </button>
                     <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
-                      🔒 Tu información bancaria es procesada directamente por Wompi Bancolombia bajo protocolos SSL de alta seguridad.
+                      🔒 Tu información bancaria viaja encriptada y es procesada directamente por Wompi Bancolombia.
                     </p>
                   </div>
 
@@ -840,7 +850,7 @@ export default function MatriculaPage() {
 
             </div>
 
-            {/* COLUMNA DERECHA: RESUMEN DE MATRÍCULA Y LIQUIDACIÓN FORMAL (5 COLS - STICKY) */}
+            {/* COLUMNA DERECHA: RESUMEN DE MATRÍCULA Y LIQUIDACIÓN (5 COLS - STICKY) */}
             <div className="lg:col-span-5">
               <div className="sticky top-24 bg-slate-50 border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
                 
@@ -859,7 +869,7 @@ export default function MatriculaPage() {
 
                 {/* Programa y Modalidad Elegida */}
                 <div className="space-y-2">
-                  <div className="text-xs text-slate-500 font-medium">Programa Formativo:</div>
+                  <div className="text-xs text-slate-500 font-medium">Programa Asignado:</div>
                   <div className="font-extrabold text-slate-900 text-sm leading-snug">
                     {selectedProgram.title}
                   </div>
@@ -868,39 +878,39 @@ export default function MatriculaPage() {
                       {modality === 'presencial' ? 'Sede Presencial Turbo' : 'Virtual en Vivo'}
                     </span>
                     <span className="px-2 py-0.5 bg-white border border-slate-200 text-slate-700 text-[10px] font-bold rounded-md">
-                      {selectedProgram.periodLabel}
+                      {paymentMode === 'matricula_only' ? 'Reserva de Cupo' : 'Periodo Completo'}
                     </span>
                   </div>
                 </div>
 
-                {/* Desglose de Liquidación Formal */}
+                {/* Desglose de Liquidación */}
                 <div className="border-t border-b border-slate-200/80 py-3.5 space-y-2.5 text-xs">
                   
-                  {/* Matrícula Base Obligatoria */}
+                  {/* Cargo 1: Matrícula Oficial */}
                   <div className="flex justify-between text-slate-700 font-medium">
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-[#002B49]" />
-                      <span>Matrícula General (Derechos Base):</span>
+                      <span>Derechos de Matrícula (Pagas hoy):</span>
                     </div>
                     <span className="font-mono font-bold text-slate-900">{formatCop(MATRICULA_BASE_COP)}</span>
                   </div>
 
-                  {/* Periodo Académico */}
+                  {/* Cargo 2: Mensualidad / Periodo */}
                   <div className="flex justify-between text-slate-700">
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400" />
-                      <span>{selectedProgram.periodLabel}:</span>
+                      <span>Primera Mensualidad:</span>
                     </div>
                     {paymentMode === 'full' ? (
-                      <span className="font-mono font-bold text-slate-900">{formatCop(selectedProgram.priceCop)}</span>
+                      <span className="font-mono font-bold text-slate-900">{formatCop(selectedProgram.monthlyFeeCop)}</span>
                     ) : (
-                      <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/70">
-                        Pagas al iniciar ({formatCop(selectedProgram.priceCop)})
+                      <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80">
+                        Pagas al iniciar ({formatCop(selectedProgram.monthlyFeeCop)})
                       </span>
                     )}
                   </div>
 
-                  {/* Material Opcional si está marcado */}
+                  {/* Cargo 3: Material Opcional si está marcado */}
                   {includeAddon && (
                     <div className="flex justify-between text-amber-900 font-medium">
                       <div className="flex items-center gap-1.5">
@@ -913,29 +923,39 @@ export default function MatriculaPage() {
 
                   {/* Plataforma & Tutorías */}
                   <div className="flex justify-between text-slate-500 text-[11px]">
-                    <span>Campus Virtual & Laboratorio Fonético:</span>
+                    <span>Campus Virtual & Laboratorios:</span>
                     <span className="font-semibold text-emerald-700">Incluido (Gratis)</span>
                   </div>
 
                   {/* TOTAL LIQUIDADO A PAGAR HOY */}
                   <div className="pt-3 border-t border-slate-200/80 flex items-baseline justify-between">
                     <div>
-                      <span className="font-black text-slate-900 text-sm">Total Liquidado a Pagar:</span>
+                      <span className="font-black text-slate-900 text-sm">Total Liquidado a Pagar Hoy:</span>
                       <div className="text-[10px] text-slate-400">
-                        {paymentMode === 'full' ? 'Matrícula + Periodo Completo' : 'Pago de Reserva de Cupo'}
+                        {paymentMode === 'matricula_only' ? 'Reserva oficial de cupo' : 'Matrícula + 1ª Mensualidad'}
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="font-mono font-black text-xl text-[#002B49]">
-                        {formatCop(totalAmountToPay)} COP
+                        {formatCop(totalAmountToPayToday)} COP
                       </div>
                       <div className="text-[11px] font-bold text-slate-500">
-                        ~ ${totalUsdEquivalent} USD
+                        ~ ${totalUsdEquivalentToday} USD
                       </div>
                     </div>
                   </div>
 
                 </div>
+
+                {/* Badge Informativo si eligió Solo Matrícula */}
+                {paymentMode === 'matricula_only' && (
+                  <div className="p-3 bg-blue-50/80 border border-blue-200/70 rounded-xl text-blue-900 text-[11px] leading-relaxed flex items-start gap-2 animate-fadeIn">
+                    <Info className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <span>
+                      📅 Tu cupo oficial quedará asegurado inmediatamente. Recibirás tu credencial del Campus Virtual y la fecha límite para cancelar tu primera mensualidad antes de iniciar clases.
+                    </span>
+                  </div>
+                )}
 
                 {/* Beneficios Incluidos */}
                 <div className="space-y-2 text-xs text-slate-700">
@@ -988,7 +1008,7 @@ export default function MatriculaPage() {
 
       </main>
 
-      {/* FOOTER DISCRETO */}
+      {/* FOOTER */}
       <footer className="mt-16 border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
         <div className="max-w-6xl mx-auto px-4 space-y-1">
           <p>© {new Date().getFullYear()} American Dream English • Instituto de Idiomas Turbo, Urabá Antioqueño</p>
