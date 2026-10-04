@@ -23,7 +23,9 @@ import {
   Menu, 
   X,
   ChevronRight,
-  Inbox
+  Inbox,
+  Receipt,
+  DollarSign
 } from 'lucide-react'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
@@ -121,6 +123,7 @@ export function DashboardLayout({
       { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo' },
       { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/dashboard/admin', icon: Users, badge: 'Prioritario' },
       { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
+      { id: 'liquidaciones', label: 'Liquidaciones CORPLEX', href: '/admin/liquidaciones', icon: Receipt, badge: 'Finanzas' },
       { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: GraduationCap },
       { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart }
     ],
