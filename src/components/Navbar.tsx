@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
-import { Menu, X, LogIn } from 'lucide-react';
+import { Menu, X, GraduationCap } from 'lucide-react';
 
 interface NavbarProps {
   selectedCurrency: Currency;
@@ -10,6 +10,7 @@ interface NavbarProps {
   onOpenProgramas?: () => void;
   onOpenCursosDigitales?: () => void;
   onOpenClasesEnVivo?: () => void;
+  onMatricularme?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,12 +21,27 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenProgramas,
   onOpenCursosDigitales,
   onOpenClasesEnVivo,
+  onMatricularme,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleGoToLogin = (e: React.MouseEvent) => {
+  const handleGoToCampus = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.location.href = '/login';
+    window.location.href = '/campus/login';
+  };
+
+  const handleMatricularme = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (onMatricularme) {
+      onMatricularme();
+    } else {
+      const el = document.getElementById('registro');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else if (onOpenProgramas) {
+        onOpenProgramas();
+      }
+    }
   };
 
   return (
@@ -100,23 +116,23 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </div>
 
-            {/* BOTÓN INICIAR SESIÓN / PORTAL RBAC */}
+            {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL */}
             <a 
-              href="/login"
-              onClick={handleGoToLogin}
-              className="inline-flex text-xs sm:text-sm font-bold text-navy-900 hover:text-navy-950 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 transition items-center gap-1.5 shadow-2xs cursor-pointer"
+              href="/campus/login"
+              onClick={handleGoToCampus}
+              className="inline-flex text-xs sm:text-sm font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <LogIn className="w-4 h-4 text-navy-900" />
-              <span>Portal / Iniciar Sesión</span>
+              <GraduationCap className="w-4 h-4 text-white" />
+              <span>Campus Virtual</span>
             </a>
 
-            {/* Inscribirme / Matricularse CTA Button */}
+            {/* Inscribirme / Matricúlate CTA Button estilo UNAD */}
             <button 
               type="button"
-              onClick={onOpenProgramas}
-              className="bg-[#0F2537] hover:bg-navy-800 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+              onClick={handleMatricularme}
+              className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <span>Matricularme</span>
+              <span>Matricúlate</span>
             </button>
 
             {/* Mobile App Menu Toggle Button */}
@@ -183,14 +199,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           </nav>
 
-          <div className="pt-2 flex flex-col gap-2">
-            <a
-              href="/login"
-              onClick={handleGoToLogin}
-              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-navy-900 hover:bg-navy-950 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+          <div className="pt-2 flex flex-col gap-2.5">
+            <button
+              type="button"
+              onClick={(e) => { setMobileMenuOpen(false); handleMatricularme(e); }}
+              className="w-full py-3 rounded-xl text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
-              <LogIn className="w-4 h-4 text-white" />
-              <span>Portal / Iniciar Sesión</span>
+              <span>Matricúlate</span>
+            </button>
+            <a
+              href="/campus/login"
+              onClick={handleGoToCampus}
+              className="w-full py-3 rounded-xl text-xs font-bold text-white bg-[#002B49] hover:bg-[#001f35] text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+            >
+              <GraduationCap className="w-4 h-4 text-white" />
+              <span>Campus Virtual</span>
             </a>
           </div>
         </div>

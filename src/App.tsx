@@ -55,7 +55,7 @@ export function App() {
   };
 
   // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
-  if (currentPath === '/login') {
+  if (currentPath === '/login' || currentPath === '/campus/login') {
     return <LoginView />;
   }
   if (currentPath === '/dashboard/admin') {
@@ -83,6 +83,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
+        onMatricularme={() => scrollToSection('registro')}
       />
 
       {/* Main Content */}
