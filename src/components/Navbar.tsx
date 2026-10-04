@@ -35,18 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (onMatricularme) {
       onMatricularme();
     } else {
-      const el = document.getElementById('formulario-inscripcion') || document.getElementById('registro');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-        setTimeout(() => {
-          const input = el.querySelector('input') || document.getElementById('primer-campo-nombre');
-          if (input) {
-            (input as HTMLInputElement).focus({ preventScroll: true });
-          }
-        }, 500);
-      } else if (onOpenProgramas) {
-        onOpenProgramas();
-      }
+      window.location.href = '/matricula';
     }
   };
 
@@ -133,13 +122,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             </a>
 
             {/* Inscribirme / Matricúlate CTA Button estilo UNAD */}
-            <button 
-              type="button"
+            <a 
+              href="/matricula"
               onClick={handleMatricularme}
               className="inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <span>Matricúlate</span>
-            </button>
+            </a>
 
             {/* Mobile App Menu Toggle Button */}
             <button
@@ -206,13 +195,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           <div className="pt-2 flex flex-col gap-2.5">
-            <button
-              type="button"
+            <a
+              href="/matricula"
               onClick={(e) => { setMobileMenuOpen(false); handleMatricularme(e); }}
-              className="w-full py-3 rounded-xl text-xs font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              className="w-full py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               <span>Matricúlate</span>
-            </button>
+            </a>
             <a
               href="/campus/login"
               onClick={handleGoToCampus}

@@ -93,7 +93,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
-        onMatricularme={() => scrollToSection('formulario-inscripcion')}
+        onMatricularme={() => { window.location.href = '/matricula'; }}
       />
 
       {/* Main Content */}
