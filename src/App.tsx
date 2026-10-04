@@ -20,6 +20,7 @@ import AdminProductsPage from './app/dashboard/admin/products/page';
 import TeacherDashboardPage from './app/dashboard/teacher/page';
 import StudentDashboardPage from './app/dashboard/student/page';
 import MatriculaPage from './app/matricula/page';
+import CampusVirtualPage from './app/campus/page';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
@@ -76,6 +77,9 @@ export function App() {
   }
   if (currentPath === '/dashboard/teacher') {
     return <TeacherDashboardPage />;
+  }
+  if (currentPath === '/campus' || currentPath === '/campus/miscursos') {
+    return <CampusVirtualPage />;
   }
   if (currentPath === '/dashboard/student') {
     return <StudentDashboardPage />;
