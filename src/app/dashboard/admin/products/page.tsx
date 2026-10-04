@@ -591,12 +591,12 @@ export default function AdminProductsPage() {
             </div>
           )}
 
-          {/* TOP TOOLBAR (Clean 2-Tier Header Layout - Stable at 100% & 90% Zoom) */}
+          {/* TOP TOOLBAR (Clean 2-Tier Header Layout - Mobile-First & Responsive) */}
           <div className="space-y-3.5 mb-6">
             
             {/* TIER 1: Title & Primary Action Button */}
-            <div className="flex items-center justify-between gap-4 flex-wrap sm:flex-nowrap">
-              <div className="flex items-center gap-3 whitespace-nowrap">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center justify-between sm:justify-start gap-3">
                 <h1 className="text-xl md:text-2xl font-bold text-slate-800 tracking-tight">
                   Catálogo de Productos & Precios
                 </h1>
@@ -611,18 +611,18 @@ export default function AdminProductsPage() {
                   resetCreateForm()
                   setIsCreateModalOpen(true)
                 }}
-                className="bg-[#f5c045] hover:bg-[#e4b034] text-slate-900 font-bold text-xs rounded-xl px-4 py-2.5 shadow-sm shadow-amber-200/60 flex items-center gap-2 transition-all active:scale-95 whitespace-nowrap flex-shrink-0 ml-auto"
+                className="w-full sm:w-auto bg-[#f5c045] hover:bg-[#e4b034] text-slate-900 font-bold text-xs rounded-xl px-4 py-2.5 shadow-sm shadow-amber-200/60 flex items-center justify-center gap-2 transition-all active:scale-95 whitespace-nowrap shrink-0"
               >
                 <Plus className="w-4 h-4 stroke-[3]" />
                 <span>Nuevo Producto</span>
               </button>
             </div>
 
-            {/* TIER 2: Search Bar + 3 Filter Dropdowns in a Clean Horizontal Strip */}
-            <div className="flex flex-wrap md:flex-nowrap items-center gap-2.5 pt-2 border-t border-slate-100">
+            {/* TIER 2: Search Bar + 3 Filter Dropdowns in a Clean Responsive Layout */}
+            <div className="flex flex-col sm:flex-row flex-wrap items-center gap-2.5 pt-2 border-t border-slate-100">
               
               {/* Search Input (Expands to fill available space) */}
-              <div className="relative flex-1 min-w-[200px]">
+              <div className="relative w-full sm:flex-1 min-w-[200px]">
                 <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
                 <input
                   type="text"
@@ -637,7 +637,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Dropdown: Categoría */}
-              <div className="relative flex-shrink-0 min-w-[130px]">
+              <div className="relative w-full sm:w-auto sm:flex-shrink-0 min-w-[130px]">
                 <select
                   value={selectedCategory}
                   onChange={(e) => {
@@ -657,7 +657,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Dropdown: Moneda */}
-              <div className="relative flex-shrink-0 min-w-[120px]">
+              <div className="relative w-full sm:w-auto sm:flex-shrink-0 min-w-[120px]">
                 <select
                   value={selectedCurrency}
                   onChange={(e) => {
@@ -674,7 +674,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Dropdown: Visibilidad */}
-              <div className="relative flex-shrink-0 min-w-[130px]">
+              <div className="relative w-full sm:w-auto sm:flex-shrink-0 min-w-[130px]">
                 <select
                   value={selectedVisibility}
                   onChange={(e) => {
@@ -692,7 +692,7 @@ export default function AdminProductsPage() {
 
             </div>
 
-            {/* ACTIVE FILTERS CHIP BAR (Exact match to "Filtrar por: [ Chips ] [ Limpar ]" in reference image) */}
+            {/* ACTIVE FILTERS CHIP BAR */}
             {hasActiveFilters && (
               <div className="flex items-center gap-2 text-xs text-slate-500 pt-2 flex-wrap animate-fadeIn">
                 <span className="font-semibold text-slate-400">Filtrar por:</span>
@@ -756,7 +756,7 @@ export default function AdminProductsPage() {
 
           </div>
 
-          {/* STYLED PRODUCTS TABLE (Dark Institutional Deep Navy Header Header Bar) */}
+          {/* STYLED PRODUCTS CONTAINER (Desktop Table + Mobile Bento Cards) */}
           <div className="rounded-2xl border border-slate-200/90 overflow-hidden bg-white shadow-sm w-full">
             
             {loading ? (
@@ -776,167 +776,279 @@ export default function AdminProductsPage() {
                 </button>
               </div>
             ) : (
-              <div className="w-full overflow-x-auto">
-                <table className="w-full text-left text-xs text-slate-700 border-collapse">
-                  
-                  {/* Header Row: Deep Navy Dark Blue (#0c1f2d) */}
-                  <thead>
-                    <tr className="bg-[#0c1f2d] text-slate-200 font-semibold text-[11px] tracking-wider uppercase">
-                      <th className="py-2.5 px-3 font-semibold">Producto & Descripción</th>
-                      <th className="py-2.5 px-2.5 font-semibold">Categoría / Formato</th>
-                      <th className="py-2.5 px-2.5 font-semibold text-right">Precio COP</th>
-                      <th className="py-2.5 px-2.5 font-semibold text-right">Precio USD</th>
-                      <th className="py-2.5 px-2.5 font-semibold text-center">Visibilidad</th>
-                      <th className="py-2.5 px-3 font-semibold text-right">Acciones</th>
-                    </tr>
-                  </thead>
-
-                  {/* Body Rows */}
-                  <tbody className="divide-y divide-slate-100">
-                    {paginatedProducts.map((prod) => (
-                      <tr 
-                        key={prod.id} 
-                        className="hover:bg-slate-50/80 transition-colors group"
-                      >
-                        
-                        {/* Title & Description */}
-                        <td className="py-2.5 px-3">
-                          <div className="flex items-center gap-3">
-                            {prod.image_url ? (
-                              <img
-                                src={prod.image_url}
-                                alt={prod.title}
-                                loading="lazy"
-                                className="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-50 shrink-0"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
-                                <ImageIcon className="w-4 h-4 text-slate-400" />
-                              </div>
-                            )}
-                            <div className="min-w-0 space-y-0.5">
-                              <div className="font-semibold text-slate-800 text-xs md:text-sm group-hover:text-slate-900 transition-colors leading-tight">
-                                {prod.title}
-                              </div>
-                              {prod.description && (
-                                <p className="text-[10px] text-slate-400 line-clamp-1 leading-normal">
-                                  {prod.description}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-
-                        {/* Category & Badge */}
-                        <td className="py-2.5 px-2.5">
-                          <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200/80 text-[10px] font-medium rounded-md whitespace-nowrap">
-                            {prod.format_badge || prod.category}
-                          </span>
-                        </td>
-
-                        {/* Price COP Input */}
-                        <td className="py-2.5 px-2 text-right">
-                          <div className="relative inline-block w-24">
-                            <span className="absolute left-2 top-1.5 text-slate-400 font-mono text-[11px]">$</span>
-                            <input
-                              type="text"
-                              value={formatCopDisplay(prod.price_cop)}
-                              onChange={(e) => handlePriceChange(prod.id, 'price_cop', e.target.value)}
-                              className="w-full bg-slate-50 border border-slate-200 rounded-md py-1 pl-5 pr-1 font-mono text-xs text-slate-800 text-right font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500/40 focus:border-amber-500 transition-colors"
-                            />
-                          </div>
-                        </td>
-
-                        {/* Price USD Input */}
-                        <td className="py-2.5 px-2 text-right">
-                          <div className="relative inline-block w-16">
-                            <span className="absolute left-1.5 top-1.5 text-slate-400 font-mono text-[11px]">$</span>
-                            <input
-                              type="number"
-                              min="0"
-                              value={prod.price_usd}
-                              onChange={(e) => handlePriceChange(prod.id, 'price_usd', e.target.value)}
-                              className="w-full bg-slate-50 border border-slate-200 rounded-md py-1 pl-4 pr-1 font-mono text-xs text-slate-800 text-right font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500/40 focus:border-amber-500 transition-colors"
-                            />
-                          </div>
-                        </td>
-
-                        {/* Visibility Pill Badge */}
-                        <td className="py-2.5 px-2 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleToggleActive(prod.id)}
-                            title="Haz clic para alternar visibilidad"
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                              prod.active
-                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
-                                : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
-                            }`}
-                          >
-                            {prod.active ? (
-                              <>
-                                <Eye className="w-3 h-3 text-emerald-600" />
-                                <span>Activo</span>
-                              </>
-                            ) : (
-                              <>
-                                <EyeOff className="w-3 h-3 text-slate-400" />
-                                <span>Inactivo</span>
-                              </>
-                            )}
-                          </button>
-                        </td>
-
-                        {/* Column of Compact Action Buttons (Eye, Save, Pencil, Trash) */}
-                        <td className="py-2.5 px-2 text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            
-                            {/* View Detail Button */}
-                            <button
-                              onClick={() => setViewingProduct(prod)}
-                              title="Ver detalles"
-                              className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
-
-                            {/* Quick Save Row Button */}
-                            <button
-                              onClick={() => handleSaveProduct(prod)}
-                              disabled={savingId === prod.id}
-                              title="Guardar cambios de la fila"
-                              className="p-1 rounded-md text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 transition-colors disabled:opacity-40"
-                            >
-                              <Save className="w-3.5 h-3.5" />
-                            </button>
-
-                            {/* Edit Button */}
-                            <button
-                              onClick={() => openEditModal(prod)}
-                              title="Editar producto"
-                              className="p-1 rounded-md text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
-                            >
-                              <Pencil className="w-3.5 h-3.5" />
-                            </button>
-
-                            {/* Delete Button */}
-                            <button
-                              onClick={() => handleDeleteProduct(prod.id, prod.title)}
-                              title="Eliminar producto"
-                              className="p-1 rounded-md text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-
-                          </div>
-                        </td>
-
+              <>
+                {/* DESKTOP TABLE VIEW (hidden on mobile, visible on md and up) */}
+                <div className="hidden md:block w-full overflow-x-auto">
+                  <table className="w-full text-left text-xs text-slate-700 border-collapse">
+                    
+                    {/* Header Row: Deep Navy Dark Blue (#0c1f2d) */}
+                    <thead>
+                      <tr className="bg-[#0c1f2d] text-slate-200 font-semibold text-[11px] tracking-wider uppercase">
+                        <th className="py-2.5 px-3 font-semibold">Producto & Descripción</th>
+                        <th className="py-2.5 px-2.5 font-semibold">Categoría / Formato</th>
+                        <th className="py-2.5 px-2.5 font-semibold text-right">Precio COP</th>
+                        <th className="py-2.5 px-2.5 font-semibold text-right">Precio USD</th>
+                        <th className="py-2.5 px-2.5 font-semibold text-center">Visibilidad</th>
+                        <th className="py-2.5 px-3 font-semibold text-right">Acciones</th>
                       </tr>
-                    ))}
-                  </tbody>
+                    </thead>
 
-                </table>
-              </div>
+                    {/* Body Rows */}
+                    <tbody className="divide-y divide-slate-100">
+                      {paginatedProducts.map((prod) => (
+                        <tr 
+                          key={prod.id} 
+                          className="hover:bg-slate-50/80 transition-colors group"
+                        >
+                          
+                          {/* Title & Description */}
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-3">
+                              {prod.image_url ? (
+                                <img
+                                  src={prod.image_url}
+                                  alt={prod.title}
+                                  loading="lazy"
+                                  className="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-50 shrink-0"
+                                />
+                              ) : (
+                                <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                                  <ImageIcon className="w-4 h-4 text-slate-400" />
+                                </div>
+                              )}
+                              <div className="min-w-0 space-y-0.5">
+                                <div className="font-semibold text-slate-800 text-xs md:text-sm group-hover:text-slate-900 transition-colors leading-tight">
+                                  {prod.title}
+                                </div>
+                                {prod.description && (
+                                  <p className="text-[10px] text-slate-400 line-clamp-1 leading-normal">
+                                    {prod.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Category & Badge */}
+                          <td className="py-2.5 px-2.5">
+                            <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200/80 text-[10px] font-medium rounded-md whitespace-nowrap">
+                              {prod.format_badge || prod.category}
+                            </span>
+                          </td>
+
+                          {/* Price COP Input */}
+                          <td className="py-2.5 px-2 text-right">
+                            <div className="relative inline-block w-24">
+                              <span className="absolute left-2 top-1.5 text-slate-400 font-mono text-[11px]">$</span>
+                              <input
+                                type="text"
+                                value={formatCopDisplay(prod.price_cop)}
+                                onChange={(e) => handlePriceChange(prod.id, 'price_cop', e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-md py-1 pl-5 pr-1 font-mono text-xs text-slate-800 text-right font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500/40 focus:border-amber-500 transition-colors"
+                              />
+                            </div>
+                          </td>
+
+                          {/* Price USD Input */}
+                          <td className="py-2.5 px-2 text-right">
+                            <div className="relative inline-block w-16">
+                              <span className="absolute left-1.5 top-1.5 text-slate-400 font-mono text-[11px]">$</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={prod.price_usd}
+                                onChange={(e) => handlePriceChange(prod.id, 'price_usd', e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-md py-1 pl-4 pr-1 font-mono text-xs text-slate-800 text-right font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500/40 focus:border-amber-500 transition-colors"
+                              />
+                            </div>
+                          </td>
+
+                          {/* Visibility Pill Badge */}
+                          <td className="py-2.5 px-2 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(prod.id)}
+                              title="Haz clic para alternar visibilidad"
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                                prod.active
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'
+                                  : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'
+                              }`}
+                            >
+                              {prod.active ? (
+                                <>
+                                  <Eye className="w-3 h-3 text-emerald-600" />
+                                  <span>Activo</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff className="w-3 h-3 text-slate-400" />
+                                  <span>Inactivo</span>
+                                </>
+                              )}
+                            </button>
+                          </td>
+
+                          {/* Column of Compact Action Buttons (Eye, Save, Pencil, Trash) */}
+                          <td className="py-2.5 px-2 text-right">
+                            <div className="flex items-center justify-end gap-1">
+                              
+                              {/* View Detail Button */}
+                              <button
+                                onClick={() => setViewingProduct(prod)}
+                                title="Ver detalles"
+                                className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Quick Save Row Button */}
+                              <button
+                                onClick={() => handleSaveProduct(prod)}
+                                disabled={savingId === prod.id}
+                                title="Guardar cambios de la fila"
+                                className="p-1 rounded-md text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 transition-colors disabled:opacity-40"
+                              >
+                                <Save className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Edit Button */}
+                              <button
+                                onClick={() => openEditModal(prod)}
+                                title="Editar producto"
+                                className="p-1 rounded-md text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+
+                              {/* Delete Button */}
+                              <button
+                                onClick={() => handleDeleteProduct(prod.id, prod.title)}
+                                title="Eliminar producto"
+                                className="p-1 rounded-md text-rose-500 hover:text-rose-700 hover:bg-rose-50 transition-colors"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+
+                            </div>
+                          </td>
+
+                        </tr>
+                      ))}
+                    </tbody>
+
+                  </table>
+                </div>
+
+                {/* MOBILE CARDS VIEW (visible on mobile, hidden on md and up) */}
+                <div className="block md:hidden divide-y divide-slate-100">
+                  {paginatedProducts.map((prod) => (
+                    <div key={prod.id} className="p-4 space-y-3 hover:bg-slate-50/50 transition-colors">
+                      {/* Cabecera de la tarjeta */}
+                      <div className="flex items-start gap-3">
+                        {/* Thumbnail de la imagen a la izquierda */}
+                        {prod.image_url ? (
+                          <img
+                            src={prod.image_url}
+                            alt={prod.title}
+                            loading="lazy"
+                            className="w-14 h-14 rounded-xl object-cover border border-slate-200 bg-slate-50 shrink-0"
+                          />
+                        ) : (
+                          <div className="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                            <ImageIcon className="w-6 h-6 text-slate-400" />
+                          </div>
+                        )}
+
+                        {/* Info a la derecha */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <h3 className="text-sm font-semibold text-slate-800 line-clamp-2 leading-snug">
+                              {prod.title}
+                            </h3>
+                            {/* Badge de visibilidad */}
+                            <button
+                              type="button"
+                              onClick={() => handleToggleActive(prod.id)}
+                              className={`shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all cursor-pointer ${
+                                prod.active
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-slate-100 text-slate-500 border border-slate-200'
+                              }`}
+                            >
+                              {prod.active ? (
+                                <>
+                                  <Eye className="w-3 h-3 text-emerald-600" />
+                                  <span>Activo</span>
+                                </>
+                              ) : (
+                                <>
+                                  <EyeOff className="w-3 h-3 text-slate-400" />
+                                  <span>Inactivo</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-700 border border-slate-200/80 text-[10px] font-medium rounded-md">
+                              {prod.format_badge || prod.category}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Cuerpo de la tarjeta: Descripción */}
+                      {prod.description && (
+                        <p className="line-clamp-2 text-xs text-slate-500 leading-relaxed">
+                          {prod.description}
+                        </p>
+                      )}
+
+                      {/* Fila de precios destacada */}
+                      <div className="bg-slate-50/80 border border-slate-200/70 rounded-xl p-2.5 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 text-slate-600">
+                          <span className="text-[11px] font-medium text-slate-400">Precio:</span>
+                          <span className="font-bold text-slate-900 font-mono text-xs">
+                            $ {formatCopDisplay(prod.price_cop)} COP
+                          </span>
+                          <span className="text-slate-300">·</span>
+                          <span className="font-bold text-emerald-700 font-mono text-xs">
+                            $ {prod.price_usd} USD
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Pie de la tarjeta: Botones táctiles claros (min 40px de altura para dedos) */}
+                      <div className="grid grid-cols-3 gap-2 pt-1">
+                        <button
+                          onClick={() => setViewingProduct(prod)}
+                          className="h-10 flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 text-slate-700 bg-white hover:bg-slate-50 active:bg-slate-100 text-xs font-semibold transition-colors shadow-xs"
+                        >
+                          <Eye className="w-4 h-4 text-slate-500" />
+                          <span>Ver</span>
+                        </button>
+
+                        <button
+                          onClick={() => openEditModal(prod)}
+                          className="h-10 flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 text-blue-700 bg-blue-50/50 hover:bg-blue-100 active:bg-blue-200/70 text-xs font-semibold transition-colors shadow-xs"
+                        >
+                          <Pencil className="w-4 h-4 text-blue-600" />
+                          <span>Editar</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleDeleteProduct(prod.id, prod.title)}
+                          className="h-10 flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 text-rose-700 bg-rose-50/50 hover:bg-rose-100 active:bg-rose-200/70 text-xs font-semibold transition-colors shadow-xs"
+                        >
+                          <Trash2 className="w-4 h-4 text-rose-600" />
+                          <span>Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
 
           </div>
