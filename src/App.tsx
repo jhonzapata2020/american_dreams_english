@@ -25,6 +25,7 @@ import CampusLoginPage from './app/campus/login/page';
 import AulaVirtualPage from './app/campus/curso/[id]/page';
 import AdminLoginPage from './app/admin/login/page';
 import LiquidacionesCorplexPage from './app/admin/liquidaciones/page';
+import AdminEstudiantesPage from './app/admin/estudiantes/page';
 
 export function App() {
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
@@ -87,6 +88,9 @@ export function App() {
   }
   if (currentPath === '/admin/liquidaciones' || currentPath === '/admin/finanzas' || currentPath === '/dashboard/admin/liquidaciones') {
     return <LiquidacionesCorplexPage />;
+  }
+  if (currentPath === '/admin/estudiantes' || currentPath === '/dashboard/admin/estudiantes') {
+    return <AdminEstudiantesPage />;
   }
   if (currentPath === '/dashboard/admin/products') {
     return <AdminProductsPage />;

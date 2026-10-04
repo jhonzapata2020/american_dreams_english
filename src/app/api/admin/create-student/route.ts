@@ -4,11 +4,28 @@ import { createClient } from '@supabase/supabase-js'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { fullName, email, municipality, mcerLevel } = body
+    const { 
+      firstName, 
+      lastName, 
+      fullName, 
+      documentType, 
+      documentId, 
+      email, 
+      phone, 
+      mcerLevel, 
+      courseId, 
+      courseName, 
+      modality,
+      municipality 
+    } = body
 
-    if (!fullName || !email) {
+    const cleanEmail = email ? email.trim().toLowerCase() : ''
+    const cleanDoc = documentId ? documentId.toString().trim() : ''
+    const cleanName = (fullName || `${firstName || ''} ${lastName || ''}`).trim()
+
+    if (!cleanName || !cleanEmail || !cleanDoc) {
       return NextResponse.json(
-        { error: 'El nombre completo y el correo electrónico son obligatorios.' },
+        { error: 'El nombre completo, correo electrónico y número de documento son obligatorios.' },
         { status: 400 }
       )
     }
@@ -26,31 +43,59 @@ export async function POST(request: Request) {
       }
     })
 
-    const cleanEmail = email.trim().toLowerCase()
-    const cleanName = fullName.trim()
+    // Contraseña inicial por defecto: el mismo número de documento (mínimo 6 caracteres)
+    const initialPassword = cleanDoc.length >= 6 ? cleanDoc : `${cleanDoc}2026*`
 
     // 1. Verificar si ya existe un perfil registrado con este correo
     const { data: existingProfile } = await supabaseAdmin
       .from('profiles')
-      .select('id')
+      .select('id, email, full_name')
       .eq('email', cleanEmail)
       .maybeSingle()
 
     let userId = existingProfile?.id
 
     if (!userId) {
-      // Intentar crear el usuario en Supabase Auth con Service Role
-      const { data: authUser } = await supabaseAdmin.auth.admin.createUser({
+      // Crear el usuario en Supabase Auth con Service Role
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: cleanEmail,
-        password: 'TempPassword2026*',
+        password: initialPassword,
         email_confirm: true,
-        user_metadata: { full_name: cleanName, role: 'student' }
+        user_metadata: {
+          role: 'student',
+          full_name: cleanName,
+          first_name: firstName || cleanName.split(' ')[0],
+          last_name: lastName || cleanName.split(' ').slice(1).join(' '),
+          document_type: documentType || 'C.C.',
+          document_id: cleanDoc,
+          phone: phone || ''
+        }
       })
 
       if (authUser?.user?.id) {
         userId = authUser.user.id
       } else {
-        userId = crypto.randomUUID()
+        // Si el usuario ya existía en auth pero no en profiles, buscarlo
+        if (authError && authError.message?.toLowerCase().includes('already')) {
+          const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
+          const matchedUser = listData?.users?.find(u => u.email?.toLowerCase() === cleanEmail)
+          if (matchedUser) {
+            userId = matchedUser.id
+            // Actualizar contraseña al documento
+            await supabaseAdmin.auth.admin.updateUserById(userId, { password: initialPassword })
+          } else {
+            userId = crypto.randomUUID()
+          }
+        } else {
+          userId = crypto.randomUUID()
+        }
+      }
+    } else {
+      // Actualizar contraseña del usuario existente en Auth al documento
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(userId, { password: initialPassword })
+      } catch (e) {
+        // Silencioso
       }
     }
 
@@ -60,18 +105,22 @@ export async function POST(request: Request) {
       full_name: cleanName,
       email: cleanEmail,
       role: 'student',
-      municipality: municipality || 'Turbo',
-      origin_location: municipality || 'Turbo',
-      academic_level: mcerLevel || 'A1'
+      document_type: documentType || 'C.C.',
+      document_number: cleanDoc,
+      phone: phone || '',
+      mcer_level: mcerLevel || 'A1',
+      academic_level: mcerLevel || 'A1',
+      municipality: municipality || 'Turbo (Urabá)',
+      origin_location: municipality || 'Turbo (Urabá)',
+      status: 'active'
     }
 
     let { error: profileError } = await supabaseAdmin
       .from('profiles')
       .upsert(profilePayload, { onConflict: 'id' })
 
-    // Fallback si alguna columna no existe en el esquema de la base de datos
     if (profileError) {
-      console.warn('Upsert inicial reportó advertencia en profiles:', profileError.message)
+      console.warn('Upsert en profiles reportó advertencia:', profileError.message)
       const fallbackPayload: any = {
         id: userId,
         full_name: cleanName,
@@ -79,24 +128,35 @@ export async function POST(request: Request) {
         role: 'student',
         origin_location: municipality || 'Turbo'
       }
-      const { error: retryError } = await supabaseAdmin
-        .from('profiles')
-        .upsert(fallbackPayload, { onConflict: 'id' })
+      await supabaseAdmin.from('profiles').upsert(fallbackPayload, { onConflict: 'id' })
+    }
 
-      if (retryError) {
-        console.error('Error en upsert fallback profiles:', retryError)
-        // Intentar insert simple por si upsert tiene restricciones
-        const { error: insertErr } = await supabaseAdmin
-          .from('profiles')
-          .insert([fallbackPayload])
+    // 3. Insertar matrícula correspondiente en la tabla de matrículas (enrollments)
+    const levelName = mcerLevel || 'A1'
+    const defaultCourseTitle = courseName || (
+      levelName === 'A1' ? 'ENGLISH LEVEL 1 - GENERAL PROGRAM' :
+      levelName === 'A2' ? 'ENGLISH LEVEL 2 - PRE-INTERMEDIATE' :
+      levelName === 'B1' ? 'ENGLISH LEVEL 3 - INTERMEDIATE' :
+      'ENGLISH LEVEL 4 - UPPER INTERMEDIATE'
+    )
 
-        if (insertErr && !insertErr.message?.toLowerCase().includes('duplicate')) {
-          return NextResponse.json(
-            { error: insertErr.message || 'No se pudo guardar el perfil del estudiante.' },
-            { status: 500 }
-          )
-        }
+    try {
+      const enrollmentPayload = {
+        student_id: userId,
+        user_id: userId,
+        course_id: courseId || `ade-ing-${levelName.toLowerCase()}`,
+        course_title: defaultCourseTitle,
+        current_level: levelName,
+        modality: modality || 'virtual',
+        status: 'active',
+        created_at: new Date().toISOString()
       }
+
+      await supabaseAdmin
+        .from('enrollments')
+        .upsert(enrollmentPayload, { onConflict: 'student_id' })
+    } catch (enrollErr) {
+      console.warn('Nota en inserción de matrícula (enrollments):', enrollErr)
     }
 
     return NextResponse.json({
@@ -105,16 +165,27 @@ export async function POST(request: Request) {
         id: userId,
         full_name: cleanName,
         email: cleanEmail,
-        role: 'student',
-        municipality: municipality || 'Turbo',
-        mcer_level: mcerLevel || 'A1'
+        document_type: documentType || 'C.C.',
+        document_number: cleanDoc,
+        phone: phone || '',
+        mcer_level: levelName,
+        course_name: defaultCourseTitle,
+        modality: modality || 'virtual',
+        status: 'active'
+      },
+      credentials: {
+        username: cleanDoc,
+        email: cleanEmail,
+        document_id: cleanDoc,
+        password: initialPassword,
+        login_url: '/campus/login'
       }
     })
 
   } catch (err: any) {
     console.error('Error no controlado en /api/admin/create-student:', err)
     return NextResponse.json(
-      { error: err.message || 'Error interno del servidor.' },
+      { error: err.message || 'Error interno del servidor al crear la cuenta del estudiante.' },
       { status: 500 }
     )
   }
