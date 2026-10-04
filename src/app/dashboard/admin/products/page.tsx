@@ -114,7 +114,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<ProductItem[]>([])
   const [loading, setLoading] = useState(true)
   const [savingId, setSavingId] = useState<string | null>(null)
-  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; title?: string; message: string } | null>(null)
 
   // Filters & Search State
   const [searchTerm, setSearchTerm] = useState('')
@@ -257,6 +257,7 @@ export default function AdminProductsPage() {
       if (uploadError) {
         setNotification({
           type: 'error',
+          title: 'Error al subir imagen',
           message: `No se pudo subir la imagen: ${uploadError.message}`,
         })
         setIsCreating(false)
@@ -292,6 +293,7 @@ export default function AdminProductsPage() {
         if (error) {
           setNotification({
             type: 'error',
+            title: 'Error al actualizar',
             message: `Error al actualizar producto: ${error.message}`,
           })
         } else {
@@ -302,7 +304,8 @@ export default function AdminProductsPage() {
           resetCreateForm()
           setNotification({
             type: 'success',
-            message: 'Producto actualizado con éxito',
+            title: '¡Producto actualizado!',
+            message: `"${productPayload.title}" se ha actualizado con éxito en el catálogo.`,
           })
         }
       } else {
@@ -314,6 +317,7 @@ export default function AdminProductsPage() {
         if (error) {
           setNotification({
             type: 'error',
+            title: 'Error al crear producto',
             message: `Error al crear producto: ${error.message}`,
           })
         } else {
@@ -327,7 +331,8 @@ export default function AdminProductsPage() {
           resetCreateForm()
           setNotification({
             type: 'success',
-            message: 'Producto creado con éxito',
+            title: '¡Producto creado con éxito!',
+            message: `"${productPayload.title}" se ha guardado correctamente en el catálogo.`,
           })
         }
       }
@@ -338,7 +343,8 @@ export default function AdminProductsPage() {
         )
         setNotification({
           type: 'success',
-          message: 'Producto actualizado con éxito',
+          title: '¡Producto actualizado!',
+          message: `"${productPayload.title}" se ha actualizado en el catálogo.`,
         })
       } else {
         const fallbackProduct: ProductItem = {
@@ -348,14 +354,15 @@ export default function AdminProductsPage() {
         setProducts((prev) => [fallbackProduct, ...prev])
         setNotification({
           type: 'success',
-          message: 'Producto creado con éxito',
+          title: '¡Producto creado con éxito!',
+          message: `"${productPayload.title}" se ha guardado en el catálogo.`,
         })
       }
       setIsCreateModalOpen(false)
       resetCreateForm()
     } finally {
       setIsCreating(false)
-      setTimeout(() => setNotification(null), 4000)
+      setTimeout(() => setNotification(null), 4500)
     }
   }
 
@@ -371,9 +378,10 @@ export default function AdminProductsPage() {
     setProducts((prev) => prev.filter((p) => p.id !== id))
     setNotification({
       type: 'success',
-      message: `Producto "${title}" eliminado con éxito.`,
+      title: 'Producto eliminado',
+      message: `El producto "${title}" ha sido eliminado del catálogo.`,
     })
-    setTimeout(() => setNotification(null), 4000)
+    setTimeout(() => setNotification(null), 4500)
   }
 
   const fetchProducts = async () => {
@@ -476,22 +484,25 @@ export default function AdminProductsPage() {
       if (error) {
         setNotification({
           type: 'error',
+          title: 'Error al guardar',
           message: `Error al actualizar "${product.title}": ${error.message}`,
         })
       } else {
         setNotification({
           type: 'success',
+          title: '¡Precios actualizados!',
           message: `¡Producto "${product.title}" guardado con éxito!`,
         })
       }
     } catch (err: any) {
       setNotification({
         type: 'success',
+        title: '¡Precios actualizados!',
         message: `Estado local actualizado para "${product.title}".`,
       })
     } finally {
       setSavingId(null)
-      setTimeout(() => setNotification(null), 4000)
+      setTimeout(() => setNotification(null), 4500)
     }
   }
 
@@ -547,21 +558,36 @@ export default function AdminProductsPage() {
         {/* Floating White Main Container Card */}
         <div className="bg-white rounded-2xl border border-slate-200/80 p-4 sm:p-5 space-y-4 w-full shadow-sm">
           
-          {/* Notification Toast */}
+          {/* FLOATING SUCCESS / ERROR TOAST POPUP */}
           {notification && (
-            <div
-              className={`p-4 rounded-2xl text-xs font-bold flex items-center gap-3 border animate-fadeIn transition-all ${
-                notification.type === 'success'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                  : 'bg-rose-50 text-rose-800 border-rose-200'
-              }`}
-            >
-              {notification.type === 'success' ? (
-                <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-600" />
-              ) : (
-                <AlertCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
-              )}
-              <span>{notification.message}</span>
+            <div className="fixed bottom-6 right-6 z-[9999] bg-white border border-emerald-300 text-slate-900 p-4 rounded-2xl shadow-xl shadow-slate-300/40 flex items-center justify-between gap-4 animate-fadeIn max-w-sm backdrop-blur-md font-sans">
+              <div className="flex items-center gap-3.5">
+                <div className={`p-2.5 rounded-xl border flex-shrink-0 ${
+                  notification.type === 'success'
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                    : 'bg-rose-50 text-rose-600 border-rose-200'
+                }`}>
+                  {notification.type === 'success' ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  ) : (
+                    <AlertCircle className="w-5 h-5 text-rose-600" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <h4 className="text-xs font-extrabold text-slate-900">
+                    {notification.title || (notification.type === 'success' ? 'Operación Exitosa' : 'Error')}
+                  </h4>
+                  <p className="text-[11px] text-slate-600 mt-0.5 leading-snug">{notification.message}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNotification(null)}
+                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 cursor-pointer"
+                title="Cerrar notificación"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           )}
 
