@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { createClient } from '../../../../utils/supabase/client'
 import { DashboardLayout } from '../../../../components/dashboard/DashboardLayout'
@@ -24,7 +24,9 @@ import {
   Filter,
   DollarSign,
   Tag,
-  Info
+  Info,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react'
 
 export interface ProductItem {
@@ -36,10 +38,14 @@ export interface ProductItem {
   price_cop: number
   price_usd: number
   active: boolean
+  image_url?: string | null
   updated_at?: string
 }
 
 const TRM = 4000
+
+const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+const MAX_IMAGE_SIZE = 2 * 1024 * 1024 // 2 MB
 
 const INITIAL_FALLBACK_PRODUCTS: ProductItem[] = [
   {
@@ -132,10 +138,49 @@ export default function AdminProductsPage() {
   const [newActive, setNewActive] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
 
+  // Image Upload State
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [existingImageUrl, setExistingImageUrl] = useState<string | null>(null)
+  const [imageError, setImageError] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
   // Detail View Modal State
   const [viewingProduct, setViewingProduct] = useState<ProductItem | null>(null)
 
   const supabase = createClient()
+
+  // Liberar object URLs de vista previa para evitar fugas de memoria
+  useEffect(() => {
+    return () => {
+      if (imagePreview && imagePreview.startsWith('blob:')) {
+        URL.revokeObjectURL(imagePreview)
+      }
+    }
+  }, [imagePreview])
+
+  const handleImageSelect = (file: File | null) => {
+    if (!file) return
+    if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+      setImageError('Formato no válido. Usa PNG, JPG, JPEG o WEBP.')
+      return
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      setImageError(`La imagen pesa ${(file.size / 1024 / 1024).toFixed(1)} MB. El máximo es 2 MB.`)
+      return
+    }
+    setImageError(null)
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+  }
+
+  const handleRemoveImage = () => {
+    setImageFile(null)
+    setImagePreview(null)
+    setExistingImageUrl(null)
+    setImageError(null)
+  }
 
   const resetCreateForm = () => {
     setEditingProductId(null)
@@ -146,6 +191,11 @@ export default function AdminProductsPage() {
     setNewPriceCop('')
     setNewPriceUsd('')
     setNewActive(true)
+    setImageFile(null)
+    setImagePreview(null)
+    setExistingImageUrl(null)
+    setImageError(null)
+    setIsDragging(false)
   }
 
   const openEditModal = (product: ProductItem) => {
@@ -157,6 +207,10 @@ export default function AdminProductsPage() {
     setNewPriceCop(product.price_cop ? product.price_cop.toLocaleString('es-CO') : '')
     setNewPriceUsd(product.price_usd || Math.round((product.price_cop || 0) / TRM))
     setNewActive(product.active)
+    setImageFile(null)
+    setImageError(null)
+    setExistingImageUrl(product.image_url || null)
+    setImagePreview(product.image_url || null)
     setIsCreateModalOpen(true)
   }
 
@@ -187,6 +241,33 @@ export default function AdminProductsPage() {
     const copValue = parseCopInput(String(newPriceCop))
     const usdValue = Number(newPriceUsd) > 0 ? Number(newPriceUsd) : Math.round(copValue / TRM)
 
+    // 1. Subir imagen nueva a Supabase Storage (bucket público 'products')
+    let finalImageUrl: string | null = existingImageUrl
+    if (imageFile) {
+      const ext = (imageFile.name.split('.').pop() || 'jpg').toLowerCase()
+      const uniqueName = `${Date.now()}-${crypto.randomUUID()}.${ext}`
+      const { error: uploadError } = await supabase.storage
+        .from('products')
+        .upload(uniqueName, imageFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: imageFile.type,
+        })
+
+      if (uploadError) {
+        setNotification({
+          type: 'error',
+          message: `No se pudo subir la imagen: ${uploadError.message}`,
+        })
+        setIsCreating(false)
+        setTimeout(() => setNotification(null), 5000)
+        return
+      }
+
+      const { data: publicUrlData } = supabase.storage.from('products').getPublicUrl(uniqueName)
+      finalImageUrl = publicUrlData.publicUrl
+    }
+
     const productPayload = {
       title: newTitle.trim(),
       description: newDescription.trim() || undefined,
@@ -195,14 +276,18 @@ export default function AdminProductsPage() {
       price_cop: copValue,
       price_usd: usdValue,
       active: newActive,
+      image_url: finalImageUrl || undefined,
       updated_at: new Date().toISOString(),
     }
+
+    // Supabase necesita null explícito para borrar la imagen en una edición
+    const dbPayload = { ...productPayload, image_url: finalImageUrl }
 
     try {
       if (editingProductId) {
         const { error } = await supabase
           .from('products')
-          .upsert({ id: editingProductId, ...productPayload })
+          .upsert({ id: editingProductId, ...dbPayload })
 
         if (error) {
           setNotification({
@@ -223,7 +308,7 @@ export default function AdminProductsPage() {
       } else {
         const { data, error } = await supabase
           .from('products')
-          .insert([productPayload])
+          .insert([dbPayload])
           .select()
 
         if (error) {
@@ -384,6 +469,7 @@ export default function AdminProductsPage() {
           price_cop: product.price_cop,
           price_usd: product.price_usd,
           active: product.active,
+          ...(product.image_url !== undefined ? { image_url: product.image_url } : {}),
           updated_at: new Date().toISOString(),
         })
 
@@ -688,15 +774,31 @@ export default function AdminProductsPage() {
                       >
                         
                         {/* Title & Description */}
-                        <td className="py-2.5 px-3 space-y-0.5">
-                          <div className="font-semibold text-slate-800 text-xs md:text-sm group-hover:text-slate-900 transition-colors leading-tight">
-                            {prod.title}
+                        <td className="py-2.5 px-3">
+                          <div className="flex items-center gap-3">
+                            {prod.image_url ? (
+                              <img
+                                src={prod.image_url}
+                                alt={prod.title}
+                                loading="lazy"
+                                className="w-10 h-10 rounded-lg object-cover border border-slate-200 bg-slate-50 shrink-0"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0">
+                                <ImageIcon className="w-4 h-4 text-slate-400" />
+                              </div>
+                            )}
+                            <div className="min-w-0 space-y-0.5">
+                              <div className="font-semibold text-slate-800 text-xs md:text-sm group-hover:text-slate-900 transition-colors leading-tight">
+                                {prod.title}
+                              </div>
+                              {prod.description && (
+                                <p className="text-[10px] text-slate-400 line-clamp-1 leading-normal">
+                                  {prod.description}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                          {prod.description && (
-                            <p className="text-[10px] text-slate-400 line-clamp-1 leading-normal">
-                              {prod.description}
-                            </p>
-                          )}
                         </td>
 
                         {/* Category & Badge */}
@@ -902,6 +1004,13 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="space-y-3 text-xs">
+                {viewingProduct.image_url && (
+                  <img
+                    src={viewingProduct.image_url}
+                    alt={viewingProduct.title}
+                    className="w-full h-44 object-cover rounded-xl border border-slate-200 bg-slate-50"
+                  />
+                )}
                 <div>
                   <span className="font-bold text-slate-400 block mb-1">Descripción:</span>
                   <p className="text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200/70 leading-relaxed">
@@ -1004,6 +1113,92 @@ export default function AdminProductsPage() {
                     placeholder="Ej. Curso Intensivo de Fonética Nativa"
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500"
                   />
+                </div>
+
+                {/* Imagen del Producto (Dropzone + Vista previa) */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                    Imagen del Producto
+                  </label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_IMAGE_TYPES.join(',')}
+                    onChange={(e) => {
+                      handleImageSelect(e.target.files?.[0] || null)
+                      e.target.value = ''
+                    }}
+                    className="hidden"
+                  />
+                  {imagePreview ? (
+                    <div className="flex items-center gap-4 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+                      <img
+                        src={imagePreview}
+                        alt="Vista previa del producto"
+                        className="w-20 h-20 rounded-lg object-cover border border-slate-200 bg-white shrink-0"
+                      />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <p className="text-[11px] text-slate-600 truncate">
+                          {imageFile ? imageFile.name : 'Imagen actual del producto'}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-[11px] font-semibold transition-colors"
+                          >
+                            Cambiar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRemoveImage}
+                            className="px-3 py-1.5 bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 hover:border-rose-200 rounded-lg text-[11px] font-semibold transition-colors"
+                          >
+                            Quitar
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => fileInputRef.current?.click()}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          fileInputRef.current?.click()
+                        }
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault()
+                        setIsDragging(true)
+                      }}
+                      onDragLeave={() => setIsDragging(false)}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        setIsDragging(false)
+                        handleImageSelect(e.dataTransfer.files?.[0] || null)
+                      }}
+                      className={`flex flex-col items-center justify-center gap-1.5 px-4 py-6 border-2 border-dashed rounded-xl cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+                        isDragging
+                          ? 'border-amber-400 bg-amber-50'
+                          : 'border-slate-200 bg-slate-50 hover:border-amber-300 hover:bg-amber-50/40'
+                      }`}
+                    >
+                      <Upload className="w-5 h-5 text-slate-400" />
+                      <p className="text-xs font-semibold text-slate-700">
+                        Arrastra una imagen o haz clic para seleccionar
+                      </p>
+                      <p className="text-[10px] text-slate-400">PNG, JPG, JPEG o WEBP · máx. 2 MB</p>
+                    </div>
+                  )}
+                  {imageError && (
+                    <p className="mt-1.5 text-[11px] text-rose-600 flex items-center gap-1">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>{imageError}</span>
+                    </p>
+                  )}
                 </div>
 
                 {/* Descripción / Formato */}
