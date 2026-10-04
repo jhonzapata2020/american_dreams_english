@@ -40,14 +40,20 @@ export function App() {
   const [scholarshipModalOpen, setScholarshipModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
-    const el = document.getElementById(sectionId);
+    const el = document.getElementById(sectionId) || document.getElementById('registro');
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        const input = el.querySelector('input') || document.getElementById('primer-campo-nombre');
+        if (input) {
+          (input as HTMLInputElement).focus({ preventScroll: true });
+        }
+      }, 500);
     }
   };
 
   const handleOpenStudentPortal = () => {
-    window.location.href = '/login';
+    window.location.href = '/campus/login';
   };
 
   const handlePreselectTier2 = () => {
@@ -83,7 +89,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
-        onMatricularme={() => scrollToSection('registro')}
+        onMatricularme={() => scrollToSection('formulario-inscripcion')}
       />
 
       {/* Main Content */}

@@ -35,9 +35,15 @@ export const Navbar: React.FC<NavbarProps> = ({
     if (onMatricularme) {
       onMatricularme();
     } else {
-      const el = document.getElementById('registro');
+      const el = document.getElementById('formulario-inscripcion') || document.getElementById('registro');
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+          const input = el.querySelector('input') || document.getElementById('primer-campo-nombre');
+          if (input) {
+            (input as HTMLInputElement).focus({ preventScroll: true });
+          }
+        }, 500);
       } else if (onOpenProgramas) {
         onOpenProgramas();
       }
@@ -130,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button 
               type="button"
               onClick={handleMatricularme}
-              className="bg-amber-400 hover:bg-amber-500 text-slate-900 text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 whitespace-nowrap"
+              className="inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <span>Matricúlate</span>
             </button>

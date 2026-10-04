@@ -164,7 +164,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* COLUMNA 3: FORMULARIO FLOTANTE DE CONVERSIÓN (4 COLS - lg:col-span-4) */}
-        <div id="registro" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24">
+        <div id="formulario-inscripcion" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 md:p-8 space-y-4">
             
             {/* Form Title */}
@@ -219,6 +219,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Nombre *</label>
                     <input
+                      id="primer-campo-nombre"
                       type="text"
                       required
                       disabled={isSubmitting}
