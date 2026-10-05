@@ -113,47 +113,48 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="bg-[#183ec2] min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans selection:bg-[#11246b] selection:text-white">
+    <div className="bg-[#183ec2] min-h-screen h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans selection:bg-[#11246b] selection:text-white overflow-hidden">
       
-      {/* TARJETA MAESTRA BLANCA CON BORDES ULTRA CURVADOS (IDÉNTICO A LA REFERENCIA) */}
-      <div className="bg-white rounded-[44px] sm:rounded-[56px] shadow-[0_30px_70px_rgba(0,0,0,0.35)] max-w-5xl w-full p-4 sm:p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 min-h-[620px] items-stretch">
+      {/* TARJETA MAESTRA BLANCA OPTIMIZADA (SIN SCROLL EN 100% ZOOM) */}
+      <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.3)] w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-[840px] md:max-h-[580px] md:h-[580px] p-2 sm:p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-stretch overflow-hidden">
         
         {/* ========================================================= */}
-        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & CENTRADO      */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & COMPACTO      */}
         {/* ========================================================= */}
-        <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between">
+        <div className="p-4 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto">
           
           {/* Top navigation / Back */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Link 
               href="/" 
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Volver a la web</span>
+              <span className="hidden sm:inline">Volver a la web</span>
+              <span className="sm:hidden">Web</span>
             </Link>
 
-            <span className="text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">
+            <span className="text-[10px] sm:text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
               Portal Directivo
             </span>
           </div>
 
           {/* Bloque central: Logo, Título, Subtítulo y Form */}
-          <div className="my-auto max-w-sm mx-auto w-full py-4">
+          <div className="my-auto max-w-sm mx-auto w-full py-2">
             
             {/* Logo / Ícono Central */}
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center mb-3">
+            <div className="text-center mb-4 sm:mb-5">
+              <div className="inline-flex items-center justify-center mb-1.5">
                 <img 
                   src="/images/logo.png" 
                   alt="American Dream English" 
-                  className="w-12 h-12 object-contain drop-shadow-sm" 
+                  className="w-10 h-10 object-contain drop-shadow-sm" 
                 />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
                 Control Panel
               </h1>
-              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
+              <p className="text-gray-400 text-xs font-medium mt-0.5">
                 Please enter your admin credentials.
               </p>
             </div>
@@ -161,7 +162,7 @@ export default function AdminLoginPage() {
             {/* Mensajes de Alerta */}
             {message && (
               <div 
-                className={`mb-4 p-3 rounded-2xl text-xs font-medium flex items-start gap-2 animate-fadeIn border ${
+                className={`mb-3 p-2.5 rounded-xl text-xs font-medium flex items-start gap-2 animate-fadeIn border ${
                   message.type === 'error' 
                     ? 'bg-rose-50 text-rose-800 border-rose-200' 
                     : message.type === 'success'
@@ -170,16 +171,16 @@ export default function AdminLoginPage() {
                 }`}
               >
                 {message.type === 'error' ? (
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
                 ) : (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
                 )}
-                <p className="leading-relaxed font-semibold">{message.text}</p>
+                <p className="leading-snug font-semibold">{message.text}</p>
               </div>
             )}
 
             {/* Formulario */}
-            <form onSubmit={handleAdminLogin} className="space-y-4">
+            <form onSubmit={handleAdminLogin} className="space-y-3">
               
               {/* Campo Email Institucional */}
               <div className="relative">
@@ -189,10 +190,10 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@americandream.edu.co"
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
+                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
                   disabled={loading}
                 />
-                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
                   <Mail className="w-4 h-4" />
                 </div>
               </div>
@@ -205,13 +206,13 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
+                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
                   disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                   tabIndex={-1}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -219,36 +220,36 @@ export default function AdminLoginPage() {
               </div>
 
               {/* Checkbox Remember */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-1 px-1">
-                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
+              <div className="flex items-center justify-between text-xs text-gray-500 pt-0.5 px-1">
+                <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <span className="text-[12px] text-gray-600 font-medium">Keep me signed in</span>
+                  <span className="text-[11px] sm:text-xs text-gray-600 font-medium">Keep me signed in</span>
                 </label>
                 
                 <button
                   type="button"
                   onClick={handleFillDemoAdmin}
-                  className="text-[12px] text-gray-400 hover:text-blue-600 transition-colors font-medium"
+                  className="text-[11px] sm:text-xs text-gray-400 hover:text-blue-600 transition-colors font-medium"
                 >
                   Forgot password?
                 </button>
               </div>
 
               {/* Botón Principal Cápsula Azul */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-bold py-3.5 px-6 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
+                  className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-bold py-3 px-5 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm"
                 >
                   {loading ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                       <span>Validating...</span>
                     </>
                   ) : (
@@ -260,39 +261,39 @@ export default function AdminLoginPage() {
             </form>
 
             {/* Separador "or" */}
-            <div className="relative my-6 text-center">
+            <div className="relative my-3 sm:my-4 text-center">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-100" />
               </div>
-              <span className="relative bg-white px-3 text-xs text-gray-400 font-medium">
+              <span className="relative bg-white px-2.5 text-[11px] text-gray-400 font-medium">
                 or
               </span>
             </div>
 
             {/* Accesos rápidos circulares / Portal Switcher */}
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex items-center justify-center gap-2.5">
               <button
                 type="button"
                 onClick={handleFillDemoAdmin}
                 title="Cargar credenciales administrativas demo"
-                className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
               >
-                <KeyRound className="w-4 h-4" />
+                <KeyRound className="w-3.5 h-3.5" />
               </button>
               <Link
                 href="/campus/login"
                 title="Ir al Campus Estudiantil"
-                className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
               >
-                <GraduationCap className="w-4 h-4" />
+                <GraduationCap className="w-3.5 h-3.5" />
               </Link>
             </div>
 
           </div>
 
           {/* Pie */}
-          <div className="text-center pt-2">
-            <p className="text-[11px] text-gray-400 font-medium">
+          <div className="text-center pt-1">
+            <p className="text-[10px] text-gray-400 font-medium">
               American Dream English · Seguridad & Control Directivo
             </p>
           </div>
@@ -300,9 +301,9 @@ export default function AdminLoginPage() {
         </div>
 
         {/* ========================================================= */}
-        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO (IDÉNTICO AL EJ)  */}
+        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO COMPACTO           */}
         {/* ========================================================= */}
-        <div className="hidden md:block relative rounded-[36px] sm:rounded-[44px] overflow-hidden bg-[#090D2A] shadow-inner">
+        <div className="hidden md:block relative h-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-[#090D2A] shadow-inner">
           
           {/* Fondo Degradado Base */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
@@ -403,8 +404,8 @@ export default function AdminLoginPage() {
           </svg>
 
           {/* Sutil detalle de marca al pie */}
-          <div className="absolute bottom-6 right-6 z-10">
-            <span className="text-[11px] font-semibold text-white/40 tracking-wider uppercase">
+          <div className="absolute bottom-4 right-4 z-10">
+            <span className="text-[10px] font-semibold text-white/40 tracking-wider uppercase">
               Management Portal · RBAC
             </span>
           </div>
