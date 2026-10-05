@@ -48,6 +48,7 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
   const [donorEmail, setDonorEmail] = useState('');
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [activeGateway, setActiveGateway] = useState<string | null>(null);
+  const [donorErrorMessage, setDonorErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -118,8 +119,6 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
       setIsSubmitting(false);
     }
   };
-
-  const [donorErrorMessage, setDonorErrorMessage] = useState<string | null>(null);
 
   const handleProcessPayment = async (provider: PaymentProvider, e: React.FormEvent) => {
     e.preventDefault();
