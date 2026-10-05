@@ -88,18 +88,6 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* CONTROLES Y ACCIONES (LADO DERECHO) */}
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             
-            {/* Soft 3D Neumorphic Switch de Moneda [COP | USD] */}
-            <div className="hidden sm:flex items-center px-2 py-1 bg-slate-50/80 rounded-2xl border border-slate-200/60 shadow-xs">
-              <SoftSwitch3D
-                checked={selectedCurrency === 'USD'}
-                onChange={(isUsd) => onCurrencyChange(isUsd ? 'USD' : 'COP')}
-                leftLabel="COP"
-                rightLabel="USD"
-                size="sm"
-                ariaLabel="Alternar moneda entre COP y USD"
-              />
-            </div>
-
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL */}
             <a 
               href="/campus/login"
@@ -139,17 +127,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden bg-white border-b border-slate-200 px-5 py-4 space-y-4 animate-fadeIn shadow-xl">
           
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Moneda</span>
-            <div className="bg-slate-50 px-2.5 py-1 rounded-2xl border border-slate-200/60 shadow-2xs">
-              <SoftSwitch3D
-                checked={selectedCurrency === 'USD'}
-                onChange={(isUsd) => onCurrencyChange(isUsd ? 'USD' : 'COP')}
-                leftLabel="COP ($)"
-                rightLabel="USD ($)"
-                size="sm"
-                ariaLabel="Alternar moneda entre COP y USD móvil"
-              />
-            </div>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Menú de Navegación</span>
           </div>
 
           <nav className="flex flex-col space-y-2.5 text-sm font-semibold text-slate-800">

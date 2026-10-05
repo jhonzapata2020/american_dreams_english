@@ -50,8 +50,10 @@ export const SoftSwitch3D: React.FC<SoftSwitch3DProps> = ({
         <button
           type="button"
           onClick={() => !disabled && onChange(false)}
-          className={`font-bold transition-colors cursor-pointer ${sizeConfig.text} ${
-            !checked ? 'text-blue-700 font-black' : 'text-slate-500 hover:text-slate-800'
+          className={`font-bold transition-all cursor-pointer ${sizeConfig.text} ${
+            !checked
+              ? 'text-blue-700 font-black bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs'
+              : 'text-slate-500 hover:text-slate-800 px-1 py-0.5'
           }`}
         >
           {leftLabel}
@@ -69,7 +71,7 @@ export const SoftSwitch3D: React.FC<SoftSwitch3DProps> = ({
         className={`relative inline-flex items-center rounded-full cursor-pointer transition-all duration-300 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${
           sizeConfig.track
         } ${
-          checked ? 'bg-[#1877F2]' : 'bg-slate-300'
+          checked ? 'bg-[#1877F2]' : 'bg-[#2563EB]/80'
         } border-2 border-white/95 shadow-[inset_0_2px_5px_rgba(0,0,0,0.24),0_3px_8px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.08)] ${
           disabled ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-[0.98]'
         }`}
@@ -86,8 +88,10 @@ export const SoftSwitch3D: React.FC<SoftSwitch3DProps> = ({
         <button
           type="button"
           onClick={() => !disabled && onChange(true)}
-          className={`font-bold transition-colors cursor-pointer ${sizeConfig.text} ${
-            checked ? 'text-blue-700 font-black' : 'text-slate-500 hover:text-slate-800'
+          className={`font-bold transition-all cursor-pointer ${sizeConfig.text} ${
+            checked
+              ? 'text-blue-700 font-black bg-blue-50/80 px-2 py-0.5 rounded-md border border-blue-200/60 shadow-2xs'
+              : 'text-slate-500 hover:text-slate-800 px-1 py-0.5'
           }`}
         >
           {rightLabel}

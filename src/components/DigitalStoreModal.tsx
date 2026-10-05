@@ -9,6 +9,8 @@ import {
 import { Currency, PaymentProvider } from '../types';
 import { createClient } from '../utils/supabase/client';
 import { formatMoney } from '../utils/formatters';
+import { useCurrency } from '../context/CurrencyContext';
+import { SoftSwitch3D } from './ui/SoftSwitch3D';
 
 export interface Product {
   id: string;
@@ -72,14 +74,14 @@ const FALLBACK_PRODUCTS: Product[] = [
 interface DigitalStoreModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currency: Currency;
+  currency?: Currency;
 }
 
 export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   isOpen,
   onClose,
-  currency,
 }) => {
+  const { currency, setCurrency, formatPrice: formatCurrencyPrice } = useCurrency();
   const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'ebooks' | 'masterclass' | 'audios'>('all');
@@ -153,7 +155,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   const isUSD = currency === 'USD' || currency === 'EUR';
 
   const formatPrice = (prod: Product) => {
-    return formatMoney(isUSD ? prod.usdPrice : prod.copPrice, isUSD ? 'USD' : 'COP');
+    return formatCurrencyPrice(prod.copPrice);
   };
 
   const handleStartCheckout = (product: Product) => {
@@ -338,48 +340,62 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
           ) : (
             /* CATALOG GRID VIEW */
             <>
-              {/* Category Filter Pills */}
-              <div className="flex items-center space-x-2 overflow-x-auto pb-2 border-b border-slate-100">
-                <button
-                  onClick={() => setActiveCategory('all')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeCategory === 'all'
-                      ? 'bg-navy-900 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Todos los Productos
-                </button>
-                <button
-                  onClick={() => setActiveCategory('masterclass')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeCategory === 'masterclass'
-                      ? 'bg-navy-900 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Masterclasses 4K
-                </button>
-                <button
-                  onClick={() => setActiveCategory('ebooks')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeCategory === 'ebooks'
-                      ? 'bg-navy-900 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  E-books en PDF
-                </button>
-                <button
-                  onClick={() => setActiveCategory('audios')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                    activeCategory === 'audios'
-                      ? 'bg-navy-900 text-white shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                  }`}
-                >
-                  Audios Fonéticos
-                </button>
+              {/* Category Filter Pills & Currency Switch */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="flex items-center space-x-2 overflow-x-auto pb-1">
+                  <button
+                    onClick={() => setActiveCategory('all')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeCategory === 'all'
+                        ? 'bg-navy-900 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    Todos los Productos
+                  </button>
+                  <button
+                    onClick={() => setActiveCategory('masterclass')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeCategory === 'masterclass'
+                        ? 'bg-navy-900 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    Masterclasses 4K
+                  </button>
+                  <button
+                    onClick={() => setActiveCategory('ebooks')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeCategory === 'ebooks'
+                        ? 'bg-navy-900 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    E-books en PDF
+                  </button>
+                  <button
+                    onClick={() => setActiveCategory('audios')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeCategory === 'audios'
+                        ? 'bg-navy-900 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                    }`}
+                  >
+                    Audios Fonéticos
+                  </button>
+                </div>
+
+                <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
+                  <span className="text-[11px] font-bold text-slate-500">Moneda:</span>
+                  <SoftSwitch3D
+                    checked={currency === 'USD'}
+                    onChange={(isUsd) => setCurrency(isUsd ? 'USD' : 'COP')}
+                    leftLabel="COP"
+                    rightLabel="USD"
+                    size="sm"
+                    ariaLabel="Alternar moneda en cursos digitales"
+                  />
+                </div>
               </div>
 
               {loading ? (
