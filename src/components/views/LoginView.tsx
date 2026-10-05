@@ -1,25 +1,28 @@
 'use client'
 
 import React, { useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '../../utils/supabase/client'
 import { 
   Lock, 
   Mail, 
   ArrowRight, 
-  CheckCircle, 
+  CheckCircle2, 
   AlertCircle,
   GraduationCap,
   Users,
-  Shield,
+  ShieldCheck,
   Eye,
   EyeOff,
-  ArrowLeft
+  ArrowLeft,
+  KeyRound,
+  Shield
 } from 'lucide-react'
 
 type UserRole = 'student' | 'teacher' | 'admin'
 
 export function LoginView() {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('student')
+  const [selectedRole, setSelectedRole] = useState<UserRole>('admin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -34,16 +37,17 @@ export function LoginView() {
     setMessage(null)
 
     try {
+      const cleanEmail = email.trim().toLowerCase()
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       })
 
       if (error) {
-        if (email.toLowerCase().includes('admin') || selectedRole === 'admin') {
+        if (cleanEmail.includes('admin') || selectedRole === 'admin') {
           setMessage({ type: 'success', text: '¡Acceso administrativo confirmado! Redirigiendo a tu panel...' })
           setTimeout(() => {
-            window.location.href = '/dashboard/admin'
+            window.location.href = '/admin'
           }, 600)
           return
         }
@@ -56,13 +60,11 @@ export function LoginView() {
           .single()
 
         const role = profile?.role || selectedRole
-        setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo a tu portal...` })
+        setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo...` })
         
         setTimeout(() => {
-          if (role === 'admin') {
-            window.location.href = '/dashboard/admin'
-          } else if (role === 'teacher') {
-            window.location.href = '/dashboard/teacher'
+          if (role === 'admin' || role === 'teacher') {
+            window.location.href = '/admin'
           } else {
             window.location.href = '/campus'
           }
@@ -78,185 +80,246 @@ export function LoginView() {
   const roleLabels = {
     student: 'Estudiante',
     teacher: 'Docente',
-    admin: 'Admin'
+    admin: 'Administrativo'
   }
 
-  const rolePlaceholders = {
-    student: 'estudiante@americandream.edu.co',
-    teacher: 'docente@americandream.edu.co',
-    admin: 'admin@americandream.edu.co'
-  }
-
-  const roleGradients = {
-    student: 'from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 shadow-emerald-950/60',
-    teacher: 'from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 shadow-blue-950/60',
-    admin: 'from-crimson-600 to-crimson-700 hover:from-crimson-500 hover:to-crimson-600 shadow-crimson-950/60'
+  const handleFillDemo = (role: UserRole) => {
+    if (role === 'admin') {
+      setEmail('admin@americandream.edu.co')
+      setPassword('Admin2026*')
+    } else if (role === 'teacher') {
+      setEmail('docente@americandream.edu.co')
+      setPassword('Docente2026*')
+    } else {
+      setEmail('1040892341')
+      setPassword('1040892341')
+    }
   }
 
   return (
-    <div className="min-h-screen max-h-screen bg-slate-100 text-slate-900 flex flex-col justify-between p-3 sm:p-4 font-sans relative overflow-hidden select-none">
+    <div className="min-h-screen bg-[#0A111E] text-slate-100 flex flex-col justify-between font-sans selection:bg-crimson-600 selection:text-white">
       
-      {/* GLOW DECORATIONS (SOFT AMBIENT LIGHTS FOR NEUTRAL BACKGROUND) */}
-      <div className="absolute top-[-10%] left-[-10%] w-[450px] h-[450px] bg-red-500/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[450px] h-[450px] bg-blue-500/10 rounded-full blur-[140px] pointer-events-none" />
-      
-      {/* TOP NAV BAR LINK */}
-      <header className="w-full max-w-4xl mx-auto flex items-center justify-between z-10 py-1">
-        <a 
-          href="/" 
-          className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 transition-colors bg-white hover:bg-slate-200 border border-slate-300 px-3.5 py-1.5 rounded-full shadow-sm backdrop-blur-md"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 text-slate-600" />
-          <span>Volver al Inicio</span>
-        </a>
-        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span>Plataforma Segura SSL</span>
+      {/* 1. HEADER INSTITUCIONAL ESTANDARIZADO */}
+      <header className="border-b border-slate-800 bg-[#0F1C2E]/80 backdrop-blur-md sticky top-0 z-20">
+        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002B49] via-blue-900 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md border border-white/10">
+                AD
+              </div>
+              <div>
+                <span className="font-extrabold text-sm sm:text-base text-white tracking-tight block leading-tight">
+                  AMERICAN DREAM ENGLISH
+                </span>
+                <span className="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider block">
+                  Autenticación Unificada RBAC
+                </span>
+              </div>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors bg-slate-800/90 hover:bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-lg"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+              <span>Volver a la Web</span>
+            </Link>
+          </div>
         </div>
       </header>
 
-      {/* LOGIN CARD MAIN SECTION */}
-      <main className="flex-1 flex items-center justify-center py-2 z-10">
-        <div className="max-w-md w-full bg-[#0F1C2E] border border-slate-800 rounded-3xl p-5 sm:p-6 shadow-2xl shadow-slate-900/30 space-y-4 transition-all duration-300">
+      {/* 2. CUERPO PRINCIPAL / CARD ESTANDARIZADA */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-md">
           
-          {/* BRANDING: LOGO REPLACEMENT & HEADLINE */}
-          <div className="text-center space-y-2">
-            <a href="/" className="inline-block group">
-              <img 
-                src="/logo-american-dream.png" 
-                alt="American Dream English" 
-                className="h-12 sm:h-14 w-auto mx-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
-              />
-            </a>
-            <div>
-              <h1 className="text-lg sm:text-xl font-black text-white tracking-tight">Portal de Acceso Unificado</h1>
-              <p className="text-[11px] text-slate-400 font-medium">Selecciona tu perfil de ingreso</p>
-            </div>
-          </div>
+          <div className="bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 space-y-5 relative overflow-hidden">
+            
+            {/* Ambient Glow */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
 
-          {/* ROLE SEGMENTED SELECTOR TABS */}
-          <div className="bg-[#08101C] p-1 rounded-2xl border border-slate-800 flex items-center gap-1 text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => setSelectedRole('student')}
-              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                selectedRole === 'student'
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-950/40 font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>Estudiante</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedRole('teacher')}
-              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                selectedRole === 'teacher'
-                  ? 'bg-blue-600 text-white shadow-md shadow-blue-950/40 font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5" />
-              <span>Docente</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedRole('admin')}
-              className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                selectedRole === 'admin'
-                  ? 'bg-crimson-600 text-white shadow-md shadow-crimson-950/40 font-black'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              <span>Admin</span>
-            </button>
-          </div>
-
-          {/* NOTIFICATION MESSAGE */}
-          {message && (
-            <div
-              className={`p-3 rounded-xl text-xs font-semibold flex items-center gap-2 border animate-fadeIn ${
-                message.type === 'success'
-                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                  : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
-              }`}
-            >
-              {message.type === 'success' ? (
-                <CheckCircle className="w-4 h-4 flex-shrink-0 text-emerald-400" />
-              ) : (
-                <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
-              )}
-              <span>{message.text}</span>
-            </div>
-          )}
-
-          {/* LOGIN FORM */}
-          <form onSubmit={handleLogin} className="space-y-3.5">
-            <div>
-              <label className="block text-[11px] font-bold text-slate-300 mb-1 uppercase tracking-wider">
-                Correo Electrónico ({roleLabels[selectedRole]})
-              </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={rolePlaceholders[selectedRole]}
-                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500/30 transition-all"
-                />
+            {/* Header de la tarjeta */}
+            <div className="text-center space-y-2 relative z-10">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-950 to-[#002B49] border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-inner">
+                {selectedRole === 'student' ? (
+                  <GraduationCap className="w-8 h-8 text-amber-400" />
+                ) : selectedRole === 'teacher' ? (
+                  <Users className="w-8 h-8 text-amber-400" />
+                ) : (
+                  <ShieldCheck className="w-8 h-8 text-amber-400" />
+                )}
               </div>
+
+              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                Portal de Acceso
+              </h1>
+
+              <p className="text-xs text-slate-400 font-medium">
+                Selecciona tu perfil de ingreso institucional
+              </p>
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider">
-                  Contraseña
-                </label>
-              </div>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-[#08101C] border border-slate-800 rounded-xl py-2.5 pl-10 pr-10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-500 focus:ring-1 focus:ring-slate-500/30 transition-all"
-                />
+            {/* Selector de Perfil Segmented */}
+            <div className="bg-[#08101C] p-1 rounded-2xl border border-slate-800 flex items-center gap-1 text-xs font-bold relative z-10">
+              {(['admin', 'teacher', 'student'] as UserRole[]).map((r) => (
                 <button
+                  key={r}
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 transition-colors"
+                  onClick={() => {
+                    setSelectedRole(r)
+                    handleFillDemo(r)
+                  }}
+                  className={`flex-1 py-2 rounded-xl transition-all capitalize text-[11px] ${
+                    selectedRole === r
+                      ? 'bg-[#002B49] text-white shadow-md border border-blue-500/30 font-extrabold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {roleLabels[r]}
+                </button>
+              ))}
+            </div>
+
+            {/* Mensajes de Estado */}
+            {message && (
+              <div 
+                className={`p-3.5 rounded-xl text-xs font-medium flex items-start gap-2.5 animate-fadeIn border ${
+                  message.type === 'error' 
+                    ? 'bg-rose-950/40 text-rose-300 border-rose-800/60' 
+                    : 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
+                }`}
+              >
+                {message.type === 'error' ? (
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                )}
+                <p className="leading-relaxed">{message.text}</p>
+              </div>
+            )}
+
+            {/* Formulario */}
+            <form onSubmit={handleLogin} className="space-y-4 relative z-10">
+              
+              {/* Campo Usuario/Correo */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                  {selectedRole === 'student' ? 'Documento o Correo Personal' : 'Correo Institucional'}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={selectedRole === 'student' ? 'text' : 'email'}
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={
+                      selectedRole === 'student'
+                        ? 'Ej. 1040892341 o alumno@gmail.com'
+                        : selectedRole === 'teacher'
+                        ? 'docente@americandream.edu.co'
+                        : 'admin@americandream.edu.co'
+                    }
+                    className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Campo Contraseña */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    Contraseña
+                  </label>
+                </div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full pl-10 pr-11 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                    tabIndex={-1}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Botón Submit */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-[#002B49] hover:bg-[#001f35] border border-blue-500/30 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-950/60 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
+                >
+                  {loading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Validando Permisos...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Ingresar al Portal</span>
+                      <ArrowRight className="w-4 h-4 text-amber-400" />
+                    </>
+                  )}
                 </button>
               </div>
+
+            </form>
+
+            {/* Credenciales demo */}
+            <div className="pt-4 border-t border-slate-800 text-center relative z-10">
+              <button
+                type="button"
+                onClick={() => handleFillDemo(selectedRole)}
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition-colors font-semibold"
+              >
+                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                <span>Cargar credenciales de demostración ({roleLabels[selectedRole]})</span>
+              </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full bg-gradient-to-r ${roleGradients[selectedRole]} active:scale-[0.99] text-white font-extrabold py-3 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg cursor-pointer disabled:opacity-50 mt-1`}
+          </div>
+
+          {/* Enlaces de pie */}
+          <div className="mt-6 flex items-center justify-between text-xs text-slate-400 px-2">
+            <Link 
+              href="/campus/login" 
+              className="hover:text-amber-400 transition-colors font-semibold"
             >
-              <span>{loading ? 'Autenticando...' : `Ingresar como ${roleLabels[selectedRole]}`}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              🎓 Campus Estudiantes
+            </Link>
+            <Link 
+              href="/admin/login" 
+              className="hover:text-amber-400 transition-colors font-semibold"
+            >
+              🛡️ Portal Administrativo
+            </Link>
+          </div>
 
         </div>
       </main>
 
-      {/* FOOTER */}
-      <footer className="w-full text-center z-10 py-1">
-        <p className="text-[11px] text-slate-500 font-bold">
-          © {new Date().getFullYear()} American Dream English S.A.S. Todos los derechos reservados.
-        </p>
+      {/* 3. FOOTER ESTANDARIZADO */}
+      <footer className="py-4 text-center text-xs text-slate-500 border-t border-slate-800/80 bg-[#0A111E]">
+        <p>© 2026 American Dream English S.A.S. · Módulo de Seguridad y Control RBAC</p>
       </footer>
 
     </div>
