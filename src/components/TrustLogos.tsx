@@ -64,6 +64,23 @@ const TRUST_ITEMS: TrustItem[] = [
     ]
   },
   {
+    id: 'pisingo-de-oro',
+    title: 'Galardón Distrital Pisingo de Oro',
+    shortLabel: 'Galardón Pisingo de Oro',
+    icon: CheckCircle2,
+    iconColor: 'text-crimson-600',
+    tag: 'Máxima Distinción Cívica',
+    subtitle: 'Condecoración Oficial a la Excelencia Educativa y Social en Urabá',
+    description: 'Máxima distinción al mérito cívico y educativo otorgada por el Distrito de Turbo, exaltando la excelencia y trayectoria en la formación bilingüe de la región.',
+    image: '/images/pisingo-de-oro.jpg',
+    details: [
+      { label: 'Distinción:', value: 'Medalla de Honor "Pisingo de Oro"' },
+      { label: 'Entidad Otorgante:', value: 'Distrito de Turbo · Alcaldía y Concejo Municipal' },
+      { label: 'Mérito Reconocido:', value: 'Trayectoria, liderazgo pedagógico y labor social en Urabá' },
+      { label: 'Simbolismo:', value: 'Insignia distrital en oro con el ave emblemática Pisingo' }
+    ]
+  },
+  {
     id: 'mcer-cefr',
     title: 'Marco Común Europeo de Referencia (MCER / CEFR)',
     shortLabel: 'Marco Común Europeo (MCER)',
@@ -92,23 +109,6 @@ const TRUST_ITEMS: TrustItem[] = [
       { label: 'Territorio:', value: 'Distrito Especial Portuario y Ecoturístico de Turbo' },
       { label: 'Enfoque de Impacto:', value: 'Formación para el empleo, turismo internacional y comercio portuario' },
       { label: 'Fondo de Subvenciones:', value: 'Subsidios educativos orientados a población vulnerable' }
-    ]
-  },
-  {
-    id: 'pisingo-de-oro',
-    title: 'Galardón Distrital Pisingo de Oro',
-    shortLabel: 'Galardón Pisingo de Oro',
-    icon: CheckCircle2,
-    iconColor: 'text-crimson-600',
-    tag: 'Máxima Distinción Cívica',
-    subtitle: 'Condecoración Oficial a la Excelencia Educativa y Social en Urabá',
-    description: 'Máxima distinción al mérito cívico y educativo otorgada por el Distrito de Turbo, exaltando la excelencia y trayectoria en la formación bilingüe de la región.',
-    image: '/images/pisingo-de-oro.jpg',
-    details: [
-      { label: 'Distinción:', value: 'Medalla de Honor "Pisingo de Oro"' },
-      { label: 'Entidad Otorgante:', value: 'Distrito de Turbo · Alcaldía y Concejo Municipal' },
-      { label: 'Mérito Reconocido:', value: 'Trayectoria, liderazgo pedagógico y labor social en Urabá' },
-      { label: 'Simbolismo:', value: 'Insignia distrital en oro con el ave emblemática Pisingo' }
     ]
   }
 ]
