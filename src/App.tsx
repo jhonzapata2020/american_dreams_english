@@ -6,6 +6,7 @@ import { BusinessSegments } from './components/BusinessSegments';
 import { AITutorSimulator } from './components/AITutorSimulator';
 import { DonationCard } from './components/DonationCard';
 import { ImpactDashboardPreview } from './components/ImpactDashboardPreview';
+import { LocationSection } from './components/LocationSection';
 import { Footer } from './components/Footer';
 import { DigitalStoreModal } from './components/DigitalStoreModal';
 import { LiveClassesModal } from './components/LiveClassesModal';
@@ -156,6 +157,9 @@ export function App() {
         <ImpactDashboardPreview
           onOpenDonation={() => setScholarshipModalOpen(true)}
         />
+
+        {/* 8. Sede Presencial & Ubicación Turbo */}
+        <LocationSection />
 
       </main>
 

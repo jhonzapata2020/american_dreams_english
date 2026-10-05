@@ -68,10 +68,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   return (
     <section className="bg-white pt-6 sm:pt-10 pb-12 lg:py-14 border-b border-slate-100 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-center relative mt-4 sm:mt-0">
+        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0">
           <div className="relative w-full max-w-sm">
             
             {/* Main Instructor Photo Frame */}
@@ -106,8 +106,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </div>
         </div>
 
-        {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-center) */}
-        <div className="lg:col-span-4 flex flex-col justify-center text-left space-y-5">
+        {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-start) */}
+        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-5 pt-0 sm:pt-1">
           
           {/* Eyebrow tag */}
           <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
