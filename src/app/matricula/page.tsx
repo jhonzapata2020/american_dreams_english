@@ -18,11 +18,13 @@ import {
   Calendar,
   Check,
   BookmarkCheck,
-  Info
+  Info,
+  ArrowRight
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { SoftSwitch3D } from '../../components/ui/SoftSwitch3D'
+import { InteractiveCard3D, getCardBrand } from '../../components/checkout/InteractiveCard3D'
 
 // Catálogo formativo formal
 interface AcademicProgram {
@@ -97,6 +99,15 @@ export default function MatriculaPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false)
   const [transactionRef, setTransactionRef] = useState<string>('')
+
+  // PASO 4: Método de pago y Tarjeta Interactiva 3D
+  const [paymentMethodTab, setPaymentMethodTab] = useState<'card' | 'channels'>('card')
+  const [cardHolder, setCardHolder] = useState<string>('')
+  const [cardNumber, setCardNumber] = useState<string>('')
+  const [cardExp, setCardExp] = useState<string>('')
+  const [cardCvc, setCardCvc] = useState<string>('')
+  const [isCardFlipped, setIsCardFlipped] = useState<boolean>(false)
+  const [saveCard, setSaveCard] = useState<boolean>(true)
 
   // Sistema dinámico de divisas con TRM en vivo
   const { currency, setCurrency, exchangeRate, formatPrice } = useCurrency()
@@ -780,9 +791,11 @@ export default function MatriculaPage() {
                 </div>
 
                 {/* ========================================================= */}
-                {/* PASO 4: PASARELA DE PAGO POWERED BY WOMPI BANCOLOMBIA     */}
+                {/* PASO 4: PASARELA DE PAGO INTERACTIVA 3D & WOMPI BANCOLOMBIA */}
                 {/* ========================================================= */}
-                <div className="bg-white border-2 border-blue-900/20 rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+                <div className="bg-white border-2 border-blue-900/20 rounded-3xl p-5 sm:p-7 shadow-sm space-y-6">
+                  
+                  {/* Cabecera Paso 4 */}
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div className="flex items-center gap-2.5">
                       <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
@@ -792,74 +805,230 @@ export default function MatriculaPage() {
                         <h2 className="text-sm sm:text-base font-bold text-slate-900">
                           Método de Pago Seguro
                         </h2>
-                        <p className="text-[10px] text-slate-400 font-semibold">Procesado con cifrado bancario de Wompi Bancolombia</p>
+                        <p className="text-[10px] text-slate-400 font-semibold">Procesado con cifrado bancario y tokenización segura</p>
                       </div>
                     </div>
 
-                    <span className="text-[11px] font-black text-[#002B49] tracking-wider uppercase px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-lg">
-                      WOMPI BANCOLOMBIA
-                    </span>
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-lg text-[10px] font-black text-[#002B49] uppercase">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                      <span>PCI-DSS Level 1</span>
+                    </div>
                   </div>
 
-                  {/* Canales de Pago */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-                    
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
-                      <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-[11px]">
-                        BC
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-800">Bancolombia</span>
-                      <span className="text-[9px] text-slate-400">Transferencia</span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
-                      <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-black text-[11px]">
-                        PSE
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-800">PSE</span>
-                      <span className="text-[9px] text-slate-400">Todos los bancos</span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
-                      <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-black text-[11px]">
-                        NQ
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-800">Nequi</span>
-                      <span className="text-[9px] text-slate-400">Débito directo</span>
-                    </div>
-
-                    <div className="p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex flex-col items-center justify-center gap-1">
-                      <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-900 flex items-center justify-center">
-                        <CreditCard className="w-4 h-4" />
-                      </div>
-                      <span className="text-[11px] font-bold text-slate-800">Tarjetas</span>
-                      <span className="text-[9px] text-slate-400">Visa / Mastercard</span>
-                    </div>
-
+                  {/* Selector de Pestaña de Pago */}
+                  <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodTab('card')}
+                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        paymentMethodTab === 'card'
+                          ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      <CreditCard className="w-4 h-4 text-blue-600" />
+                      <span>Tarjeta Débito / Crédito</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethodTab('channels')}
+                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                        paymentMethodTab === 'channels'
+                          ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
+                          : 'text-slate-500 hover:text-slate-800'
+                      }`}
+                    >
+                      <span>PSE / Nequi / Bancolombia</span>
+                    </button>
                   </div>
+
+                  {/* ========================================================= */}
+                  {/* PESTAÑA 1: TARJETA INTERACTIVA 3D (FLIPPING CARD)         */}
+                  {/* ========================================================= */}
+                  {paymentMethodTab === 'card' ? (
+                    <div className="space-y-6 pt-1">
+                      
+                      {/* Render de la Tarjeta Física 3D */}
+                      <div className="py-2">
+                        <InteractiveCard3D
+                          cardNumber={cardNumber}
+                          cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
+                          expDate={cardExp}
+                          cvc={cardCvc}
+                          isFlipped={isCardFlipped}
+                        />
+                      </div>
+
+                      {/* Campos del Formulario de Tarjeta */}
+                      <div className="space-y-3.5">
+                        
+                        {/* Nombre del Titular */}
+                        <div>
+                          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Cardholder Name (Nombre en la Tarjeta)
+                          </label>
+                          <input
+                            type="text"
+                            value={cardHolder || fullName}
+                            onChange={(e) => setCardHolder(e.target.value)}
+                            placeholder="Ej. JHON ZAPATA o Nombre Titular"
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-4 py-3 text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all uppercase"
+                            disabled={isProcessing}
+                          />
+                        </div>
+
+                        {/* Número de Tarjeta con auto-espaciado en bloques de 4 */}
+                        <div>
+                          <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                            Card Number (Número de Tarjeta)
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="text"
+                              value={cardNumber}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
+                                const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ')
+                                setCardNumber(formatted)
+                              }}
+                              placeholder="4242 4242 4242 4242"
+                              maxLength={19}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-4 py-3 pr-16 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all tracking-wider"
+                              disabled={isProcessing}
+                            />
+                            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-xs font-black text-blue-900 uppercase">
+                              {getCardBrand(cardNumber) !== 'generic' ? getCardBrand(cardNumber).toUpperCase() : ''}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Fecha de Expiración y CVC (Flip Trigger) */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                              Expiry Date (MM/AA)
+                            </label>
+                            <input
+                              type="text"
+                              value={cardExp}
+                              onChange={(e) => {
+                                let raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+                                if (raw.length >= 3) {
+                                  raw = `${raw.slice(0, 2)}/${raw.slice(2, 4)}`
+                                }
+                                setCardExp(raw)
+                              }}
+                              placeholder="12/28"
+                              maxLength={5}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-4 py-3 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                              disabled={isProcessing}
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                CVC / CVV
+                              </label>
+                              <span className="text-[10px] text-blue-600 font-semibold">Giro 3D al enfocar ↻</span>
+                            </div>
+                            <input
+                              type="password"
+                              value={cardCvc}
+                              onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                              onFocus={() => setIsCardFlipped(true)}
+                              onBlur={() => setIsCardFlipped(false)}
+                              placeholder="•••"
+                              maxLength={4}
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-4 py-3 text-xs sm:text-sm font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                              disabled={isProcessing}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Guardar tarjeta */}
+                        <div className="pt-1">
+                          <label className="flex items-start gap-2.5 cursor-pointer text-slate-600 text-xs select-none">
+                            <input
+                              type="checkbox"
+                              checked={saveCard}
+                              onChange={(e) => setSaveCard(e.target.checked)}
+                              className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                            />
+                            <div>
+                              <span className="font-bold text-slate-800 block">Guardar tarjeta para futuras mensualidades</span>
+                              <span className="text-[10px] text-slate-400 block">Tokenizado de forma segura por Wompi Bancolombia.</span>
+                            </div>
+                          </label>
+                        </div>
+
+                      </div>
+
+                    </div>
+                  ) : (
+                    /* ========================================================= */
+                    /* PESTAÑA 2: TRANSFERENCIAS, PSE Y NEQUI                     */
+                    /* ========================================================= */
+                    <div className="space-y-4 pt-1">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center text-xs">
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
+                          <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-[11px]">
+                            BC
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-800">Bancolombia</span>
+                          <span className="text-[9px] text-slate-400">Transferencia</span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
+                          <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-black text-[11px]">
+                            PSE
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-800">PSE</span>
+                          <span className="text-[9px] text-slate-400">Todos los bancos</span>
+                        </div>
+
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 col-span-2 sm:col-span-1">
+                          <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-black text-[11px]">
+                            NQ
+                          </div>
+                          <span className="text-[11px] font-bold text-slate-800">Nequi</span>
+                          <span className="text-[9px] text-slate-400">Débito directo</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-slate-500 leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                        💡 Al hacer clic en el botón de pago, se abrirá de inmediato la pasarela oficial para autorizar tu transferencia o débito PSE/Nequi.
+                      </p>
+                    </div>
+                  )}
 
                   {/* BOTÓN CTA PRINCIPAL DE PAGO SEGURO */}
-                  <div className="pt-3">
+                  <div className="pt-2">
                     <button
                       type="submit"
                       disabled={isProcessing}
-                      className="w-full bg-[#002B49] hover:bg-[#001f35] active:scale-[0.99] text-white font-extrabold text-sm sm:text-base py-4 px-6 rounded-2xl shadow-md shadow-blue-900/20 transition-all flex items-center justify-center gap-3 disabled:opacity-75 cursor-pointer"
+                      className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-black text-sm sm:text-base py-4 px-6 rounded-2xl shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 disabled:opacity-75 cursor-pointer"
                     >
                       {isProcessing ? (
                         <>
-                          <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                          <span>Conectando con pasarela segura...</span>
+                          <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+                          <span>Procesando pago seguro...</span>
                         </>
                       ) : (
                         <>
-                          <Lock className="w-4 h-4 text-amber-400" />
-                          <span>Pagar {formatPrice(totalAmountToPayToday)} de forma segura</span>
+                          <Lock className="w-4 h-4 text-amber-300" />
+                          <span>Pagar {formatPrice(totalAmountToPayToday)}</span>
+                          <ArrowRight className="w-4 h-4 text-white ml-1" />
                         </>
                       )}
                     </button>
-                    <p className="text-[10px] text-slate-400 text-center font-medium mt-2">
-                      🔒 Tu información bancaria viaja encriptada y es procesada directamente por Wompi Bancolombia.
-                    </p>
+                    
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-medium mt-3">
+                      <div className="flex items-center gap-2.5">
+                        <span>🛡️ PCI-DSS Level 1</span>
+                        <span>🔒 TLS 256-bit</span>
+                      </div>
+                      <span>American Dream never stores your CVC</span>
+                    </div>
                   </div>
 
                 </div>
