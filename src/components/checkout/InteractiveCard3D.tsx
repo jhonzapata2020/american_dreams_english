@@ -9,6 +9,7 @@ export interface InteractiveCard3DProps {
   expDate: string
   cvc: string
   isFlipped: boolean
+  isProcessing?: boolean
   className?: string
 }
 
@@ -26,6 +27,7 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
   expDate,
   cvc,
   isFlipped,
+  isProcessing = false,
   className = '',
 }) => {
   const brand = getCardBrand(cardNumber)
@@ -42,11 +44,35 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
   const displayCvc = cvc.replace(/\D/g, '').slice(0, 4) || '•••'
 
   return (
-    <div className={`w-full max-w-[360px] sm:max-w-[400px] aspect-[1.586/1] mx-auto select-none [perspective:1000px] ${className}`}>
+    <div className={`group w-full max-w-[360px] sm:max-w-[400px] aspect-[1.586/1] mx-auto select-none [perspective:1000px] transition-transform duration-300 hover:scale-[1.02] ${className}`}>
       
+      {/* Estilos de vibración háptica y halo de iluminación */}
+      <style jsx>{`
+        @keyframes subtleVibrate {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          20% { transform: translate(-1.5px, 1px) rotate(-0.5deg); }
+          40% { transform: translate(1.5px, -1px) rotate(0.5deg); }
+          60% { transform: translate(-1px, -1.5px) rotate(-0.3deg); }
+          80% { transform: translate(1px, 1.5px) rotate(0.3deg); }
+        }
+        @keyframes pulseGlow {
+          0%, 100% {
+            box-shadow: 0 0 35px rgba(59, 130, 246, 0.7), 0 0 70px rgba(37, 99, 235, 0.5), inset 0 0 25px rgba(255, 255, 255, 0.5);
+          }
+          50% {
+            box-shadow: 0 0 60px rgba(59, 130, 246, 0.95), 0 0 110px rgba(147, 197, 253, 0.8), inset 0 0 35px rgba(255, 255, 255, 0.9);
+          }
+        }
+        .card-vibrating {
+          animation: subtleVibrate 0.18s ease-in-out infinite, pulseGlow 1.2s ease-in-out infinite alternate !important;
+        }
+      `}</style>
+
       {/* 3D Flipping Container */}
       <div
-        className={`relative w-full h-full rounded-2xl sm:rounded-3xl transition-transform duration-700 [transform-style:preserve-3d] shadow-[0_20px_40px_-15px_rgba(30,64,175,0.35),0_0_20px_rgba(59,130,246,0.15)] ${
+        className={`relative w-full h-full rounded-2xl sm:rounded-3xl transition-all duration-700 [transform-style:preserve-3d] shadow-[0_20px_40px_-15px_rgba(30,64,175,0.35),0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_25px_55px_-10px_rgba(30,64,175,0.55),0_0_35px_rgba(59,130,246,0.4)] ${
+          isProcessing ? 'card-vibrating ring-4 ring-blue-400/80' : ''
+        } ${
           isFlipped ? '[transform:rotateY(180deg)]' : '[transform:rotateY(0deg)]'
         }`}
       >
@@ -54,7 +80,10 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
         {/* ========================================================= */}
         {/* CARA FRONTAL (FRONT VIEW)                                 */}
         {/* ========================================================= */}
-        <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between [backface-visibility:hidden] overflow-hidden border border-white/40 bg-gradient-to-br from-[#E0F2FE] via-[#BAE6FD] to-[#3B82F6] text-slate-900 shadow-inner">
+        <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between [backface-visibility:hidden] overflow-hidden border border-white/50 bg-gradient-to-br from-[#E0F2FE] via-[#BAE6FD] to-[#3B82F6] text-slate-900 shadow-inner group-hover:border-white/80 transition-colors">
+          
+          {/* Destello de luz / Hover Sheen Sweep */}
+          <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none -skew-x-25" />
           
           {/* Textura sutil de micro-líneas diagonales y brillo */}
           <div 
@@ -155,7 +184,10 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
         {/* ========================================================= */}
         {/* CARA TRASERA (BACK VIEW - ROTADA 180 DEG)                 */}
         {/* ========================================================= */}
-        <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl py-5 sm:py-6 flex flex-col justify-between [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden border border-white/40 bg-gradient-to-br from-[#CBD5E1] via-[#94A3B8] to-[#475569] text-slate-900 shadow-inner">
+        <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl py-5 sm:py-6 flex flex-col justify-between [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden border border-white/50 bg-gradient-to-br from-[#CBD5E1] via-[#94A3B8] to-[#475569] text-slate-900 shadow-inner group-hover:border-white/80 transition-colors">
+          
+          {/* Destello de luz / Hover Sheen Sweep */}
+          <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none -skew-x-25" />
           
           {/* Banda Magnética Superior */}
           <div className="w-full h-10 sm:h-12 bg-slate-950 shadow-inner my-1" />
