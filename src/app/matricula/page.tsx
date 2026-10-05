@@ -19,7 +19,9 @@ import {
   Check,
   BookmarkCheck,
   Info,
-  ArrowRight
+  ArrowRight,
+  KeyRound,
+  Copy
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { useCurrency } from '../../context/CurrencyContext'
@@ -99,6 +101,7 @@ export default function MatriculaPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false)
   const [transactionRef, setTransactionRef] = useState<string>('')
+  const [copiedCreds, setCopiedCreds] = useState<boolean>(false)
 
   // PASO 4: Método de pago y Tarjeta Interactiva 3D
   const [paymentMethodTab, setPaymentMethodTab] = useState<'card' | 'channels'>('card')
@@ -217,11 +220,12 @@ export default function MatriculaPage() {
           }
         })
 
-        checkout.open(function (result: any) {
+        checkout.open(async function (result: any) {
           const transaction = result?.transaction
           console.log('Resultado transacción Wompi:', transaction)
           setIsProcessing(false)
           if (transaction?.status === 'APPROVED' || transaction?.status === 'PENDING') {
+            await autoCreateStudentAccount()
             setPaymentSuccess(true)
           }
         })
@@ -232,10 +236,40 @@ export default function MatriculaPage() {
       }
     } else {
       // Simulación de respuesta en caso de prueba local
-      setTimeout(() => {
+      setTimeout(async () => {
+        await autoCreateStudentAccount()
         setIsProcessing(false)
         setPaymentSuccess(true)
       }, 1500)
+    }
+  }
+
+  const autoCreateStudentAccount = async () => {
+    try {
+      const nameParts = fullName.trim().split(' ')
+      const firstName = nameParts[0] || ''
+      const lastName = nameParts.slice(1).join(' ') || ''
+      const cleanDoc = docNumber.trim()
+
+      await fetch('/api/admin/create-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          fullName: fullName.trim(),
+          documentType: docType,
+          documentId: cleanDoc,
+          email: email.trim(),
+          phone: `${phonePrefix} ${phoneNumber.trim()}`,
+          mcerLevel: 'A1',
+          courseName: selectedProgram.title,
+          modality: modality,
+          municipality: city || 'Turbo (Urabá)'
+        })
+      })
+    } catch (err) {
+      console.warn('Registro automático de estudiante en background:', err)
     }
   }
 
@@ -363,23 +397,77 @@ export default function MatriculaPage() {
               </div>
             </div>
 
+            {/* CAJA DE CREDENCIALES AUTOMÁTICAS PARA EL ESTUDIANTE */}
+            <div className="bg-gradient-to-br from-[#002B49]/5 to-blue-50/50 border border-[#002B49]/20 rounded-2xl p-5 text-left space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#002B49] text-amber-400 flex items-center justify-center font-bold">
+                  <KeyRound className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                    Credenciales Generadas para tu Campus Virtual
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Tu cuenta ha sido activada automáticamente. Tu número de cédula es tu clave inicial.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Usuario / ID:</span>
+                  <span className="font-mono font-black text-xs sm:text-sm text-slate-900">{docNumber.trim()}</span>
+                  <span className="text-[10px] text-slate-400 block truncate">o {email.trim()}</span>
+                </div>
+
+                <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block">Contraseña Inicial:</span>
+                  <span className="font-mono font-black text-xs sm:text-sm text-emerald-600">{docNumber.trim()}</span>
+                  <span className="text-[10px] text-slate-400 block">(Tu número de documento)</span>
+                </div>
+              </div>
+
+              {copiedCreds && (
+                <div className="p-2 bg-emerald-100/80 border border-emerald-300 text-emerald-900 rounded-lg text-xs font-semibold flex items-center gap-2">
+                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>¡Credenciales copiadas al portapapeles!</span>
+                </div>
+              )}
+            </div>
+
             <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+              <Link
+                href="/campus/login"
+                className="bg-[#002B49] hover:bg-[#001f35] text-white font-extrabold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+              >
+                <KeyRound className="w-4 h-4 text-amber-400" />
+                <span>Ingresar al Campus Virtual Ahora</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const credMsg = `🎉 *¡MI MATRÍCULA EN AMERICAN DREAM ENGLISH!* 🎓\n\nNombre: *${fullName}*\nDocumento / Usuario: *${docNumber.trim()}*\nPrograma: *${selectedProgram.title}*\nRef: *${transactionRef}*\n\nAcceso al Campus: ${typeof window !== 'undefined' ? window.location.origin : ''}/campus/login\nClave Inicial: *${docNumber.trim()}*`
+                  navigator.clipboard.writeText(credMsg)
+                  setCopiedCreds(true)
+                  setTimeout(() => setCopiedCreds(false), 3000)
+                }}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs sm:text-sm py-3.5 px-5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors active:scale-[0.98]"
+              >
+                <Copy className="w-4 h-4 text-slate-950" />
+                <span>Copiar Mis Credenciales</span>
+              </button>
+
               <a
-                href={`https://wa.me/573105001234?text=Hola%20American%20Dream,%20acabo%20de%20pagar%20mi%20matr%C3%ADcula%20para%20el%20programa%20${encodeURIComponent(selectedProgram.title)}%20con%20referencia%20${transactionRef}`}
+                href={`https://wa.me/573105001234?text=Hola%20American%20Dream,%20acabo%20de%20pagar%20mi%20matr%C3%ADcula%20para%20el%20programa%20${encodeURIComponent(selectedProgram.title)}%20con%20referencia%20${transactionRef}%20y%20documento%20${docNumber.trim()}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm py-3.5 px-6 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm py-3.5 px-5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>Confirmar por WhatsApp con Secretaría</span>
+                <span>Confirmar con Secretaría</span>
               </a>
-
-              <Link
-                href="/"
-                className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm py-3.5 px-6 rounded-xl transition-colors text-center"
-              >
-                Volver al Portal
-              </Link>
             </div>
           </div>
         ) : (
