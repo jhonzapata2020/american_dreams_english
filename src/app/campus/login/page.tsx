@@ -3,18 +3,15 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  Lock, 
   User, 
-  ArrowRight, 
-  ShieldCheck, 
-  AlertCircle, 
-  CheckCircle2, 
   Eye, 
   EyeOff, 
-  ArrowLeft, 
   KeyRound,
-  Sparkles,
-  GraduationCap
+  ArrowRight,
+  AlertCircle,
+  CheckCircle2,
+  Lock,
+  ArrowLeft
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 
@@ -45,7 +42,7 @@ export default function CampusLoginPage() {
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!identifier.trim() || !password.trim()) {
-      setMessage({ type: 'error', text: 'Por favor ingresa tu número de documento o correo y tu contraseña.' })
+      setMessage({ type: 'error', text: 'Por favor ingresa tu documento o correo y contraseña.' })
       return
     }
 
@@ -55,7 +52,6 @@ export default function CampusLoginPage() {
     try {
       let loginEmail = identifier.trim()
       
-      // Si el usuario ingresó un documento (sin @), intentamos buscar su correo asociado o usar formato estándar
       if (!loginEmail.includes('@')) {
         const { data: profile } = await supabase
           .from('profiles')
@@ -89,12 +85,12 @@ export default function CampusLoginPage() {
 
         setMessage({ 
           type: 'error', 
-          text: 'Credenciales inválidas. Verifica tu documento/correo y contraseña asignada.' 
+          text: 'Credenciales inválidas. Verifica tu documento y contraseña.' 
         })
       } else {
         setMessage({ 
           type: 'success', 
-          text: '¡Bienvenido(a) a tu Campus Virtual! Cargando tus cursos...' 
+          text: '¡Bienvenido(a)! Cargando tus cursos...' 
         })
         setTimeout(() => {
           window.location.href = '/campus'
@@ -118,63 +114,60 @@ export default function CampusLoginPage() {
     setPassword('1040892341')
     setMessage({
       type: 'info',
-      text: 'Credenciales de estudiante demo cargadas (Doc: 1040892341). Haz clic en "Iniciar Sesión".'
+      text: 'Credenciales demo cargadas (Doc: 1040892341).'
     })
   }
 
   return (
-    <div className="bg-[#1D4ED8] min-h-screen flex flex-col justify-between items-center p-4 sm:p-6 md:p-8 font-sans selection:bg-[#0F2850] selection:text-white relative overflow-hidden">
+    <div className="bg-[#183ec2] min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-10 font-sans selection:bg-[#11246b] selection:text-white">
       
-      {/* Círculos de luz ambiental sutiles en el fondo exterior */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/25 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-900/40 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Barra superior de navegación rápida */}
-      <header className="w-full max-w-5xl flex items-center justify-between py-2 text-white/90 z-10 mb-2 sm:mb-4">
-        <Link href="/" className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold hover:text-white transition-colors bg-white/10 hover:bg-white/20 border border-white/20 px-3.5 py-1.5 rounded-full backdrop-blur-md">
-          <ArrowLeft className="w-3.5 h-3.5 text-amber-300" />
-          <span>Volver a la Web Principal</span>
-        </Link>
-
-        <div className="inline-flex items-center gap-2 text-xs font-semibold bg-white/10 border border-white/20 px-3 py-1.5 rounded-full text-white backdrop-blur-md">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
-          <span className="hidden sm:inline">Plataforma Segura SSL</span>
-          <span>Periodo 2026</span>
-        </div>
-      </header>
-
-      {/* ========================================================= */}
-      {/* TARJETA MAESTRA SPLIT-SCREEN (FIGMA / MODERN STYLE)       */}
-      {/* ========================================================= */}
-      <main className="w-full max-w-5xl bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.3)] grid grid-cols-1 md:grid-cols-2 overflow-hidden min-h-[580px] z-10 my-auto">
+      {/* TARJETA MAESTRA BLANCA CON BORDES ULTRA CURVADOS (IDÉNTICO A LA REFERENCIA) */}
+      <div className="bg-white rounded-[44px] sm:rounded-[56px] shadow-[0_30px_70px_rgba(0,0,0,0.35)] max-w-5xl w-full p-4 sm:p-5 md:p-6 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 min-h-[620px] items-stretch">
         
-        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA */}
-        <div className="p-8 sm:p-12 md:p-14 flex flex-col justify-between bg-white">
+        {/* ========================================================= */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & CENTRADO      */}
+        {/* ========================================================= */}
+        <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between">
           
-          <div>
-            {/* Header con Logo Oficial y Saludo */}
-            <div className="text-center md:text-left space-y-2">
-              <div className="inline-flex items-center justify-center p-2.5 bg-slate-50 border border-slate-100 rounded-2xl shadow-sm mb-2">
+          {/* Top navigation / Back */}
+          <div className="flex items-center justify-between">
+            <Link 
+              href="/" 
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Volver a la web</span>
+            </Link>
+
+            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+              Periodo 2026
+            </span>
+          </div>
+
+          {/* Bloque central: Logo, Título, Subtítulo y Form */}
+          <div className="my-auto max-w-sm mx-auto w-full py-4">
+            
+            {/* Logo / Ícono Central */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center mb-3">
                 <img 
                   src="/images/logo.png" 
                   alt="American Dream English" 
-                  className="w-10 h-10 object-contain drop-shadow-sm" 
+                  className="w-12 h-12 object-contain drop-shadow-sm" 
                 />
               </div>
-
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Bienvenido de nuevo
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Welcome home
               </h1>
-
-              <p className="text-slate-500 text-xs sm:text-sm font-medium">
-                Ingresa tus credenciales para acceder a tus clases y campus virtual.
+              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
+                Please enter your details.
               </p>
             </div>
 
-            {/* Mensajes de Estado */}
+            {/* Mensajes de Alerta */}
             {message && (
               <div 
-                className={`mt-5 p-3.5 rounded-2xl text-xs font-medium flex items-start gap-2.5 animate-fadeIn border ${
+                className={`mb-4 p-3 rounded-2xl text-xs font-medium flex items-start gap-2 animate-fadeIn border ${
                   message.type === 'error' 
                     ? 'bg-rose-50 text-rose-800 border-rose-200' 
                     : message.type === 'success'
@@ -192,207 +185,244 @@ export default function CampusLoginPage() {
             )}
 
             {/* Formulario */}
-            <form onSubmit={handleStudentLogin} className="mt-6 space-y-4">
+            <form onSubmit={handleStudentLogin} className="space-y-4">
               
-              {/* Campo 1: Documento / Email */}
-              <div>
-                <label className="text-slate-700 text-xs font-bold uppercase tracking-wider block mb-1.5">
-                  Documento de Identidad o Correo
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    required
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Ej. 1040892341 o alumno@email.com"
-                    className="w-full bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 pr-11 text-slate-900 placeholder-slate-400 text-sm font-medium focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all shadow-sm"
-                    disabled={loading}
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
-                    <User className="w-4 h-4" />
-                  </div>
+              {/* Campo Email / Documento */}
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  placeholder="Email or Document"
+                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
+                  disabled={loading}
+                />
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none text-gray-400">
+                  <User className="w-4 h-4" />
                 </div>
               </div>
 
-              {/* Campo 2: Contraseña */}
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-slate-700 text-xs font-bold uppercase tracking-wider block">
-                    Contraseña
-                  </label>
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    (No. Documento)
-                  </span>
-                </div>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
-                    className="w-full bg-slate-50/80 hover:bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3.5 pr-11 text-slate-900 placeholder-slate-400 text-sm font-medium focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-100 outline-none transition-all shadow-sm"
-                    disabled={loading}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
-                    tabIndex={-1}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
+              {/* Campo Contraseña */}
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
 
-              {/* Recordar & Olvido */}
-              <div className="flex items-center justify-between text-xs pt-1">
-                <label className="inline-flex items-center gap-2 cursor-pointer text-slate-600 select-none">
+              {/* Checkbox Remember & Forgot */}
+              <div className="flex items-center justify-between text-xs text-gray-500 pt-1 px-1">
+                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500"
+                    className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <span>Recordar por 30 días</span>
+                  <span className="text-[12px] text-gray-600 font-medium">Remember for 30 days</span>
                 </label>
+                
                 <button
                   type="button"
                   onClick={handleFillDemoStudent}
-                  className="text-blue-600 hover:text-blue-800 font-semibold hover:underline"
+                  className="text-[12px] text-gray-400 hover:text-blue-600 transition-colors font-medium"
                 >
-                  ¿Olvidaste tu contraseña?
+                  Forgot password?
                 </button>
               </div>
 
-              {/* Botón Principal Cápsula Azul Oscuro */}
+              {/* Botón Principal Cápsula Azul */}
               <div className="pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#0F2850] hover:bg-blue-900 active:bg-blue-950 text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg shadow-blue-950/20 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
+                  className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-bold py-3.5 px-6 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm"
                 >
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Ingresando al Campus...</span>
+                      <span>Entering...</span>
                     </>
                   ) : (
-                    <>
-                      <span>Iniciar Sesión</span>
-                      <ArrowRight className="w-4 h-4 text-amber-300" />
-                    </>
+                    <span>Login</span>
                   )}
                 </button>
               </div>
 
             </form>
-          </div>
 
-          {/* Pie de la columna izquierda con Demo y Enlace a Admin */}
-          <div className="pt-6 mt-6 border-t border-slate-100 space-y-3">
-            <div className="flex items-center justify-center gap-2">
+            {/* Separador "or" */}
+            <div className="relative my-6 text-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-100" />
+              </div>
+              <span className="relative bg-white px-3 text-xs text-gray-400 font-medium">
+                or
+              </span>
+            </div>
+
+            {/* Accesos rápidos circulares / Portal Switcher */}
+            <div className="flex items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={handleFillDemoStudent}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3.5 py-2 rounded-xl transition-all font-medium"
+                title="Cargar credenciales de estudiante demo"
+                className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
               >
-                <KeyRound className="w-3.5 h-3.5 text-blue-600" />
-                <span>Cargar datos de estudiante demo</span>
+                <KeyRound className="w-4 h-4" />
               </button>
-            </div>
-
-            <div className="text-center">
               <Link
                 href="/admin/login"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-blue-700 transition-colors"
+                title="Ir al Portal Administrativo"
+                className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
               >
-                <span>¿Eres directivo o docente?</span>
-                <span className="text-blue-600 font-bold hover:underline">Accede al portal administrativo →</span>
+                <Lock className="w-4 h-4" />
               </Link>
             </div>
+
           </div>
 
-        </div>
-
-        {/* COLUMNA DERECHA: ARTE VISUAL 3D & IDENTIDAD INSTITUCIONAL */}
-        <div className="hidden md:flex flex-col justify-between p-8 sm:p-10 bg-gradient-to-br from-[#0F2850] via-[#1A365D] to-[#1E1B4B] text-white relative m-3 sm:m-4 rounded-[28px] overflow-hidden shadow-inner">
-          
-          {/* Formas 3D fluidas orgánicas (SVG Mesh & Glow Layers) */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            {/* Esferas de luz difuminadas */}
-            <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/30 rounded-full blur-[80px]" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-600/30 rounded-full blur-[90px]" />
-            <div className="absolute top-1/2 left-1/4 w-72 h-72 bg-indigo-400/20 rounded-full blur-[70px]" />
-
-            {/* Onda 3D fluida suave en SVG */}
-            <svg 
-              className="absolute -right-20 top-0 h-full w-[140%] opacity-40 mix-blend-screen" 
-              viewBox="0 0 500 800" 
-              fill="none" 
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path 
-                d="M100 0 C 250 200, 50 400, 300 600 C 450 720, 350 800, 500 800 L 500 0 Z" 
-                fill="url(#fluid-grad-1)" 
-              />
-              <path 
-                d="M200 0 C 350 300, 150 500, 400 800 L 500 800 L 500 0 Z" 
-                fill="url(#fluid-grad-2)" 
-                opacity="0.6"
-              />
-              <defs>
-                <linearGradient id="fluid-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                  <stop offset="50%" stopColor="#6366F1" stopOpacity="0.6" />
-                  <stop offset="100%" stopColor="#1E1B4B" stopOpacity="0.9" />
-                </linearGradient>
-                <linearGradient id="fluid-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#60A5FA" stopOpacity="0.7" />
-                  <stop offset="100%" stopColor="#4338CA" stopOpacity="0.4" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-
-          {/* Top Badge dentro del panel derecho */}
-          <div className="relative z-10 flex items-center justify-between">
-            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white shadow-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Campus Digital 2026</span>
-            </div>
-
-            <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-amber-300" />
-            </div>
-          </div>
-
-          {/* Contenido Central / Hero Tipográfico */}
-          <div className="relative z-10 my-auto space-y-4">
-            <div className="w-14 h-1 bg-amber-400 rounded-full" />
-            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight">
-              Aprende inglés con los mejores docentes certificados de Urabá.
-            </h2>
-            <p className="text-white/80 text-xs sm:text-sm font-medium leading-relaxed max-w-sm">
-              Formación bilingüe con estándar internacional del Marco Común Europeo (MCER A1 - B2) y reconocimiento oficial del Distrito de Turbo.
+          {/* Pie */}
+          <div className="text-center pt-2">
+            <p className="text-[11px] text-gray-400 font-medium">
+              American Dream English · Campus Estudiantil
             </p>
           </div>
 
-          {/* Bottom Card / Footer de Identidad */}
-          <div className="relative z-10 pt-4 border-t border-white/15 flex items-center justify-between text-xs text-white/75">
-            <span>Resolución Oficial 2471 / 2022</span>
-            <span className="font-semibold text-amber-300">Pisingo de Oro 🏆</span>
+        </div>
+
+        {/* ========================================================= */}
+        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO (IDÉNTICO AL EJ)  */}
+        {/* ========================================================= */}
+        <div className="hidden md:block relative rounded-[36px] sm:rounded-[44px] overflow-hidden bg-[#090D2A] shadow-inner">
+          
+          {/* Fondo Degradado Base */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
+
+          {/* Gráfico 3D Fluid Organics (SVG de alta fidelidad con curvas suaves y sombras de relieve) */}
+          <svg
+            className="absolute inset-0 w-full h-full object-cover"
+            viewBox="0 0 600 800"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              {/* Gradiente Pétalo Superior Izquierdo */}
+              <radialGradient id="grad-top-left" cx="30%" cy="25%" r="70%">
+                <stop offset="0%" stopColor="#818CF8" />
+                <stop offset="45%" stopColor="#4338CA" />
+                <stop offset="85%" stopColor="#1E1B4B" />
+                <stop offset="100%" stopColor="#0B0F2A" />
+              </radialGradient>
+
+              {/* Gradiente Onda Central Derecha */}
+              <radialGradient id="grad-wave-right" cx="75%" cy="35%" r="65%">
+                <stop offset="0%" stopColor="#6366F1" />
+                <stop offset="35%" stopColor="#312E81" />
+                <stop offset="70%" stopColor="#1E1B4B" />
+                <stop offset="100%" stopColor="#06091E" />
+              </radialGradient>
+
+              {/* Gradiente Valle Central */}
+              <linearGradient id="grad-center-valley" x1="20%" y1="30%" x2="80%" y2="85%">
+                <stop offset="0%" stopColor="#3730A3" />
+                <stop offset="40%" stopColor="#1E1B4B" />
+                <stop offset="80%" stopColor="#090D26" />
+                <stop offset="100%" stopColor="#040614" />
+              </linearGradient>
+
+              {/* Gradiente Onda Inferior */}
+              <radialGradient id="grad-bottom-glow" cx="45%" cy="80%" r="60%">
+                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
+                <stop offset="50%" stopColor="#1E3A8A" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#090D2A" stopOpacity="0" />
+              </radialGradient>
+
+              {/* Filtro de Difuminado Suave */}
+              <filter id="soft-blur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="40" />
+              </filter>
+            </defs>
+
+            {/* Capa de fondo con luz ambiental difusa */}
+            <circle cx="200" cy="180" r="260" fill="url(#grad-top-left)" filter="url(#soft-blur)" opacity="0.65" />
+            <circle cx="450" cy="300" r="280" fill="url(#grad-wave-right)" filter="url(#soft-blur)" opacity="0.75" />
+            <circle cx="300" cy="700" r="240" fill="url(#grad-bottom-glow)" filter="url(#soft-blur)" opacity="0.6" />
+
+            {/* Curva Orgánica Superior Izquierda */}
+            <path
+              d="M -50 -50 
+                 L 400 -50 
+                 C 380 200, 220 380, 100 480 
+                 C 20 560, -20 620, -50 700 
+                 Z"
+              fill="url(#grad-top-left)"
+              opacity="0.9"
+            />
+
+            {/* Sombra de relieve interior para dar profundidad 3D */}
+            <path
+              d="M 400 -50 
+                 C 380 200, 220 380, 100 480 
+                 C 150 420, 260 300, 320 150 
+                 C 360 50, 380 -20, 400 -50 
+                 Z"
+              fill="#06081E"
+              opacity="0.4"
+            />
+
+            {/* Gran Onda Esculpida Derecha y Valle Central (Exacto a la foto) */}
+            <path
+              d="M 650 -50 
+                 L 650 850 
+                 L -50 850 
+                 C 150 780, 280 620, 290 480 
+                 C 300 380, 420 320, 520 200 
+                 C 580 120, 620 40, 650 -50 
+                 Z"
+              fill="url(#grad-center-valley)"
+            />
+
+            {/* Contorno orgánico con brillo de cresta */}
+            <path
+              d="M 650 150 
+                 C 550 250, 420 340, 360 420 
+                 C 300 500, 360 620, 480 720 
+                 C 540 770, 600 810, 650 850 
+                 Z"
+              fill="url(#grad-wave-right)"
+              opacity="0.85"
+            />
+
+            {/* Destello de luz inferior sutil */}
+            <ellipse cx="380" cy="720" rx="200" ry="120" fill="#2563EB" opacity="0.35" filter="url(#soft-blur)" />
+          </svg>
+
+          {/* Sutil detalle de marca al pie */}
+          <div className="absolute bottom-6 right-6 z-10">
+            <span className="text-[11px] font-semibold text-white/40 tracking-wider uppercase">
+              American Dream English
+            </span>
           </div>
 
         </div>
 
-      </main>
-
-      {/* Pie de página exterior */}
-      <footer className="w-full max-w-5xl py-3 text-center text-xs text-white/70 z-10 mt-2">
-        <p>© 2026 American Dream English S.A.S. · Todos los derechos reservados.</p>
-      </footer>
+      </div>
 
     </div>
   )
