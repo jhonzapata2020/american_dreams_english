@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
-import { Menu, X, GraduationCap } from 'lucide-react';
+import { Menu, X, GraduationCap, Globe } from 'lucide-react';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
+import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
-  selectedCurrency: Currency;
-  onCurrencyChange: (currency: Currency) => void;
-  onOpenDonationModal: () => void;
+  selectedCurrency?: Currency;
+  onCurrencyChange?: (currency: Currency) => void;
+  onOpenDonationModal?: () => void;
   onOpenStudentPortal?: () => void;
   onOpenProgramas?: () => void;
   onOpenCursosDigitales?: () => void;
@@ -25,6 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onMatricularme,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { language, setLanguage, t } = useLanguage();
 
   const handleGoToCampus = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -67,27 +69,39 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onOpenProgramas}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              Programas
+              {t.programs}
             </button>
             <button 
               type="button"
               onClick={onOpenCursosDigitales}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              Cursos Digitales
+              {t.digitalCourses}
             </button>
             <button 
               type="button"
               onClick={onOpenClasesEnVivo}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              Clases en Vivo
+              {t.liveClasses}
             </button>
           </nav>
 
           {/* CONTROLES Y ACCIONES (LADO DERECHO) */}
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             
+            {/* SELECTOR DE IDIOMA NEUMÓRFICO SOFT 3D [ ES | EN ] */}
+            <div className="flex items-center px-1.5 sm:px-2 py-1 bg-slate-50/90 rounded-2xl border border-slate-200/80 shadow-2xs">
+              <SoftSwitch3D
+                checked={language === 'en'}
+                onChange={(isEn) => setLanguage(isEn ? 'en' : 'es')}
+                leftLabel="ES"
+                rightLabel="EN"
+                size="sm"
+                ariaLabel="Alternar idioma entre Español e Inglés"
+              />
+            </div>
+
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL */}
             <a 
               href="/campus/login"
@@ -95,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="inline-flex text-xs sm:text-sm font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <GraduationCap className="w-4 h-4 text-white" />
-              <span>Campus Virtual</span>
+              <span>{t.campusVirtual}</span>
             </a>
 
             {/* Inscribirme / Matricúlate CTA Button estilo UNAD */}
@@ -104,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleMatricularme}
               className="inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <span>Matricúlate</span>
+              <span>{t.enroll}</span>
             </a>
 
             {/* Mobile App Menu Toggle Button */}
@@ -127,7 +141,18 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden bg-white border-b border-slate-200 px-5 py-4 space-y-4 animate-fadeIn shadow-xl">
           
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Menú de Navegación</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t.navigationMenu}</span>
+            
+            <div className="flex items-center px-1.5 py-0.5 bg-slate-50 rounded-xl border border-slate-200">
+              <SoftSwitch3D
+                checked={language === 'en'}
+                onChange={(isEn) => setLanguage(isEn ? 'en' : 'es')}
+                leftLabel="ES"
+                rightLabel="EN"
+                size="sm"
+                ariaLabel="Alternar idioma"
+              />
+            </div>
           </div>
 
           <nav className="flex flex-col space-y-2.5 text-sm font-semibold text-slate-800">
@@ -136,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenProgramas) onOpenProgramas(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>Programas Académicos</span>
+              <span>{t.academicPrograms}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
             <button 
@@ -144,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenCursosDigitales) onOpenCursosDigitales(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>Cursos Digitales 4K</span>
+              <span>{t.digitalCourses4k}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
             <button 
@@ -152,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenClasesEnVivo) onOpenClasesEnVivo(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>Clases en Vivo</span>
+              <span>{t.liveClassesTitle}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
           </nav>
@@ -163,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={(e) => { setMobileMenuOpen(false); handleMatricularme(e); }}
               className="w-full py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
-              <span>Matricúlate</span>
+              <span>{t.enroll}</span>
             </a>
             <a
               href="/campus/login"
@@ -171,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full py-3 rounded-xl text-xs font-bold text-white bg-[#002B49] hover:bg-[#001f35] text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               <GraduationCap className="w-4 h-4 text-white" />
-              <span>Campus Virtual</span>
+              <span>{t.campusVirtual}</span>
             </a>
           </div>
         </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import '../index.css'
 import { Metadata } from 'next'
 import { CurrencyProvider } from '../context/CurrencyContext'
+import { LanguageProvider } from '../context/LanguageContext'
 
 export const metadata: Metadata = {
   title: 'American Dream English S.A.S. - Plataforma Bilingüe',
@@ -35,7 +36,9 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-white text-slate-900 font-sans antialiased" suppressHydrationWarning>
         <CurrencyProvider>
-          {children}
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
         </CurrencyProvider>
       </body>
     </html>
