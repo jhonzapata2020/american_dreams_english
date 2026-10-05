@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
 import { Menu, X, GraduationCap } from 'lucide-react';
+import { SoftSwitch3D } from './ui/SoftSwitch3D';
 
 interface NavbarProps {
   selectedCurrency: Currency;
@@ -87,28 +88,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* CONTROLES Y ACCIONES (LADO DERECHO) */}
           <div className="flex items-center gap-2 sm:gap-3 ml-auto">
             
-            {/* Toggle compacto de moneda [COP | USD] */}
-            <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-lg text-xs font-bold text-slate-700">
-              <button 
-                onClick={() => onCurrencyChange('COP')}
-                className={`px-2.5 py-1 rounded transition-all ${
-                  selectedCurrency === 'COP'
-                    ? 'bg-white shadow-2xs text-[#0F2537] font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                COP
-              </button>
-              <button 
-                onClick={() => onCurrencyChange('USD')}
-                className={`px-2.5 py-1 rounded transition-all ${
-                  selectedCurrency === 'USD'
-                    ? 'bg-white shadow-2xs text-[#0F2537] font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                USD
-              </button>
+            {/* Soft 3D Neumorphic Switch de Moneda [COP | USD] */}
+            <div className="hidden sm:flex items-center px-2 py-1 bg-slate-50/80 rounded-2xl border border-slate-200/60 shadow-xs">
+              <SoftSwitch3D
+                checked={selectedCurrency === 'USD'}
+                onChange={(isUsd) => onCurrencyChange(isUsd ? 'USD' : 'COP')}
+                leftLabel="COP"
+                rightLabel="USD"
+                size="sm"
+                ariaLabel="Alternar moneda entre COP y USD"
+              />
             </div>
 
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL */}
@@ -150,20 +139,16 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden bg-white border-b border-slate-200 px-5 py-4 space-y-4 animate-fadeIn shadow-xl">
           
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Menú de Navegación</span>
-            <div className="bg-slate-100 p-0.5 rounded-lg text-xs font-semibold flex items-center">
-              <button
-                onClick={() => onCurrencyChange('COP')}
-                className={`px-3 py-1 rounded-md ${selectedCurrency === 'COP' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'text-slate-500'}`}
-              >
-                COP ($)
-              </button>
-              <button
-                onClick={() => onCurrencyChange('USD')}
-                className={`px-3 py-1 rounded-md ${selectedCurrency === 'USD' ? 'bg-white text-slate-900 shadow-2xs font-extrabold' : 'text-slate-500'}`}
-              >
-                USD ($)
-              </button>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Moneda</span>
+            <div className="bg-slate-50 px-2.5 py-1 rounded-2xl border border-slate-200/60 shadow-2xs">
+              <SoftSwitch3D
+                checked={selectedCurrency === 'USD'}
+                onChange={(isUsd) => onCurrencyChange(isUsd ? 'USD' : 'COP')}
+                leftLabel="COP ($)"
+                rightLabel="USD ($)"
+                size="sm"
+                ariaLabel="Alternar moneda entre COP y USD móvil"
+              />
             </div>
           </div>
 

@@ -14,6 +14,7 @@ import {
   ArrowLeft
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
+import { SoftSwitch3D } from '../../../components/ui/SoftSwitch3D'
 
 type Language = 'EN' | 'ES'
 
@@ -209,33 +210,17 @@ export default function CampusLoginPage() {
               <span>{t.back}</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              {/* Switch Interactivo de Idioma */}
-              <div className="inline-flex items-center bg-gray-100 p-0.5 rounded-full border border-gray-200 text-[11px] font-bold">
-                <button
-                  type="button"
-                  onClick={() => handleLanguageChange('EN')}
-                  className={`px-2.5 py-0.5 rounded-full transition-all ${
-                    lang === 'EN'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                  aria-label="Switch language to English"
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleLanguageChange('ES')}
-                  className={`px-2.5 py-0.5 rounded-full transition-all ${
-                    lang === 'ES'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'text-gray-500 hover:text-gray-800'
-                  }`}
-                  aria-label="Cambiar idioma a Español"
-                >
-                  ES
-                </button>
+            <div className="flex items-center gap-2.5">
+              {/* Switch Neumórfico / Soft 3D de Idioma [ EN | ES ] */}
+              <div className="px-2 py-0.5 bg-slate-50/80 rounded-2xl border border-slate-200/60 shadow-xs">
+                <SoftSwitch3D
+                  checked={lang === 'ES'}
+                  onChange={(isEs) => handleLanguageChange(isEs ? 'ES' : 'EN')}
+                  leftLabel="EN"
+                  rightLabel="ES"
+                  size="sm"
+                  ariaLabel="Toggle language between English and Spanish"
+                />
               </div>
 
               {/* Badge Periodo */}
