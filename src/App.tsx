@@ -13,6 +13,7 @@ import { LiveClassesModal } from './components/LiveClassesModal';
 import { PresencialModal } from './components/PresencialModal';
 import { ScholarshipModal } from './components/ScholarshipModal';
 import { Currency } from './types';
+import { useCurrency } from './context/CurrencyContext';
 
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
@@ -29,7 +30,7 @@ import LiquidacionesCorplexPage from './app/admin/liquidaciones/page';
 import AdminEstudiantesPage from './app/admin/estudiantes/page';
 
 export function App() {
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>('COP');
+  const { currency: selectedCurrency, setCurrency: setSelectedCurrency } = useCurrency();
   const [forcedTierId, setForcedTierId] = useState<string>('tier-2');
 
   // Client path detection for hybrid SPA & SSR routing

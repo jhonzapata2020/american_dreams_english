@@ -21,6 +21,8 @@ import {
   Info
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { useCurrency } from '../../context/CurrencyContext'
+import { SoftSwitch3D } from '../../components/ui/SoftSwitch3D'
 
 // Catálogo formativo formal
 interface AcademicProgram {
@@ -96,6 +98,9 @@ export default function MatriculaPage() {
   const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false)
   const [transactionRef, setTransactionRef] = useState<string>('')
 
+  // Sistema dinámico de divisas con TRM en vivo
+  const { currency, setCurrency, exchangeRate, formatPrice } = useCurrency()
+
   // Programa seleccionado
   const selectedProgram = ACADEMIC_PROGRAMS.find((p) => p.id === selectedProgramId) || ACADEMIC_PROGRAMS[0]
 
@@ -105,9 +110,9 @@ export default function MatriculaPage() {
   const pendingTuitionBalance = paymentMode === 'matricula_only' ? selectedProgram.monthlyFeeCop : 0
   const addonAmount = includeAddon ? ADDON_EBOOK_MASTERCLASS_COP : 0
   const totalAmountToPayToday = matriculaAmount + tuitionDueToday + addonAmount
-  const totalUsdEquivalentToday = Math.round(totalAmountToPayToday / 4000)
+  const totalUsdEquivalentToday = Math.round((totalAmountToPayToday / (exchangeRate || 4050)) * 100) / 100
 
-  // Formateador de dinero en COP
+  // Formateador de dinero en COP estándar para display auxiliar
   const formatCop = (val: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -259,11 +264,24 @@ export default function MatriculaPage() {
             </Link>
           </div>
 
-          {/* Sello de Seguridad SSL 256-Bit */}
-          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs">
-            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="hidden sm:inline">Proceso de Matrícula Seguro (SSL 256-bit)</span>
-            <span className="sm:hidden">Pago Seguro 256-bit</span>
+          <div className="flex items-center gap-3">
+            {/* Soft 3D Neumorphic Switch de Moneda [COP | USD] */}
+            <div className="flex items-center px-2 py-1 bg-slate-50 rounded-2xl border border-slate-200/80 shadow-xs">
+              <SoftSwitch3D
+                checked={currency === 'USD'}
+                onChange={(isUsd) => setCurrency(isUsd ? 'USD' : 'COP')}
+                leftLabel="COP"
+                rightLabel="USD"
+                size="sm"
+                ariaLabel="Alternar moneda entre COP y USD en matrícula"
+              />
+            </div>
+
+            {/* Sello de Seguridad SSL 256-Bit */}
+            <div className="hidden sm:flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200/80 px-3 py-1.5 rounded-full text-xs font-bold shadow-2xs">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>Proceso Seguro (SSL 256-bit)</span>
+            </div>
           </div>
 
         </div>
@@ -424,7 +442,7 @@ export default function MatriculaPage() {
                       <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
                         <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
                         <span className="font-mono font-black text-base text-[#002B49]">
-                          {formatCop(MATRICULA_BASE_COP)}
+                          {formatPrice(MATRICULA_BASE_COP)}
                         </span>
                       </div>
                     </div>
@@ -456,14 +474,14 @@ export default function MatriculaPage() {
                           Matrícula + Periodo Completo
                         </h3>
                         <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                          Cancela tu matrícula ($50.000) más tu primera mensualidad ({formatCop(selectedProgram.monthlyFeeCop)}) de forma anticipada.
+                          Cancela tu matrícula ({formatPrice(MATRICULA_BASE_COP)}) más tu primera mensualidad ({formatPrice(selectedProgram.monthlyFeeCop)}) de forma anticipada.
                         </p>
                       </div>
 
                       <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
                         <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
                         <span className="font-mono font-black text-base text-slate-900">
-                          {formatCop(MATRICULA_BASE_COP + selectedProgram.monthlyFeeCop)}
+                          {formatPrice(MATRICULA_BASE_COP + selectedProgram.monthlyFeeCop)}
                         </span>
                       </div>
                     </div>
@@ -536,7 +554,7 @@ export default function MatriculaPage() {
                           <div className="text-right shrink-0">
                             <div className="text-[10px] font-semibold text-slate-400">Mensualidad:</div>
                             <div className="font-mono font-bold text-xs sm:text-sm text-slate-800">
-                              {formatCop(prog.monthlyFeeCop)}
+                              {formatPrice(prog.monthlyFeeCop)}
                             </div>
                           </div>
                         </div>
@@ -600,10 +618,10 @@ export default function MatriculaPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-2">
                           <span className="text-xs font-bold text-slate-900">
-                            Añadir Guía E-Book Digital & Masterclass de Entrevistas (+ $55.000 COP)
+                            Añadir Guía E-Book Digital & Masterclass de Entrevistas (+ {formatPrice(ADDON_EBOOK_MASTERCLASS_COP)})
                           </span>
                           <span className="text-xs font-mono font-bold text-amber-900 shrink-0">
-                            +{formatCop(ADDON_EBOOK_MASTERCLASS_COP)}
+                            +{formatPrice(ADDON_EBOOK_MASTERCLASS_COP)}
                           </span>
                         </div>
                         <p className="text-[11px] text-slate-500 mt-0.5">
@@ -830,12 +848,12 @@ export default function MatriculaPage() {
                       {isProcessing ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-                          <span>Conectando con Wompi...</span>
+                          <span>Conectando con pasarela segura...</span>
                         </>
                       ) : (
                         <>
                           <Lock className="w-4 h-4 text-amber-400" />
-                          <span>Pagar {formatCop(totalAmountToPayToday)} COP de forma segura</span>
+                          <span>Pagar {formatPrice(totalAmountToPayToday)} de forma segura</span>
                         </>
                       )}
                     </button>
@@ -892,7 +910,7 @@ export default function MatriculaPage() {
                       <span className="w-1.5 h-1.5 rounded-full bg-[#002B49]" />
                       <span>Derechos de Matrícula (Pagas hoy):</span>
                     </div>
-                    <span className="font-mono font-bold text-slate-900">{formatCop(MATRICULA_BASE_COP)}</span>
+                    <span className="font-mono font-bold text-slate-900">{formatPrice(MATRICULA_BASE_COP)}</span>
                   </div>
 
                   {/* Cargo 2: Mensualidad / Periodo */}
@@ -902,10 +920,10 @@ export default function MatriculaPage() {
                       <span>Primera Mensualidad:</span>
                     </div>
                     {paymentMode === 'full' ? (
-                      <span className="font-mono font-bold text-slate-900">{formatCop(selectedProgram.monthlyFeeCop)}</span>
+                      <span className="font-mono font-bold text-slate-900">{formatPrice(selectedProgram.monthlyFeeCop)}</span>
                     ) : (
                       <span className="text-[11px] font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80">
-                        Pagas al iniciar ({formatCop(selectedProgram.monthlyFeeCop)})
+                        Pagas al iniciar ({formatPrice(selectedProgram.monthlyFeeCop)})
                       </span>
                     )}
                   </div>
@@ -917,7 +935,7 @@ export default function MatriculaPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                         <span>E-Book & Masterclass (Opcional):</span>
                       </div>
-                      <span className="font-mono font-bold">{formatCop(ADDON_EBOOK_MASTERCLASS_COP)}</span>
+                      <span className="font-mono font-bold">{formatPrice(ADDON_EBOOK_MASTERCLASS_COP)}</span>
                     </div>
                   )}
 
@@ -937,10 +955,14 @@ export default function MatriculaPage() {
                     </div>
                     <div className="text-right">
                       <div className="font-mono font-black text-xl text-[#002B49]">
-                        {formatCop(totalAmountToPayToday)} COP
+                        {formatPrice(totalAmountToPayToday)}
                       </div>
-                      <div className="text-[11px] font-bold text-slate-500">
-                        ~ ${totalUsdEquivalentToday} USD
+                      <div className="text-[10px] font-semibold text-slate-500">
+                        {currency === 'USD' ? (
+                          <span>Base: {formatCop(totalAmountToPayToday)} COP (TRM: 1 USD = {formatCop(exchangeRate)})</span>
+                        ) : (
+                          <span>~ ${totalUsdEquivalentToday} USD (TRM: 1 USD = {formatCop(exchangeRate)})</span>
+                        )}
                       </div>
                     </div>
                   </div>
