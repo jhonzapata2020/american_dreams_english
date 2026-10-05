@@ -71,7 +71,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         
         {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0">
+        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0 pt-0">
           <div className="relative w-full max-w-sm">
             
             {/* Main Instructor Photo Frame */}
@@ -107,7 +107,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-start) */}
-        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-5 pt-0 sm:pt-1">
+        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-5 mt-0 pt-0">
           
           {/* Eyebrow tag */}
           <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
@@ -164,7 +164,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* COLUMNA 3: FORMULARIO FLOTANTE DE CONVERSIÓN (4 COLS - lg:col-span-4) */}
-        <div id="formulario-inscripcion" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24">
+        <div id="formulario-inscripcion" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24 mt-0 pt-0">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 md:p-8 space-y-4">
             
             {/* Form Title */}
