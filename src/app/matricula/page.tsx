@@ -383,720 +383,430 @@ export default function MatriculaPage() {
             </div>
           </div>
         ) : (
-          /* FORMULARIO Y RESUMEN EN 2 COLUMNAS */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          /* FORMULARIO Y RESUMEN EN 2 COLUMNAS CON EL FORMULARIO INTEGRADO */
+          <form onSubmit={handleInitiatePayment} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            {/* COLUMNA IZQUIERDA: PASOS 1, 2, 3 Y PASARELA (7 COLS) */}
-            <div className="lg:col-span-7 space-y-6">
-              
-              <form onSubmit={handleInitiatePayment} className="space-y-6">
+            {/* ========================================================= */}
+            {/* COLUMNA IZQUIERDA: PASOS 1, 2 Y 3 (DATOS Y PROGRAMA)       */}
+            {/* ========================================================= */}
+            <div className="lg:col-span-6 space-y-6">
                 
-                {/* ========================================================= */}
-                {/* PASO 1: MODALIDAD DE PAGO INICIAL (ARRIBA DEL TODO)      */}
-                {/* ========================================================= */}
-                <div className="bg-white border-2 border-blue-900/20 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
-                  
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                        1
-                      </span>
-                      <div>
-                        <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                          Modalidad de Pago Inicial
-                        </h2>
-                        <p className="text-[11px] text-slate-500">
-                          Elige cómo deseas formalizar tu ingreso hoy
-                        </p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
-                      Flexibilidad
-                    </span>
-                  </div>
-
-                  {/* Las dos tarjetas seleccionables principales */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    
-                    {/* TARJETA 1 (POR DEFECTO / RECOMENDADA): Solo Matrícula y Reserva de Cupo */}
-                    <div
-                      onClick={() => setPaymentMode('matricula_only')}
-                      className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                        paymentMode === 'matricula_only'
-                          ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md flex items-center gap-1">
-                            <BookmarkCheck className="w-3 h-3" />
-                            Más Elegido
-                          </span>
-                          <input
-                            type="radio"
-                            name="paymentMode"
-                            checked={paymentMode === 'matricula_only'}
-                            onChange={() => setPaymentMode('matricula_only')}
-                            className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
-                          />
-                        </div>
-
-                        <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                          Solo Matrícula y Reserva de Cupo
-                        </h3>
-                        <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                          Asegura tu cupo oficial hoy. La mensualidad la puedes pagar hasta un día antes del inicio de clases.
-                        </p>
-                      </div>
-
-                      <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
-                        <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
-                        <span className="font-mono font-black text-base text-[#002B49]">
-                          {formatPrice(MATRICULA_BASE_COP)}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* TARJETA 2: Matrícula + Periodo Completo */}
-                    <div
-                      onClick={() => setPaymentMode('full')}
-                      className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
-                        paymentMode === 'full'
-                          ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
-                      }`}
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2 mb-2">
-                          <span className="px-2 py-0.5 bg-blue-100 text-blue-900 text-[10px] font-bold rounded-md">
-                            Pago Anticipado
-                          </span>
-                          <input
-                            type="radio"
-                            name="paymentMode"
-                            checked={paymentMode === 'full'}
-                            onChange={() => setPaymentMode('full')}
-                            className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
-                          />
-                        </div>
-
-                        <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
-                          Matrícula + Periodo Completo
-                        </h3>
-                        <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
-                          Cancela tu matrícula ({formatPrice(MATRICULA_BASE_COP)}) más tu primera mensualidad ({formatPrice(selectedProgram.monthlyFeeCop)}) de forma anticipada.
-                        </p>
-                      </div>
-
-                      <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
-                        <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
-                        <span className="font-mono font-black text-base text-slate-900">
-                          {formatPrice(MATRICULA_BASE_COP + selectedProgram.monthlyFeeCop)}
-                        </span>
-                      </div>
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 2: SELECCIÓN DE PROGRAMA FORMATIVO Y SEDE            */}
-                {/* ========================================================= */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
-                  
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                        2
-                      </span>
-                      <div>
-                        <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                          Selección de Programa Formativo y Sede
-                        </h2>
-                        <p className="text-[11px] text-slate-500">
-                          {paymentMode === 'matricula_only' 
-                            ? 'Define el programa al que pertenecerás (la mensualidad se liquidará al iniciar clases)'
-                            : 'Selecciona tu programa de formación académica'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Listado limpio de programas formativos */}
-                  <div className="space-y-2.5">
-                    {ACADEMIC_PROGRAMS.map((prog) => {
-                      const isSelected = prog.id === selectedProgramId
-                      return (
-                        <div
-                          key={prog.id}
-                          onClick={() => setSelectedProgramId(prog.id)}
-                          className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
-                            isSelected
-                              ? 'border-[#002B49] bg-blue-50/30 ring-1 ring-[#002B49]/30 shadow-2xs'
-                              : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/60'
-                          }`}
-                        >
-                          <div className="flex items-start gap-3 min-w-0">
-                            <input
-                              type="radio"
-                              name="academicProgram"
-                              checked={isSelected}
-                              onChange={() => setSelectedProgramId(prog.id)}
-                              className="mt-1 text-[#002B49] focus:ring-[#002B49] cursor-pointer"
-                            />
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
-                                  {prog.title}
-                                </h3>
-                                <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md">
-                                  {prog.badge}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
-                                {prog.description}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Tarifa Mensual */}
-                          <div className="text-right shrink-0">
-                            <div className="text-[10px] font-semibold text-slate-400">Mensualidad:</div>
-                            <div className="font-mono font-bold text-xs sm:text-sm text-slate-800">
-                              {formatPrice(prog.monthlyFeeCop)}
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-
-                  {/* Selector de Modalidad */}
-                  <div className="pt-2 border-t border-slate-100">
-                    <label className="block text-xs font-bold text-slate-700 mb-2">
-                      Sede / Modalidad de Estudio
-                    </label>
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <button
-                        type="button"
-                        onClick={() => setModality('presencial')}
-                        className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
-                          modality === 'presencial'
-                            ? 'border-[#002B49] bg-blue-50/50 text-[#002B49] font-bold ring-1 ring-[#002B49]/30'
-                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Building2 className="w-4 h-4 shrink-0 text-slate-500" />
-                        <div>
-                          <div className="text-xs font-bold">Presencial Turbo</div>
-                          <div className="text-[10px] text-slate-400 font-normal">Sede Urabá Antioqueño</div>
-                        </div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setModality('virtual')}
-                        className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
-                          modality === 'virtual'
-                            ? 'border-[#002B49] bg-blue-50/50 text-[#002B49] font-bold ring-1 ring-[#002B49]/30'
-                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Globe2 className="w-4 h-4 shrink-0 text-slate-500" />
-                        <div>
-                          <div className="text-xs font-bold">Virtual en Vivo</div>
-                          <div className="text-[10px] text-slate-400 font-normal">Zoom / Teams en Tiempo Real</div>
-                        </div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Material Complementario Opcional (Add-on) */}
-                  <div className="pt-3 border-t border-slate-100">
-                    <label className={`p-3.5 rounded-xl border transition-all flex items-start gap-3 cursor-pointer ${
-                      includeAddon
-                        ? 'border-amber-400 bg-amber-50/40 ring-1 ring-amber-400/40'
-                        : 'border-slate-200 bg-slate-50/60 hover:bg-slate-100/60'
-                    }`}>
-                      <input
-                        type="checkbox"
-                        checked={includeAddon}
-                        onChange={(e) => setIncludeAddon(e.target.checked)}
-                        className="mt-0.5 rounded text-amber-500 focus:ring-amber-500 cursor-pointer"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-bold text-slate-900">
-                            Añadir Guía E-Book Digital & Masterclass de Entrevistas (+ {formatPrice(ADDON_EBOOK_MASTERCLASS_COP)})
-                          </span>
-                          <span className="text-xs font-mono font-bold text-amber-900 shrink-0">
-                            +{formatPrice(ADDON_EBOOK_MASTERCLASS_COP)}
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5">
-                          Incluye el E-Book interactivo descargable y la Masterclass en video 4K con acceso de por vida.
-                        </p>
-                      </div>
-                    </label>
-                  </div>
-
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 3: DATOS DEL ESTUDIANTE                             */}
-                {/* ========================================================= */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
-                  <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+              {/* ========================================================= */}
+              {/* PASO 1: MODALIDAD DE PAGO INICIAL (ARRIBA DEL TODO)      */}
+              {/* ========================================================= */}
+              <div className="bg-white border-2 border-blue-900/20 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
                     <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                      3
+                      1
                     </span>
-                    <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                      Datos del Estudiante para el Registro Académico
-                    </h2>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                        Modalidad de Pago Inicial
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        Elige cómo deseas formalizar tu ingreso hoy
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60">
+                    Flexibilidad
+                  </span>
+                </div>
+
+                {/* Las dos tarjetas seleccionables principales */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  
+                  {/* TARJETA 1 (POR DEFECTO / RECOMENDADA): Solo Matrícula y Reserva de Cupo */}
+                  <div
+                    onClick={() => setPaymentMode('matricula_only')}
+                    className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                      paymentMode === 'matricula_only'
+                        ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md flex items-center gap-1">
+                          <BookmarkCheck className="w-3 h-3" />
+                          Más Elegido
+                        </span>
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          checked={paymentMode === 'matricula_only'}
+                          onChange={() => setPaymentMode('matricula_only')}
+                          className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                        />
+                      </div>
+
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                        Solo Matrícula y Reserva de Cupo
+                      </h3>
+                      <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                        Asegura tu cupo oficial hoy. La mensualidad la puedes pagar hasta un día antes del inicio de clases.
+                      </p>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
+                      <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
+                      <span className="font-mono font-black text-base text-[#002B49]">
+                        {formatPrice(MATRICULA_BASE_COP)}
+                      </span>
+                    </div>
                   </div>
 
-                  {errorMessage && (
-                    <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2.5 animate-fadeIn">
-                      <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
-                      <span>{errorMessage}</span>
-                    </div>
-                  )}
-
-                  <div className="space-y-3.5">
-                    {/* Nombres y Apellidos */}
+                  {/* TARJETA 2: Matrícula + Periodo Completo */}
+                  <div
+                    onClick={() => setPaymentMode('full')}
+                    className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col justify-between ${
+                      paymentMode === 'full'
+                        ? 'border-[#002B49] bg-blue-50/40 ring-2 ring-[#002B49]/20 shadow-xs'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/60'
+                    }`}
+                  >
                     <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <span className="px-2 py-0.5 bg-blue-100 text-blue-900 text-[10px] font-bold rounded-md">
+                          Pago Anticipado
+                        </span>
+                        <input
+                          type="radio"
+                          name="paymentMode"
+                          checked={paymentMode === 'full'}
+                          onChange={() => setPaymentMode('full')}
+                          className="text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                        />
+                      </div>
+
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-tight">
+                        Matrícula + Periodo Completo
+                      </h3>
+                      <p className="text-[11px] text-slate-500 mt-1.5 leading-relaxed">
+                        Cancela tu matrícula ({formatPrice(MATRICULA_BASE_COP)}) más tu primera mensualidad ({formatPrice(selectedProgram.monthlyFeeCop)}) de forma anticipada.
+                      </p>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-slate-200/70 flex items-baseline justify-between">
+                      <span className="text-[10px] font-semibold text-slate-400">Pagas hoy:</span>
+                      <span className="font-mono font-black text-base text-slate-900">
+                        {formatPrice(MATRICULA_BASE_COP + selectedProgram.monthlyFeeCop)}
+                      </span>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              {/* ========================================================= */}
+              {/* PASO 2: SELECCIÓN DE PROGRAMA FORMATIVO Y SEDE            */}
+              {/* ========================================================= */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
+                
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
+                      2
+                    </span>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                        Selección de Programa Formativo y Sede
+                      </h2>
+                      <p className="text-[11px] text-slate-500">
+                        {paymentMode === 'matricula_only' 
+                          ? 'Define el programa al que pertenecerás (la mensualidad se liquidará al iniciar clases)'
+                          : 'Selecciona tu programa de formación académica'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Listado limpio de programas formativos */}
+                <div className="space-y-2.5">
+                  {ACADEMIC_PROGRAMS.map((prog) => {
+                    const isSelected = prog.id === selectedProgramId
+                    return (
+                      <div
+                        key={prog.id}
+                        onClick={() => setSelectedProgramId(prog.id)}
+                        className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-3 ${
+                          isSelected
+                            ? 'border-[#002B49] bg-blue-50/30 ring-1 ring-[#002B49]/30 shadow-2xs'
+                            : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/60'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3 min-w-0">
+                          <input
+                            type="radio"
+                            name="academicProgram"
+                            checked={isSelected}
+                            onChange={() => setSelectedProgramId(prog.id)}
+                            className="mt-1 text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                          />
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                                {prog.title}
+                              </h3>
+                              <span className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] font-bold rounded-md">
+                                {prog.badge}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                              {prog.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Tarifa Mensual */}
+                        <div className="text-right shrink-0">
+                          <div className="text-[10px] font-semibold text-slate-400">Mensualidad:</div>
+                          <div className="font-mono font-bold text-xs sm:text-sm text-slate-800">
+                            {formatPrice(prog.monthlyFeeCop)}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Selector de Modalidad */}
+                <div className="pt-2 border-t border-slate-100">
+                  <label className="block text-xs font-bold text-slate-700 mb-2">
+                    Sede / Modalidad de Estudio
+                  </label>
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setModality('presencial')}
+                      className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
+                        modality === 'presencial'
+                          ? 'border-[#002B49] bg-blue-50/50 text-[#002B49] font-bold ring-1 ring-[#002B49]/30'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Building2 className="w-4 h-4 shrink-0 text-slate-500" />
+                      <div>
+                        <div className="text-xs font-bold">Presencial Turbo</div>
+                        <div className="text-[10px] text-slate-400 font-normal">Sede Urabá Antioqueño</div>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setModality('virtual')}
+                      className={`p-3 rounded-xl border text-left flex items-center gap-2.5 transition-all cursor-pointer ${
+                        modality === 'virtual'
+                          ? 'border-[#002B49] bg-blue-50/50 text-[#002B49] font-bold ring-1 ring-[#002B49]/30'
+                          : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <Globe2 className="w-4 h-4 shrink-0 text-slate-500" />
+                      <div>
+                        <div className="text-xs font-bold">Virtual en Vivo</div>
+                        <div className="text-[10px] text-slate-400 font-normal">Zoom / Teams en Tiempo Real</div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Material Complementario Opcional (Add-on) */}
+                <div className="pt-3 border-t border-slate-100">
+                  <label className={`p-3.5 rounded-xl border transition-all flex items-start gap-3 cursor-pointer ${
+                    includeAddon
+                      ? 'border-amber-400 bg-amber-50/40 ring-1 ring-amber-400/40'
+                      : 'border-slate-200 bg-slate-50/60 hover:bg-slate-100/60'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={includeAddon}
+                      onChange={(e) => setIncludeAddon(e.target.checked)}
+                      className="mt-0.5 rounded text-amber-500 focus:ring-amber-500 cursor-pointer"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-slate-900">
+                          Añadir Guía E-Book Digital & Masterclass de Entrevistas (+ {formatPrice(ADDON_EBOOK_MASTERCLASS_COP)})
+                        </span>
+                        <span className="text-xs font-mono font-bold text-amber-900 shrink-0">
+                          +{formatPrice(ADDON_EBOOK_MASTERCLASS_COP)}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Incluye el E-Book interactivo descargable y la Masterclass en video 4K con acceso de por vida.
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+              </div>
+
+              {/* ========================================================= */}
+              {/* PASO 3: DATOS DEL ESTUDIANTE                             */}
+              {/* ========================================================= */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-2xs space-y-4">
+                <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
+                  <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
+                    3
+                  </span>
+                  <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                    Datos del Estudiante para el Registro Académico
+                  </h2>
+                </div>
+
+                {errorMessage && (
+                  <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2.5 animate-fadeIn">
+                    <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />
+                    <span>{errorMessage}</span>
+                  </div>
+                )}
+
+                <div className="space-y-3.5">
+                  {/* Nombres y Apellidos */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Nombres y Apellidos Completos *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Ej. Carlos Andrés Gómez Zapata"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all"
+                    />
+                  </div>
+
+                  {/* Documento de Identidad */}
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                    <div className="sm:col-span-4">
                       <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Nombres y Apellidos Completos *
+                        Tipo Doc. *
+                      </label>
+                      <select
+                        value={docType}
+                        onChange={(e) => setDocType(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all cursor-pointer font-medium"
+                      >
+                        <option value="CC">C.C. Cédula</option>
+                        <option value="TI">T.I. Identidad (Menores)</option>
+                        <option value="CE">C.E. Extranjería</option>
+                        <option value="PP">Pasaporte</option>
+                        <option value="NIT">NIT</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-8">
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Número de Identificación *
                       </label>
                       <input
                         type="text"
                         required
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Ej. Carlos Andrés Gómez Zapata"
+                        value={docNumber}
+                        onChange={(e) => setDocNumber(e.target.value)}
+                        placeholder="Ej. 1045123456"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Correo y WhatsApp */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Correo Electrónico *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="estudiante@correo.com"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all"
                       />
                     </div>
 
-                    {/* Documento de Identidad */}
-                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-                      <div className="sm:col-span-4">
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Tipo Doc. *
-                        </label>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        Teléfono / WhatsApp *
+                      </label>
+                      <div className="flex gap-1.5">
                         <select
-                          value={docType}
-                          onChange={(e) => setDocType(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all cursor-pointer font-medium"
+                          value={phonePrefix}
+                          onChange={(e) => setPhonePrefix(e.target.value)}
+                          className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 font-medium shrink-0 cursor-pointer"
                         >
-                          <option value="CC">C.C. Cédula</option>
-                          <option value="TI">T.I. Identidad (Menores)</option>
-                          <option value="CE">C.E. Extranjería</option>
-                          <option value="PP">Pasaporte</option>
-                          <option value="NIT">NIT</option>
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.code}
+                            </option>
+                          ))}
                         </select>
-                      </div>
-
-                      <div className="sm:col-span-8">
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Número de Identificación *
-                        </label>
                         <input
-                          type="text"
+                          type="tel"
                           required
-                          value={docNumber}
-                          onChange={(e) => setDocNumber(e.target.value)}
-                          placeholder="Ej. 1045123456"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          placeholder="310 000 0000"
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all font-mono"
                         />
                       </div>
                     </div>
-
-                    {/* Correo y WhatsApp */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Correo Electrónico *
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="estudiante@correo.com"
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Teléfono / WhatsApp *
-                        </label>
-                        <div className="flex gap-1.5">
-                          <select
-                            value={phonePrefix}
-                            onChange={(e) => setPhonePrefix(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2.5 text-xs text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 font-medium shrink-0 cursor-pointer"
-                          >
-                            {COUNTRY_CODES.map((c) => (
-                              <option key={c.code} value={c.code}>
-                                {c.flag} {c.code}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="tel"
-                            required
-                            value={phoneNumber}
-                            onChange={(e) => setPhoneNumber(e.target.value)}
-                            placeholder="310 000 0000"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Ciudad */}
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Ciudad / Municipio de Residencia
-                      </label>
-                      <input
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="Ej. Turbo, Apartadó, Carepa, Necoclí, Medellín..."
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all"
-                      />
-                    </div>
-
-                    {/* Habeas Data Checkbox */}
-                    <div className="pt-2">
-                      <label className="flex items-start gap-2.5 cursor-pointer text-slate-600 text-[11px] leading-relaxed">
-                        <input
-                          type="checkbox"
-                          checked={acceptHabeas}
-                          onChange={(e) => setAcceptHabeas(e.target.checked)}
-                          className="mt-0.5 rounded text-[#002B49] focus:ring-[#002B49] cursor-pointer"
-                        />
-                        <span>
-                          Autorizo a American Dream English a tratar mis datos para el proceso de matrícula, emisión de credenciales del Campus Virtual y contacto académico de acuerdo con la Ley 1581 de 2012.
-                        </span>
-                      </label>
-                    </div>
-
-                  </div>
-                </div>
-
-                {/* ========================================================= */}
-                {/* PASO 4: PASARELA DE PAGO INTERACTIVA 3D & WOMPI BANCOLOMBIA */}
-                {/* ========================================================= */}
-                <div className="bg-white border-2 border-blue-900/20 rounded-3xl p-5 sm:p-7 shadow-sm space-y-6">
-                  
-                  {/* Cabecera Paso 4 */}
-                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
-                        4
-                      </span>
-                      <div>
-                        <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                          Método de Pago Seguro
-                        </h2>
-                        <p className="text-[10px] text-slate-400 font-semibold">Procesado con cifrado bancario y tokenización segura</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-lg text-[10px] font-black text-[#002B49] uppercase">
-                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-                      <span>PCI-DSS Level 1</span>
-                    </div>
                   </div>
 
-                  {/* Selector de Pestaña de Pago */}
-                  <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethodTab('card')}
-                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                        paymentMethodTab === 'card'
-                          ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <CreditCard className="w-4 h-4 text-blue-600" />
-                      <span>Tarjeta Débito / Crédito</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethodTab('channels')}
-                      className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                        paymentMethodTab === 'channels'
-                          ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
-                          : 'text-slate-500 hover:text-slate-800'
-                      }`}
-                    >
-                      <span>PSE / Nequi / Bancolombia</span>
-                    </button>
+                  {/* Ciudad */}
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      Ciudad / Municipio de Residencia
+                    </label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="Ej. Turbo, Apartadó, Carepa, Necoclí, Medellín..."
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#002B49]/30 focus:border-[#002B49] transition-all"
+                    />
                   </div>
 
-                  {/* ========================================================= */}
-                  {/* PESTAÑA 1: TARJETA INTERACTIVA 3D (FLIPPING CARD)         */}
-                  {/* ========================================================= */}
-                  {paymentMethodTab === 'card' ? (
-                    <div className="space-y-4 pt-1">
-                      
-                      {isProcessing ? (
-                        /* ========================================================= */
-                        /* ESTADO ACTIVO AL PAGAR: TARJETA SOLA VIBRANDO E ILUMINADA */
-                        /* ========================================================= */
-                        <div className="py-8 text-center space-y-6 animate-fadeIn bg-gradient-to-b from-blue-50/70 via-blue-50/30 to-transparent rounded-3xl border border-blue-200/80 p-6 sm:p-8">
-                          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-100/90 text-[#002B49] rounded-full text-xs font-black animate-pulse shadow-xs">
-                            <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                            <span>Procesando Pago Seguro con Wompi...</span>
-                          </div>
-
-                          <div className="py-3">
-                            <InteractiveCard3D
-                              cardNumber={cardNumber}
-                              cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
-                              expDate={cardExp}
-                              cvc={cardCvc}
-                              isFlipped={isCardFlipped}
-                              isProcessing={true}
-                              className="scale-105"
-                            />
-                          </div>
-
-                          <p className="text-xs text-slate-600 font-medium max-w-md mx-auto leading-relaxed">
-                            Conectando con la pasarela bancaria autorizada de <strong>Wompi Bancolombia</strong>. Por favor no cierres ni recargues esta ventana.
-                          </p>
-                        </div>
-                      ) : (
-                        /* ========================================================= */
-                        /* ESTADO NORMAL: INPUTS A LA IZQ + TARJETA 3D AL LADO DER  */
-                        /* ========================================================= */
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                          
-                          {/* Columna Izquierda: Inputs de Captura */}
-                          <div className="space-y-3.5 order-2 md:order-1">
-                            
-                            {/* Nombre del Titular */}
-                            <div>
-                              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                                Cardholder Name (Nombre en la Tarjeta)
-                              </label>
-                              <input
-                                type="text"
-                                value={cardHolder || fullName}
-                                onChange={(e) => setCardHolder(e.target.value)}
-                                placeholder="Ej. JHON ZAPATA o Nombre Titular"
-                                className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all uppercase"
-                                disabled={isProcessing}
-                              />
-                            </div>
-
-                            {/* Número de Tarjeta con auto-espaciado en bloques de 4 */}
-                            <div>
-                              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                                Card Number (Número de Tarjeta)
-                              </label>
-                              <div className="relative">
-                                <input
-                                  type="text"
-                                  value={cardNumber}
-                                  onChange={(e) => {
-                                    const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
-                                    const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ')
-                                    setCardNumber(formatted)
-                                  }}
-                                  placeholder="4242 4242 4242 4242"
-                                  maxLength={19}
-                                  className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 pr-16 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all tracking-wider"
-                                  disabled={isProcessing}
-                                />
-                                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-xs font-black text-blue-900 uppercase">
-                                  {getCardBrand(cardNumber) !== 'generic' ? getCardBrand(cardNumber).toUpperCase() : ''}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Fecha de Expiración y CVC (Flip Trigger) */}
-                            <div className="grid grid-cols-2 gap-2.5">
-                              <div>
-                                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
-                                  Expiry (MM/AA)
-                                </label>
-                                <input
-                                  type="text"
-                                  value={cardExp}
-                                  onChange={(e) => {
-                                    let raw = e.target.value.replace(/\D/g, '').slice(0, 4)
-                                    if (raw.length >= 3) {
-                                      raw = `${raw.slice(0, 2)}/${raw.slice(2, 4)}`
-                                    }
-                                    setCardExp(raw)
-                                  }}
-                                  placeholder="12/28"
-                                  maxLength={5}
-                                  className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
-                                  disabled={isProcessing}
-                                />
-                              </div>
-
-                              <div>
-                                <div className="flex items-center justify-between mb-1">
-                                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
-                                    CVC / CVV
-                                  </label>
-                                  <span className="text-[10px] text-blue-600 font-semibold">Giro 3D ↻</span>
-                                </div>
-                                <input
-                                  type="password"
-                                  value={cardCvc}
-                                  onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                                  onFocus={() => setIsCardFlipped(true)}
-                                  onBlur={() => setIsCardFlipped(false)}
-                                  placeholder="•••"
-                                  maxLength={4}
-                                  className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
-                                  disabled={isProcessing}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Guardar tarjeta */}
-                            <div className="pt-1">
-                              <label className="flex items-start gap-2.5 cursor-pointer text-slate-600 text-xs select-none">
-                                <input
-                                  type="checkbox"
-                                  checked={saveCard}
-                                  onChange={(e) => setSaveCard(e.target.checked)}
-                                  className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
-                                />
-                                <div>
-                                  <span className="font-bold text-slate-800 block text-xs">Guardar tarjeta para futuras mensualidades</span>
-                                  <span className="text-[10px] text-slate-400 block">Tokenizado por Wompi Bancolombia.</span>
-                                </div>
-                              </label>
-                            </div>
-
-                          </div>
-
-                          {/* Columna Derecha: Tarjeta 3D Interactiva al lado */}
-                          <div className="flex flex-col items-center justify-center order-1 md:order-2 space-y-2">
-                            <div className="w-full flex items-center justify-between px-1 text-slate-500 text-[11px]">
-                              <span className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[#002B49]">
-                                <CreditCard className="w-3.5 h-3.5 text-blue-600" />
-                                Emisión en Tiempo Real
-                              </span>
-                              <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
-                                {isCardFlipped ? 'Reverso (CVC Activo ↻)' : 'Frente'}
-                              </span>
-                            </div>
-
-                            <InteractiveCard3D
-                              cardNumber={cardNumber}
-                              cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
-                              expDate={cardExp}
-                              cvc={cardCvc}
-                              isFlipped={isCardFlipped}
-                              isProcessing={isProcessing}
-                            />
-                          </div>
-
-                        </div>
-                      )}
-
-                    </div>
-                  ) : (
-                    /* ========================================================= */
-                    /* PESTAÑA 2: TRANSFERENCIAS, PSE Y NEQUI                     */
-                    /* ========================================================= */
-                    <div className="space-y-4 pt-1">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center text-xs">
-                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
-                          <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-[11px]">
-                            BC
-                          </div>
-                          <span className="text-[11px] font-bold text-slate-800">Bancolombia</span>
-                          <span className="text-[9px] text-slate-400">Transferencia</span>
-                        </div>
-
-                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
-                          <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-black text-[11px]">
-                            PSE
-                          </div>
-                          <span className="text-[11px] font-bold text-slate-800">PSE</span>
-                          <span className="text-[9px] text-slate-400">Todos los bancos</span>
-                        </div>
-
-                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 col-span-2 sm:col-span-1">
-                          <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-black text-[11px]">
-                            NQ
-                          </div>
-                          <span className="text-[11px] font-bold text-slate-800">Nequi</span>
-                          <span className="text-[9px] text-slate-400">Débito directo</span>
-                        </div>
-                      </div>
-                      <p className="text-xs text-slate-500 leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100">
-                        💡 Al hacer clic en el botón de pago, se abrirá de inmediato la pasarela oficial para autorizar tu transferencia o débito PSE/Nequi.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* BOTÓN CTA PRINCIPAL DE PAGO SEGURO */}
+                  {/* Habeas Data Checkbox */}
                   <div className="pt-2">
-                    <button
-                      type="submit"
-                      disabled={isProcessing}
-                      className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-black text-sm sm:text-base py-4 px-6 rounded-2xl shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 disabled:opacity-75 cursor-pointer"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
-                          <span>Procesando pago seguro...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4 text-amber-300" />
-                          <span>Pagar {formatPrice(totalAmountToPayToday)}</span>
-                          <ArrowRight className="w-4 h-4 text-white ml-1" />
-                        </>
-                      )}
-                    </button>
-                    
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-medium mt-3">
-                      <div className="flex items-center gap-2.5">
-                        <span>🛡️ PCI-DSS Level 1</span>
-                        <span>🔒 TLS 256-bit</span>
-                      </div>
-                      <span>American Dream never stores your CVC</span>
-                    </div>
+                    <label className="flex items-start gap-2.5 cursor-pointer text-slate-600 text-[11px] leading-relaxed">
+                      <input
+                        type="checkbox"
+                        checked={acceptHabeas}
+                        onChange={(e) => setAcceptHabeas(e.target.checked)}
+                        className="mt-0.5 rounded text-[#002B49] focus:ring-[#002B49] cursor-pointer"
+                      />
+                      <span>
+                        Autorizo a American Dream English a tratar mis datos para el proceso de matrícula, emisión de credenciales del Campus Virtual y contacto académico de acuerdo con la Ley 1581 de 2012.
+                      </span>
+                    </label>
                   </div>
 
                 </div>
-
-              </form>
+              </div>
 
             </div>
 
-            {/* COLUMNA DERECHA: RESUMEN DE MATRÍCULA Y LIQUIDACIÓN (STICKY) */}
-            <div className="lg:col-span-5">
-              <div className="sticky top-6 space-y-6">
+            {/* ========================================================= */}
+            {/* COLUMNA DERECHA: RESUMEN + PASO 4 (MÉTODO DE PAGO Y TARJETA) */}
+            {/* ========================================================= */}
+            <div className="lg:col-span-6 space-y-6">
+              
+              {/* 1. CONTENEDOR DE RESUMEN DE MATRÍCULA / FACTURA */}
+              <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
                 
-                {/* RESUMEN DE MATRÍCULA / FACTURA */}
-                <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
-                  
-                  {/* Cabecera del resumen */}
-                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-[#002B49]" />
-                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                        Resumen de Matrícula
-                      </h3>
+                {/* Cabecera del resumen */}
+                <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-[#002B49]" />
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                      Resumen de Matrícula
+                    </h3>
                   </div>
                   <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">
                     Periodo 2026
@@ -1241,10 +951,293 @@ export default function MatriculaPage() {
                 </div>
 
               </div>
-            </div>
-          </div>
 
-          </div>
+              {/* 2. CONTENEDOR DE PASO 4: MÉTODO DE PAGO SEGURO Y TARJETA (DEBAJO DEL RESUMEN) */}
+              <div className="bg-white border-2 border-blue-900/20 rounded-3xl p-5 sm:p-6 shadow-sm space-y-5">
+                
+                {/* Cabecera Paso 4 */}
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-6 h-6 rounded-full bg-[#002B49] text-white text-xs font-black flex items-center justify-center">
+                      4
+                    </span>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                        Método de Pago Seguro
+                      </h2>
+                      <p className="text-[10px] text-slate-400 font-semibold">Procesado con cifrado bancario y tokenización segura</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 border border-blue-100 rounded-lg text-[10px] font-black text-[#002B49] uppercase">
+                    <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                    <span>PCI-DSS Level 1</span>
+                  </div>
+                </div>
+
+                {/* Selector de Pestaña de Pago */}
+                <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethodTab('card')}
+                    className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      paymentMethodTab === 'card'
+                        ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <CreditCard className="w-4 h-4 text-blue-600" />
+                    <span>Tarjeta Débito / Crédito</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethodTab('channels')}
+                    className={`py-2 px-3 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      paymentMethodTab === 'channels'
+                        ? 'bg-white text-slate-900 shadow-sm font-extrabold border border-slate-200/80'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <span>PSE / Nequi / Bancolombia</span>
+                  </button>
+                </div>
+
+                {/* ========================================================= */}
+                {/* PESTAÑA 1: TARJETA INTERACTIVA 3D (FLIPPING CARD)         */}
+                {/* ========================================================= */}
+                {paymentMethodTab === 'card' ? (
+                  <div className="space-y-4 pt-1">
+                    
+                    {isProcessing ? (
+                      /* ESTADO ACTIVO AL PAGAR: TARJETA SOLA VIBRANDO E ILUMINADA */
+                      <div className="py-6 text-center space-y-5 animate-fadeIn bg-gradient-to-b from-blue-50/70 via-blue-50/30 to-transparent rounded-2xl border border-blue-200/80 p-5">
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-blue-100/90 text-[#002B49] rounded-full text-xs font-black animate-pulse shadow-xs">
+                          <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                          <span>Procesando Pago Seguro con Wompi...</span>
+                        </div>
+
+                        <div className="py-2">
+                          <InteractiveCard3D
+                            cardNumber={cardNumber}
+                            cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
+                            expDate={cardExp}
+                            cvc={cardCvc}
+                            isFlipped={isCardFlipped}
+                            isProcessing={true}
+                            className="scale-105"
+                          />
+                        </div>
+
+                        <p className="text-xs text-slate-600 font-medium max-w-sm mx-auto leading-relaxed">
+                          Conectando con la pasarela bancaria autorizada de <strong>Wompi Bancolombia</strong>. Por favor no cierres ni recargues esta ventana.
+                        </p>
+                      </div>
+                    ) : (
+                      /* ESTADO NORMAL: TARJETA 3D ARRIBA + INPUTS DEBAJO */
+                      <div className="space-y-4">
+                        
+                        {/* Tarjeta 3D Interactiva en Vivo */}
+                        <div className="space-y-1.5">
+                          <div className="w-full flex items-center justify-between px-1 text-slate-500 text-[11px]">
+                            <span className="font-bold uppercase tracking-wider flex items-center gap-1.5 text-[#002B49]">
+                              <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                              Vista Previa en Vivo 3D
+                            </span>
+                            <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                              {isCardFlipped ? 'Reverso (CVC Activo ↻)' : 'Frente'}
+                            </span>
+                          </div>
+
+                          <InteractiveCard3D
+                            cardNumber={cardNumber}
+                            cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
+                            expDate={cardExp}
+                            cvc={cardCvc}
+                            isFlipped={isCardFlipped}
+                            isProcessing={isProcessing}
+                          />
+                        </div>
+
+                        {/* Campos de Captura de la Tarjeta */}
+                        <div className="space-y-3 pt-2">
+                          
+                          {/* Nombre del Titular */}
+                          <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                              Cardholder Name (Nombre en la Tarjeta)
+                            </label>
+                            <input
+                              type="text"
+                              value={cardHolder || fullName}
+                              onChange={(e) => setCardHolder(e.target.value)}
+                              placeholder="Ej. JHON ZAPATA o Nombre Titular"
+                              className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-semibold text-slate-900 placeholder-slate-400 outline-none transition-all uppercase"
+                              disabled={isProcessing}
+                            />
+                          </div>
+
+                          {/* Número de Tarjeta con auto-espaciado en bloques de 4 */}
+                          <div>
+                            <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                              Card Number (Número de Tarjeta)
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="text"
+                                value={cardNumber}
+                                onChange={(e) => {
+                                  const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
+                                  const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ')
+                                  setCardNumber(formatted)
+                                }}
+                                placeholder="4242 4242 4242 4242"
+                                maxLength={19}
+                                className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 pr-16 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all tracking-wider"
+                                disabled={isProcessing}
+                              />
+                              <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-xs font-black text-blue-900 uppercase">
+                                {getCardBrand(cardNumber) !== 'generic' ? getCardBrand(cardNumber).toUpperCase() : ''}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Fecha de Expiración y CVC (Flip Trigger) */}
+                          <div className="grid grid-cols-2 gap-2.5">
+                            <div>
+                              <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
+                                Expiry (MM/AA)
+                              </label>
+                              <input
+                                type="text"
+                                value={cardExp}
+                                onChange={(e) => {
+                                  let raw = e.target.value.replace(/\D/g, '').slice(0, 4)
+                                  if (raw.length >= 3) {
+                                    raw = `${raw.slice(0, 2)}/${raw.slice(2, 4)}`
+                                  }
+                                  setCardExp(raw)
+                                }}
+                                placeholder="12/28"
+                                maxLength={5}
+                                className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                                disabled={isProcessing}
+                              />
+                            </div>
+
+                            <div>
+                              <div className="flex items-center justify-between mb-1">
+                                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700">
+                                  CVC / CVV
+                                </label>
+                                <span className="text-[10px] text-blue-600 font-semibold">Giro 3D ↻</span>
+                              </div>
+                              <input
+                                type="password"
+                                value={cardCvc}
+                                onChange={(e) => setCardCvc(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                                onFocus={() => setIsCardFlipped(true)}
+                                onBlur={() => setIsCardFlipped(false)}
+                                placeholder="•••"
+                                maxLength={4}
+                                className="w-full bg-slate-50 border border-slate-200 focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 rounded-xl px-3.5 py-2.5 text-xs font-mono font-bold text-slate-900 placeholder-slate-400 outline-none transition-all"
+                                disabled={isProcessing}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Guardar tarjeta */}
+                          <div className="pt-1">
+                            <label className="flex items-start gap-2.5 cursor-pointer text-slate-600 text-xs select-none">
+                              <input
+                                type="checkbox"
+                                checked={saveCard}
+                                onChange={(e) => setSaveCard(e.target.checked)}
+                                className="mt-0.5 w-4 h-4 rounded text-blue-600 border-slate-300 focus:ring-blue-500"
+                              />
+                              <div>
+                                <span className="font-bold text-slate-800 block text-xs">Guardar tarjeta para futuras mensualidades</span>
+                                <span className="text-[10px] text-slate-400 block">Tokenizado por Wompi Bancolombia.</span>
+                              </div>
+                            </label>
+                          </div>
+
+                        </div>
+
+                      </div>
+                    )}
+
+                  </div>
+                ) : (
+                  /* ========================================================= */
+                  /* PESTAÑA 2: TRANSFERENCIAS, PSE Y NEQUI                     */
+                  /* ========================================================= */
+                  <div className="space-y-4 pt-1">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-center text-xs">
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
+                        <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center font-black text-[11px]">
+                          BC
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-800">Bancolombia</span>
+                        <span className="text-[9px] text-slate-400">Transferencia</span>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1">
+                        <div className="w-7 h-7 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-black text-[11px]">
+                          PSE
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-800">PSE</span>
+                        <span className="text-[9px] text-slate-400">Todos los bancos</span>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-col items-center justify-center gap-1 col-span-2 sm:col-span-1">
+                        <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-900 flex items-center justify-center font-black text-[11px]">
+                          NQ
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-800">Nequi</span>
+                        <span className="text-[9px] text-slate-400">Débito directo</span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                      💡 Al hacer clic en el botón de pago, se abrirá de inmediato la pasarela oficial para autorizar tu transferencia o débito PSE/Nequi.
+                    </p>
+                  </div>
+                )}
+
+                {/* BOTÓN CTA PRINCIPAL DE PAGO SEGURO */}
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isProcessing}
+                    className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-black text-sm sm:text-base py-4 px-6 rounded-2xl shadow-lg shadow-blue-900/20 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-3 disabled:opacity-75 cursor-pointer"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin text-amber-300" />
+                        <span>Procesando pago seguro...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Lock className="w-4 h-4 text-amber-300" />
+                        <span>Pagar {formatPrice(totalAmountToPayToday)}</span>
+                        <ArrowRight className="w-4 h-4 text-white ml-1" />
+                      </>
+                    )}
+                  </button>
+                  
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 font-medium mt-3">
+                    <div className="flex items-center gap-2.5">
+                      <span>🛡️ PCI-DSS Level 1</span>
+                      <span>🔒 TLS 256-bit</span>
+                    </div>
+                    <span>American Dream never stores your CVC</span>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </form>
         )}
 
       </main>
