@@ -10,8 +10,10 @@ import {
   Navigation,
   ShieldCheck
 } from 'lucide-react'
+import { useLanguage } from '../context/LanguageContext'
 
 export const LocationSection: React.FC = () => {
+  const { t } = useLanguage()
   const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=Turbo+Antioquia+Colombia'
   const whatsappUrl = 'https://wa.me/573124567890?text=Hola,%20quisiera%20informaci%C3%B3n%20sobre%20las%20clases%20presenciales%20en%20la%20sede%20de%20Turbo'
 
@@ -23,15 +25,15 @@ export const LocationSection: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <div className="inline-flex items-center gap-2 bg-[#002B49]/10 border border-[#002B49]/20 text-[#002B49] text-xs font-extrabold px-3.5 py-1.5 rounded-full">
             <Building2 className="w-3.5 h-3.5 text-[#002B49]" />
-            <span>Campus Físico & Sede Principal · Urabá Antioqueño</span>
+            <span>{t.location.badge}</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
-            Visítanos en Nuestra Sede Presencial - Turbo, Antioquia
+            {t.location.title}
           </h2>
 
           <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
-            Instalaciones académicas climatizadas con conectividad de alta velocidad, laboratorios de fonética y atención presencial para toda la región de Urabá.
+            {t.location.subtitle}
           </p>
         </div>
 

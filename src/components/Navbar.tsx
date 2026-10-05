@@ -69,21 +69,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={onOpenProgramas}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              {t.programs}
+              {t.nav.programs}
             </button>
             <button 
               type="button"
               onClick={onOpenCursosDigitales}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              {t.digitalCourses}
+              {t.nav.digitalCourses}
             </button>
             <button 
               type="button"
               onClick={onOpenClasesEnVivo}
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
-              {t.liveClasses}
+              {t.nav.liveClasses}
             </button>
           </nav>
 
@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="inline-flex text-xs sm:text-sm font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <GraduationCap className="w-4 h-4 text-white" />
-              <span>{t.campusVirtual}</span>
+              <span>{t.nav.campusVirtual}</span>
             </a>
 
             {/* Inscribirme / Matricúlate CTA Button estilo UNAD */}
@@ -118,7 +118,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={handleMatricularme}
               className="inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
-              <span>{t.enroll}</span>
+              <span>{t.nav.enroll}</span>
             </a>
 
             {/* Mobile App Menu Toggle Button */}
@@ -141,7 +141,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden bg-white border-b border-slate-200 px-5 py-4 space-y-4 animate-fadeIn shadow-xl">
           
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t.navigationMenu}</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t.nav.navigationMenu}</span>
             
             <div className="flex items-center px-1.5 py-0.5 bg-slate-50 rounded-xl border border-slate-200">
               <SoftSwitch3D
@@ -161,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenProgramas) onOpenProgramas(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>{t.academicPrograms}</span>
+              <span>{t.nav.academicPrograms}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
             <button 
@@ -169,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenCursosDigitales) onOpenCursosDigitales(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>{t.digitalCourses4k}</span>
+              <span>{t.nav.digitalCourses4k}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
             <button 
@@ -177,7 +177,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => { setMobileMenuOpen(false); if (onOpenClasesEnVivo) onOpenClasesEnVivo(); }} 
               className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full"
             >
-              <span>{t.liveClassesTitle}</span>
+              <span>{t.nav.liveClassesTitle}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
           </nav>
@@ -188,7 +188,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={(e) => { setMobileMenuOpen(false); handleMatricularme(e); }}
               className="w-full py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
-              <span>{t.enroll}</span>
+              <span>{t.nav.enroll}</span>
             </a>
             <a
               href="/campus/login"
@@ -196,7 +196,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="w-full py-3 rounded-xl text-xs font-bold text-white bg-[#002B49] hover:bg-[#001f35] text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               <GraduationCap className="w-4 h-4 text-white" />
-              <span>{t.campusVirtual}</span>
+              <span>{t.nav.campusVirtual}</span>
             </a>
           </div>
         </div>

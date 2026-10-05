@@ -1,4 +1,3 @@
-import React from 'react';
 import { 
   GraduationCap, 
   Award, 
@@ -10,12 +9,14 @@ import {
   Phone,
   ShieldCheck
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
   onOpenDonation: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
+  const { t } = useLanguage();
   return (
     <footer className="bg-navy-950 text-slate-300 pt-16 pb-8 border-t border-navy-900 font-sans text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,10 +29,10 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
             </div>
             <div>
               <h4 className="font-extrabold text-white text-sm">
-                Resolución Oficial 2471 del 28 de Octubre de 2022
+                {t.footer.certified}
               </h4>
               <p className="text-xs text-slate-400 mt-0.5">
-                Secretaría de Educación y Cultura del Distrito de Turbo, Antioquia. Galardón "Pisingo de Oro" a la Labor Educativa.
+                {t.footer.resolution}
               </p>
             </div>
           </div>
@@ -41,7 +42,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
             className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all text-xs flex items-center space-x-2 flex-shrink-0"
           >
             <Heart className="w-4 h-4 fill-white/20" />
-            <span>Donar a Fondo de Becas</span>
+            <span>{t.nav.enroll}</span>
           </button>
         </div>
 

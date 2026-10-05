@@ -10,6 +10,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { createClient } from '../utils/supabase/client';
+import { useLanguage } from '../context/LanguageContext';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -20,6 +21,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenDonation,
   onExplorePrograms,
 }) => {
+  const { t } = useLanguage();
   const [audience, setAudience] = useState<'self' | 'child'>('self');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -91,8 +93,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
                 </div>
                 <div>
-                  <h4 className="font-extrabold text-navy-900 text-xs">Teacher Anthony & Equipo</h4>
-                  <p className="text-[10px] text-slate-500 font-semibold">Docentes Certificados C1/C2 MCER</p>
+                  <h4 className="font-extrabold text-navy-900 text-xs">{t.hero.teacherName}</h4>
+                  <p className="text-[10px] text-slate-500 font-semibold">{t.hero.teacherRole}</p>
                 </div>
               </div>
             </div>
@@ -100,7 +102,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Overlay Circular Secondary Badge Top Right */}
             <div className="absolute top-3 right-3 sm:-top-3 sm:-right-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-2.5 py-1 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl border-2 border-white flex items-center space-x-1.5 text-[11px] sm:text-xs font-black">
               <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              <span>Tutoría 1 a 1</span>
+              <span>{t.hero.oneOnOne}</span>
             </div>
 
           </div>
@@ -111,12 +113,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           {/* Eyebrow tag */}
           <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
-            Abre las puertas del mundo al dominar el inglés
+            {t.hero.badge}
           </span>
 
           {/* H1 Headline */}
           <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
-            Logra la <span className="text-red-600">fluidez en inglés</span> con <span className="text-[#1E3A8A]">American Dream</span>
+            {t.hero.title1} <span className="text-red-600">{t.hero.titleHighlight}</span> {t.hero.title2}
           </h1>
 
           {/* Direct Benefit Bullets */}
@@ -125,28 +127,28 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span>Clases en VIVO e Ilimitadas (Online & Presencial Urabá)</span>
+              <span>{t.hero.bullet1}</span>
             </div>
 
             <div className="flex items-center space-x-2.5">
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span>Docentes Bilingües Certificados C1/C2</span>
+              <span>{t.hero.bullet2}</span>
             </div>
 
             <div className="flex items-center space-x-2.5">
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span>Metodología Conversacional Práctica</span>
+              <span>{t.hero.bullet3}</span>
             </div>
 
             <div className="flex items-center space-x-2.5">
               <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
                 ✓
               </span>
-              <span>Garantía de Preparación para Certificación MCER</span>
+              <span>{t.hero.bullet4}</span>
             </div>
           </div>
 
@@ -156,8 +158,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               onClick={onOpenDonation}
               className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors font-medium bg-slate-100/80 hover:bg-slate-200/80 px-3 py-1.5 rounded-full border border-slate-200"
             >
-              <span>¿Eres estudiante de Urabá y buscas beca?</span>
-              <span className="text-red-600 font-bold hover:underline">Ver Fondo Social →</span>
+              <span>{t.hero.scholarshipPrompt}</span>
+              <span className="text-red-600 font-bold hover:underline">{t.hero.scholarshipLink}</span>
             </button>
           </div>
 
@@ -170,7 +172,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Form Title */}
             <div className="text-center space-y-1">
               <h3 className="text-xl font-black text-slate-900">
-                Aprende inglés con una <span className="text-[#1E3A8A]">Oferta Especial</span>
+                {t.hero.formTitle} <span className="text-[#1E3A8A]">{t.hero.formOffer}</span>
               </h3>
             </div>
 
@@ -185,7 +187,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                Para mí
+                {t.hero.audienceSelf}
               </button>
               <button
                 type="button"
@@ -196,7 +198,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
-                Para mi hijo/a
+                {t.hero.audienceChild}
               </button>
             </div>
 
@@ -204,8 +206,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {submitted ? (
               <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-2 animate-fadeIn">
                 <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                <h4 className="font-extrabold text-navy-900 text-sm">¡Inscripción Iniciada!</h4>
-                <p className="text-xs text-slate-600">Un asesor pedagógico te contactará en breve por WhatsApp.</p>
+                <h4 className="font-extrabold text-navy-900 text-sm">{t.hero.successTitle}</h4>
+                <p className="text-xs text-slate-600">{t.hero.successMsg}</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -217,7 +219,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Nombre *</label>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.firstName}</label>
                     <input
                       id="primer-campo-nombre"
                       type="text"
@@ -225,39 +227,39 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       disabled={isSubmitting}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Nombre"
+                      placeholder={t.hero.firstName.replace('*', '').trim()}
                       className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Apellido *</label>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.lastName}</label>
                     <input
                       type="text"
                       required
                       disabled={isSubmitting}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Apellido"
+                      placeholder={t.hero.lastName.replace('*', '').trim()}
                       className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Correo electrónico *</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.email}</label>
                   <input
                     type="email"
                     required
                     disabled={isSubmitting}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="correo@ejemplo.com"
+                    placeholder="email@example.com"
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">Teléfono / WhatsApp *</label>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.phone}</label>
                   <input
                     type="tel"
                     required
@@ -278,18 +280,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Guardando...</span>
+                      <span>{t.hero.saving}</span>
                     </>
                   ) : (
                     <>
-                      <span>Comienza ahora</span>
+                      <span>{t.hero.ctaButton}</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
                 </button>
 
                 <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
-                  * Información protegida por Ley de Habeas Data
+                  {t.hero.habeasData}
                 </p>
 
                 {/* Enlace sutil para becas / donaciones */}
@@ -299,7 +301,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     onClick={onOpenDonation}
                     className="text-[11px] text-slate-500 hover:text-orange-600 transition-colors font-medium inline-flex items-center justify-center space-x-1"
                   >
-                    <span>🎓 ¿Buscas postularte al Fondo de Becas Urabá?</span>
+                    <span>{t.hero.scholarshipApply}</span>
                   </button>
                 </div>
 

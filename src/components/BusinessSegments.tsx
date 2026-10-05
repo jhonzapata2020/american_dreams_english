@@ -13,6 +13,7 @@ import { DigitalStoreModal } from './DigitalStoreModal';
 import { LiveClassesModal } from './LiveClassesModal';
 import { PresencialModal } from './PresencialModal';
 import { Currency } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BusinessSegmentsProps {
   currency?: Currency;
@@ -31,6 +32,7 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
   onOpenLiveClasses,
   onOpenPresencial,
 }) => {
+  const { language, t } = useLanguage();
   const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
   const [presencialOpen, setPresencialOpen] = useState(false);
@@ -73,13 +75,13 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
           {/* SECTION TITLE */}
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <span className="text-xs font-bold text-navy-900 uppercase tracking-widest bg-white px-3.5 py-1 rounded-full border border-slate-200 shadow-2xs">
-              Ecosistema Educativo Integral
+              {t.segments.badge}
             </span>
             <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
-              4 Unidades de Negocio para el Desarrollo Bilingüe
+              {t.segments.title}
             </h2>
             <p className="text-slate-600 text-base leading-relaxed">
-              Articulamos subvenciones de impacto social con productos digitales de vanguardia y formación presencial y sincrónica.
+              {t.segments.subtitle}
             </p>
           </div>
 
