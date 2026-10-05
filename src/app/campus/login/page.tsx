@@ -234,16 +234,14 @@ export default function CampusLoginPage() {
           {/* Bloque central: Logo, Título, Subtítulo y Form */}
           <div className="my-auto max-w-sm mx-auto w-full py-2">
             
-            {/* Logo / Ícono Central */}
-            <div className="text-center mb-4 sm:mb-5">
-              <div className="inline-flex items-center justify-center mb-1.5">
-                <img 
-                  src="/images/logo.png" 
-                  alt="American Dream English" 
-                  className="w-10 h-10 object-contain drop-shadow-sm" 
-                />
-              </div>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
+            {/* Logo Oficial American Dream English */}
+            <div className="text-center mb-3 mt-1">
+              <img 
+                src="/images/logo.png" 
+                alt="American Dream English" 
+                className="h-16 sm:h-20 w-auto object-contain mx-auto drop-shadow-md transition-transform duration-200 hover:scale-105" 
+              />
+              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mt-1.5">
                 {t.welcome}
               </h1>
               <p className="text-gray-400 text-xs font-medium mt-0.5">
