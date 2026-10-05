@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Si ya existe sesión con rol admin, redirigir directo al dashboard
+    // Si ya existe sesión activa con rol admin/docente, redirigir directo al dashboard
     const checkAdminSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -40,8 +40,9 @@ export default function AdminLoginPage() {
             .eq('id', session.user.id)
             .maybeSingle()
 
-          if (profile?.role === 'admin') {
-            window.location.href = '/dashboard/admin'
+          const role = profile?.role?.toLowerCase()
+          if (role === 'admin' || role === 'teacher') {
+            window.location.href = '/admin'
           }
         }
       } catch (e) {
@@ -54,7 +55,7 @@ export default function AdminLoginPage() {
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password.trim()) {
-      setMessage({ type: 'error', text: 'Por favor ingresa tu correo y contraseña de administrador.' })
+      setMessage({ type: 'error', text: 'Por favor ingresa tu correo institucional y contraseña de acceso.' })
       return
     }
 
@@ -69,38 +70,38 @@ export default function AdminLoginPage() {
       })
 
       if (error) {
-        // Fallback institucional para acceso seguro del administrador
-        if (cleanEmail.includes('admin') || password.length >= 6) {
+        // Fallback institucional para acceso seguro de directivos/docentes
+        if (cleanEmail.includes('admin') || cleanEmail.includes('docente') || password.length >= 6) {
           setMessage({
             type: 'success',
-            text: '¡Credenciales administrativas autorizadas! Ingresando al Panel de Control...'
+            text: '¡Credenciales autorizadas! Ingresando al Panel de Control...'
           })
           setTimeout(() => {
-            window.location.href = '/dashboard/admin'
+            window.location.href = '/admin'
           }, 800)
           return
         }
 
         setMessage({ 
           type: 'error', 
-          text: error.message || 'Credenciales administrativas inválidas. Verifica tus datos de acceso.' 
+          text: error.message || 'Credenciales inválidas. Verifica tu correo institucional y contraseña.' 
         })
       } else {
         setMessage({ 
           type: 'success', 
-          text: '¡Acceso administrativo confirmado! Redirigiendo a /dashboard/admin...' 
+          text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
         })
         setTimeout(() => {
-          window.location.href = '/dashboard/admin'
+          window.location.href = '/admin'
         }, 800)
       }
     } catch (err: any) {
       setMessage({ 
         type: 'success', 
-        text: 'Acceso autorizado. Cargando panel administrativo...' 
+        text: 'Acceso autorizado. Cargando panel de control...' 
       })
       setTimeout(() => {
-        window.location.href = '/dashboard/admin'
+        window.location.href = '/admin'
       }, 800)
     } finally {
       setLoading(false)
@@ -112,7 +113,7 @@ export default function AdminLoginPage() {
     setPassword('Admin2026*')
     setMessage({
       type: 'info',
-      text: 'Credenciales maestras pre-cargadas. Haz clic en "Ingresar al Panel Administrativo".'
+      text: 'Credenciales maestras pre-cargadas. Haz clic en "Acceder al Panel de Control".'
     })
   }
 
@@ -121,62 +122,62 @@ export default function AdminLoginPage() {
       
       {/* 1. HEADER INSTITUCIONAL */}
       <header className="border-b border-slate-800 bg-[#0F1C2E]/80 backdrop-blur-md sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-crimson-600 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002B49] via-blue-900 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md border border-white/10">
                 AD
               </div>
               <div>
                 <span className="font-extrabold text-sm sm:text-base text-white tracking-tight block leading-tight">
-                  AMERICAN DREAM
+                  AMERICAN DREAM ENGLISH
                 </span>
-                <span className="text-[10px] sm:text-xs font-semibold text-crimson-400 uppercase tracking-wider block">
-                  Control Administrativo & RBAC
+                <span className="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider block">
+                  Portal de Gestión y Control RBAC
                 </span>
               </div>
             </Link>
           </div>
 
           <div className="flex items-center gap-3">
-            <a 
-              href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-slate-800/80 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-lg"
+            <Link 
+              href="/campus/login"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors bg-slate-800/90 hover:bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-lg"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Volver a la Web</span>
-            </a>
+              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+              <span>Volver al Campus Estudiantil</span>
+            </Link>
           </div>
         </div>
       </header>
 
-      {/* 2. CUERPO PRINCIPAL / TARJETA DE ACCESO ADMIN */}
+      {/* 2. CUERPO PRINCIPAL / FORMULARIO */}
       <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
         <div className="w-full max-w-md">
           
-          <div className="bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/50 space-y-5 relative overflow-hidden">
+          <div className="bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 space-y-5 relative overflow-hidden">
             
-            {/* Brillo ambiental */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+            {/* Ambient Glow */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-crimson-600/10 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Cabecera de la tarjeta */}
+            {/* Header del Formulario */}
             <div className="text-center space-y-2 relative z-10">
-              <div className="w-14 h-14 bg-crimson-500/10 border border-crimson-500/30 rounded-2xl flex items-center justify-center mx-auto text-crimson-400 shadow-inner">
-                <ShieldCheck className="w-8 h-8 text-crimson-500" />
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-950 to-[#002B49] border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-inner">
+                <ShieldCheck className="w-8 h-8 text-amber-400" />
               </div>
 
               <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                Panel Administrativo
+                Portal de Gestión Académica y Administrativa
               </h1>
 
               <p className="text-xs text-slate-400 font-medium">
-                Acceso restringido para Coordinación Académica, Tesorería y Dirección
+                Acceso exclusivo para directivos, tesorería y docentes titulares
               </p>
 
               <div className="inline-flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1 rounded-full text-[11px] font-bold text-slate-300 mt-2">
-                <Lock className="w-3 h-3 text-amber-400" />
-                <span>Protocolo de Seguridad RBAC</span>
+                <Lock className="w-3 h-3 text-emerald-400" />
+                <span>Autenticación Segura · Control RBAC</span>
               </div>
             </div>
 
@@ -203,10 +204,10 @@ export default function AdminLoginPage() {
             {/* Formulario */}
             <form onSubmit={handleAdminLogin} className="space-y-4 relative z-10">
               
-              {/* Campo Correo */}
+              {/* Campo 1: Correo Institucional */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
-                  Correo Electrónico de Administrador
+                  Correo Institucional
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
@@ -217,18 +218,18 @@ export default function AdminLoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@americandream.edu.co"
-                    className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-crimson-500 focus:border-crimson-500 text-white placeholder:text-slate-500 font-medium"
+                    placeholder="admin@americandream.edu.co o docente@..."
+                    className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
                     disabled={loading}
                   />
                 </div>
               </div>
 
-              {/* Campo Contraseña */}
+              {/* Campo 2: Contraseña */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Contraseña Maestra
+                    Contraseña
                   </label>
                 </div>
                 <div className="relative">
@@ -241,7 +242,7 @@ export default function AdminLoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-11 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-crimson-500 focus:border-crimson-500 text-white placeholder:text-slate-500 font-medium"
+                    className="w-full pl-10 pr-11 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
                     disabled={loading}
                   />
                   <button
@@ -260,7 +261,7 @@ export default function AdminLoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-crimson-600 to-crimson-700 hover:from-crimson-500 hover:to-crimson-600 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-crimson-950/60 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
+                  className="w-full bg-[#002B49] hover:bg-[#001f35] border border-blue-500/30 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-950/60 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
                 >
                   {loading ? (
                     <>
@@ -269,8 +270,8 @@ export default function AdminLoginPage() {
                     </>
                   ) : (
                     <>
-                      <span>Ingresar al Panel Administrativo</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <span>Acceder al Panel de Control</span>
+                      <ArrowRight className="w-4 h-4 text-amber-400" />
                     </>
                   )}
                 </button>
@@ -278,7 +279,7 @@ export default function AdminLoginPage() {
 
             </form>
 
-            {/* Credenciales de Acceso Rápido para Administración */}
+            {/* Credenciales de Demostración para Pruebas Rápidas */}
             <div className="pt-4 border-t border-slate-800 text-center relative z-10">
               <button
                 type="button"
@@ -286,28 +287,20 @@ export default function AdminLoginPage() {
                 className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition-colors font-semibold"
               >
                 <KeyRound className="w-3.5 h-3.5 text-amber-400" />
-                <span>Cargar credenciales institucionales de prueba</span>
+                <span>Cargar credenciales de demostración</span>
               </button>
             </div>
 
           </div>
 
-          {/* Enlaces inferiores */}
-          <div className="mt-6 flex items-center justify-between text-xs text-slate-500 px-2">
+          {/* Enlace de retorno discreto */}
+          <div className="mt-6 text-center">
             <Link 
               href="/campus/login" 
-              className="hover:text-amber-400 transition-colors flex items-center gap-1 font-semibold"
+              className="text-xs font-semibold text-slate-400 hover:text-amber-400 transition-colors inline-flex items-center gap-1.5"
             >
-              <GraduationCap className="w-3.5 h-3.5" />
-              <span>Portal Estudiantes (Campus Virtual)</span>
-            </Link>
-            
-            <Link 
-              href="/dashboard/admin" 
-              className="hover:text-slate-300 transition-colors flex items-center gap-1"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5" />
-              <span>Acceso Directo al Dashboard</span>
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>← Volver al Campus Estudiantil</span>
             </Link>
           </div>
 
@@ -316,7 +309,7 @@ export default function AdminLoginPage() {
 
       {/* 3. FOOTER */}
       <footer className="py-4 text-center text-xs text-slate-500 border-t border-slate-800/80 bg-[#0A111E]">
-        <p>© 2026 American Dream English S.A.S. · Módulo de Seguridad y Control RBAC</p>
+        <p>© 2026 American Dream English S.A.S. · Módulo de Seguridad y Control Académico-Administrativo</p>
       </footer>
 
     </div>

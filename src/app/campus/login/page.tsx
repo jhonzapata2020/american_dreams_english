@@ -158,15 +158,15 @@ export default function CampusLoginPage() {
           {/* Card Formal Institucional */}
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
             
-            {/* Cabecera azul marina institucional UNAD */}
-            <div className="bg-[#002B49] text-white p-6 sm:p-7 text-center relative">
+            {/* Cabecera azul marina institucional suavizada */}
+            <div className="bg-[#1E3A8A] text-white p-6 sm:p-7 text-center relative">
               <div className="w-14 h-14 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center mx-auto mb-3 shadow-inner">
                 <GraduationCap className="w-8 h-8 text-amber-400" />
               </div>
               <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                 Campus Virtual
               </h1>
-              <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+              <p className="text-xs sm:text-sm text-slate-200 font-medium mt-1">
                 Acceso Exclusivo para Estudiantes Matriculados
               </p>
               
@@ -214,8 +214,8 @@ export default function CampusLoginPage() {
                       required
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="Ej. 1040892341 o alumno@americandream.edu.co"
-                      className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#002B49] focus:border-[#002B49] transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                      placeholder="Ej. 1040892341 o tu_correo@gmail.com"
+                      className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-[#1E3A8A] transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                       disabled={loading}
                     />
                   </div>
@@ -241,7 +241,7 @@ export default function CampusLoginPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="w-full pl-10 pr-11 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#002B49] focus:border-[#002B49] transition-all text-slate-900 placeholder:text-slate-400 font-medium"
+                      className="w-full pl-10 pr-11 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#1E3A8A] focus:border-[#1E3A8A] transition-all text-slate-900 placeholder:text-slate-400 font-medium"
                       disabled={loading}
                     />
                     <button
@@ -260,7 +260,7 @@ export default function CampusLoginPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-[#002B49] hover:bg-[#001f35] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
+                    className="w-full bg-[#1E3A8A] hover:bg-[#172e6d] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
                   >
                     {loading ? (
                       <>
@@ -276,11 +276,11 @@ export default function CampusLoginPage() {
                   </button>
                 </div>
 
-                {/* Enlace Secundario Discreto Directivos / Docentes */}
-                <div className="text-center pt-2">
+                {/* Enlace Secundario Discreto Directivos / Docentes (Único en el contenedor) */}
+                <div className="text-center pt-2.5">
                   <a
                     href="/admin/login"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#002B49] transition-colors hover:underline"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-[#1E3A8A] transition-colors hover:underline"
                   >
                     <span>¿Eres directivo o docente? Ingresa al portal administrativo</span>
                     <ArrowRight className="w-3.5 h-3.5 text-amber-500" />
@@ -304,19 +304,6 @@ export default function CampusLoginPage() {
               </div>
 
             </div>
-          </div>
-
-          {/* Enlace discreto a Docentes/Admin en el pie */}
-          <div className="mt-6 text-center">
-            <p className="text-xs text-slate-500">
-              ¿Eres directivo o docente?{' '}
-              <a 
-                href="/admin/login" 
-                className="font-bold text-[#002B49] hover:underline hover:text-amber-700 transition-colors"
-              >
-                Ingresa al portal administrativo →
-              </a>
-            </p>
           </div>
 
         </div>
