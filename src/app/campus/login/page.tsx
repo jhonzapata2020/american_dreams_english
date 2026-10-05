@@ -12,9 +12,7 @@ import {
   CheckCircle2, 
   Eye, 
   EyeOff, 
-  Sparkles, 
   ArrowLeft, 
-  BookOpen,
   KeyRound
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
@@ -29,7 +27,6 @@ export default function CampusLoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Si ya hay sesión activa como estudiante, sugerir o redirigir
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -124,21 +121,21 @@ export default function CampusLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A111E] text-slate-100 flex flex-col justify-between font-sans selection:bg-crimson-600 selection:text-white">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans selection:bg-[#002B49] selection:text-white">
       
-      {/* 1. HEADER INSTITUCIONAL ESTANDARIZADO */}
-      <header className="border-b border-slate-800 bg-[#0F1C2E]/80 backdrop-blur-md sticky top-0 z-20">
+      {/* 1. HEADER INSTITUCIONAL EN FONDO CLARO */}
+      <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-20 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002B49] via-blue-900 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md border border-white/10">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002B49] via-blue-900 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md">
                 AD
               </div>
               <div>
-                <span className="font-extrabold text-sm sm:text-base text-white tracking-tight block leading-tight">
+                <span className="font-extrabold text-sm sm:text-base text-slate-950 tracking-tight block leading-tight">
                   AMERICAN DREAM ENGLISH
                 </span>
-                <span className="text-[10px] sm:text-xs font-semibold text-amber-400 uppercase tracking-wider block">
+                <span className="text-[10px] sm:text-xs font-bold text-amber-600 uppercase tracking-wider block">
                   Campus Virtual Estudiantil
                 </span>
               </div>
@@ -148,41 +145,41 @@ export default function CampusLoginPage() {
           <div className="flex items-center gap-3">
             <Link 
               href="/"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors bg-slate-800/90 hover:bg-slate-800 border border-slate-700 px-3.5 py-1.5 rounded-lg"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-950 transition-colors bg-white hover:bg-slate-100 border border-slate-300 px-3.5 py-1.5 rounded-xl shadow-xs"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#002B49]" />
               <span>Volver a la Web</span>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* 2. CUERPO PRINCIPAL / FORMULARIO ESTANDARIZADO */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6">
+      {/* 2. CUERPO PRINCIPAL / TARJETA CLARA INSTITUCIONAL */}
+      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 bg-gradient-to-b from-slate-50 via-blue-50/30 to-slate-100">
         <div className="w-full max-w-md">
           
-          <div className="bg-[#0F1C2E] border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-black/60 space-y-5 relative overflow-hidden">
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/80 space-y-5 relative overflow-hidden">
             
-            {/* Ambient Glow */}
-            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-600/10 rounded-full blur-3xl pointer-events-none" />
+            {/* Soft Ambient Glow */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-100/50 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
 
             {/* Header de la tarjeta */}
             <div className="text-center space-y-2 relative z-10">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-950 to-[#002B49] border border-blue-500/30 rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-inner">
+              <div className="w-14 h-14 bg-[#002B49] rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-md shadow-[#002B49]/20">
                 <GraduationCap className="w-8 h-8 text-amber-400" />
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 Campus Virtual
               </h1>
 
-              <p className="text-xs text-slate-400 font-medium">
+              <p className="text-xs text-slate-600 font-medium">
                 Acceso exclusivo para estudiantes matriculados en cursos de inglés
               </p>
 
-              <div className="inline-flex items-center gap-1.5 bg-slate-800/90 border border-slate-700 px-3 py-1 rounded-full text-[11px] font-bold text-slate-300 mt-2">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" />
+              <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-800 mt-2">
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 <span>Autenticación Segura · Periodo 2026</span>
               </div>
             </div>
@@ -192,18 +189,18 @@ export default function CampusLoginPage() {
               <div 
                 className={`p-3.5 rounded-xl text-xs font-medium flex items-start gap-2.5 animate-fadeIn border ${
                   message.type === 'error' 
-                    ? 'bg-rose-950/40 text-rose-300 border-rose-800/60' 
+                    ? 'bg-rose-50 text-rose-800 border-rose-200' 
                     : message.type === 'success'
-                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60'
-                    : 'bg-blue-950/40 text-blue-300 border-blue-800/60'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    : 'bg-blue-50 text-blue-800 border-blue-200'
                 }`}
               >
                 {message.type === 'error' ? (
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                 ) : (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 )}
-                <p className="leading-relaxed">{message.text}</p>
+                <p className="leading-relaxed font-semibold">{message.text}</p>
               </div>
             )}
 
@@ -212,11 +209,11 @@ export default function CampusLoginPage() {
               
               {/* Campo 1: Documento o Correo */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider mb-1.5">
                   Número de Documento o Correo Personal
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <User className="w-4 h-4" />
                   </div>
                   <input
@@ -225,7 +222,7 @@ export default function CampusLoginPage() {
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
                     placeholder="Ej. 1040892341 o tu_correo@gmail.com"
-                    className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
+                    className="w-full pl-10 pr-3.5 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#002B49] focus:border-[#002B49] focus:bg-white text-slate-900 placeholder:text-slate-400 font-medium transition-all"
                     disabled={loading}
                   />
                 </div>
@@ -234,15 +231,15 @@ export default function CampusLoginPage() {
               {/* Campo 2: Contraseña */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                  <label className="block text-xs font-extrabold text-slate-700 uppercase tracking-wider">
                     Contraseña
                   </label>
-                  <span className="text-[11px] text-slate-400 font-medium">
+                  <span className="text-[11px] text-slate-500 font-semibold">
                     (No. Documento de identidad)
                   </span>
                 </div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                     <Lock className="w-4 h-4" />
                   </div>
                   <input
@@ -251,13 +248,13 @@ export default function CampusLoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full pl-10 pr-11 py-3 text-sm bg-slate-900/90 border border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-white placeholder:text-slate-500 font-medium"
+                    className="w-full pl-10 pr-11 py-3 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#002B49] focus:border-[#002B49] focus:bg-white text-slate-900 placeholder:text-slate-400 font-medium transition-all"
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300 transition-colors"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
                     tabIndex={-1}
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -270,7 +267,7 @@ export default function CampusLoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#002B49] hover:bg-[#001f35] border border-blue-500/30 text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-blue-950/60 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
+                  className="w-full bg-[#002B49] hover:bg-[#001f35] text-white font-extrabold py-3.5 px-4 rounded-xl shadow-lg shadow-[#002B49]/25 hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-sm active:scale-[0.99]"
                 >
                   {loading ? (
                     <>
@@ -286,27 +283,27 @@ export default function CampusLoginPage() {
                 </button>
               </div>
 
-              {/* Enlace Secundario Discreto Directivos / Docentes */}
+              {/* Enlace Secundario Directivos / Docentes */}
               <div className="text-center pt-2">
                 <Link
                   href="/admin/login"
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-amber-400 transition-colors hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-[#002B49] transition-colors hover:underline"
                 >
                   <span>¿Eres directivo o docente? Ingresa al portal administrativo</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-amber-400" />
+                  <ArrowRight className="w-3.5 h-3.5 text-[#002B49]" />
                 </Link>
               </div>
 
             </form>
 
-            {/* Ayuda Rápida */}
-            <div className="pt-4 border-t border-slate-800 text-center relative z-10 space-y-2">
+            {/* Ayuda Rápida Demo */}
+            <div className="pt-4 border-t border-slate-100 text-center relative z-10">
               <button
                 type="button"
                 onClick={handleFillDemoStudent}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition-colors font-semibold"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-600 hover:text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3.5 py-2 rounded-xl transition-colors font-bold"
               >
-                <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+                <KeyRound className="w-3.5 h-3.5 text-amber-600" />
                 <span>Cargar credenciales de estudiante demo</span>
               </button>
             </div>
@@ -315,7 +312,7 @@ export default function CampusLoginPage() {
 
           {/* Información inferior */}
           <div className="mt-6 text-center">
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-medium">
               ¿Primer ingreso? Tu usuario y contraseña inicial es tu número de documento de identidad.
             </p>
           </div>
@@ -323,8 +320,8 @@ export default function CampusLoginPage() {
         </div>
       </main>
 
-      {/* 3. FOOTER ESTANDARIZADO */}
-      <footer className="py-4 text-center text-xs text-slate-500 border-t border-slate-800/80 bg-[#0A111E]">
+      {/* 3. FOOTER */}
+      <footer className="py-4 text-center text-xs text-slate-500 border-t border-slate-200 bg-white">
         <p>© 2026 American Dream English S.A.S. · Plataforma Educativa y Campus Virtual</p>
       </footer>
 
