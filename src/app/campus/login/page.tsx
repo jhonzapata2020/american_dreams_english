@@ -15,7 +15,57 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 
+type Language = 'EN' | 'ES'
+
+const translations = {
+  EN: {
+    back: 'Back to website',
+    period: 'Period 2026',
+    welcome: 'Welcome back',
+    subtitle: 'Please enter your details.',
+    emailPlaceholder: 'Email or Document',
+    passwordPlaceholder: 'Password',
+    remember: 'Remember for 30 days',
+    forgot: 'Forgot password?',
+    loginBtn: 'Log In',
+    entering: 'Entering...',
+    or: 'or',
+    demoTooltip: 'Load demo student credentials',
+    adminTooltip: 'Go to Admin Portal',
+    footer: 'American Dream English · Student Campus',
+    errorEmpty: 'Please enter your document or email and password.',
+    validationSuccess: 'Academic validation successful! Entering your Virtual Campus...',
+    invalidCreds: 'Invalid credentials. Please verify your document and password.',
+    welcomeSuccess: 'Welcome! Loading your courses...',
+    accessVerified: 'Access verified. Redirecting to your virtual classroom...',
+    demoLoaded: 'Demo credentials loaded (Doc: 1040892341).'
+  },
+  ES: {
+    back: 'Volver a la web',
+    period: 'Periodo 2026',
+    welcome: 'Bienvenido al Campus',
+    subtitle: 'Ingresa tus datos de acceso.',
+    emailPlaceholder: 'Documento o Correo',
+    passwordPlaceholder: 'Contraseña',
+    remember: 'Recordar sesión',
+    forgot: '¿Olvidaste tu contraseña?',
+    loginBtn: 'Ingresar al Campus',
+    entering: 'Ingresando...',
+    or: 'o',
+    demoTooltip: 'Cargar credenciales de estudiante demo',
+    adminTooltip: 'Ir al Portal Administrativo',
+    footer: 'American Dream English · Campus Estudiantil',
+    errorEmpty: 'Por favor ingresa tu documento o correo y contraseña.',
+    validationSuccess: '¡Validación académica exitosa! Ingresando a tu Campus Virtual...',
+    invalidCreds: 'Credenciales inválidas. Verifica tu documento y contraseña.',
+    welcomeSuccess: '¡Bienvenido(a)! Cargando tus cursos...',
+    accessVerified: 'Acceso verificado. Redirigiendo a tu aula virtual...',
+    demoLoaded: 'Credenciales demo cargadas (Doc: 1040892341).'
+  }
+}
+
 export default function CampusLoginPage() {
+  const [lang, setLang] = useState<Language>('EN')
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -24,8 +74,19 @@ export default function CampusLoginPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null)
 
   const supabase = createClient()
+  const t = translations[lang]
 
   useEffect(() => {
+    // Cargar preferencia de idioma guardada en localStorage si existe
+    try {
+      const savedLang = localStorage.getItem('campus_login_lang') as Language
+      if (savedLang === 'EN' || savedLang === 'ES') {
+        setLang(savedLang)
+      }
+    } catch (e) {
+      // Silencioso
+    }
+
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -39,10 +100,19 @@ export default function CampusLoginPage() {
     checkSession()
   }, [])
 
+  const handleLanguageChange = (newLang: Language) => {
+    setLang(newLang)
+    try {
+      localStorage.setItem('campus_login_lang', newLang)
+    } catch (e) {
+      // Silencioso
+    }
+  }
+
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!identifier.trim() || !password.trim()) {
-      setMessage({ type: 'error', text: 'Por favor ingresa tu documento o correo y contraseña.' })
+      setMessage({ type: 'error', text: t.errorEmpty })
       return
     }
 
@@ -75,7 +145,7 @@ export default function CampusLoginPage() {
         if (password.length >= 6) {
           setMessage({
             type: 'success',
-            text: '¡Validación académica exitosa! Ingresando a tu Campus Virtual...'
+            text: t.validationSuccess
           })
           setTimeout(() => {
             window.location.href = '/campus'
@@ -85,12 +155,12 @@ export default function CampusLoginPage() {
 
         setMessage({ 
           type: 'error', 
-          text: 'Credenciales inválidas. Verifica tu documento y contraseña.' 
+          text: t.invalidCreds 
         })
       } else {
         setMessage({ 
           type: 'success', 
-          text: '¡Bienvenido(a)! Cargando tus cursos...' 
+          text: t.welcomeSuccess 
         })
         setTimeout(() => {
           window.location.href = '/campus'
@@ -99,7 +169,7 @@ export default function CampusLoginPage() {
     } catch (err: any) {
       setMessage({ 
         type: 'success', 
-        text: 'Acceso verificado. Redirigiendo a tu aula virtual...' 
+        text: t.accessVerified 
       })
       setTimeout(() => {
         window.location.href = '/campus'
@@ -114,7 +184,7 @@ export default function CampusLoginPage() {
     setPassword('1040892341')
     setMessage({
       type: 'info',
-      text: 'Credenciales demo cargadas (Doc: 1040892341).'
+      text: t.demoLoaded
     })
   }
 
@@ -129,19 +199,50 @@ export default function CampusLoginPage() {
         {/* ========================================================= */}
         <div className="p-6 sm:p-10 md:p-12 flex flex-col justify-between">
           
-          {/* Top navigation / Back */}
+          {/* Top navigation / Back & Toggle Switch de Idioma [ EN | ES ] */}
           <div className="flex items-center justify-between">
             <Link 
               href="/" 
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Volver a la web</span>
+              <span>{t.back}</span>
             </Link>
 
-            <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
-              Periodo 2026
-            </span>
+            <div className="flex items-center gap-2">
+              {/* Switch Interactivo de Idioma */}
+              <div className="inline-flex items-center bg-gray-100 p-0.5 rounded-full border border-gray-200 text-[11px] font-bold">
+                <button
+                  type="button"
+                  onClick={() => handleLanguageChange('EN')}
+                  className={`px-2.5 py-0.5 rounded-full transition-all ${
+                    lang === 'EN'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                  aria-label="Switch language to English"
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleLanguageChange('ES')}
+                  className={`px-2.5 py-0.5 rounded-full transition-all ${
+                    lang === 'ES'
+                      ? 'bg-blue-600 text-white shadow-xs'
+                      : 'text-gray-500 hover:text-gray-800'
+                  }`}
+                  aria-label="Cambiar idioma a Español"
+                >
+                  ES
+                </button>
+              </div>
+
+              {/* Badge Periodo */}
+              <span className="text-[11px] font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
+                {t.period}
+              </span>
+            </div>
           </div>
 
           {/* Bloque central: Logo, Título, Subtítulo y Form */}
@@ -157,10 +258,10 @@ export default function CampusLoginPage() {
                 />
               </div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-                Welcome home
+                {t.welcome}
               </h1>
               <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
-                Please enter your details.
+                {t.subtitle}
               </p>
             </div>
 
@@ -194,7 +295,7 @@ export default function CampusLoginPage() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder="Email or Document"
+                  placeholder={t.emailPlaceholder}
                   className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
                   disabled={loading}
                 />
@@ -210,7 +311,7 @@ export default function CampusLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
+                  placeholder={t.passwordPlaceholder}
                   className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-5 py-3.5 pr-12 text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-sm"
                   disabled={loading}
                 />
@@ -233,7 +334,7 @@ export default function CampusLoginPage() {
                     onChange={(e) => setRememberMe(e.target.checked)}
                     className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
                   />
-                  <span className="text-[12px] text-gray-600 font-medium">Remember for 30 days</span>
+                  <span className="text-[12px] text-gray-600 font-medium">{t.remember}</span>
                 </label>
                 
                 <button
@@ -241,7 +342,7 @@ export default function CampusLoginPage() {
                   onClick={handleFillDemoStudent}
                   className="text-[12px] text-gray-400 hover:text-blue-600 transition-colors font-medium"
                 >
-                  Forgot password?
+                  {t.forgot}
                 </button>
               </div>
 
@@ -255,10 +356,10 @@ export default function CampusLoginPage() {
                   {loading ? (
                     <>
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Entering...</span>
+                      <span>{t.entering}</span>
                     </>
                   ) : (
-                    <span>Login</span>
+                    <span>{t.loginBtn}</span>
                   )}
                 </button>
               </div>
@@ -271,7 +372,7 @@ export default function CampusLoginPage() {
                 <div className="w-full border-t border-gray-100" />
               </div>
               <span className="relative bg-white px-3 text-xs text-gray-400 font-medium">
-                or
+                {t.or}
               </span>
             </div>
 
@@ -280,14 +381,14 @@ export default function CampusLoginPage() {
               <button
                 type="button"
                 onClick={handleFillDemoStudent}
-                title="Cargar credenciales de estudiante demo"
+                title={t.demoTooltip}
                 className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
               >
                 <KeyRound className="w-4 h-4" />
               </button>
               <Link
                 href="/admin/login"
-                title="Ir al Portal Administrativo"
+                title={t.adminTooltip}
                 className="w-10 h-10 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-sm"
               >
                 <Lock className="w-4 h-4" />
@@ -299,7 +400,7 @@ export default function CampusLoginPage() {
           {/* Pie */}
           <div className="text-center pt-2">
             <p className="text-[11px] text-gray-400 font-medium">
-              American Dream English · Campus Estudiantil
+              {t.footer}
             </p>
           </div>
 
@@ -313,7 +414,7 @@ export default function CampusLoginPage() {
           {/* Fondo Degradado Base */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
 
-          {/* Gráfico 3D Fluid Organics (SVG de alta fidelidad con curvas suaves y sombras de relieve) */}
+          {/* Gráfico 3D Fluid Organics */}
           <svg
             className="absolute inset-0 w-full h-full object-cover"
             viewBox="0 0 600 800"
@@ -386,7 +487,7 @@ export default function CampusLoginPage() {
               opacity="0.4"
             />
 
-            {/* Gran Onda Esculpida Derecha y Valle Central (Exacto a la foto) */}
+            {/* Gran Onda Esculpida Derecha y Valle Central */}
             <path
               d="M 650 -50 
                  L 650 850 
