@@ -846,10 +846,10 @@ export default function MatriculaPage() {
                   {/* PESTAÑA 1: TARJETA INTERACTIVA 3D (FLIPPING CARD)         */}
                   {/* ========================================================= */}
                   {paymentMethodTab === 'card' ? (
-                    <div className="space-y-6 pt-1">
+                    <div className="space-y-4 pt-1">
                       
-                      {/* Render de la Tarjeta Física 3D */}
-                      <div className="py-2">
+                      {/* Render de la Tarjeta Física 3D solo en Móvil (< md) */}
+                      <div className="block md:hidden py-2">
                         <InteractiveCard3D
                           cardNumber={cardNumber}
                           cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
@@ -1037,17 +1037,40 @@ export default function MatriculaPage() {
 
             </div>
 
-            {/* COLUMNA DERECHA: RESUMEN DE MATRÍCULA Y LIQUIDACIÓN (5 COLS - STICKY) */}
+            {/* COLUMNA DERECHA: PANEL VISUAL STICKY (TARJETA 3D + RESUMEN DE MATRÍCULA) */}
             <div className="lg:col-span-5">
-              <div className="sticky top-24 bg-slate-50 border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
+              <div className="sticky top-6 space-y-6">
                 
-                {/* Cabecera del resumen */}
-                <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                  <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-[#002B49]" />
-                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                      Resumen de Matrícula
-                    </h3>
+                {/* 1. VISUALIZACIÓN EN VIVO DE TARJETA 3D (DESKTOP) */}
+                <div className="hidden md:block">
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                      <CreditCard className="w-3.5 h-3.5 text-blue-600" />
+                      Vista Previa Interactiva 3D
+                    </span>
+                    <span className="text-[10px] text-blue-600 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                      {isCardFlipped ? 'Reverso (CVC Activo ↻)' : 'Frente'}
+                    </span>
+                  </div>
+                  <InteractiveCard3D
+                    cardNumber={cardNumber}
+                    cardHolder={cardHolder || fullName || 'NOMBRE TITULAR'}
+                    expDate={cardExp}
+                    cvc={cardCvc}
+                    isFlipped={isCardFlipped}
+                  />
+                </div>
+
+                {/* 2. RESUMEN DE MATRÍCULA / FACTURA */}
+                <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-5">
+                  
+                  {/* Cabecera del resumen */}
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                    <div className="flex items-center gap-2">
+                      <GraduationCap className="w-4 h-4 text-[#002B49]" />
+                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                        Resumen de Matrícula
+                      </h3>
                   </div>
                   <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 text-[10px] font-bold rounded-md">
                     Periodo 2026
@@ -1193,6 +1216,7 @@ export default function MatriculaPage() {
 
               </div>
             </div>
+          </div>
 
           </div>
         )}
