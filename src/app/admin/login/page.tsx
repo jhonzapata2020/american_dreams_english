@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { 
-  ShieldCheck, 
   Lock, 
   Mail, 
   ArrowRight, 
@@ -117,14 +116,16 @@ export default function AdminLoginPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex flex-col justify-between font-sans selection:bg-[#002B49] selection:text-white">
       
-      {/* 1. HEADER INSTITUCIONAL EN FONDO CLARO */}
+      {/* 1. HEADER INSTITUCIONAL CON LOGO OFICIAL */}
       <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-20 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#002B49] via-blue-900 to-crimson-700 text-white flex items-center justify-center font-black text-lg tracking-tighter shadow-md">
-                AD
-              </div>
+            <Link href="/" className="flex items-center gap-3 group">
+              <img 
+                src="/images/logo.png" 
+                alt="American Dream English" 
+                className="w-10 h-10 sm:w-11 sm:h-11 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" 
+              />
               <div>
                 <span className="font-extrabold text-sm sm:text-base text-slate-950 tracking-tight block leading-tight">
                   AMERICAN DREAM ENGLISH
@@ -158,13 +159,17 @@ export default function AdminLoginPage() {
             <div className="absolute top-0 right-0 w-48 h-48 bg-blue-100/50 rounded-full blur-3xl pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
 
-            {/* Header de la tarjeta */}
+            {/* Header de la tarjeta con Logo Oficial */}
             <div className="text-center space-y-2 relative z-10">
-              <div className="w-14 h-14 bg-[#002B49] rounded-2xl flex items-center justify-center mx-auto text-amber-400 shadow-md shadow-[#002B49]/20">
-                <ShieldCheck className="w-8 h-8 text-amber-400" />
+              <div className="w-20 h-20 mx-auto flex items-center justify-center p-1.5 bg-white rounded-2xl border border-slate-200/80 shadow-md">
+                <img 
+                  src="/images/logo.png" 
+                  alt="American Dream English" 
+                  className="w-full h-full object-contain drop-shadow-xs" 
+                />
               </div>
 
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight pt-1">
                 Portal de Gestión Académica y Administrativa
               </h1>
 
@@ -173,7 +178,7 @@ export default function AdminLoginPage() {
               </p>
 
               <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full text-[11px] font-bold text-emerald-800 mt-2">
-                <Lock className="w-3 h-3 text-emerald-600" />
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                 <span>Autenticación Segura · Control RBAC</span>
               </div>
             </div>
