@@ -163,8 +163,31 @@ export default function MatriculaPage() {
     }
 
     setIsProcessing(true)
-    const reference = `ADE-MAT-${Date.now()}-${Math.floor(Math.random() * 1000)}`
-    setTransactionRef(reference)
+
+    // 1. Solicitar referencia única y firma de integridad a la API
+    let signatureData: any = null
+    try {
+      const sigResponse = await fetch('/api/wompi/signature', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: totalAmountToPayToday,
+          email: email.trim(),
+          documentNumber: docNumber.trim(),
+          currency: 'COP',
+          programTitle: selectedProgram.title
+        })
+      })
+
+      if (sigResponse.ok) {
+        signatureData = await sigResponse.json()
+      }
+    } catch (sigErr) {
+      console.warn('Error obteniendo firma de integridad:', sigErr)
+    }
+
+    const finalReference = signatureData?.reference || `ADE-MAT-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    setTransactionRef(finalReference)
 
     // Registrar intención de matrícula en Supabase
     try {
@@ -193,7 +216,7 @@ export default function MatriculaPage() {
             total_paid_today_cop: totalAmountToPayToday,
             modality: modality,
             city: city,
-            reference: reference
+            reference: finalReference
           })
         }
       ])
@@ -201,14 +224,14 @@ export default function MatriculaPage() {
       console.warn('Registro de lead:', dbErr)
     }
 
-    // Inicializar Wompi Widget oficial
+    // 2. Inicializar Wompi Widget oficial con firma de integridad y datos del alumno
     if (typeof window !== 'undefined' && (window as any).WidgetCheckout) {
       try {
-        const checkout = new (window as any).WidgetCheckout({
+        const checkoutConfig: any = {
           currency: 'COP',
-          amountInCents: totalAmountToPayToday * 100,
-          reference: reference,
-          publicKey: process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || 'pub_test_Q5yDA9xoKdePzhSGeVe9HAUr1jiBmYH8',
+          amountInCents: signatureData?.amountInCents || totalAmountToPayToday * 100,
+          reference: finalReference,
+          publicKey: signatureData?.publicKey || process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || 'pub_test_Q5yDA9xoKdePzhSGeVe9HAUr1jiBmYH8',
           redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
           customerData: {
             email: email.trim(),
@@ -218,7 +241,15 @@ export default function MatriculaPage() {
             legalId: docNumber.trim(),
             legalIdType: docType
           }
-        })
+        }
+
+        if (signatureData?.signature) {
+          checkoutConfig.signature = {
+            integrity: signatureData.signature
+          }
+        }
+
+        const checkout = new (window as any).WidgetCheckout(checkoutConfig)
 
         checkout.open(async function (result: any) {
           const transaction = result?.transaction
