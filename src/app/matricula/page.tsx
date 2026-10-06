@@ -225,13 +225,22 @@ export default function MatriculaPage() {
     }
 
     // 2. Inicializar Wompi Widget oficial con firma de integridad y datos del alumno
+    const wompiPublicKey = (process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || signatureData?.publicKey || '').trim()
+    console.log('Wompi Public Key activa:', wompiPublicKey)
+
     if (typeof window !== 'undefined' && (window as any).WidgetCheckout) {
+      if (!wompiPublicKey) {
+        setIsProcessing(false)
+        setErrorMessage('No se encontró la llave pública de Wompi (NEXT_PUBLIC_WOMPI_PUBLIC_KEY). Por favor verifica tu archivo .env.local.')
+        return
+      }
+
       try {
         const checkoutConfig: any = {
           currency: 'COP',
           amountInCents: signatureData?.amountInCents || totalAmountToPayToday * 100,
           reference: finalReference,
-          publicKey: signatureData?.publicKey || process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || 'pub_test_Q5yDA9xoKdePzhSGeVe9HAUr1jiBmYH8',
+          publicKey: wompiPublicKey,
           redirectUrl: typeof window !== 'undefined' ? window.location.href : '',
           customerData: {
             email: email.trim(),
@@ -260,10 +269,13 @@ export default function MatriculaPage() {
             setPaymentSuccess(true)
           }
         })
-      } catch (widgetErr) {
+      } catch (widgetErr: any) {
         console.error('Error al abrir checkout Wompi:', widgetErr)
         setIsProcessing(false)
-        setErrorMessage('No se pudo abrir la pasarela de Wompi. Por favor intenta nuevamente.')
+        setErrorMessage(
+          widgetErr?.message || 
+          'Error al inicializar la pasarela de Wompi. Por favor verifica que la llave NEXT_PUBLIC_WOMPI_PUBLIC_KEY sea válida.'
+        )
       }
     } else {
       // Simulación de respuesta en caso de prueba local
