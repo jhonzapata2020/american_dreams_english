@@ -179,49 +179,56 @@ export default function MatriculaPage() {
         })
       })
 
-      if (sigResponse.ok) {
-        signatureData = await sigResponse.json()
+      const sigJson = await sigResponse.json()
+      if (!sigResponse.ok) {
+        throw new Error(sigJson.error || 'Error al generar la firma de seguridad de Wompi.')
       }
-    } catch (sigErr) {
-      console.warn('Error obteniendo firma de integridad:', sigErr)
+      signatureData = sigJson
+    } catch (sigErr: any) {
+      console.error('Error obteniendo firma de integridad:', sigErr)
+      setIsProcessing(false)
+      setErrorMessage(sigErr.message || 'No se pudo generar la firma de seguridad para Wompi.')
+      return
     }
 
     const finalReference = signatureData?.reference || `ADE-MAT-${Date.now()}-${Math.floor(Math.random() * 1000)}`
     setTransactionRef(finalReference)
 
-    // Registrar intención de matrícula en Supabase
+    // Registrar intención de matrícula de forma no bloqueante (blindado contra caídas de red)
     try {
       const supabase = createClient()
       const nameParts = fullName.trim().split(' ')
       const firstName = nameParts[0] || ''
       const lastName = nameParts.slice(1).join(' ') || ''
 
-      await supabase.from('leads').insert([
-        {
-          first_name: firstName,
-          last_name: lastName,
-          email: email.trim(),
-          phone: `${phonePrefix} ${phoneNumber.trim()}`,
-          audience: 'matricula_academica',
-          details: JSON.stringify({
-            doc_type: docType,
-            doc_number: docNumber,
-            program_id: selectedProgram.id,
-            program_title: selectedProgram.title,
-            payment_mode: paymentMode,
-            matricula_paid_cop: matriculaAmount,
-            tuition_paid_today_cop: tuitionDueToday,
-            pending_tuition_cop: pendingTuitionBalance,
-            include_addon: includeAddon,
-            total_paid_today_cop: totalAmountToPayToday,
-            modality: modality,
-            city: city,
-            reference: finalReference
-          })
-        }
-      ])
+      Promise.resolve(
+        supabase.from('leads').insert([
+          {
+            first_name: firstName,
+            last_name: lastName,
+            email: email.trim(),
+            phone: `${phonePrefix} ${phoneNumber.trim()}`,
+            audience: 'matricula_academica',
+            details: JSON.stringify({
+              doc_type: docType,
+              doc_number: docNumber,
+              program_id: selectedProgram.id,
+              program_title: selectedProgram.title,
+              payment_mode: paymentMode,
+              matricula_paid_cop: matriculaAmount,
+              tuition_paid_today_cop: tuitionDueToday,
+              pending_tuition_cop: pendingTuitionBalance,
+              include_addon: includeAddon,
+              total_paid_today_cop: totalAmountToPayToday,
+              modality: modality,
+              city: city,
+              reference: finalReference
+            })
+          }
+        ])
+      ).catch((err) => console.warn('Aviso: Registro previo de lead en Supabase:', err?.message || err))
     } catch (dbErr) {
-      console.warn('Registro de lead:', dbErr)
+      console.warn('Aviso: Fallo de conexión con Supabase ignorado para procesar pago:', dbErr)
     }
 
     // 2. Inicializar Wompi Widget oficial con firma de integridad y datos del alumno

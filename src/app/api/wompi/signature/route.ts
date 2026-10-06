@@ -4,7 +4,7 @@ import crypto from 'crypto'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { amount, email, documentNumber, currency = 'COP', programTitle } = body
+    const { amount, email, documentNumber, programTitle } = body
 
     const numericAmount = Number(amount)
     if (!numericAmount || isNaN(numericAmount) || numericAmount <= 0) {
@@ -18,16 +18,22 @@ export async function POST(request: Request) {
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase()
     const reference = `ADE-${Date.now()}-${randomSuffix}`
 
-    // 2. Calcular Monto en Centavos (Requerimiento Wompi: 50000 COP -> 5000000)
-    const amountInCents = Math.round(numericAmount * 100)
-    const activeCurrency = (currency || 'COP').toUpperCase()
+    // 2. Calcular Monto en Centavos Estricto (Entero sin decimales)
+    const amountInCents = Math.round(Number(amount) * 100)
 
-    // 3. Secreto de Integridad de Wompi (Desde variables de entorno o fallback sandbox seguro)
-    const integritySecret =
-      process.env.WOMPI_INTEGRITY_SECRET || 'test_integrity_b8YwP2lZ0f9g8Q7w5e4r3t2y1u0i9o8p'
+    // 3. Obtener y Validar Secreto de Integridad de Wompi
+    const integritySecret = process.env.WOMPI_INTEGRITY_SECRET?.trim()
+    if (!integritySecret) {
+      console.error('[Wompi Signature] Error: WOMPI_INTEGRITY_SECRET no está configurado en .env.local')
+      return NextResponse.json(
+        { error: 'El secreto de integridad de Wompi (WOMPI_INTEGRITY_SECRET) no está configurado en las variables de entorno del servidor.' },
+        { status: 500 }
+      )
+    }
 
-    // 4. Cadena de Integridad: Referencia + MontoEnCentavos + Moneda + SecretoDeIntegridad
-    const rawSignatureString = `${reference}${amountInCents}${activeCurrency}${integritySecret}`
+    // 4. Cadena a firmar en el orden estricto de Wompi: Referencia + MontoEnCentavos + Moneda(COP) + Secreto
+    const rawSignatureString = `${reference}${amountInCents}COP${integritySecret}`
+    console.log(`[Wompi Signature] Cadena antes de SHA256 (sin secreto completo): ${reference}${amountInCents}COP...`)
 
     // 5. Generación del Hash SHA-256
     const signature = crypto
@@ -35,14 +41,15 @@ export async function POST(request: Request) {
       .update(rawSignatureString)
       .digest('hex')
 
-    const publicKey =
-      process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || 'pub_test_Q5yDA9xoKdePzhSGeVe9HAUr1jiBmYH8'
+    console.log(`[Wompi Signature] Hash SHA-256 generado: ${signature}`)
+
+    const publicKey = (process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || '').trim()
 
     return NextResponse.json({
       success: true,
       reference,
       amountInCents,
-      currency: activeCurrency,
+      currency: 'COP',
       signature,
       publicKey,
       customerDetails: {
@@ -52,7 +59,7 @@ export async function POST(request: Request) {
       }
     })
   } catch (error: any) {
-    console.error('Error al generar firma de integridad Wompi:', error)
+    console.error('[Wompi Signature] Error al generar firma de integridad:', error)
     return NextResponse.json(
       { error: error.message || 'Error interno al generar la firma de pago de Wompi.' },
       { status: 500 }
