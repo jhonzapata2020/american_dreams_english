@@ -113,6 +113,15 @@ export function App() {
   if (currentPath === '/campus' || currentPath === '/campus/miscursos') {
     return <CampusVirtualPage />;
   }
+  if (currentPath === '/cursos' || currentPath === '/tienda') {
+    return <MatriculaPage />;
+  }
+  if (currentPath === '/dashboard/aula' || currentPath === '/dashboard/perfil') {
+    return <CampusVirtualPage />;
+  }
+  if (currentPath === '/dashboard/progreso') {
+    return <StudentDashboardPage />;
+  }
   if (currentPath === '/dashboard/student') {
     return <StudentDashboardPage />;
   }
@@ -134,7 +143,7 @@ export function App() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 bg-white">
+      <main className="flex-1 bg-white pb-20 md:pb-0">
         
         {/* 2. HeroSection */}
         <HeroSection

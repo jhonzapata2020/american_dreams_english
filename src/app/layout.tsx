@@ -3,6 +3,7 @@ import '../index.css'
 import { Metadata } from 'next'
 import { CurrencyProvider } from '../context/CurrencyContext'
 import { LanguageProvider } from '../context/LanguageContext'
+import { MobileBottomNav } from '../components/layout/MobileBottomNav'
 
 export const metadata: Metadata = {
   title: 'American Dream English S.A.S. - Plataforma Bilingüe',
@@ -34,10 +35,11 @@ export default function RootLayout({
         <link rel="shortcut icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="apple-touch-icon" href="/logo-american-dream.png" />
       </head>
-      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-20 md:pb-0" suppressHydrationWarning>
         <CurrencyProvider>
           <LanguageProvider>
             {children}
+            <MobileBottomNav />
           </LanguageProvider>
         </CurrencyProvider>
       </body>
