@@ -11,12 +11,12 @@ import { DigitalStoreModal } from './components/DigitalStoreModal';
 import { LiveClassesModal } from './components/LiveClassesModal';
 import { PresencialModal } from './components/PresencialModal';
 import { ScholarshipModal } from './components/ScholarshipModal';
-import { LocationModal } from './components/LocationModal';
 import { Currency } from './types';
 import { useCurrency } from './context/CurrencyContext';
 
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
+import { ComoLlegarView } from './components/views/ComoLlegarView';
 import AdminDashboardPage from './app/dashboard/admin/page';
 import AdminProductsPage from './app/dashboard/admin/products/page';
 import TeacherDashboardPage from './app/dashboard/teacher/page';
@@ -47,7 +47,6 @@ export function App() {
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
   const [presencialOpen, setPresencialOpen] = useState(false);
   const [scholarshipModalOpen, setScholarshipModalOpen] = useState(false);
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId) || document.getElementById('registro');
@@ -66,11 +65,18 @@ export function App() {
     window.location.href = '/campus/login';
   };
 
+  const handleOpenComoLlegar = () => {
+    window.location.href = '/como-llegar';
+  };
+
   const handlePreselectTier2 = () => {
     setForcedTierId('tier-2');
   };
 
   // HYBRID ROUTE RENDERER (Garantiza funcionamiento en SPA Vercel y Next.js)
+  if (currentPath === '/como-llegar') {
+    return <ComoLlegarView />;
+  }
   if (currentPath === '/admin/login') {
     return <AdminLoginPage />;
   }
@@ -123,7 +129,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
-        onOpenLocation={() => setLocationModalOpen(true)}
+        onOpenLocation={handleOpenComoLlegar}
         onMatricularme={() => { window.location.href = '/matricula'; }}
       />
 
@@ -134,7 +140,7 @@ export function App() {
         <HeroSection
           onOpenDonation={() => setScholarshipModalOpen(true)}
           onExplorePrograms={() => scrollToSection('segmentos')}
-          onOpenLocation={() => setLocationModalOpen(true)}
+          onOpenLocation={handleOpenComoLlegar}
         />
 
         {/* 3. TrustLogos */}
@@ -146,7 +152,7 @@ export function App() {
           onPreselectTier2={handlePreselectTier2}
           onOpenDigitalStore={() => setDigitalStoreOpen(true)}
           onOpenLiveClasses={() => setLiveClassesOpen(true)}
-          onOpenPresencial={() => setLocationModalOpen(true)}
+          onOpenPresencial={handleOpenComoLlegar}
         />
 
         {/* 5. JennySection */}
@@ -167,7 +173,7 @@ export function App() {
       {/* 8. Footer Institucional y Legal */}
       <Footer
         onOpenDonation={() => setScholarshipModalOpen(true)}
-        onOpenLocation={() => setLocationModalOpen(true)}
+        onOpenLocation={handleOpenComoLlegar}
       />
 
       {/* MODALES GLOBALES INTERACTIVOS */}
@@ -191,11 +197,6 @@ export function App() {
         isOpen={scholarshipModalOpen}
         onClose={() => setScholarshipModalOpen(false)}
         currency={selectedCurrency}
-      />
-
-      <LocationModal
-        isOpen={locationModalOpen}
-        onClose={() => setLocationModalOpen(false)}
       />
 
     </div>
