@@ -62,6 +62,24 @@ const ACADEMIC_PROGRAMS: AcademicProgram[] = [
     monthlyFeeUsd: 38,
     description: 'Metodología lúdica, canciones, cuentos y fonética intuitiva para niños y niñas.',
     badge: 'Kids & Junior'
+  },
+  {
+    id: 'prog-intensivo',
+    title: 'Programa Intensivo Conversacional',
+    targetAudience: 'adultos',
+    monthlyFeeCop: 320000,
+    monthlyFeeUsd: 80,
+    description: 'Bootcamp intensivo diario para alcanzar fluidez laboral y dominio conversacional rápido.',
+    badge: 'Inmersión Acelerada'
+  },
+  {
+    id: 'prog-empresas',
+    title: 'English for Business & Empresas',
+    targetAudience: 'adultos',
+    monthlyFeeCop: 280000,
+    monthlyFeeUsd: 70,
+    description: 'Capacitación ejecutiva a la medida para directivos, equipos corporativos y negocios globales.',
+    badge: 'B2B / Corporativo'
   }
 ]
 
@@ -84,6 +102,21 @@ export default function MatriculaPage() {
   const [selectedProgramId, setSelectedProgramId] = useState<string>('prog-adultos')
   const [modality, setModality] = useState<'presencial' | 'virtual'>('presencial')
   const [includeAddon, setIncludeAddon] = useState<boolean>(false)
+
+  // Preselección por URL Query Param ?curso=slug
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const cursoParam = urlParams.get('curso')
+      if (cursoParam) {
+        const clean = cursoParam.toLowerCase().trim()
+        if (clean.includes('nino') || clean.includes('kid')) setSelectedProgramId('prog-ninos')
+        else if (clean.includes('intensiv') || clean.includes('bootcamp')) setSelectedProgramId('prog-intensivo')
+        else if (clean.includes('empresa') || clean.includes('business')) setSelectedProgramId('prog-empresas')
+        else setSelectedProgramId('prog-adultos')
+      }
+    }
+  }, [])
 
   // PASO 3: Datos del Estudiante
   const [fullName, setFullName] = useState<string>('')

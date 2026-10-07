@@ -14,6 +14,9 @@ import { ScholarshipModal } from './components/ScholarshipModal';
 import { Currency } from './types';
 import { useCurrency } from './context/CurrencyContext';
 
+import CursosPage from './app/cursos/page';
+import CourseDetailPage from './app/cursos/[slug]/page';
+
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
 import { ComoLlegarView } from './components/views/ComoLlegarView';
@@ -113,7 +116,13 @@ export function App() {
   if (currentPath === '/campus' || currentPath === '/campus/miscursos') {
     return <CampusVirtualPage />;
   }
-  if (currentPath === '/cursos' || currentPath === '/tienda') {
+  if (currentPath === '/cursos') {
+    return <CursosPage />;
+  }
+  if (currentPath.startsWith('/cursos/')) {
+    return <CourseDetailPage />;
+  }
+  if (currentPath === '/tienda') {
     return <MatriculaPage />;
   }
   if (currentPath === '/dashboard/aula' || currentPath === '/dashboard/perfil') {
