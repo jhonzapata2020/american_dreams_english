@@ -172,9 +172,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </a>
 
               {/* Tarjeta 3: Solicitar beca */}
-              <button
-                type="button"
-                onClick={onOpenDonation}
+              <a
+                href="/becas"
                 className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-emerald-50/50 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group text-left w-full cursor-pointer"
               >
                 <div className="flex items-center space-x-3">
@@ -189,7 +188,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-              </button>
+              </a>
 
               {/* Tarjeta 4: Hablar con ADE */}
               <a

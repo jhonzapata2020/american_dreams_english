@@ -23,6 +23,8 @@ import PagosPage from './app/dashboard/pagos/page';
 import CertificadosPage from './app/dashboard/certificados/page';
 import TiendaPage from './app/tienda/page';
 import BibliotecaPage from './app/dashboard/biblioteca/page';
+import BecasPage from './app/becas/page';
+import DonarPage from './app/donar/page';
 
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
@@ -131,6 +133,12 @@ export function App() {
   }
   if (currentPath === '/tienda') {
     return <TiendaPage />;
+  }
+  if (currentPath === '/becas') {
+    return <BecasPage />;
+  }
+  if (currentPath === '/donar' || currentPath === '/sponsor') {
+    return <DonarPage />;
   }
   if (currentPath === '/dashboard/biblioteca') {
     return <BibliotecaPage />;
