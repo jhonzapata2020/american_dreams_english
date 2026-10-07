@@ -231,20 +231,14 @@ export default function CampusLoginPage() {
             </div>
           </div>
 
-          {/* Bloque central: Logo, Título, Subtítulo y Form */}
+          {/* Bloque central: Título, Subtítulo y Form */}
           <div className="my-auto max-w-sm mx-auto w-full py-2">
             
-            {/* Logo Oficial American Dream English */}
-            <div className="text-center mb-3 mt-1">
-              <img 
-                src="/images/logo.png" 
-                alt="American Dream English" 
-                className="h-16 sm:h-20 w-auto object-contain mx-auto drop-shadow-md transition-transform duration-200 hover:scale-105" 
-              />
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mt-1.5">
+            <div className="text-center mb-5 mt-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
                 {t.welcome}
               </h1>
-              <p className="text-gray-400 text-xs font-medium mt-0.5">
+              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
                 {t.subtitle}
               </p>
             </div>
@@ -391,9 +385,9 @@ export default function CampusLoginPage() {
         </div>
 
         {/* ========================================================= */}
-        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO COMPACTO           */}
+        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO CON ESCUDO        */}
         {/* ========================================================= */}
-        <div className="hidden md:block relative h-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-[#090D2A] shadow-inner">
+        <div className="hidden md:flex flex-col items-center justify-center relative h-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-[#090D2A] shadow-inner p-6 text-center">
           
           {/* Fondo Degradado Base */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
@@ -497,6 +491,20 @@ export default function CampusLoginPage() {
             {/* Destello de luz inferior sutil */}
             <ellipse cx="380" cy="720" rx="200" ry="120" fill="#2563EB" opacity="0.35" filter="url(#soft-blur)" />
           </svg>
+
+          {/* Escudo / Logo American Dream English Oficial (3x de escala, centrado y con resplandor) */}
+          <div className="relative z-10 flex flex-col items-center justify-center my-auto">
+            <div className="relative flex items-center justify-center group">
+              {/* Halo de luz suave azul/índigo */}
+              <div className="absolute w-44 h-44 sm:w-52 sm:h-52 bg-blue-500/25 rounded-full blur-2xl group-hover:bg-blue-400/35 transition-all duration-500" />
+              
+              <img 
+                src="/images/logo.png" 
+                alt="American Dream English" 
+                className="w-44 sm:w-52 md:w-56 h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105 select-none" 
+              />
+            </div>
+          </div>
 
           {/* Sutil detalle de marca al pie */}
           <div className="absolute bottom-4 right-4 z-10">
