@@ -21,6 +21,8 @@ import LessonDetailPage from './app/dashboard/aula/[lessonId]/page';
 import ProgresoPage from './app/dashboard/progreso/page';
 import PagosPage from './app/dashboard/pagos/page';
 import CertificadosPage from './app/dashboard/certificados/page';
+import TiendaPage from './app/tienda/page';
+import BibliotecaPage from './app/dashboard/biblioteca/page';
 
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
@@ -128,7 +130,10 @@ export function App() {
     return <CourseDetailPage />;
   }
   if (currentPath === '/tienda') {
-    return <MatriculaPage />;
+    return <TiendaPage />;
+  }
+  if (currentPath === '/dashboard/biblioteca') {
+    return <BibliotecaPage />;
   }
   if (currentPath.startsWith('/dashboard/aula/')) {
     return <LessonDetailPage />;

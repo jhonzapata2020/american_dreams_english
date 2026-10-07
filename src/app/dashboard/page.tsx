@@ -404,6 +404,27 @@ export default function StudentDashboardPage() {
               <ChevronRight className="w-4 h-4 text-slate-400" />
             </Link>
 
+            {/* Acceso 5: Mi Biblioteca Digital */}
+            <Link
+              href="/dashboard/biblioteca"
+              className="col-span-2 p-3.5 bg-gradient-to-r from-blue-50/70 to-indigo-50/70 rounded-2xl border border-blue-200 hover:border-blue-300 active:scale-[0.98] shadow-2xs flex items-center justify-between transition-all group"
+            >
+              <div className="flex items-center space-x-2.5">
+                <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div className="text-left">
+                  <h4 className="text-xs font-black text-blue-950 group-hover:text-blue-700 transition-colors">
+                    Mi Biblioteca Digital
+                  </h4>
+                  <p className="text-[10px] text-blue-700/80 font-bold">E-books, audios y masterclasses descargables</p>
+                </div>
+              </div>
+              <span className="text-xs font-black text-blue-700 bg-white/80 px-2.5 py-1 rounded-lg border border-blue-100">
+                Abrir →
+              </span>
+            </Link>
+
           </div>
 
           {/* Botón WhatsApp de Soporte Académico Prioritario */}
