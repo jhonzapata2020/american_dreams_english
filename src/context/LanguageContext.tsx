@@ -129,6 +129,24 @@ export interface TranslationSchema {
     addressLabel: string
     addressValue: string
     addressSub: string
+    coordsLabel: string
+    coordsValue: string
+    elevationLabel: string
+    elevationValue: string
+    landmarksTitle: string
+    landmarkUnad: string
+    landmarkHospital: string
+    landmarkHighway: string
+    routesTitle: string
+    tabApartado: string
+    tabApartadoTime: string
+    tabApartadoDesc: string
+    tabTurbo: string
+    tabTurboTime: string
+    tabTurboDesc: string
+    tabVehicle: string
+    tabVehicleTime: string
+    tabVehicleDesc: string
     hoursLabel: string
     hoursWeekday: string
     hoursSaturday: string
@@ -137,7 +155,10 @@ export interface TranslationSchema {
     phoneValue: string
     phoneSub: string
     openMaps: string
+    openWaze: string
     chatWhatsapp: string
+    copyCoords: string
+    copied: string
     facilitiesTitle: string
     facility1: string
     facility2: string
@@ -286,12 +307,30 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       academicProgress: 'Progreso de Nivel:'
     },
     location: {
-      badge: 'Sede Principal Institucional',
-      title: 'Visítanos en Turbo, Urabá Antioqueño',
-      subtitle: 'Instalaciones equipadas con laboratorios bilingües y aulas interactivas.',
+      badge: '📍 Sede Oficial & Georreferenciación',
+      title: '¿Cómo Llegar a American Dream English?',
+      subtitle: 'Ubicados estratégicamente sobre la Vía Nacional en la Vereda Casanova (Km 1.5), cerca a la UNAD y al Hospital Francisco Valderrama en Turbo, Urabá.',
       addressLabel: 'Dirección Oficial de la Sede',
       addressValue: 'Km 1,5 Vía nacional, Vereda Casanova',
       addressSub: 'Turbo, Antioquia · Urabá Colombiano (NIT 901.182.137-9)',
+      coordsLabel: 'Coordenadas Satelitales GPS',
+      coordsValue: '8°05\'30.37"N 76°42\'31.78"W',
+      elevationLabel: 'Elevación del suelo',
+      elevationValue: '7.83 m s.n.m.',
+      landmarksTitle: 'Puntos de Referencia Clave',
+      landmarkUnad: 'UNAD (Universidad Nacional Abierta y a Distancia) a 500 m',
+      landmarkHospital: 'Hospital Francisco Valderrama a 1.2 km',
+      landmarkHighway: 'Directo sobre la Vía Nacional Turbo - Apartadó',
+      routesTitle: 'Elige tu Ruta de Llegada:',
+      tabApartado: 'Desde Apartadó / Carepa / Chigorodó',
+      tabApartadoTime: '🚗 ~35 min (30 km)',
+      tabApartadoDesc: 'Toma cualquier bus o microbús intermunicipal (Cootransuroccidente / Sotragolfo) vía Turbo. Pide la parada en la Vereda Casanova (Km 1.5), justo 500m después del cruce a la UNAD antes de ingresar al casco urbano.',
+      tabTurbo: 'Desde Turbo Centro / Muelle',
+      tabTurboTime: '🛵 ~5 min (2.5 km)',
+      tabTurboDesc: 'Salida hacia la Vía Nacional rumbo a Apartadó. Pasa el Hospital Francisco Valderrama y avanza 1.5 km hasta la Vereda Casanova. Disponible en taxi, mototaxi o colectivo urbano.',
+      tabVehicle: 'En Auto Particular / Moto',
+      tabVehicleTime: '🅿️ Parqueadero Gratis',
+      tabVehicleDesc: 'Vía 100% pavimentada con parqueadero privado, vigilado y gratuito dentro del campus para estudiantes, padres de familia y visitantes.',
       hoursLabel: 'Horarios de Atención y Clases',
       hoursWeekday: 'Lunes a Viernes: 8:00 AM - 12:00 PM / 2:00 PM - 6:00 PM',
       hoursSaturday: 'Sábados (Jornada Continua): 8:00 AM - 1:00 PM',
@@ -299,12 +338,15 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       phoneLabel: 'Línea Telefónica y Recepción',
       phoneValue: '+57 (604) 827-2471 / +57 312 456 7890',
       phoneSub: 'Resolución Oficial de Educación No. 2471',
-      openMaps: 'Ver Mapa en Google Maps',
-      chatWhatsapp: 'Contactar Asesor por WhatsApp',
+      openMaps: 'Abrir en Google Maps',
+      openWaze: 'Navegar con Waze',
+      chatWhatsapp: 'Pedir Indicaciones por WhatsApp',
+      copyCoords: 'Copiar Coordenadas GPS',
+      copied: '¡Copiado al portapapeles!',
       facilitiesTitle: 'Nuestras Instalaciones Incluyen:',
       facility1: 'Laboratorios de Audio y Fonética',
       facility2: 'Aulas Climatizadas y Conectividad Fibra',
-      facility3: 'Parqueadero y Transporte Directo',
+      facility3: 'Parqueadero Privado Gratuito',
       facility4: 'Zona de Cafetería y Coworking Bilingüe'
     },
     footer: {
@@ -447,12 +489,30 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       academicProgress: 'Level Progress:'
     },
     location: {
-      badge: 'Official Academic Headquarters',
-      title: 'Visit Us in Turbo, Urabá Antioquia',
-      subtitle: 'Modern facilities equipped with bilingual phonetic labs and multimedia classrooms.',
+      badge: '📍 Official Campus & GPS Navigation',
+      title: 'How to Get to American Dream English?',
+      subtitle: 'Strategically located along the National Highway in Vereda Casanova (Km 1.5), near UNAD University and Francisco Valderrama Hospital in Turbo, Urabá.',
       addressLabel: 'Official Campus Address',
       addressValue: 'Km 1.5 Vía nacional, Vereda Casanova',
       addressSub: 'Turbo, Antioquia · Colombian Urabá Region (NIT 901.182.137-9)',
+      coordsLabel: 'Satellite GPS Coordinates',
+      coordsValue: '8°05\'30.37"N 76°42\'31.78"W',
+      elevationLabel: 'Ground Elevation',
+      elevationValue: '7.83 m above sea level',
+      landmarksTitle: 'Key Landmarks Nearby',
+      landmarkUnad: 'UNAD University 500 meters away',
+      landmarkHospital: 'Francisco Valderrama Hospital 1.2 km away',
+      landmarkHighway: 'Directly on the paved Turbo - Apartadó National Highway',
+      routesTitle: 'Choose Your Travel Route:',
+      tabApartado: 'From Apartadó / Carepa / Chigorodó',
+      tabApartadoTime: '🚗 ~35 min (30 km)',
+      tabApartadoDesc: 'Take any regional bus toward Turbo. Request a stop at Vereda Casanova (Km 1.5), right 500m after the UNAD turnoff before entering Turbo city. The campus is directly on the main highway.',
+      tabTurbo: 'From Downtown Turbo / Port Area',
+      tabTurboTime: '🛵 ~5 min (2.5 km)',
+      tabTurboDesc: 'Head out via the National Highway towards Apartadó. Pass the Francisco Valderrama Hospital and proceed 1.5 km to Vereda Casanova. Accessible via taxi, mototaxi, or local bus.',
+      tabVehicle: 'By Private Car / Motorcycle',
+      tabVehicleTime: '🅿️ Free On-Site Parking',
+      tabVehicleDesc: '100% paved road access with free, secure on-campus private parking for all students, parents, and visitors.',
       hoursLabel: 'Office & Class Schedules',
       hoursWeekday: 'Monday to Friday: 8:00 AM - 12:00 PM / 2:00 PM - 6:00 PM',
       hoursSaturday: 'Saturdays: 8:00 AM - 1:00 PM',
@@ -460,12 +520,15 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       phoneLabel: 'Direct Phone & Front Desk',
       phoneValue: '+57 (604) 827-2471 / +57 312 456 7890',
       phoneSub: 'Official Education Resolution No. 2471',
-      openMaps: 'View on Google Maps',
-      chatWhatsapp: 'Chat with Advisor via WhatsApp',
+      openMaps: 'Open in Google Maps',
+      openWaze: 'Navigate with Waze',
+      chatWhatsapp: 'Request Route Help via WhatsApp',
+      copyCoords: 'Copy GPS Coordinates',
+      copied: 'Copied to clipboard!',
       facilitiesTitle: 'Our Campus Amenities Include:',
       facility1: 'Audio & Phonetics Speech Labs',
       facility2: 'Climate-Controlled Rooms & High-Speed Fiber',
-      facility3: 'On-Site Parking & Direct Transit Access',
+      facility3: 'Free Private On-Site Parking',
       facility4: 'Bilingual Lounge & Coworking Hub'
     },
     footer: {
