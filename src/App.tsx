@@ -16,6 +16,11 @@ import { useCurrency } from './context/CurrencyContext';
 
 import CursosPage from './app/cursos/page';
 import CourseDetailPage from './app/cursos/[slug]/page';
+import AulaMovilPage from './app/dashboard/aula/page';
+import LessonDetailPage from './app/dashboard/aula/[lessonId]/page';
+import ProgresoPage from './app/dashboard/progreso/page';
+import PagosPage from './app/dashboard/pagos/page';
+import CertificadosPage from './app/dashboard/certificados/page';
 
 // Views for client-side route fallback
 import { LoginView } from './components/views/LoginView';
@@ -125,13 +130,25 @@ export function App() {
   if (currentPath === '/tienda') {
     return <MatriculaPage />;
   }
-  if (currentPath === '/dashboard/aula' || currentPath === '/dashboard/perfil') {
-    return <CampusVirtualPage />;
+  if (currentPath.startsWith('/dashboard/aula/')) {
+    return <LessonDetailPage />;
+  }
+  if (currentPath === '/dashboard/aula') {
+    return <AulaMovilPage />;
   }
   if (currentPath === '/dashboard/progreso') {
-    return <StudentDashboardPage />;
+    return <ProgresoPage />;
   }
-  if (currentPath === '/dashboard/student') {
+  if (currentPath === '/dashboard/pagos') {
+    return <PagosPage />;
+  }
+  if (currentPath === '/dashboard/certificados') {
+    return <CertificadosPage />;
+  }
+  if (currentPath === '/dashboard/perfil') {
+    return <CampusVirtualPage />;
+  }
+  if (currentPath === '/dashboard' || currentPath === '/dashboard/student') {
     return <StudentDashboardPage />;
   }
 
