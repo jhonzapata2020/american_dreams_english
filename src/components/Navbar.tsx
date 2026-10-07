@@ -123,21 +123,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
 
-            {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL */}
+            {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL (Desktop / Tablet) */}
             <a 
               href="/campus/login"
               onClick={handleGoToCampus}
-              className="inline-flex text-xs sm:text-sm font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+              className="hidden md:inline-flex text-xs sm:text-sm font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <GraduationCap className="w-4 h-4 text-white" />
               <span>{t.nav.campusVirtual}</span>
             </a>
 
-            {/* Inscribirme / Matricúlate CTA Button estilo UNAD */}
+            {/* Inscribirme / Matricúlate CTA Button estilo UNAD (Desktop / Tablet) */}
             <a 
               href="/matricula"
               onClick={handleMatricularme}
-              className="inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
+              className="hidden sm:inline-flex text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-500 text-slate-900 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl transition-all items-center gap-1.5 shadow-xs cursor-pointer active:scale-95 whitespace-nowrap"
             >
               <span>{t.nav.enroll}</span>
             </a>
@@ -145,7 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Mobile App Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none rounded-lg bg-slate-50 border border-slate-200"
+              className="lg:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none rounded-lg bg-slate-50 border border-slate-200 active:scale-95 transition-transform"
               aria-label="Abrir menú"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
