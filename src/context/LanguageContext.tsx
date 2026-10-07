@@ -15,6 +15,7 @@ export interface TranslationSchema {
     academicPrograms: string
     digitalCourses4k: string
     liveClassesTitle: string
+    howToGetThere: string
   }
   hero: {
     badge: string
@@ -198,7 +199,8 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       navigationMenu: 'Menú de Navegación',
       academicPrograms: 'Programas Académicos',
       digitalCourses4k: 'Cursos Digitales 4K',
-      liveClassesTitle: 'Clases en Vivo'
+      liveClassesTitle: 'Clases en Vivo',
+      howToGetThere: 'Cómo Llegar'
     },
     hero: {
       badge: 'Abre las puertas del mundo al dominar el inglés',
@@ -380,7 +382,8 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       navigationMenu: 'Navigation Menu',
       academicPrograms: 'Academic Programs',
       digitalCourses4k: '4K Digital Courses',
-      liveClassesTitle: 'Live Classes'
+      liveClassesTitle: 'Live Classes',
+      howToGetThere: 'How to Get Here'
     },
     hero: {
       badge: 'Open the doors of the world by mastering English',

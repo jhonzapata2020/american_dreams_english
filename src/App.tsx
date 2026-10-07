@@ -122,6 +122,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
+        onOpenLocation={() => scrollToSection('sede-presencial')}
         onMatricularme={() => { window.location.href = '/matricula'; }}
       />
 
@@ -132,6 +133,7 @@ export function App() {
         <HeroSection
           onOpenDonation={() => setScholarshipModalOpen(true)}
           onExplorePrograms={() => scrollToSection('segmentos')}
+          onOpenLocation={() => scrollToSection('sede-presencial')}
         />
 
         {/* 3. TrustLogos */}

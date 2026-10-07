@@ -12,6 +12,7 @@ interface NavbarProps {
   onOpenProgramas?: () => void;
   onOpenCursosDigitales?: () => void;
   onOpenClasesEnVivo?: () => void;
+  onOpenLocation?: () => void;
   onMatricularme?: () => void;
 }
 
@@ -23,6 +24,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenProgramas,
   onOpenCursosDigitales,
   onOpenClasesEnVivo,
+  onOpenLocation,
   onMatricularme,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,6 +33,17 @@ export const Navbar: React.FC<NavbarProps> = ({
   const handleGoToCampus = (e: React.MouseEvent) => {
     e.preventDefault();
     window.location.href = '/campus/login';
+  };
+
+  const handleScrollToLocation = () => {
+    if (onOpenLocation) {
+      onOpenLocation();
+    } else {
+      const el = document.getElementById('sede-presencial');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
   };
 
   const handleMatricularme = (e: React.MouseEvent) => {
@@ -63,7 +76,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center justify-between w-full pl-0 sm:pl-28 md:pl-32">
           
           {/* ENLACES CENTRALES (DESKTOP) */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-slate-600">
+          <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-slate-600">
             <button 
               type="button"
               onClick={onOpenProgramas}
@@ -84,6 +97,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer"
             >
               {t.nav.liveClasses}
+            </button>
+            <button 
+              type="button"
+              onClick={handleScrollToLocation}
+              className="hover:text-[#0F2537] transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-blue-700 bg-blue-50/90 hover:bg-blue-100 px-3 py-1 rounded-full border border-blue-200/70 shadow-2xs hover:scale-105 active:scale-95"
+            >
+              <span className="text-xs">📍</span>
+              <span>{t.nav.howToGetThere}</span>
             </button>
           </nav>
 
@@ -179,6 +200,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <span>{t.nav.liveClassesTitle}</span>
               <span className="text-xs text-slate-400">→</span>
+            </button>
+            <button 
+              type="button"
+              onClick={() => { setMobileMenuOpen(false); handleScrollToLocation(); }} 
+              className="py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100/80 border border-blue-200/80 flex items-center justify-between text-left w-full text-blue-900 font-bold"
+            >
+              <span className="flex items-center gap-2">
+                <span>📍</span>
+                <span>{t.nav.howToGetThere}</span>
+              </span>
+              <span className="text-xs text-blue-600 font-bold">→</span>
             </button>
           </nav>
 

@@ -15,11 +15,13 @@ import { useLanguage } from '../context/LanguageContext';
 interface HeroSectionProps {
   onOpenDonation: () => void;
   onExplorePrograms: () => void;
+  onOpenLocation?: () => void;
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenDonation,
   onExplorePrograms,
+  onOpenLocation,
 }) => {
   const { t } = useLanguage();
   const [audience, setAudience] = useState<'self' | 'child'>('self');
@@ -152,14 +154,30 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
           </div>
 
-          {/* Botón sutil / disimulado de información de becas */}
-          <div className="pt-1">
+          {/* Botones de acción rápida: Becas & Cómo Llegar */}
+          <div className="pt-1 flex flex-wrap items-center gap-2">
             <button
+              type="button"
               onClick={onOpenDonation}
               className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors font-medium bg-slate-100/80 hover:bg-slate-200/80 px-3 py-1.5 rounded-full border border-slate-200"
             >
               <span>{t.hero.scholarshipPrompt}</span>
               <span className="text-red-600 font-bold hover:underline">{t.hero.scholarshipLink}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenLocation) {
+                  onOpenLocation();
+                } else {
+                  const el = document.getElementById('sede-presencial');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="inline-flex items-center space-x-1.5 text-xs text-blue-700 hover:text-blue-900 transition-all font-bold bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full border border-blue-200 shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <span>📍 {t.nav.howToGetThere}</span>
             </button>
           </div>
 
