@@ -1,13 +1,22 @@
 import { DonationTier, BusinessSegment, ScholarshipRecipient, CohortMetrics } from '../types';
 
-export const COHORT_METRICS: CohortMetrics = {
+export const COHORT_METRICS_ES: CohortMetrics = {
   totalActiveScholars: 64,
   totalFundedHours: 3840,
   completionRate: '92%',
   certifiedStudentsMCER: 48,
 };
 
-export const DONATION_TIERS: DonationTier[] = [
+export const COHORT_METRICS_EN: CohortMetrics = {
+  totalActiveScholars: 64,
+  totalFundedHours: 3840,
+  completionRate: '92%',
+  certifiedStudentsMCER: 48,
+};
+
+export const COHORT_METRICS = COHORT_METRICS_ES;
+
+export const DONATION_TIERS_ES: DonationTier[] = [
   {
     id: 'tier-1',
     usdAmount: 35,
@@ -45,7 +54,47 @@ export const DONATION_TIERS: DonationTier[] = [
   }
 ];
 
-export const BUSINESS_SEGMENTS: BusinessSegment[] = [
+export const DONATION_TIERS_EN: DonationTier[] = [
+  {
+    id: 'tier-1',
+    usdAmount: 35,
+    copAmount: 140000,
+    title: 'Digital Access & Materials',
+    subtitle: 'Starter Level',
+    impactDescription: 'Funds 1 month of access to the digital audio platform, virtual textbooks, and educational licenses for 1 student in Urabá.',
+  },
+  {
+    id: 'tier-2',
+    usdAmount: 50,
+    copAmount: 200000,
+    title: 'Monthly Partial Scholarship',
+    subtitle: 'Direct Support',
+    impactDescription: 'Covers 50% of on-campus tuition and dedicated faculty mentorship for a student in Urabá.',
+    recommended: true,
+    badge: 'Most Popular'
+  },
+  {
+    id: 'tier-3',
+    usdAmount: 250,
+    copAmount: 1000000,
+    title: 'Full Cycle Sponsorship',
+    subtitle: '120 Certified Hours',
+    impactDescription: 'Sponsors 1 complete CEFR level (A1, A2, B1, or B2) including conversational speech labs and study materials.',
+  },
+  {
+    id: 'tier-4',
+    usdAmount: 1500,
+    copAmount: 6000000,
+    title: 'Complete Bilingual Scholarship',
+    subtitle: 'A1 to B2 Pathway',
+    impactDescription: 'Full scholarship from foundation to B2 career certification, enabling global employment opportunities.',
+    badge: 'Transformative Impact'
+  }
+];
+
+export const DONATION_TIERS = DONATION_TIERS_ES;
+
+export const BUSINESS_SEGMENTS_ES: BusinessSegment[] = [
   {
     id: 'seg-1',
     number: '01',
@@ -120,7 +169,84 @@ export const BUSINESS_SEGMENTS: BusinessSegment[] = [
   }
 ];
 
-export const SCHOLARSHIP_RECIPIENTS: ScholarshipRecipient[] = [
+export const BUSINESS_SEGMENTS_EN: BusinessSegment[] = [
+  {
+    id: 'seg-1',
+    number: '01',
+    title: 'Grants & International Scholarship Fund',
+    subtitle: 'Direct Social Impact in Urabá',
+    description: 'Fundraising and international cooperation alliances to sponsor talented youth in Turbo, Antioquia.',
+    badge: 'Social Responsibility',
+    features: [
+      'Public audit with unique anonymized scholar ID',
+      'Tax-deductible donation certificates',
+      'Quarterly CEFR pedagogical progress reports',
+      'Alliances with international cooperation & inclusion agencies'
+    ],
+    ctaText: 'Donate to Scholarship Fund',
+    ctaAction: 'donate',
+    gradientBg: 'from-navy-900 to-navy-800',
+    iconName: 'HeartHandshake'
+  },
+  {
+    id: 'seg-2',
+    number: '02',
+    title: 'Digital Infoproducts Store',
+    subtitle: 'Learn at Your Own Pace 24/7',
+    description: 'Interactive e-books, phonetics guides, and exclusive 4K masterclasses produced by CEFR-certified bilingual faculty.',
+    badge: '100% Digital',
+    features: [
+      'Masterclasses in ultra-clear 4K resolution',
+      'Instant download of e-books in PDF/EPUB',
+      'Downloadable phonetic pronunciation audio tracks',
+      'Lifetime access from any device'
+    ],
+    ctaText: 'Explore Digital Courses',
+    ctaAction: 'catalog',
+    gradientBg: 'from-blue-900 to-indigo-900',
+    iconName: 'BookOpen'
+  },
+  {
+    id: 'seg-3',
+    number: '03',
+    title: 'Live Virtual Classes',
+    subtitle: 'Small Cohorts (Max. 12 Students)',
+    description: 'Live interactive classrooms guided in real-time by teachers via Zoom, Microsoft Teams, and Google Meet with a 100% conversational focus.',
+    badge: 'Live Interactive',
+    features: [
+      'Maximum 12 students per cohort for genuine speaking practice',
+      'Flexible weekday and weekend schedules',
+      'Mock job interviews in professional English',
+      'Class recordings available on-demand for 30 days'
+    ],
+    ctaText: 'View Live Schedules',
+    ctaAction: 'live',
+    gradientBg: 'from-indigo-950 to-slate-900',
+    iconName: 'Video'
+  },
+  {
+    id: 'seg-4',
+    number: '04',
+    title: 'On-Campus Classes & Urabá Campus',
+    subtitle: 'Direct Transit from Apartadó, Currulao and the Region',
+    description: '12 years of established on-campus excellence. Climate-controlled classrooms and direct transit for students from Apartadó, Currulao, and nearby towns.',
+    badge: '12-Year Track Record',
+    features: [
+      'Fast transit access from Apartadó, Currulao, and Urabá',
+      'Official Education Ministry Resolution No. 2471',
+      '"Pisingo de Oro" Civic & Educational Excellence Award',
+      'Global Virtual Campus with 24/7 online access'
+    ],
+    ctaText: 'Explore On-Campus Headquarters',
+    ctaAction: 'campus',
+    gradientBg: 'from-slate-900 to-navy-950',
+    iconName: 'Building2'
+  }
+];
+
+export const BUSINESS_SEGMENTS = BUSINESS_SEGMENTS_ES;
+
+export const SCHOLARSHIP_RECIPIENTS_ES: ScholarshipRecipient[] = [
   {
     id: 'bec-101',
     anonymizedCode: 'Becario #URB-101',
@@ -155,3 +281,57 @@ export const SCHOLARSHIP_RECIPIENTS: ScholarshipRecipient[] = [
     academicStatus: 'En certificación'
   }
 ];
+
+export const SCHOLARSHIP_RECIPIENTS_EN: ScholarshipRecipient[] = [
+  {
+    id: 'bec-101',
+    anonymizedCode: 'Scholar #URB-101',
+    programCategory: 'Urabá Bilingual & Talent Initiative',
+    currentCycle: 'B1 Pre-Intermedio',
+    accumulatedHours: 95,
+    targetHours: 120,
+    location: 'District of Turbo, Antioquia',
+    impactAchievementQuote: 'English has opened doors for me to qualify for international commerce and logistics job selection in Urabá.',
+    academicStatus: 'En curso'
+  },
+  {
+    id: 'bec-102',
+    anonymizedCode: 'Scholar #URB-102',
+    programCategory: 'Urabá Bilingual & Talent Initiative',
+    currentCycle: 'A2 Elemental',
+    accumulatedHours: 60,
+    targetHours: 120,
+    location: 'District of Turbo, Antioquia',
+    impactAchievementQuote: 'Thanks to the scholarship fund, I can practice pronunciation daily and advance toward my academic goals.',
+    academicStatus: 'En curso'
+  },
+  {
+    id: 'bec-103',
+    anonymizedCode: 'Scholar #URB-103',
+    programCategory: 'Urabá Bilingual & Talent Initiative',
+    currentCycle: 'B2 Intermedio Alto',
+    accumulatedHours: 118,
+    targetHours: 120,
+    location: 'District of Turbo, Antioquia',
+    impactAchievementQuote: 'I am just a few hours away from B2 career certification. The faculty mentorship has been truly vital.',
+    academicStatus: 'En certificación'
+  }
+];
+
+export const SCHOLARSHIP_RECIPIENTS = SCHOLARSHIP_RECIPIENTS_ES;
+
+export function getBusinessSegments(lang: 'es' | 'en' = 'es'): BusinessSegment[] {
+  return lang === 'en' ? BUSINESS_SEGMENTS_EN : BUSINESS_SEGMENTS_ES;
+}
+
+export function getDonationTiers(lang: 'es' | 'en' = 'es'): DonationTier[] {
+  return lang === 'en' ? DONATION_TIERS_EN : DONATION_TIERS_ES;
+}
+
+export function getScholarshipRecipients(lang: 'es' | 'en' = 'es'): ScholarshipRecipient[] {
+  return lang === 'en' ? SCHOLARSHIP_RECIPIENTS_EN : SCHOLARSHIP_RECIPIENTS_ES;
+}
+
+export function getCohortMetrics(lang: 'es' | 'en' = 'es'): CohortMetrics {
+  return lang === 'en' ? COHORT_METRICS_EN : COHORT_METRICS_ES;
+}

@@ -45,10 +45,14 @@ export interface TranslationSchema {
     successTitle: string
     successMsg: string
   }
+  trust: {
+    clickToView: string
+  }
   segments: {
     badge: string
     title: string
     subtitle: string
+    segmentPrefix: string
     kidsTitle: string
     kidsTag: string
     kidsDesc: string
@@ -70,25 +74,89 @@ export interface TranslationSchema {
     badge: string
     title: string
     subtitle: string
-    listenPrompt: string
-    recordPrompt: string
-    statusFeedback: string
-    accuracy: string
+    onlineStatus: string
+    practiceScenario: string
+    changeScenario: string
+    jennyQuestion: string
+    listenAudio: string
+    translationLabel: string
+    suggestedResponse: string
+    pressToSpeak: string
+    listening: string
+    approvedFeedback: string
+    aiFeedbackTitle: string
+    aiFeedbackDesc: string
+    bottomNote: string
+  }
+  donation: {
+    badge: string
+    title: string
+    subtitle: string
+    frequencyLabel: string
+    monthly: string
+    oneTime: string
+    currencyLabel: string
+    selectTierLabel: string
+    customAmountLabel: string
+    customAmountPlaceholder: string
+    ctaButton: string
+    processing: string
+    secureNotice: string
+  }
+  impact: {
+    badge: string
+    title: string
+    subtitle: string
+    ctaButton: string
+    metricScholars: string
+    metricScholarsSub: string
+    metricHours: string
+    metricHoursSub: string
+    metricRetention: string
+    metricRetentionSub: string
+    metricCerts: string
+    metricCertsSub: string
+    activeStatus: string
+    certifyingStatus: string
+    graduatedStatus: string
+    hoursCompleted: string
+    academicProgress: string
   }
   location: {
     badge: string
     title: string
     subtitle: string
-    hqTitle: string
-    hqAddress: string
-    hqHours: string
-    virtualTitle: string
-    virtualDesc: string
+    addressLabel: string
+    addressValue: string
+    addressSub: string
+    hoursLabel: string
+    hoursWeekday: string
+    hoursSaturday: string
+    hoursVirtual: string
+    phoneLabel: string
+    phoneValue: string
+    phoneSub: string
+    openMaps: string
+    chatWhatsapp: string
+    facilitiesTitle: string
+    facility1: string
+    facility2: string
+    facility3: string
+    facility4: string
   }
   footer: {
-    about: string
     certified: string
     resolution: string
+    enrollBtn: string
+    developedBy: string
+    businessUnitsTitle: string
+    businessUnit1: string
+    businessUnit2: string
+    businessUnit3: string
+    businessUnit4: string
+    locationTitle: string
+    hqLabel: string
+    hqValue: string
     quickLinks: string
     legal: string
     privacy: string
@@ -140,10 +208,14 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       successTitle: '¡Inscripción Iniciada!',
       successMsg: 'Un asesor pedagógico te contactará en breve por WhatsApp.'
     },
+    trust: {
+      clickToView: 'Haz clic para ver detalles oficiales de:'
+    },
     segments: {
       badge: 'Metodología Académica Oficial',
       title: 'Programas Diseñados para Cada Etapa de tu Vida',
       subtitle: 'Desde tus primeros pasos infantiles hasta el inglés profesional y corporativo.',
+      segmentPrefix: 'Segmento',
       kidsTitle: 'Kids & Teens (4 a 14 años)',
       kidsTag: 'Metodología Lúdica & Fonética',
       kidsDesc: 'Inmersión temprana a través del juego, canciones y desarrollo natural del acento.',
@@ -162,28 +234,92 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       liveCta: 'Ver Horarios y Salas'
     },
     aiSimulator: {
-      badge: 'Laboratorio de Inteligencia Artificial',
-      title: 'Practica tu Pronunciación en Tiempo Real',
-      subtitle: 'Simulador fonético con retroalimentación instantánea sobre tu entonación y acento.',
-      listenPrompt: 'Escuchar Audio Modelo',
-      recordPrompt: 'Presiona para Grabar tu Voz',
-      statusFeedback: 'Análisis fonético acústico completado',
-      accuracy: 'Precisión Fonética'
+      badge: 'Tecnología Exclusiva • Tutora IA Jenny 24/7',
+      title: 'Prueba en Vivo a Jenny, Tu Tutora con Inteligencia Artificial',
+      subtitle: 'A diferencia de las plataformas tradicionales, Jenny interactúa contigo por voz y texto sin presiones, corrigiendo tu pronunciación en tiempo real.',
+      onlineStatus: 'En línea 24/7',
+      practiceScenario: 'Escenario de Práctica:',
+      changeScenario: 'Cambiar Escenario de Diálogo',
+      jennyQuestion: 'Pregunta de Jenny:',
+      listenAudio: 'Escuchar Audio',
+      translationLabel: 'Traducción:',
+      suggestedResponse: 'Tu Respuesta Sugerida en Inglés:',
+      pressToSpeak: 'Presiona para Hablar con Jenny',
+      listening: 'Escuchando tu voz...',
+      approvedFeedback: '¡Pronunciación 98% Precisa (Aprobado!)',
+      aiFeedbackTitle: 'Feedback de Inteligencia Artificial:',
+      aiFeedbackDesc: 'Excelente entonación y acentuación.',
+      bottomNote: '⚡ Disponible ilimitadamente para todos los estudiantes matriculados y becados.'
+    },
+    donation: {
+      badge: 'Fondo de Becas & Subvenciones de Urabá',
+      title: 'Transforma una Vida con tu Donación de Impacto',
+      subtitle: 'Cada aporte financia directamente la educación bilingüe presencial y digital de jóvenes en la Región de Urabá (Apartadó, Turbo, Currulao y municipios aledaños) y nuestra plataforma virtual global.',
+      frequencyLabel: 'Frecuencia:',
+      monthly: 'Mensual (Recurrente)',
+      oneTime: 'Donación Única',
+      currencyLabel: 'Moneda:',
+      selectTierLabel: '1. Selecciona el Nivel de Impacto Tangible (Unit Economics)',
+      customAmountLabel: '2. O ingresa un monto personalizado:',
+      customAmountPlaceholder: 'Ingresa monto personalizado',
+      ctaButton: 'Completar Donación de Impacto',
+      processing: 'Procesando...',
+      secureNotice: 'Transacción segura y auditada. Cumplimiento de transparencia de donaciones.'
+    },
+    impact: {
+      badge: 'Transparencia & Cumplimiento Ley 1581 (Habeas Data)',
+      title: 'Fondo de Becas & Transparencia Académica',
+      subtitle: 'Seguimiento al avance pedagógico de nuestros becarios en Urabá bajo estándares del Marco Común Europeo (MCER). Datos anonimizados en cumplimiento de la Ley 1581 de 2012 de Protección de Datos Personales.',
+      ctaButton: 'Patrocinar a un Becario',
+      metricScholars: 'Estudiantes Beneficiados',
+      metricScholarsSub: 'Becarios activos en formación',
+      metricHours: 'Horas Impartidas',
+      metricHoursSub: 'Horas de clase financiadas',
+      metricRetention: 'Retención & Asistencia',
+      metricRetentionSub: 'Tasa de permanencia académica',
+      metricCerts: 'Certificaciones Otorgadas',
+      metricCertsSub: 'Estudiantes certificados en MCER',
+      activeStatus: 'En curso',
+      certifyingStatus: 'En certificación',
+      graduatedStatus: 'Graduado',
+      hoursCompleted: 'Horas completadas:',
+      academicProgress: 'Progreso de Nivel:'
     },
     location: {
       badge: 'Sede Principal Institucional',
       title: 'Visítanos en Turbo, Urabá Antioqueño',
       subtitle: 'Instalaciones equipadas con laboratorios bilingües y aulas interactivas.',
-      hqTitle: 'Sede Principal Turbo',
-      hqAddress: 'Calle 100 # 13-45, Barrio Baltazar, Turbo, Antioquia',
-      hqHours: 'Lunes a Sábado: 8:00 AM - 6:00 PM',
-      virtualTitle: 'Cobertura Virtual Global',
-      virtualDesc: 'Acceso internacional a través de salas virtuales en vivo por Microsoft Teams y Zoom.'
+      addressLabel: 'Dirección Oficial de la Sede',
+      addressValue: 'Km 1,5 Vía nacional, Vereda Casanova',
+      addressSub: 'Turbo, Antioquia · Urabá Colombiano (NIT 901.182.137-9)',
+      hoursLabel: 'Horarios de Atención y Clases',
+      hoursWeekday: 'Lunes a Viernes: 8:00 AM - 12:00 PM / 2:00 PM - 6:00 PM',
+      hoursSaturday: 'Sábados (Jornada Continua): 8:00 AM - 1:00 PM',
+      hoursVirtual: 'Campus Virtual en Vivo: Acceso 24/7',
+      phoneLabel: 'Línea Telefónica y Recepción',
+      phoneValue: '+57 (604) 827-2471 / +57 312 456 7890',
+      phoneSub: 'Resolución Oficial de Educación No. 2471',
+      openMaps: 'Ver Mapa en Google Maps',
+      chatWhatsapp: 'Contactar Asesor por WhatsApp',
+      facilitiesTitle: 'Nuestras Instalaciones Incluyen:',
+      facility1: 'Laboratorios de Audio y Fonética',
+      facility2: 'Aulas Climatizadas y Conectividad Fibra',
+      facility3: 'Parqueadero y Transporte Directo',
+      facility4: 'Zona de Cafetería y Coworking Bilingüe'
     },
     footer: {
-      about: 'American Dream English S.A.S. - Instituto Bilingüe comprometido con el desarrollo profesional de Urabá y Latinoamérica.',
       certified: 'Resolución Oficial Secretaría de Educación 2471',
       resolution: 'Inspección & Vigilancia Acreditada',
+      enrollBtn: 'Matricúlate Ahora',
+      developedBy: 'Plataforma desarrollada y operada en alianza tecnológica por CORPLEX SOLUTIONS S.A.S.',
+      businessUnitsTitle: 'Unidades de Negocio',
+      businessUnit1: '1. Subvenciones & Fondo de Becas',
+      businessUnit2: '2. Tienda de Infoproductos 4K',
+      businessUnit3: '3. Clases Virtuales en Vivo',
+      businessUnit4: '4. Clases Presenciales Sede Turbo',
+      locationTitle: 'Sede Presencial & Registro',
+      hqLabel: 'Sede:',
+      hqValue: 'Km 1,5 Vía nacional, Vereda Casanova, Turbo, Antioquia.',
       quickLinks: 'Accesos Rápidos',
       legal: 'Legal & Privacidad',
       privacy: 'Política de Privacidad',
@@ -233,10 +369,14 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       successTitle: 'Registration Started!',
       successMsg: 'An academic advisor will contact you shortly via WhatsApp.'
     },
+    trust: {
+      clickToView: 'Click to view official details of:'
+    },
     segments: {
       badge: 'Official Academic Framework',
       title: 'Programs Designed for Every Stage of Life',
       subtitle: 'From early childhood basics to advanced professional and business English.',
+      segmentPrefix: 'Segment',
       kidsTitle: 'Kids & Teens (Ages 4 to 14)',
       kidsTag: 'Playful & Phonics Methodology',
       kidsDesc: 'Early language immersion through games, songs, and intuitive accent development.',
@@ -255,28 +395,92 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       liveCta: 'View Schedule & Rooms'
     },
     aiSimulator: {
-      badge: 'Artificial Intelligence Speech Lab',
-      title: 'Practice Your Pronunciation in Real Time',
-      subtitle: 'Acoustic speech simulator providing instant feedback on your intonation and rhythm.',
-      listenPrompt: 'Listen to Native Model',
-      recordPrompt: 'Press to Record Your Voice',
-      statusFeedback: 'Acoustic phonetic analysis completed',
-      accuracy: 'Phonetic Accuracy'
+      badge: 'Exclusive Technology • AI Tutor Jenny 24/7',
+      title: 'Experience Live AI Tutoring with Jenny',
+      subtitle: 'Unlike traditional platforms, Jenny interacts with you via natural voice and text without pressure, correcting pronunciation in real time.',
+      onlineStatus: 'Online 24/7',
+      practiceScenario: 'Practice Scenario:',
+      changeScenario: 'Switch Conversation Scenario',
+      jennyQuestion: "Jenny's Prompt:",
+      listenAudio: 'Listen to Audio',
+      translationLabel: 'Translation:',
+      suggestedResponse: 'Your Suggested Response in English:',
+      pressToSpeak: 'Press to Speak with Jenny',
+      listening: 'Listening to your voice...',
+      approvedFeedback: '98% Accurate Pronunciation (Passed!)',
+      aiFeedbackTitle: 'Artificial Intelligence Feedback:',
+      aiFeedbackDesc: 'Superb intonation and clear syllable stress.',
+      bottomNote: '⚡ Unlimited 24/7 access for all enrolled and scholarship students.'
+    },
+    donation: {
+      badge: 'Urabá Scholarship & Grant Fund',
+      title: 'Transform a Life with Your High-Impact Donation',
+      subtitle: 'Every contribution directly funds on-campus and virtual bilingual education for talented youth across the Urabá region (Apartadó, Turbo, Currulao) and worldwide.',
+      frequencyLabel: 'Frequency:',
+      monthly: 'Monthly (Recurring)',
+      oneTime: 'One-Time Donation',
+      currencyLabel: 'Currency:',
+      selectTierLabel: '1. Select Your Tangible Impact Tier (Unit Economics)',
+      customAmountLabel: '2. Or enter a custom donation amount:',
+      customAmountPlaceholder: 'Enter custom amount',
+      ctaButton: 'Complete Impact Donation',
+      processing: 'Processing...',
+      secureNotice: 'Secure audited transaction. Fully transparent philanthropic fund management.'
+    },
+    impact: {
+      badge: 'Transparency & Data Protection Compliance',
+      title: 'Scholarship Fund & Academic Transparency',
+      subtitle: 'Pedagogical progress tracking for our Urabá scholars under Common European Framework (CEFR) standards. Anonymized data compliant with statutory privacy regulations.',
+      ctaButton: 'Sponsor a Scholar',
+      metricScholars: 'Benefited Scholars',
+      metricScholarsSub: 'Active students in training',
+      metricHours: 'Hours Delivered',
+      metricHoursSub: 'Funded classroom instruction hours',
+      metricRetention: 'Retention & Attendance',
+      metricRetentionSub: 'Academic continuity rate',
+      metricCerts: 'Certifications Awarded',
+      metricCertsSub: 'Students certified in CEFR',
+      activeStatus: 'In progress',
+      certifyingStatus: 'In certification',
+      graduatedStatus: 'Graduated',
+      hoursCompleted: 'Completed hours:',
+      academicProgress: 'Level Progress:'
     },
     location: {
       badge: 'Official Academic Headquarters',
       title: 'Visit Us in Turbo, Urabá Antioquia',
-      subtitle: 'Modern facilities featuring bilingual phonetic labs and multimedia classrooms.',
-      hqTitle: 'Main Campus Turbo',
-      hqAddress: 'Calle 100 # 13-45, Barrio Baltazar, Turbo, Antioquia',
-      hqHours: 'Monday to Saturday: 8:00 AM - 6:00 PM',
-      virtualTitle: 'Global Virtual Reach',
-      virtualDesc: 'Worldwide live learning access through Microsoft Teams and Zoom virtual rooms.'
+      subtitle: 'Modern facilities equipped with bilingual phonetic labs and multimedia classrooms.',
+      addressLabel: 'Official Campus Address',
+      addressValue: 'Km 1.5 Vía nacional, Vereda Casanova',
+      addressSub: 'Turbo, Antioquia · Colombian Urabá Region (NIT 901.182.137-9)',
+      hoursLabel: 'Office & Class Schedules',
+      hoursWeekday: 'Monday to Friday: 8:00 AM - 12:00 PM / 2:00 PM - 6:00 PM',
+      hoursSaturday: 'Saturdays: 8:00 AM - 1:00 PM',
+      hoursVirtual: 'Live Virtual Campus: 24/7 Global Access',
+      phoneLabel: 'Direct Phone & Front Desk',
+      phoneValue: '+57 (604) 827-2471 / +57 312 456 7890',
+      phoneSub: 'Official Education Resolution No. 2471',
+      openMaps: 'View on Google Maps',
+      chatWhatsapp: 'Chat with Advisor via WhatsApp',
+      facilitiesTitle: 'Our Campus Amenities Include:',
+      facility1: 'Audio & Phonetics Speech Labs',
+      facility2: 'Climate-Controlled Rooms & High-Speed Fiber',
+      facility3: 'On-Site Parking & Direct Transit Access',
+      facility4: 'Bilingual Lounge & Coworking Hub'
     },
     footer: {
-      about: 'American Dream English S.A.S. - Bilingual educational institute dedicated to academic and professional development in Urabá and Latin America.',
       certified: 'Official Ministry of Education Resolution 2471',
-      resolution: 'Accredited Educational Quality',
+      resolution: 'Accredited Educational Quality & Oversight',
+      enrollBtn: 'Enroll Now',
+      developedBy: 'Platform engineered and operated in technological alliance with CORPLEX SOLUTIONS S.A.S.',
+      businessUnitsTitle: 'Business Units',
+      businessUnit1: '1. Grants & Scholarship Fund',
+      businessUnit2: '2. 4K Digital Infoproducts Store',
+      businessUnit3: '3. Live Virtual Classes',
+      businessUnit4: '4. On-Campus Classes Turbo HQ',
+      locationTitle: 'On-Campus Headquarters & Registry',
+      hqLabel: 'Campus:',
+      hqValue: 'Km 1.5 Vía nacional, Vereda Casanova, Turbo, Antioquia.',
       quickLinks: 'Quick Links',
       legal: 'Legal & Compliance',
       privacy: 'Privacy Policy',

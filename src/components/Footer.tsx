@@ -1,13 +1,13 @@
+import React from 'react';
 import { 
   GraduationCap, 
   Award, 
   MapPin, 
   Mail, 
   Heart, 
-  Building2,
-  Lock,
-  Phone,
-  ShieldCheck
+  Lock, 
+  Phone, 
+  ShieldCheck 
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -16,7 +16,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   return (
     <footer className="bg-navy-950 text-slate-300 pt-16 pb-8 border-t border-navy-900 font-sans text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -65,28 +65,28 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
             </p>
             
             <p className="text-slate-400 leading-relaxed pt-1">
-              Plataforma desarrollada y operada en alianza tecnológica por <strong className="text-white">CORPLEX SOLUTIONS S.A.S.</strong> (NIT 902.061.373-5).
+              {t.footer.developedBy} (NIT 902.061.373-5).
             </p>
           </div>
 
           {/* Col 2: Business Units */}
           <div>
-            <h4 className="font-bold text-white text-sm mb-3">Unidades de Negocio</h4>
+            <h4 className="font-bold text-white text-sm mb-3">{t.footer.businessUnitsTitle}</h4>
             <ul className="space-y-2 text-slate-400">
-              <li><a href="#donaciones" className="hover:text-white transition-colors">1. Subvenciones & Fondo de Becas</a></li>
-              <li><a href="#segmentos" className="hover:text-white transition-colors">2. Tienda de Infoproductos 4K</a></li>
-              <li><a href="#segmentos" className="hover:text-white transition-colors">3. Clases Virtuales en Vivo</a></li>
-              <li><a href="#segmentos" className="hover:text-white transition-colors">4. Clases Presenciales Sede Turbo</a></li>
+              <li><a href="#donaciones" className="hover:text-white transition-colors">{t.footer.businessUnit1}</a></li>
+              <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit2}</a></li>
+              <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit3}</a></li>
+              <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit4}</a></li>
             </ul>
           </div>
 
           {/* Col 3: Physical Address & Contact */}
           <div>
-            <h4 className="font-bold text-white text-sm mb-3">Sede Presencial & Registro</h4>
+            <h4 className="font-bold text-white text-sm mb-3">{t.footer.locationTitle}</h4>
             <ul className="space-y-2.5 text-slate-400">
               <li className="flex items-start space-x-2">
                 <MapPin className="w-4 h-4 text-crimson-500 flex-shrink-0 mt-0.5" />
-                <span><strong>Sede:</strong> Km 1,5 Vía nacional, Vereda Casanova, Turbo, Antioquia.</span>
+                <span><strong>{t.footer.hqLabel}</strong> {t.footer.hqValue}</span>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-amber-400 flex-shrink-0" />
@@ -101,13 +101,17 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
 
           {/* Col 4: Transparency & Security */}
           <div>
-            <h4 className="font-bold text-white text-sm mb-3">Transparencia & Seguridad</h4>
+            <h4 className="font-bold text-white text-sm mb-3">
+              {language === 'en' ? 'Transparency & Security' : 'Transparencia & Seguridad'}
+            </h4>
             <p className="text-slate-400 leading-relaxed mb-3">
-              Todas las donaciones emiten un Certificado Tributario deducible de impuestos bajo la legislación colombiana e internacional.
+              {language === 'en' 
+                ? 'All donations grant tax-deductible certificates under national and international legislation.'
+                : 'Todas las donaciones emiten un Certificado Tributario deducible de impuestos bajo la legislación colombiana e internacional.'}
             </p>
             <div className="p-3 bg-navy-900 border border-slate-800 rounded-xl text-[11px] text-slate-300 flex items-center gap-2">
               <Lock className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-              <span>Encriptación 256-bit SSL • Habeas Data</span>
+              <span>{language === 'en' ? '256-bit SSL Encryption • Data Privacy' : 'Encriptación 256-bit SSL • Habeas Data'}</span>
             </div>
           </div>
 
@@ -118,11 +122,14 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
           <div className="flex flex-wrap gap-4">
             <a href="/admin/login" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-crimson-400" />
-              <span>Acceso Administrativo</span>
+              <span>{language === 'en' ? 'Admin Portal' : 'Acceso Administrativo'}</span>
             </a>
-            <a href="/campus/login" className="hover:text-amber-400 text-slate-400 transition-colors">Campus Virtual</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Política de Privacidad</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Transparencia de Fondos</a>
+            <a href="/campus/login" className="hover:text-amber-400 text-slate-400 transition-colors">{t.nav.campusVirtual}</a>
+            <a href="#" className="hover:text-slate-300 transition-colors">{t.footer.privacy}</a>
+            <a href="#" className="hover:text-slate-300 transition-colors">{t.footer.habeasData}</a>
+          </div>
+          <div>
+            <span>© 2026 American Dream English S.A.S. · {t.footer.rights}</span>
           </div>
         </div>
 

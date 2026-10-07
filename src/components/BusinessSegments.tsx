@@ -8,7 +8,7 @@ import {
   ArrowRight, 
   Sparkles
 } from 'lucide-react';
-import { BUSINESS_SEGMENTS } from '../data/sprint1Data';
+import { getBusinessSegments } from '../data/sprint1Data';
 import { DigitalStoreModal } from './DigitalStoreModal';
 import { LiveClassesModal } from './LiveClassesModal';
 import { PresencialModal } from './PresencialModal';
@@ -33,6 +33,7 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
   onOpenPresencial,
 }) => {
   const { language, t } = useLanguage();
+  const segments = getBusinessSegments(language);
   const [digitalStoreOpen, setDigitalStoreOpen] = useState(false);
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
   const [presencialOpen, setPresencialOpen] = useState(false);
@@ -87,7 +88,7 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
 
           {/* 4 SEGMENTS GRID */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {BUSINESS_SEGMENTS.map((seg) => (
+            {segments.map((seg) => (
               <div
                 key={seg.id}
                 className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition-all group"
@@ -101,7 +102,7 @@ export const BusinessSegments: React.FC<BusinessSegmentsProps> = ({
                         {getIcon(seg.iconName)}
                       </div>
                       <span className="text-xs font-black text-slate-400 font-mono">
-                        Segmento {seg.number}
+                        {t.segments.segmentPrefix} {seg.number}
                       </span>
                     </div>
 

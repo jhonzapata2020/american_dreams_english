@@ -6,12 +6,12 @@ import {
   Users, 
   Clock, 
   Award, 
-  CheckCircle2, 
-  GraduationCap,
-  UserCheck,
-  Lock
+  GraduationCap, 
+  UserCheck, 
+  Lock 
 } from 'lucide-react';
-import { SCHOLARSHIP_RECIPIENTS, COHORT_METRICS } from '../data/sprint1Data';
+import { getScholarshipRecipients, getCohortMetrics } from '../data/sprint1Data';
+import { useLanguage } from '../context/LanguageContext';
 
 interface ImpactDashboardPreviewProps {
   onOpenDonation: () => void;
@@ -20,6 +20,10 @@ interface ImpactDashboardPreviewProps {
 export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
   onOpenDonation,
 }) => {
+  const { language, t } = useLanguage();
+  const recipients = getScholarshipRecipients(language);
+  const metrics = getCohortMetrics(language);
+
   return (
     <section className="py-20 px-4 sm:px-6 lg:px-8 bg-white border-b border-slate-200 font-sans">
       <div className="max-w-7xl mx-auto">
@@ -29,13 +33,13 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
           <div className="space-y-2">
             <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Transparencia & Cumplimiento Ley 1581 (Habeas Data)</span>
+              <span>{t.impact.badge}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
-              Fondo de Becas & Transparencia Académica
+              {t.impact.title}
             </h2>
             <p className="text-slate-600 text-sm max-w-3xl leading-relaxed">
-              Seguimiento al avance pedagógico de nuestros becarios en Urabá bajo estándares del Marco Común Europeo (MCER). Datos anonimizados en cumplimiento de la Ley 1581 de 2012 de Protección de Datos Personales.
+              {t.impact.subtitle}
             </p>
           </div>
 
@@ -44,7 +48,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
             className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all text-xs flex items-center space-x-2 flex-shrink-0"
           >
             <Heart className="w-4 h-4 fill-white/20" />
-            <span>Patrocinar a un Becario</span>
+            <span>{t.impact.ctaButton}</span>
           </button>
         </div>
 
@@ -53,54 +57,54 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
           
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes Beneficiados</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricScholars}</span>
               <div className="p-2 bg-blue-50 text-blue-700 rounded-xl">
                 <Users className="w-5 h-5" />
               </div>
             </div>
             <div className="text-3xl font-black text-navy-900">
-              {COHORT_METRICS.totalActiveScholars} <span className="text-crimson-600 text-xl">+</span>
+              {metrics.totalActiveScholars} <span className="text-crimson-600 text-xl">+</span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">Becarios activos en formación</p>
+            <p className="text-xs text-slate-500 font-medium">{t.impact.metricScholarsSub}</p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Horas Impartidas</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricHours}</span>
               <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
                 <Clock className="w-5 h-5" />
               </div>
             </div>
             <div className="text-3xl font-black text-navy-900">
-              {COHORT_METRICS.totalFundedHours.toLocaleString()} <span className="text-emerald-600 text-xl">Hrs</span>
+              {metrics.totalFundedHours.toLocaleString()} <span className="text-emerald-600 text-xl">Hrs</span>
             </div>
-            <p className="text-xs text-slate-500 font-medium">Horas de clase financiadas</p>
+            <p className="text-xs text-slate-500 font-medium">{t.impact.metricHoursSub}</p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Retención & Asistencia</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricRetention}</span>
               <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
                 <UserCheck className="w-5 h-5" />
               </div>
             </div>
             <div className="text-3xl font-black text-navy-900">
-              {COHORT_METRICS.completionRate}
+              {metrics.completionRate}
             </div>
-            <p className="text-xs text-slate-500 font-medium">Tasa de permanencia académica</p>
+            <p className="text-xs text-slate-500 font-medium">{t.impact.metricRetentionSub}</p>
           </div>
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Certificaciones Otorgadas</span>
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricCerts}</span>
               <div className="p-2 bg-amber-50 text-amber-700 rounded-xl">
                 <Award className="w-5 h-5" />
               </div>
             </div>
             <div className="text-3xl font-black text-navy-900">
-              {COHORT_METRICS.certifiedStudentsMCER}
+              {metrics.certifiedStudentsMCER}
             </div>
-            <p className="text-xs text-slate-500 font-medium">Estudiantes certificados MCER</p>
+            <p className="text-xs text-slate-500 font-medium">{t.impact.metricCertsSub}</p>
           </div>
 
         </div>
@@ -109,15 +113,15 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
         <div className="space-y-4 mb-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xs font-extrabold text-navy-900 uppercase tracking-wider">
-              Auditoría en Vivo por Becario Anonimizado:
+              {language === 'en' ? 'Live Audit by Anonymized Scholar:' : 'Auditoría en Vivo por Becario Anonimizado:'}
             </h3>
             <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
-              <Lock className="w-3.5 h-3.5 text-slate-400" /> Identidad protegida según Ley 1581
+              <Lock className="w-3.5 h-3.5 text-slate-400" /> {language === 'en' ? 'Identity protected under privacy regulations' : 'Identidad protegida según Ley 1581'}
             </span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {SCHOLARSHIP_RECIPIENTS.map((rec) => {
+            {recipients.map((rec) => {
               const progressPercent = Math.round((rec.accumulatedHours / rec.targetHours) * 100);
 
               return (
@@ -133,7 +137,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                         {rec.anonymizedCode}
                       </span>
                       <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-300">
-                        {rec.academicStatus}
+                        {rec.academicStatus === 'En curso' ? t.impact.activeStatus : t.impact.certifyingStatus}
                       </span>
                     </div>
 
@@ -155,13 +159,13 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                     {/* Progreso Académico MCER */}
                     <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
                       <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                        <span className="text-slate-500">Nivel MCER:</span>
+                        <span className="text-slate-500">{language === 'en' ? 'CEFR Level:' : 'Nivel MCER:'}</span>
                         <span className="text-navy-900 font-extrabold">{rec.currentCycle}</span>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex justify-between text-[11px] font-semibold text-slate-600">
-                          <span>Horas Completadas:</span>
+                          <span>{t.impact.hoursCompleted}</span>
                           <span className="font-mono text-navy-900">{rec.accumulatedHours} / {rec.targetHours} Hrs ({progressPercent}%)</span>
                         </div>
                         <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
@@ -173,7 +177,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                       </div>
                     </div>
 
-                    {/* Testimonio de Meta Profesional (Sin condiciones personales) */}
+                    {/* Testimonio de Meta Profesional */}
                     <p className="text-xs text-slate-600 italic bg-white p-3.5 rounded-2xl border border-slate-200 leading-relaxed">
                       "{rec.impactAchievementQuote}"
                     </p>
@@ -183,7 +187,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                   {/* Footer de Tarjeta */}
                   <div className="pt-3 border-t border-slate-100 text-center">
                     <span className="text-[10px] text-slate-400 font-medium block">
-                      Auditoría de asistencia y notas certificada por American Dream English S.A.S.
+                      {language === 'en' ? 'Attendance and grades verified by American Dream English S.A.S.' : 'Auditoría de asistencia y notas certificada por American Dream English S.A.S.'}
                     </span>
                   </div>
 

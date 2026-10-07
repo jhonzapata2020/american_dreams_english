@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Bot, Mic, Volume2, Sparkles, CheckCircle2, Play, RefreshCw, MessageSquare } from 'lucide-react';
+import { Bot, Mic, Volume2, CheckCircle2, RefreshCw, MessageSquare } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 export const AITutorSimulator: React.FC = () => {
+  const { language, t } = useLanguage();
   const [currentScenario, setCurrentScenario] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedSuccess, setRecordedSuccess] = useState(false);
@@ -10,21 +12,23 @@ export const AITutorSimulator: React.FC = () => {
   const scenarios = [
     {
       id: 1,
-      topic: 'Entrevista de Trabajo Marítimo en Turbo',
+      topic: language === 'en' ? 'Maritime Logistics Job Interview in Turbo' : 'Entrevista de Trabajo Marítimo en Turbo',
       aiQuestion: 'Welcome! Could you please introduce yourself and tell me why you want to work at the Turbo International Port?',
-      spanishTranslation: '¡Bienvenido! ¿Podrías presentarte y decirme por qué deseas trabajar en el Puerto Internacional de Turbo?',
+      translation: language === 'en' 
+        ? 'Welcome! Could you please introduce yourself and tell me why you want to work at the Turbo International Port?'
+        : '¡Bienvenido! ¿Podrías presentarte y decirme por qué deseas trabajar en el Puerto Internacional de Turbo?',
       expectedPhrase: 'Hello, my name is Yurleidis and I want to contribute to commercial logistics.',
-      difficulty: 'Nivel B1 (Intermedio)',
-      audioSample: 'https://actions.google.com/sounds/v1/speech/greeting.ogg'
+      difficulty: language === 'en' ? 'Level B1 (Intermediate)' : 'Nivel B1 (Intermedio)',
     },
     {
       id: 2,
-      topic: 'Atención al Cliente Internacional',
+      topic: language === 'en' ? 'International Customer Support' : 'Atención al Cliente Internacional',
       aiQuestion: 'Good morning! How may I assist you with your course registration today?',
-      spanishTranslation: '¡Buenos días! ¿Cómo puedo ayudarte con tu registro de curso el día de hoy?',
+      translation: language === 'en'
+        ? 'Good morning! How may I assist you with your course registration today?'
+        : '¡Buenos días! ¿Cómo puedo ayudarte con tu registro de curso el día de hoy?',
       expectedPhrase: 'Good morning! I would like to apply for the Urabá bilingüe scholarship.',
-      difficulty: 'Nivel A2 (Elemental)',
-      audioSample: 'https://actions.google.com/sounds/v1/speech/greeting.ogg'
+      difficulty: language === 'en' ? 'Level A2 (Elementary)' : 'Nivel A2 (Elemental)',
     }
   ];
 
@@ -55,13 +59,13 @@ export const AITutorSimulator: React.FC = () => {
         {/* SECTION HEADER */}
         <div className="text-center max-w-3xl mx-auto mb-12 space-y-3">
           <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider">
-            <Bot className="w-4 h-4 text-emerald-600" /> Tecnología Exclusiva • Tutora IA Jenny 24/7
+            <Bot className="w-4 h-4 text-emerald-600" /> {t.aiSimulator.badge}
           </span>
           <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
-            Prueba en Vivo a Jenny, Tu Tutora con Inteligencia Artificial
+            {t.aiSimulator.title}
           </h2>
           <p className="text-slate-600 text-base leading-relaxed">
-            A diferencia de las plataformas tradicionales, Jenny interactúa contigo por voz y texto sin presiones, corrigiendo tu pronunciación en tiempo real.
+            {t.aiSimulator.subtitle}
           </p>
         </div>
 
@@ -80,14 +84,14 @@ export const AITutorSimulator: React.FC = () => {
                 <div>
                   <h3 className="font-extrabold text-white text-base">Jenny AI Tutor</h3>
                   <span className="text-[10px] font-bold bg-emerald-400/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-400/30">
-                    En línea 24/7
+                    {t.aiSimulator.onlineStatus}
                   </span>
                 </div>
               </div>
 
               <div className="bg-navy-800/80 p-4 rounded-2xl border border-slate-700 space-y-2">
                 <span className="text-[11px] text-amber-400 font-bold block uppercase tracking-wider">
-                  Escenario de Práctica:
+                  {t.aiSimulator.practiceScenario}
                 </span>
                 <p className="text-xs text-slate-200 font-semibold">{current.topic}</p>
                 <span className="text-[10px] text-slate-400 font-mono bg-navy-950 px-2 py-0.5 rounded inline-block">
@@ -105,7 +109,7 @@ export const AITutorSimulator: React.FC = () => {
                 className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 transition-colors flex items-center justify-center space-x-2"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>Cambiar Escenario de Diálogo</span>
+                <span>{t.aiSimulator.changeScenario}</span>
               </button>
             </div>
 
@@ -118,14 +122,14 @@ export const AITutorSimulator: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between text-xs text-slate-500 font-bold">
                 <span className="flex items-center gap-1">
-                  <MessageSquare className="w-3.5 h-3.5 text-blue-600" /> Pregunta de Jenny:
+                  <MessageSquare className="w-3.5 h-3.5 text-blue-600" /> {t.aiSimulator.jennyQuestion}
                 </span>
                 <button
                   onClick={handlePlayAudio}
                   className="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200"
                 >
                   <Volume2 className={`w-3.5 h-3.5 ${isPlayingAudio ? 'animate-bounce text-red-600' : ''}`} />
-                  <span>Escuchar Audio</span>
+                  <span>{t.aiSimulator.listenAudio}</span>
                 </button>
               </div>
 
@@ -134,7 +138,7 @@ export const AITutorSimulator: React.FC = () => {
                   "{current.aiQuestion}"
                 </p>
                 <p className="text-xs text-slate-500 italic">
-                  Traducción: {current.spanishTranslation}
+                  {t.aiSimulator.translationLabel} {current.translation}
                 </p>
               </div>
             </div>
@@ -142,7 +146,7 @@ export const AITutorSimulator: React.FC = () => {
             {/* User Response Action */}
             <div className="space-y-3">
               <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
-                Tu Respuesta Sugerida en Inglés:
+                {t.aiSimulator.suggestedResponse}
               </label>
 
               <div className="p-3.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 font-medium italic">
@@ -165,10 +169,10 @@ export const AITutorSimulator: React.FC = () => {
                 <Mic className="w-4 h-4" />
                 <span>
                   {isRecording
-                    ? 'Escuchando tu voz...'
+                    ? t.aiSimulator.listening
                     : recordedSuccess
-                    ? '¡Pronunciación 98% Precisa (Aprobado!)'
-                    : 'Presiona para Hablar con Jenny'}
+                    ? t.aiSimulator.approvedFeedback
+                    : t.aiSimulator.pressToSpeak}
                 </span>
               </button>
 
@@ -176,8 +180,8 @@ export const AITutorSimulator: React.FC = () => {
                 <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex items-center space-x-3 animate-fadeIn text-xs text-emerald-800">
                   <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
                   <div>
-                    <strong className="block font-bold">Feedback de Inteligencia Artificial:</strong>
-                    <span>Excelente entonación y acentuación en "contribute" y "commercial".</span>
+                    <strong className="block font-bold">{t.aiSimulator.aiFeedbackTitle}</strong>
+                    <span>{t.aiSimulator.aiFeedbackDesc}</span>
                   </div>
                 </div>
               )}
@@ -185,7 +189,7 @@ export const AITutorSimulator: React.FC = () => {
 
             {/* Bottom Footer Note */}
             <div className="text-[11px] text-slate-400 text-center font-medium">
-              ⚡ Disponible ilimitadamente para todos los estudiantes matriculados y becados.
+              {t.aiSimulator.bottomNote}
             </div>
 
           </div>

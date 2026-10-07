@@ -6,9 +6,10 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Currency, DonationFrequency } from '../types';
-import { DONATION_TIERS } from '../data/sprint1Data';
+import { getDonationTiers } from '../data/sprint1Data';
 import { DonationModal } from './DonationModal';
 import { formatCOPK, formatMoney } from '../utils/formatters';
+import { useLanguage } from '../context/LanguageContext';
 
 interface DonationCardProps {
   initialCurrency?: Currency;
@@ -19,6 +20,9 @@ export const DonationCard: React.FC<DonationCardProps> = ({
   initialCurrency = 'COP',
   forcedTierId
 }) => {
+  const { language, t } = useLanguage();
+  const tiers = getDonationTiers(language);
+
   const [frequency, setFrequency] = useState<DonationFrequency>('monthly');
   const [currency, setCurrency] = useState<Currency>(initialCurrency);
   const [selectedTierId, setSelectedTierId] = useState<string>(forcedTierId || 'tier-2');
@@ -37,7 +41,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
     }
   }, [forcedTierId]);
 
-  const selectedTier = DONATION_TIERS.find(t => t.id === selectedTierId);
+  const selectedTier = tiers.find(t => t.id === selectedTierId);
   
   // Calculate base amount
   const isUSD = currency === 'USD' || currency === 'EUR';
@@ -53,13 +57,13 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       {/* SECTION HEADER */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
         <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider">
-          <Heart className="w-3.5 h-3.5 fill-red-600" /> Fondo de Becas & Subvenciones de Urabá
+          <Heart className="w-3.5 h-3.5 fill-red-600" /> {t.donation.badge}
         </span>
         <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
-          Transforma una Vida con tu Donación de Impacto
+          {t.donation.title}
         </h2>
         <p className="text-slate-600 text-base leading-relaxed">
-          Cada aporte financia directamente la educación bilingüe presencial y digital de jóvenes en la Región de Urabá (Apartadó, Turbo, Currulao y municipios aledaños) y nuestra plataforma virtual global.
+          {t.donation.subtitle}
         </p>
       </div>
 
@@ -71,7 +75,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
           
           {/* Frequency Toggle */}
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Frecuencia:</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.donation.frequencyLabel}</span>
             <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-sm text-xs font-bold">
               <button
                 type="button"
@@ -82,7 +86,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                     : 'text-slate-600 hover:text-navy-900'
                 }`}
               >
-                Mensual (Recurrente)
+                {t.donation.monthly}
               </button>
               <button
                 type="button"
@@ -93,14 +97,14 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                     : 'text-slate-600 hover:text-navy-900'
                 }`}
               >
-                Donación Única
+                {t.donation.oneTime}
               </button>
             </div>
           </div>
 
           {/* Currency Toggle */}
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Moneda:</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.donation.currencyLabel}</span>
             <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-sm text-xs font-bold">
               <button
                 type="button"
@@ -131,11 +135,11 @@ export const DonationCard: React.FC<DonationCardProps> = ({
           {/* DONATION TIER LEVEL GRID */}
           <div className="space-y-3">
             <label className="block text-xs font-extrabold text-navy-900 uppercase tracking-wider">
-              1. Selecciona el Nivel de Impacto Tangible (Unit Economics)
+              {t.donation.selectTierLabel}
             </label>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {DONATION_TIERS.map((tier) => {
+              {tiers.map((tier) => {
                 const isSelected = selectedTierId === tier.id && !customAmount;
                 const displayPrice = isUSD 
                   ? `$${tier.usdAmount} USD` 
@@ -176,7 +180,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
 
                     <div className="pt-4 mt-4 border-t border-slate-200/40 text-[11px] font-bold flex items-center justify-between">
                       <span className={isSelected ? 'text-red-400' : 'text-navy-900'}>
-                        {isSelected ? 'Seleccionado' : 'Elegir Nivel'}
+                        {isSelected ? (language === 'en' ? 'Selected' : 'Seleccionado') : (language === 'en' ? 'Select Tier' : 'Elegir Nivel')}
                       </span>
                       <ArrowRight className={`w-3.5 h-3.5 ${isSelected ? 'text-red-400' : 'text-slate-400'}`} />
                     </div>
@@ -189,7 +193,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
           {/* CUSTOM AMOUNT OPTION */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-xs font-bold text-slate-700">
-              ¿Deseas aportar un monto diferente?
+              {t.donation.customAmountLabel}
             </div>
             <div className="w-full sm:w-auto flex items-center space-x-2">
               <span className="text-xs font-bold text-slate-500">{currency}:</span>
@@ -197,7 +201,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                 type="number"
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder="Monto personalizado"
+                placeholder={t.donation.customAmountPlaceholder}
                 className="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 w-full sm:w-48"
               />
             </div>
@@ -206,12 +210,18 @@ export const DonationCard: React.FC<DonationCardProps> = ({
           {/* ACTION BUTTON & SUMMARY BAR */}
           <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
-              <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">Aporte Seleccionado:</span>
+              <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">
+                {language === 'en' ? 'Selected Contribution:' : 'Aporte Seleccionado:'}
+              </span>
               <h4 className="text-lg font-black text-navy-900">
-                {selectedTier && !customAmount ? selectedTier.title : 'Donación Personalizada'}
+                {selectedTier && !customAmount 
+                  ? selectedTier.title 
+                  : (language === 'en' ? 'Custom Donation' : 'Donación Personalizada')}
               </h4>
               <p className="text-xs text-slate-600 font-semibold">
-                Monto: <strong className="text-red-600" suppressHydrationWarning>{formatMoney(baseAmount, currency)}</strong> ({frequency === 'monthly' ? 'Recurrente Mensual' : 'Aporte Único'})
+                {language === 'en' ? 'Amount: ' : 'Monto: '}
+                <strong className="text-red-600" suppressHydrationWarning>{formatMoney(baseAmount, currency)}</strong> 
+                {' '}({frequency === 'monthly' ? t.donation.monthly : t.donation.oneTime})
               </p>
             </div>
 
@@ -221,7 +231,9 @@ export const DonationCard: React.FC<DonationCardProps> = ({
               className="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2.5 text-sm w-full sm:w-auto"
             >
               <Heart className="w-4 h-4 fill-white/20" />
-              <span suppressHydrationWarning>Proceder a Donar {formatMoney(baseAmount, currency)}</span>
+              <span suppressHydrationWarning>
+                {language === 'en' ? `Proceed to Donate ${formatMoney(baseAmount, currency)}` : `Proceder a Donar ${formatMoney(baseAmount, currency)}`}
+              </span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -231,11 +243,13 @@ export const DonationCard: React.FC<DonationCardProps> = ({
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
               <span>
-                Cada donación emite automáticamente un <strong className="text-navy-900">Certificado Tributario de Donación</strong> y da acceso al Dashboard de Auditoría Pública de Becados.
+                {language === 'en' 
+                  ? 'Each donation automatically issues a tax certificate and grants access to the Public Scholar Audit Dashboard.'
+                  : 'Cada donación emite automáticamente un Certificado Tributario de Donación y da acceso al Dashboard de Auditoría Pública de Becados.'}
               </span>
             </div>
             <span className="text-navy-900 font-bold flex items-center gap-1 flex-shrink-0">
-              <Lock className="w-3.5 h-3.5 text-navy-900" /> Encriptación 256-bit SSL
+              <Lock className="w-3.5 h-3.5 text-navy-900" /> {language === 'en' ? '256-bit SSL Encryption' : 'Encriptación 256-bit SSL'}
             </span>
           </div>
 
@@ -249,7 +263,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
         onClose={() => setIsModalOpen(false)}
         currency={currency}
         frequency={frequency}
-        tierTitle={selectedTier && !customAmount ? selectedTier.title : 'Donación Personalizada'}
+        tierTitle={selectedTier && !customAmount ? selectedTier.title : (language === 'en' ? 'Custom Donation' : 'Donación Personalizada')}
         baseAmount={baseAmount}
       />
 

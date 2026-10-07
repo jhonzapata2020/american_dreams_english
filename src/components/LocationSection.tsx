@@ -6,14 +6,13 @@ import {
   ExternalLink, 
   MessageSquare, 
   Building2, 
-  CheckCircle2, 
   Navigation,
   ShieldCheck
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 
 export const LocationSection: React.FC = () => {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const googleMapsUrl = 'https://www.google.com/maps/search/?api=1&query=Turbo+Antioquia+Colombia'
   const whatsappUrl = 'https://wa.me/573124567890?text=Hola,%20quisiera%20informaci%C3%B3n%20sobre%20las%20clases%20presenciales%20en%20la%20sede%20de%20Turbo'
 
@@ -52,13 +51,13 @@ export const LocationSection: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                    Dirección Oficial de la Sede
+                    {t.location.addressLabel}
                   </span>
                   <h4 className="text-sm sm:text-base font-extrabold text-slate-900 mt-0.5 leading-snug">
-                    Km 1,5 Vía nacional, Vereda Casanova
+                    {t.location.addressValue}
                   </h4>
                   <p className="text-xs text-slate-500 font-medium">
-                    Turbo, Antioquia · Urabá Colombiano (NIT 901.182.137-9)
+                    {t.location.addressSub}
                   </p>
                 </div>
               </div>
@@ -70,12 +69,12 @@ export const LocationSection: React.FC = () => {
                 </div>
                 <div className="space-y-1">
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                    Horarios de Atención y Clases
+                    {t.location.hoursLabel}
                   </span>
                   <div className="text-xs text-slate-700 font-semibold space-y-1">
-                    <p>• <strong>Lunes a Viernes:</strong> 8:00 AM - 12:00 PM / 2:00 PM - 6:00 PM</p>
-                    <p>• <strong>Sábados (Jornada Continua):</strong> 8:00 AM - 1:00 PM</p>
-                    <p className="text-emerald-700 font-bold">• <strong>Campus Virtual en Vivo:</strong> Acceso 24/7</p>
+                    <p>• {t.location.hoursWeekday}</p>
+                    <p>• {t.location.hoursSaturday}</p>
+                    <p className="text-emerald-700 font-bold">• {t.location.hoursVirtual}</p>
                   </div>
                 </div>
               </div>
@@ -87,13 +86,13 @@ export const LocationSection: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                    Línea Telefónica y Recepción
+                    {t.location.phoneLabel}
                   </span>
                   <p className="text-sm font-extrabold text-slate-900 mt-0.5">
-                    +57 (604) 827-2471 / +57 312 456 7890
+                    {t.location.phoneValue}
                   </p>
                   <p className="text-xs text-slate-500 font-medium">
-                    Resolución Oficial de Educación No. 2471
+                    {t.location.phoneSub}
                   </p>
                 </div>
               </div>
@@ -109,7 +108,7 @@ export const LocationSection: React.FC = () => {
                 className="w-full inline-flex items-center justify-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-extrabold px-5 py-3.5 rounded-xl shadow-sm hover:shadow-md transition-all text-xs active:scale-[0.99] group"
               >
                 <Navigation className="w-4 h-4 text-amber-400 group-hover:rotate-12 transition-transform" />
-                <span>Abrir en Google Maps / Waze</span>
+                <span>{t.location.openMaps}</span>
                 <ExternalLink className="w-3.5 h-3.5 opacity-70 ml-1" />
               </a>
 
@@ -120,7 +119,7 @@ export const LocationSection: React.FC = () => {
                 className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-5 py-3.5 rounded-xl shadow-sm hover:shadow-md transition-all text-xs active:scale-[0.99]"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Contactar a Recepción por WhatsApp</span>
+                <span>{t.location.chatWhatsapp}</span>
               </a>
             </div>
 
@@ -145,7 +144,7 @@ export const LocationSection: React.FC = () => {
               {/* Floating Badge sobre el mapa */}
               <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md px-3.5 py-2 rounded-xl shadow-lg border border-slate-200/80 flex items-center gap-2 text-xs font-extrabold text-[#002B49]">
                 <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse" />
-                <span>📍 Sede Oficial American Dream English · Turbo, Urabá</span>
+                <span>📍 {language === 'en' ? 'American Dream English Official Campus · Turbo, Urabá' : 'Sede Oficial American Dream English · Turbo, Urabá'}</span>
               </div>
             </div>
 
@@ -153,7 +152,7 @@ export const LocationSection: React.FC = () => {
             <div className="pt-3 px-2 flex items-center justify-between text-[11px] text-slate-500 font-medium">
               <span className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Parqueadero y fácil acceso vehicular sobre vía nacional</span>
+                <span>{language === 'en' ? 'Parking and direct transit on national road' : 'Parqueadero y fácil acceso vehicular sobre vía nacional'}</span>
               </span>
               <a 
                 href={googleMapsUrl}
@@ -161,7 +160,7 @@ export const LocationSection: React.FC = () => {
                 rel="noopener noreferrer"
                 className="text-[#002B49] font-bold hover:underline"
               >
-                Ver pantalla completa ↗
+                {language === 'en' ? 'Full screen ↗' : 'Ver pantalla completa ↗'}
               </a>
             </div>
 
