@@ -13,9 +13,10 @@ import { useLanguage } from '../context/LanguageContext';
 
 interface FooterProps {
   onOpenDonation: () => void;
+  onOpenLocation?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
+export const Footer: React.FC<FooterProps> = ({ onOpenDonation, onOpenLocation }) => {
   const { language, t } = useLanguage();
   return (
     <footer className="bg-navy-950 text-slate-300 pt-16 pb-8 border-t border-navy-900 font-sans text-xs">
@@ -76,7 +77,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
               <li><a href="#donaciones" className="hover:text-white transition-colors">{t.footer.businessUnit1}</a></li>
               <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit2}</a></li>
               <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit3}</a></li>
-              <li><a href="#segmentos" className="hover:text-white transition-colors">{t.footer.businessUnit4}</a></li>
+              <li>
+                <button 
+                  type="button" 
+                  onClick={onOpenLocation} 
+                  className="hover:text-white transition-colors text-left cursor-pointer"
+                >
+                  {t.footer.businessUnit4}
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -84,9 +93,15 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation }) => {
           <div>
             <h4 className="font-bold text-white text-sm mb-3">{t.footer.locationTitle}</h4>
             <ul className="space-y-2.5 text-slate-400">
-              <li className="flex items-start space-x-2">
-                <MapPin className="w-4 h-4 text-crimson-500 flex-shrink-0 mt-0.5" />
-                <span><strong>{t.footer.hqLabel}</strong> {t.footer.hqValue}</span>
+              <li>
+                <button 
+                  type="button"
+                  onClick={onOpenLocation}
+                  className="flex items-start space-x-2 text-left hover:text-white transition-colors group cursor-pointer"
+                >
+                  <MapPin className="w-4 h-4 text-crimson-500 flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <span><strong>{t.footer.hqLabel}</strong> {t.footer.hqValue} <span className="text-amber-400 text-[10px] underline ml-1">({language === 'en' ? 'View Map' : 'Ver Mapa'})</span></span>
+                </button>
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-4 h-4 text-amber-400 flex-shrink-0" />

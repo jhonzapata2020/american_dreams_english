@@ -6,12 +6,12 @@ import { BusinessSegments } from './components/BusinessSegments';
 import { AITutorSimulator } from './components/AITutorSimulator';
 import { DonationCard } from './components/DonationCard';
 import { ImpactDashboardPreview } from './components/ImpactDashboardPreview';
-import { LocationSection } from './components/LocationSection';
 import { Footer } from './components/Footer';
 import { DigitalStoreModal } from './components/DigitalStoreModal';
 import { LiveClassesModal } from './components/LiveClassesModal';
 import { PresencialModal } from './components/PresencialModal';
 import { ScholarshipModal } from './components/ScholarshipModal';
+import { LocationModal } from './components/LocationModal';
 import { Currency } from './types';
 import { useCurrency } from './context/CurrencyContext';
 
@@ -47,6 +47,7 @@ export function App() {
   const [liveClassesOpen, setLiveClassesOpen] = useState(false);
   const [presencialOpen, setPresencialOpen] = useState(false);
   const [scholarshipModalOpen, setScholarshipModalOpen] = useState(false);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const scrollToSection = (sectionId: string) => {
     const el = document.getElementById(sectionId) || document.getElementById('registro');
@@ -122,7 +123,7 @@ export function App() {
         onOpenProgramas={() => setPresencialOpen(true)}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
-        onOpenLocation={() => scrollToSection('sede-presencial')}
+        onOpenLocation={() => setLocationModalOpen(true)}
         onMatricularme={() => { window.location.href = '/matricula'; }}
       />
 
@@ -133,7 +134,7 @@ export function App() {
         <HeroSection
           onOpenDonation={() => setScholarshipModalOpen(true)}
           onExplorePrograms={() => scrollToSection('segmentos')}
-          onOpenLocation={() => scrollToSection('sede-presencial')}
+          onOpenLocation={() => setLocationModalOpen(true)}
         />
 
         {/* 3. TrustLogos */}
@@ -145,7 +146,7 @@ export function App() {
           onPreselectTier2={handlePreselectTier2}
           onOpenDigitalStore={() => setDigitalStoreOpen(true)}
           onOpenLiveClasses={() => setLiveClassesOpen(true)}
-          onOpenPresencial={() => setPresencialOpen(true)}
+          onOpenPresencial={() => setLocationModalOpen(true)}
         />
 
         {/* 5. JennySection */}
@@ -161,14 +162,12 @@ export function App() {
           onOpenDonation={() => setScholarshipModalOpen(true)}
         />
 
-        {/* 8. Sede Presencial & Ubicación Turbo */}
-        <LocationSection />
-
       </main>
 
       {/* 8. Footer Institucional y Legal */}
       <Footer
         onOpenDonation={() => setScholarshipModalOpen(true)}
+        onOpenLocation={() => setLocationModalOpen(true)}
       />
 
       {/* MODALES GLOBALES INTERACTIVOS */}
@@ -192,6 +191,11 @@ export function App() {
         isOpen={scholarshipModalOpen}
         onClose={() => setScholarshipModalOpen(false)}
         currency={selectedCurrency}
+      />
+
+      <LocationModal
+        isOpen={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
       />
 
     </div>
