@@ -92,13 +92,13 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     popular: true
   },
   {
-    id: 'prod-camiseta-oficial',
+    id: 'prod-camiseta-oficial-ade',
     title: 'Camiseta Oficial ADE',
     type: 'fisico',
     category: 'uniformes',
-    formatBadge: 'Físico (Envío nacional)',
-    copPrice: 65000,
-    usdPrice: 16,
+    formatBadge: 'FÍSICO (ENVÍO NACIONAL)',
+    copPrice: 55000,
+    usdPrice: 14,
     description: 'Camiseta 100% algodón, cuello redondo, color negro con el escudo oficial de American Dream English estampado al frente.',
     thumbnail: '/images/camiseta-oficial-ade.png',
     fileType: 'Físico',

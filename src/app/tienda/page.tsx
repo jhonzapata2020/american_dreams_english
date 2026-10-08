@@ -37,6 +37,7 @@ interface CartItem {
 
 export default function TiendaPage() {
   const [activeSegment, setActiveSegment] = useState<StoreSegmentId>('todos')
+  const [products, setProducts] = useState<StoreProduct[]>(STORE_PRODUCTS)
   const [cart, setCart] = useState<CartItem[]>([])
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   
@@ -49,11 +50,13 @@ export default function TiendaPage() {
   const [transactionRef, setTransactionRef] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  // Cargar usuario autenticado de Supabase para pre-llenar checkout
+  // Cargar usuario autenticado y productos de Supabase
   useEffect(() => {
-    async function loadUser() {
+    async function loadUserAndProducts() {
       try {
         const supabase = createClient()
+        
+        // 1. Cargar usuario
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
           const { data: profile } = await supabase
@@ -68,16 +71,43 @@ export default function TiendaPage() {
             setPhone(profile.phone || '')
           }
         }
+
+        // 2. Cargar productos activos desde Supabase
+        const { data: dbProducts, error } = await supabase
+          .from('products')
+          .select('*')
+          .eq('active', true)
+          .order('created_at', { ascending: false })
+
+        if (!error && dbProducts && dbProducts.length > 0) {
+          const mapped: StoreProduct[] = dbProducts.map((p: any) => ({
+            id: p.id,
+            title: p.title || p.name,
+            type: p.category === 'presencial' || p.category === 'uniformes' || p.category === 'libros' || p.category === 'merch' ? 'fisico' : 'digital',
+            category: p.category || 'uniformes',
+            formatBadge: p.format_badge || (p.category === 'uniformes' ? 'FÍSICO (ENVÍO NACIONAL)' : 'Digital (Descarga directa)'),
+            copPrice: p.price_cop || 0,
+            usdPrice: p.price_usd || Math.round((p.price_cop || 0) / 4000),
+            description: p.description || '',
+            thumbnail: p.image_url || '/images/camiseta-oficial-ade.png',
+            fileType: p.file_type || 'Físico',
+            popular: !!p.popular
+          }))
+
+          const existingIds = new Set(mapped.map(m => m.id))
+          const merged = [...mapped, ...STORE_PRODUCTS.filter(sp => !existingIds.has(sp.id))]
+          setProducts(merged)
+        }
       } catch (err) {
-        // Fallback silencioso
+        console.warn('Fallback silencioso catálogo:', err)
       }
     }
-    loadUser()
+    loadUserAndProducts()
   }, [])
 
   const filteredProducts = activeSegment === 'todos'
-    ? STORE_PRODUCTS
-    : STORE_PRODUCTS.filter(p => p.type === activeSegment)
+    ? products
+    : products.filter(p => p.type === activeSegment)
 
   const formatCop = (val: number) => {
     return new Intl.NumberFormat('es-CO', {
@@ -300,7 +330,10 @@ export default function TiendaPage() {
                     <img
                       src={prod.thumbnail}
                       alt={prod.title}
-                      className="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/camiseta-oficial-ade.png'
+                      }}
+                      className="w-full h-full object-contain p-2 transform hover:scale-105 transition-transform duration-500"
                     />
                     
                     {/* Badge de formato */}

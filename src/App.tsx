@@ -113,7 +113,7 @@ export function App() {
   if (currentPath === '/admin/estudiantes' || currentPath === '/dashboard/admin/estudiantes') {
     return <AdminEstudiantesPage />;
   }
-  if (currentPath === '/dashboard/admin/products') {
+  if (currentPath === '/admin/tienda' || currentPath === '/dashboard/admin/tienda' || currentPath === '/dashboard/admin/products' || currentPath === '/admin/products') {
     return <AdminProductsPage />;
   }
   if (currentPath === '/dashboard/teacher') {
