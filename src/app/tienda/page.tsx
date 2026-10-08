@@ -46,10 +46,21 @@ export default function TiendaPage() {
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [shippingAddress, setShippingAddress] = useState('')
+  const [shippingCity, setShippingCity] = useState('')
+  const [selectedSize, setSelectedSize] = useState<'S' | 'M' | 'L' | 'XL' | 'XXL'>('M')
   const [isProcessing, setIsProcessing] = useState(false)
   const [purchaseSuccess, setPurchaseSuccess] = useState(false)
   const [transactionRef, setTransactionRef] = useState('')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const hasPhysicalItems = cart.some(c => c.product.type === 'fisico')
+  const hasApparelItems = cart.some(c => 
+    c.product.category === 'uniformes' || 
+    c.product.category === 'merch' || 
+    c.product.title.toLowerCase().includes('camiseta') || 
+    c.product.title.toLowerCase().includes('hoodie')
+  )
 
   // Cargar usuario autenticado y productos de Supabase
   useEffect(() => {
@@ -70,6 +81,9 @@ export default function TiendaPage() {
             setFullName(profile.full_name || profile.name || '')
             setEmail(profile.email || session.user.email || '')
             setPhone(profile.phone || '')
+            if (profile.origin_location || profile.municipality) {
+              setShippingCity(profile.origin_location || profile.municipality || '')
+            }
           }
         }
 
@@ -164,6 +178,11 @@ export default function TiendaPage() {
       return
     }
 
+    if (hasPhysicalItems && (!shippingAddress.trim() || !shippingCity.trim())) {
+      setErrorMessage('Por favor ingresa la dirección de entrega y ciudad para el despacho físico.')
+      return
+    }
+
     setIsProcessing(true)
 
     try {
@@ -190,7 +209,8 @@ export default function TiendaPage() {
         amount: totalAmountCop,
         currency: 'COP',
         reference: ref,
-        items: cart.map(c => ({ id: c.product.id, name: c.product.title, price: c.product.copPrice, quantity: c.quantity }))
+        items: cart.map(c => ({ id: c.product.id, name: c.product.title, price: c.product.copPrice, quantity: c.quantity })),
+        shipping: hasPhysicalItems ? { address: shippingAddress, city: shippingCity, size: hasApparelItems ? selectedSize : null } : null
       })
 
       if (typeof window !== 'undefined' && (window as any).WidgetCheckout && wompiPublicKey) {
@@ -215,7 +235,6 @@ export default function TiendaPage() {
           const transaction = result.transaction
           if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
             setPurchaseSuccess(true)
-            setCart([])
           }
         })
       } else {
@@ -225,16 +244,27 @@ export default function TiendaPage() {
           amount: totalAmountCop,
           itemsCount: totalItemsCount
         })
-        const message = `¡Hola ADE! Quiero confirmar la compra de:\n${cart.map(c => `• ${c.product.title} (x${c.quantity}) - ${formatCop(c.product.copPrice * c.quantity)}`).join('\n')}\nTotal: ${formatCop(totalAmountCop)}\nNombre: ${fullName}\nCorreo: ${email}`
+        const physicalDetails = hasPhysicalItems
+          ? `\n📍 Dirección de Envío: ${shippingAddress}, ${shippingCity}${hasApparelItems ? `\n👕 Talla: ${selectedSize}` : ''}`
+          : ''
+        const message = `¡Hola Anthony / ADE! Acabo de gestionar mi pedido en la tienda:\n${cart.map(c => `• ${c.product.title} (x${c.quantity}) - ${formatCop(c.product.copPrice * c.quantity)}`).join('\n')}\nTotal: ${formatCop(totalAmountCop)}\nCliente: ${fullName}\nCorreo: ${email}\nTeléfono: ${phone}${physicalDetails}\nReferencia: ${ref}`
         window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
         setIsProcessing(false)
-        setIsDrawerOpen(false)
+        setPurchaseSuccess(true)
       }
     } catch (err: any) {
       console.error('Error al procesar compra:', err)
       setIsProcessing(false)
       setErrorMessage(err.message || 'Error al conectar con la pasarela de pago.')
     }
+  }
+
+  const handleNotifyAnthonyWhatsApp = () => {
+    const physicalDetails = hasPhysicalItems
+      ? `\n📍 Dirección de Despacho: ${shippingAddress}, ${shippingCity}${hasApparelItems ? `\n👕 Talla seleccionada: ${selectedSize}` : ''}`
+      : ''
+    const message = `¡Hola Anthony! Acabo de realizar el pago de mi compra en la tienda ADE:\n\n• Referencia: ${transactionRef}\n• Total Pagado: ${formatCop(totalAmountCop)} COP\n• Cliente: ${fullName}\n• Correo: ${email}\n• WhatsApp: ${phone}${physicalDetails}\n\nPor favor confírmame el despacho y radicación de mi pedido.`
+    window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
   }
 
   return (
@@ -459,12 +489,18 @@ export default function TiendaPage() {
               <div className="flex items-center gap-2">
                 <ShoppingBag className="w-5 h-5 text-crimson-600" />
                 <h3 className="text-sm font-black text-slate-900">
-                  Tu Carrito ({totalItemsCount})
+                  {purchaseSuccess ? '¡Pedido Confirmado!' : `Tu Carrito (${totalItemsCount})`}
                 </h3>
               </div>
               <button
                 type="button"
-                onClick={() => setIsDrawerOpen(false)}
+                onClick={() => {
+                  setIsDrawerOpen(false)
+                  if (purchaseSuccess) {
+                    setPurchaseSuccess(false)
+                    setCart([])
+                  }
+                }}
                 className="p-1.5 rounded-full hover:bg-slate-200 text-slate-500"
               >
                 <X className="w-5 h-5" />
@@ -474,56 +510,139 @@ export default function TiendaPage() {
             {/* Drawer Content */}
             <div className="p-4 overflow-y-auto space-y-4 flex-1">
               
-              {cart.length === 0 ? (
+              {purchaseSuccess ? (
+                /* PANTALLA DE CONFIRMACIÓN DE COMPRA */
+                <div className="py-4 space-y-4 text-center animate-fadeIn">
+                  <div className="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-8 h-8 stroke-[2.5]" />
+                  </div>
+
+                  <div className="space-y-1">
+                    <h4 className="text-base font-black text-slate-900">
+                      ¡Tu compra ha sido exitosa!
+                    </h4>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Hemos recibido tu orden y registrado los datos de entrega.
+                    </p>
+                    <div className="inline-block bg-slate-100 px-3 py-1 rounded-lg text-xs font-mono font-bold text-slate-700 mt-2">
+                      Ref: {transactionRef}
+                    </div>
+                  </div>
+
+                  {hasPhysicalItems && (
+                    <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200/80 text-left space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-amber-900">
+                        <Truck className="w-4 h-4 text-amber-700" />
+                        <span>Despacho de Producto Físico</span>
+                      </div>
+                      <p className="text-xs text-amber-800">
+                        <strong>Dirección:</strong> {shippingAddress}, {shippingCity}
+                      </p>
+                      {hasApparelItems && (
+                        <p className="text-xs text-amber-800">
+                          <strong>Talla solicitada:</strong> {selectedSize}
+                        </p>
+                      )}
+                      <p className="text-[11px] text-amber-700">
+                        Anthony y el equipo de ADE prepararán tu envío para despacho nacional o entrega en sede.
+                      </p>
+                    </div>
+                  )}
+
+                  {!hasPhysicalItems && (
+                    <div className="p-3 bg-blue-50 rounded-2xl border border-blue-200/80 text-left space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-xs font-black text-blue-900">
+                        <Download className="w-4 h-4 text-blue-700" />
+                        <span>Recursos Digitales Listos</span>
+                      </div>
+                      <p className="text-xs text-blue-800">
+                        Tus E-Books y audios han sido activados en tu cuenta. Puedes acceder a ellos desde tu Biblioteca Digital.
+                      </p>
+                      <Link
+                        href="/dashboard/biblioteca"
+                        className="inline-flex items-center gap-1 text-xs font-black text-blue-700 underline pt-1"
+                      >
+                        Ir a mi Biblioteca Digital →
+                      </Link>
+                    </div>
+                  )}
+
+                  {/* Botón de Notificación a Anthony por WhatsApp */}
+                  <div className="space-y-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleNotifyAnthonyWhatsApp}
+                      className="w-full min-h-[48px] bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white font-black py-3 px-4 rounded-2xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 text-xs uppercase tracking-wider transition-all cursor-pointer"
+                    >
+                      <MessageCircle className="w-4 h-4 fill-white" />
+                      <span>Notificar a Anthony por WhatsApp</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsDrawerOpen(false)
+                        setPurchaseSuccess(false)
+                        setCart([])
+                      }}
+                      className="w-full py-2.5 text-xs font-bold text-slate-500 hover:text-slate-700 cursor-pointer"
+                    >
+                      Seguir Explorando la Tienda
+                    </button>
+                  </div>
+                </div>
+              ) : cart.length === 0 ? (
                 <div className="py-8 text-center space-y-2">
                   <ShoppingBag className="w-10 h-10 text-slate-300 mx-auto" />
                   <p className="text-xs font-bold text-slate-500">Tu carrito está vacío.</p>
                 </div>
               ) : (
-                <div className="space-y-2.5">
-                  {cart.map((item) => (
-                    <div 
-                      key={item.product.id}
-                      className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3"
-                    >
-                      <div className="flex-1 text-left">
-                        <h4 className="text-xs font-black text-slate-900 line-clamp-1">
-                          {item.product.title}
-                        </h4>
-                        <span className="text-xs font-bold text-slate-600">
-                          {formatCop(item.product.copPrice * item.quantity)}
-                        </span>
-                      </div>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    {cart.map((item) => (
+                      <div 
+                        key={item.product.id}
+                        className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex-1 text-left">
+                          <h4 className="text-xs font-black text-slate-900 line-clamp-1">
+                            {item.product.title}
+                          </h4>
+                          <span className="text-xs font-bold text-slate-600">
+                            {formatCop(item.product.copPrice * item.quantity)}
+                          </span>
+                        </div>
 
-                      {/* Control de cantidad */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.product.id, -1)}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95"
-                        >
-                          <Minus className="w-3.5 h-3.5" />
-                        </button>
-                        <span className="text-xs font-black w-4 text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => updateQuantity(item.product.id, 1)}
-                          className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95"
-                        >
-                          <Plus className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeFromCart(item.product.id)}
-                          className="p-1.5 text-slate-400 hover:text-red-600"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        {/* Control de cantidad */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product.id, -1)}
+                            className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                          >
+                            <Minus className="w-3.5 h-3.5" />
+                          </button>
+                          <span className="text-xs font-black w-4 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQuantity(item.product.id, 1)}
+                            className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95 cursor-pointer"
+                          >
+                            <Plus className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => removeFromCart(item.product.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
 
                   {/* Formulario de Checkout Rápido */}
                   <form onSubmit={handleProceedToPayment} className="pt-3 border-t border-slate-100 space-y-3">
@@ -537,13 +656,13 @@ export default function TiendaPage() {
                       </div>
                     )}
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 text-left">
                       <input
                         type="text"
                         required
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Nombres y Apellidos completos"
+                        placeholder="Nombres y Apellidos completos *"
                         className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
                       <input
@@ -551,7 +670,7 @@ export default function TiendaPage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Correo electrónico (para envío de recursos)"
+                        placeholder="Correo electrónico *"
                         className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
                       <input
@@ -559,9 +678,62 @@ export default function TiendaPage() {
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        placeholder="WhatsApp / Teléfono (+57 300 000 0000)"
+                        placeholder="WhatsApp / Teléfono (+57 300 000 0000) *"
                         className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
+
+                      {/* CAMPOS ADICIONALES PARA PRODUCTOS FÍSICOS (CAMISETA / MERCH / LIBRO) */}
+                      {hasPhysicalItems && (
+                        <div className="p-3 bg-amber-50/70 border border-amber-200/90 rounded-2xl space-y-2.5 mt-2">
+                          <div className="flex items-center gap-1.5 text-xs font-black text-amber-900">
+                            <Truck className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Datos para Envío Físico (Nacional o Sede)</span>
+                          </div>
+
+                          <input
+                            type="text"
+                            required
+                            value={shippingAddress}
+                            onChange={(e) => setShippingAddress(e.target.value)}
+                            placeholder="Dirección completa (Calle, Carrera, Barrio, Apto/Casa) *"
+                            className="w-full p-2.5 bg-white border border-amber-300/80 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                          />
+
+                          <input
+                            type="text"
+                            required
+                            value={shippingCity}
+                            onChange={(e) => setShippingCity(e.target.value)}
+                            placeholder="Ciudad / Municipio (ej. Apartadó, Turbo, Medellín, Bogotá) *"
+                            className="w-full p-2.5 bg-white border border-amber-300/80 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                          />
+
+                          {/* Selector de Talla para Camiseta / Hoodie */}
+                          {hasApparelItems && (
+                            <div className="space-y-1">
+                              <label className="block text-[11px] font-bold text-amber-900">
+                                Selecciona tu Talla de Prenda:
+                              </label>
+                              <div className="flex gap-2">
+                                {(['S', 'M', 'L', 'XL', 'XXL'] as const).map((sz) => (
+                                  <button
+                                    key={sz}
+                                    type="button"
+                                    onClick={() => setSelectedSize(sz)}
+                                    className={`flex-1 py-1.5 rounded-lg text-xs font-black border transition-all cursor-pointer ${
+                                      selectedSize === sz
+                                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100'
+                                    }`}
+                                  >
+                                    {sz}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Resumen Total */}
@@ -576,7 +748,7 @@ export default function TiendaPage() {
                     <button
                       type="submit"
                       disabled={isProcessing || cart.length === 0}
-                      className="w-full min-h-[48px] bg-crimson-600 hover:bg-crimson-700 active:scale-[0.99] disabled:opacity-50 text-white font-black py-3 px-6 rounded-xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all"
+                      className="w-full min-h-[48px] bg-crimson-600 hover:bg-crimson-700 active:scale-[0.99] disabled:opacity-50 text-white font-black py-3 px-6 rounded-xl shadow-lg shadow-red-600/30 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer"
                     >
                       {isProcessing ? (
                         <>
