@@ -29,6 +29,8 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 
+import { getLevelConfig } from '../../data/levelConfig'
+
 // Tipos para el campus virtual
 interface StudentProfile {
   id: string
@@ -104,12 +106,12 @@ export default function CampusVirtualPage() {
     status: 'Matriculado Regular'
   })
 
-  // Cursos Matriculados
+  // Cursos Matriculados dinámicos
   const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([
     {
       id: 'a1',
       code: 'ADE-ING101',
-      title: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
+      title: 'ENGLISH LEVEL 1 (A1) - GENERAL PROGRAM',
       level: 'A1 Principiante',
       modality: 'Virtual en Vivo (Microsoft Teams) & Aula Virtual',
       progress: 68,
@@ -125,6 +127,12 @@ export default function CampusVirtualPage() {
   useEffect(() => {
     async function loadStudentData() {
       try {
+        let detectedLevel = 'A1'
+        if (typeof window !== 'undefined') {
+          const storedLevel = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
+          if (storedLevel) detectedLevel = storedLevel
+        }
+
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
           const { data: profile } = await supabase
@@ -134,19 +142,41 @@ export default function CampusVirtualPage() {
             .maybeSingle()
 
           if (profile) {
+            const resolvedLvl = profile.mcer_level || profile.current_level || session.user.user_metadata?.course_level || detectedLevel
+            detectedLevel = resolvedLvl
+
             setStudent({
               id: profile.id,
               fullName: profile.full_name || profile.name || session.user.user_metadata?.full_name || 'Estudiante American Dream',
               email: profile.email || session.user.email || 'estudiante@americandream.edu.co',
               docType: profile.document_type || 'C.C.',
               docNumber: profile.document_number || '1.040.892.341',
-              currentLevel: profile.mcer_level || 'A1',
+              currentLevel: resolvedLvl,
               programName: 'Programa de Inglés Jóvenes y Adultos',
               studentCode: `ADE-2026-${profile.id.substring(0, 4).toUpperCase()}`,
               status: 'Matriculado Regular'
             })
           }
         }
+
+        // Configurar curso matriculado según el nivel del estudiante (A1, A2, B1, B2, C1)
+        const cfg = getLevelConfig(detectedLevel)
+        setEnrolledCourses([
+          {
+            id: cfg.id,
+            code: cfg.code,
+            title: cfg.title,
+            level: cfg.levelBadge,
+            modality: 'Virtual en Vivo (Microsoft Teams) & Aula Virtual',
+            progress: 68,
+            accumulatedPoints: 120,
+            maxPoints: 380,
+            credits: cfg.credits,
+            teacherName: cfg.teacherName,
+            nextLiveClass: cfg.nextLiveClass
+          }
+        ])
+
       } catch (err) {
         // Fallback robusto
       } finally {
