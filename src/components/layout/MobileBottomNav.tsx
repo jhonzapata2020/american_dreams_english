@@ -13,6 +13,7 @@ import {
   User 
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { trackEvent } from '../../lib/analytics'
 
 export function MobileBottomNav() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -95,6 +96,13 @@ export function MobileBottomNav() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent('whatsapp_click', {
+                    source: 'mobile_bottom_nav',
+                    role: isAuthenticated ? 'student' : 'visitor',
+                    label: item.label
+                  })
+                }}
                 className="flex flex-col items-center justify-center py-1 px-0.5 text-center group active:scale-95 transition-transform"
                 title={item.label}
               >

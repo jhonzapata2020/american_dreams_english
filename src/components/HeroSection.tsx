@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { createClient } from '../utils/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
+import { trackEvent } from '../lib/analytics';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -65,6 +66,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       }
 
       setSubmitted(true);
+      trackEvent('lead_capture', {
+        audience: audienceType,
+        source: 'hero_form',
+      });
       setTimeout(() => {
         onExplorePrograms();
       }, 1500);
@@ -195,6 +200,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 href={whatsappContextUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent('whatsapp_click', {
+                    source: 'hero_mobile_card',
+                    action: 'hablar_con_ade'
+                  });
+                }}
                 className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-emerald-50/60 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group"
               >
                 <div className="flex items-center space-x-3">

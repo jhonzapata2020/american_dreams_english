@@ -27,6 +27,7 @@ import {
   Loader2
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { trackEvent } from '../../lib/analytics'
 
 interface CartItem {
   product: StoreProduct
@@ -152,6 +153,14 @@ export default function TiendaPage() {
 
       const wompiPublicKey = (process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || sigJson?.publicKey || '').trim()
 
+      trackEvent('begin_checkout', {
+        type: 'store_product',
+        amount: totalAmountCop,
+        currency: 'COP',
+        reference: ref,
+        items: cart.map(c => ({ id: c.product.id, name: c.product.title, price: c.product.copPrice, quantity: c.quantity }))
+      })
+
       if (typeof window !== 'undefined' && (window as any).WidgetCheckout && wompiPublicKey) {
         const checkout = new (window as any).WidgetCheckout({
           currency: 'COP',
@@ -179,6 +188,11 @@ export default function TiendaPage() {
         })
       } else {
         // Fallback WhatsApp directo si Wompi no está cargado
+        trackEvent('whatsapp_click', {
+          source: 'tienda_checkout_fallback',
+          amount: totalAmountCop,
+          itemsCount: totalItemsCount
+        })
         const message = `¡Hola ADE! Quiero confirmar la compra de:\n${cart.map(c => `• ${c.product.title} (x${c.quantity}) - ${formatCop(c.product.copPrice * c.quantity)}`).join('\n')}\nTotal: ${formatCop(totalAmountCop)}\nNombre: ${fullName}\nCorreo: ${email}`
         window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
         setIsProcessing(false)

@@ -1,13 +1,27 @@
 import React from 'react'
 import '../index.css'
-import { Metadata } from 'next'
+import { Metadata, Viewport } from 'next'
 import { CurrencyProvider } from '../context/CurrencyContext'
 import { LanguageProvider } from '../context/LanguageContext'
 import { MobileBottomNav } from '../components/layout/MobileBottomNav'
 
+export const viewport: Viewport = {
+  themeColor: '#C8102E',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
 export const metadata: Metadata = {
   title: 'American Dream English S.A.S. - Plataforma Bilingüe',
   description: 'Plataforma educativa con control de acceso por roles, catálogo dinámico e impacto social.',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'ADE App',
+  },
   icons: {
     icon: [
       { url: '/logo-american-dream.png', type: 'image/png' },
@@ -31,9 +45,13 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="shortcut icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="apple-touch-icon" href="/logo-american-dream.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="theme-color" content="#C8102E" />
       </head>
       <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-20 md:pb-0" suppressHydrationWarning>
         <CurrencyProvider>

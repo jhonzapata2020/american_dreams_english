@@ -23,6 +23,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { trackEvent } from '../../lib/analytics'
 
 type StepNumber = 1 | 2 | 3 | 4 // 4 = Confirmación final
 
@@ -145,6 +146,16 @@ export default function BecasPage() {
           })
         }
       ])
+
+      trackEvent('scholarship_application', {
+        ticketId: generatedTicket,
+        city,
+        occupation,
+        incomeRange,
+        modality,
+        fullName,
+        email
+      })
     } catch (err) {
       console.warn('Aviso: Registro previo de lead beca:', err)
     } finally {
@@ -585,6 +596,14 @@ export default function BecasPage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => {
+                  trackEvent('whatsapp_click', {
+                    source: 'scholarship_ticket_radication',
+                    ticketId,
+                    city,
+                    modality
+                  })
+                }}
                 className="w-full min-h-[48px] bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-black text-xs sm:text-sm py-3.5 px-6 rounded-2xl shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 uppercase tracking-wider transition-all"
               >
                 <MessageCircle className="w-5 h-5 stroke-[2.25]" />

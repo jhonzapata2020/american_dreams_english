@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { getCourseBySlug, COURSES_DATA } from '../../../data/coursesData'
+import { trackEvent } from '../../../lib/analytics'
 import { 
   ArrowLeft, 
   Clock, 
@@ -27,6 +28,14 @@ export default function CourseDetailPage() {
   const params = useParams()
   const rawSlug = Array.isArray(params?.slug) ? params.slug[0] : (params?.slug as string) || 'adultos'
   const course = getCourseBySlug(rawSlug) || COURSES_DATA[0]
+
+  useEffect(() => {
+    trackEvent('view_course', {
+      courseSlug: course.slug,
+      courseTitle: course.title,
+      price: course.reservationFeeCop
+    })
+  }, [course.slug, course.title, course.reservationFeeCop])
 
   // Acordeones interactivos (abiertos/cerrados por defecto)
   const [openObjectives, setOpenObjectives] = useState(true)
@@ -314,6 +323,15 @@ export default function CourseDetailPage() {
           {/* LADO DERECHO: BOTÓN ROJO GRANDE DE MATRÍCULA DIRECTA */}
           <Link
             href={`/matricula?curso=${course.slug}`}
+            onClick={() => {
+              trackEvent('begin_checkout', {
+                type: 'course',
+                courseSlug: course.slug,
+                courseTitle: course.title,
+                amount: course.reservationFeeCop,
+                currency: 'COP',
+              })
+            }}
             className="min-h-[48px] px-5 sm:px-8 bg-crimson-600 hover:bg-crimson-700 active:scale-[0.98] text-white font-black rounded-xl shadow-md shadow-red-600/25 flex items-center justify-center gap-2 text-xs sm:text-sm uppercase tracking-wider transition-all whitespace-nowrap"
           >
             <span>INSCRIBIRME AHORA</span>

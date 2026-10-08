@@ -18,6 +18,7 @@ import {
   Award
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { trackEvent } from '../../lib/analytics'
 
 const DONATION_PRESETS = [
   { id: 'p1', amount: 50000, label: '$50.000 COP', impact: 'Financia 50% de la mensualidad de 1 estudiante' },
@@ -119,6 +120,14 @@ export default function DonarPage() {
 
       const wompiPublicKey = (process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY || sigJson?.publicKey || '').trim()
 
+      trackEvent('begin_checkout', {
+        type: 'donation',
+        amount: activeAmount,
+        currency: 'COP',
+        reference: ref,
+        anonymous: isAnonymous
+      })
+
       if (typeof window !== 'undefined' && (window as any).WidgetCheckout && wompiPublicKey) {
         const checkout = new (window as any).WidgetCheckout({
           currency: 'COP',
@@ -145,6 +154,10 @@ export default function DonarPage() {
         })
       } else {
         // Fallback WhatsApp directo si Wompi no está cargado
+        trackEvent('whatsapp_click', {
+          source: 'donation_fallback_checkout',
+          amount: activeAmount
+        })
         const message = `¡Hola ADE! Deseo realizar una donación al Fondo de Becas "Sponsor a Dream" por valor de ${formatCop(activeAmount)}.\nNombre: ${finalName}\nCorreo: ${finalEmail}`
         window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
         setIsProcessing(false)
