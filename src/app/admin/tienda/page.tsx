@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { createClient } from '../../../utils/supabase/client'
-import { STORE_PRODUCTS, StoreProduct } from '../../../data/storeData'
+import { STORE_PRODUCTS, StoreProduct, resolveProductThumbnail } from '../../../data/storeData'
 import { 
   ShoppingBag, 
   Plus, 
@@ -164,16 +164,20 @@ export default function AdminTiendaPage() {
             id: p.id,
             title: p.title || p.name,
             type: p.category === 'presencial' || p.category === 'uniformes' || p.category === 'libros' || p.category === 'merch' ? 'fisico' : 'digital',
-            category: p.category || 'uniformes',
+            category: p.category || (p.title?.toLowerCase().includes('ebook') ? 'ebooks' : 'uniformes'),
             formatBadge: p.format_badge || (p.category === 'uniformes' ? 'FÍSICO (ENVÍO NACIONAL)' : 'Digital (Descarga directa)'),
             copPrice: p.price_cop || 0,
             usdPrice: p.price_usd || Math.round((p.price_cop || 0) / 4000),
             description: p.description || '',
-            thumbnail: p.image_url || '/images/camiseta-oficial-ade.png',
-            fileType: p.file_type || 'Físico',
+            thumbnail: resolveProductThumbnail(p),
+            fileType: p.file_type || (p.category === 'uniformes' || p.category === 'libros' ? 'Físico' : 'PDF'),
             popular: !!p.popular
           }))
-          setProducts(mapped)
+
+          // Merge con STORE_PRODUCTS para que todos los E-Books y productos educativos aparezcan
+          const existingIds = new Set(mapped.map(m => m.id))
+          const merged = [...mapped, ...STORE_PRODUCTS.filter(sp => !existingIds.has(sp.id))]
+          setProducts(merged)
         } else {
           // Fallback sincronizado con storeData.ts
           setProducts(STORE_PRODUCTS)
@@ -206,14 +210,14 @@ export default function AdminTiendaPage() {
   // Abrir modal para crear
   const handleOpenCreateModal = () => {
     setEditingProduct(null)
-    setFormType('fisico')
-    setFormCategory('uniformes')
+    setFormType('digital')
+    setFormCategory('ebooks')
     setFormTitle('')
-    setFormPriceCop(55000)
+    setFormPriceCop(45000)
     setFormDescription('')
-    setFormThumbnail('/images/camiseta-oficial-ade.png')
+    setFormThumbnail('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600')
     setFormIsActive(true)
-    setFormFileType('Físico')
+    setFormFileType('PDF')
     setIsModalOpen(true)
   }
 
@@ -225,7 +229,7 @@ export default function AdminTiendaPage() {
     setFormTitle(prod.title)
     setFormPriceCop(prod.copPrice)
     setFormDescription(prod.description)
-    setFormThumbnail(prod.thumbnail)
+    setFormThumbnail(resolveProductThumbnail(prod))
     setFormIsActive(true)
     setFormFileType(prod.fileType || (prod.type === 'fisico' ? 'Físico' : 'PDF'))
     setIsModalOpen(true)
@@ -239,6 +243,12 @@ export default function AdminTiendaPage() {
 
     const newBadge = formType === 'fisico' ? 'FÍSICO (ENVÍO NACIONAL)' : 'Digital (Descarga directa)'
     const newUsd = Math.round(formPriceCop / 4000)
+    const finalThumb = resolveProductThumbnail({
+      thumbnail: formThumbnail.trim(),
+      title: formTitle.trim(),
+      category: formCategory,
+      type: formType
+    })
 
     const updatedItem: StoreProduct = {
       id: editingProduct ? editingProduct.id : `prod-${Date.now()}`,
@@ -249,7 +259,7 @@ export default function AdminTiendaPage() {
       copPrice: formPriceCop,
       usdPrice: newUsd,
       description: formDescription.trim(),
-      thumbnail: formThumbnail.trim() || '/images/camiseta-oficial-ade.png',
+      thumbnail: finalThumb,
       fileType: formFileType,
       popular: editingProduct ? editingProduct.popular : true
     }

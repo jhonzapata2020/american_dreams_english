@@ -199,3 +199,85 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     popular: false
   }
 ]
+
+export function resolveProductThumbnail(item: {
+  image_url?: string | null
+  thumbnail?: string | null
+  title?: string | null
+  name?: string | null
+  category?: string | null
+  type?: string | null
+}): string {
+  const currentImg = item.thumbnail || item.image_url
+  const title = (item.title || item.name || '').toLowerCase()
+  const cat = (item.category || '').toLowerCase()
+
+  // Si tiene una imagen configurada específica que no sea el fallback genérico de la camiseta:
+  if (currentImg && currentImg.trim() !== '' && currentImg !== '/images/camiseta-oficial-ade.png') {
+    return currentImg
+  }
+
+  // Si expresamente es la camiseta o uniforme:
+  if (title.includes('camiseta') || title.includes('t-shirt') || title.includes('shirt') || title.includes('uniforme') || cat === 'uniformes') {
+    return '/images/camiseta-oficial-ade.png'
+  }
+
+  // Si es un Hoodie / Buzo / Saco / Merch:
+  if (title.includes('hoodie') || title.includes('saco') || title.includes('buzo') || title.includes('merch') || cat === 'merch') {
+    return 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es Masterclass / Video:
+  if (title.includes('masterclass') || title.includes('video') || cat === 'masterclass') {
+    return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si son Audios / Listening / MP3:
+  if (title.includes('audio') || title.includes('listening') || title.includes('mp3') || cat === 'audios') {
+    return 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Gramática:
+  if (title.includes('gramática') || title.includes('gramatica') || title.includes('grammar')) {
+    return 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Phrasal Verbs / Vocabulario:
+  if (title.includes('phrasal') || title.includes('verbs') || title.includes('vocabulario') || title.includes('vocabulary')) {
+    return 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Negocios / Business:
+  if (title.includes('negocios') || title.includes('business') || title.includes('comercio') || title.includes('profesional')) {
+    return 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Historias / Stories:
+  if (title.includes('historia') || title.includes('historias') || title.includes('cuentos') || title.includes('reading') || title.includes('relato')) {
+    return 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Pronunciación:
+  if (title.includes('pronunciación') || title.includes('pronunciacion') || title.includes('pronunciation') || title.includes('fonética') || title.includes('fonetica')) {
+    return 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es E-Book de Viajeros / Supervivencia:
+  if (title.includes('viajero') || title.includes('viaje') || title.includes('travel') || title.includes('aeropuerto')) {
+    return 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es Conectores / Guías / Libros / Ebooks en general:
+  if (cat === 'ebooks' || cat === 'libros' || title.includes('ebook') || title.includes('libro') || title.includes('guía') || title.includes('guia') || title.includes('book') || title.includes('student')) {
+    return 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Si es un Curso / Mensualidad / Semestre / Programa / Presencial / Virtual:
+  if (title.includes('curso') || title.includes('mensualidad') || title.includes('semestre') || title.includes('programa') || title.includes('b1') || title.includes('b2') || title.includes('a1') || title.includes('a2') || title.includes('clase') || cat === 'presencial' || cat === 'virtual') {
+    return 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600'
+  }
+
+  // Default educativo
+  return 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600'
+}
+

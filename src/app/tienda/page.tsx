@@ -7,7 +7,8 @@ import {
   STORE_PRODUCTS, 
   STORE_SEGMENTS, 
   StoreProduct, 
-  StoreSegmentId 
+  StoreSegmentId,
+  resolveProductThumbnail
 } from '../../data/storeData'
 import { 
   ShoppingBag, 
@@ -16,16 +17,16 @@ import {
   Trash2, 
   X, 
   CheckCircle2, 
-  ArrowLeft,
+  ArrowLeft, 
   ArrowRight, 
   Sparkles, 
   Download, 
   Truck, 
   ShieldCheck, 
   Lock, 
-  CreditCard,
-  MessageCircle,
-  Loader2
+  CreditCard, 
+  MessageCircle, 
+  Loader2 
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { trackEvent } from '../../lib/analytics'
@@ -84,13 +85,13 @@ export default function TiendaPage() {
             id: p.id,
             title: p.title || p.name,
             type: p.category === 'presencial' || p.category === 'uniformes' || p.category === 'libros' || p.category === 'merch' ? 'fisico' : 'digital',
-            category: p.category || 'uniformes',
+            category: p.category || (p.title?.toLowerCase().includes('ebook') ? 'ebooks' : 'uniformes'),
             formatBadge: p.format_badge || (p.category === 'uniformes' ? 'FÍSICO (ENVÍO NACIONAL)' : 'Digital (Descarga directa)'),
             copPrice: p.price_cop || 0,
             usdPrice: p.price_usd || Math.round((p.price_cop || 0) / 4000),
             description: p.description || '',
-            thumbnail: p.image_url || '/images/camiseta-oficial-ade.png',
-            fileType: p.file_type || 'Físico',
+            thumbnail: resolveProductThumbnail(p),
+            fileType: p.file_type || (p.category === 'uniformes' || p.category === 'libros' ? 'Físico' : 'PDF'),
             popular: !!p.popular
           }))
 
@@ -331,7 +332,7 @@ export default function TiendaPage() {
                       src={prod.thumbnail}
                       alt={prod.title}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/images/camiseta-oficial-ade.png'
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600'
                       }}
                       className="w-full h-full object-contain p-2 transform hover:scale-105 transition-transform duration-500"
                     />
