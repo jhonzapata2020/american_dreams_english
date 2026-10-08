@@ -263,7 +263,7 @@ export default function BecasPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="Ej. Valeria Morales Montoya"
-                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                    className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                   />
                 </div>
               </div>
@@ -278,7 +278,7 @@ export default function BecasPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="tucorreo@ejemplo.com"
-                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                 />
               </div>
 
@@ -292,7 +292,7 @@ export default function BecasPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+57 300 000 0000"
-                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                 />
               </div>
 
@@ -306,7 +306,7 @@ export default function BecasPage() {
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   placeholder="Turbo, Apartadó, Carepa, Necoclí, etc."
-                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                  className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
                 />
               </div>
             </div>
@@ -417,7 +417,7 @@ export default function BecasPage() {
                 value={motivation}
                 onChange={(e) => setMotivation(e.target.value)}
                 placeholder="Cuéntanos cómo aprender inglés transformará tu futuro laboral o académico..."
-                className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 resize-none"
+                className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 resize-none"
               />
             </div>
 

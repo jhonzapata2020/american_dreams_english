@@ -368,7 +368,7 @@ export default function TiendaPage() {
       {totalItemsCount > 0 && (
         <aside 
           aria-label="Barra de compra activa"
-          className="fixed bottom-16 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 shadow-[0_-6px_20px_rgba(0,0,0,0.12)] md:relative md:bottom-0 md:mt-8 md:max-w-4xl md:mx-auto md:rounded-2xl animate-fadeIn"
+          className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 p-3 shadow-[0_-6px_20px_rgba(0,0,0,0.12)] md:relative md:bottom-0 md:mt-8 md:max-w-4xl md:mx-auto md:rounded-2xl animate-fadeIn"
         >
           <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
             
@@ -496,7 +496,7 @@ export default function TiendaPage() {
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Nombres y Apellidos completos"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
                       <input
                         type="email"
@@ -504,7 +504,7 @@ export default function TiendaPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Correo electrónico (para envío de recursos)"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
                       <input
                         type="tel"
@@ -512,7 +512,7 @@ export default function TiendaPage() {
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
                         placeholder="WhatsApp / Teléfono (+57 300 000 0000)"
-                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-base md:text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-crimson-600"
                       />
                     </div>
 

@@ -5,9 +5,16 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
   }
   body {
     @apply bg-white text-slate-900 font-sans antialiased min-h-screen flex flex-col;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button, a {
+    touch-action: manipulation;
   }
 }
 

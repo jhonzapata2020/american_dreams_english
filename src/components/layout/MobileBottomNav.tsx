@@ -82,9 +82,9 @@ export function MobileBottomNav() {
   return (
     <nav 
       aria-label="Navegación inferior móvil"
-      className="fixed bottom-0 left-0 right-0 z-50 h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden transition-colors"
+      className="fixed bottom-0 left-0 right-0 z-50 h-[calc(4rem+env(safe-area-inset-bottom))] pb-[env(safe-area-inset-bottom)] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] md:hidden transition-colors select-none"
     >
-      <div className="grid grid-cols-5 h-full max-w-lg mx-auto items-center px-1">
+      <div className="grid grid-cols-5 h-16 max-w-lg mx-auto items-center px-1">
         {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
@@ -103,7 +103,7 @@ export function MobileBottomNav() {
                     label: item.label
                   })
                 }}
-                className="flex flex-col items-center justify-center py-1 px-0.5 text-center group active:scale-95 transition-transform"
+                className="flex flex-col items-center justify-center py-1 px-0.5 text-center group active:scale-[0.95] select-none transition-transform"
                 title={item.label}
               >
                 <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
@@ -127,7 +127,7 @@ export function MobileBottomNav() {
             <Link
               key={item.label}
               href={item.href}
-              className="flex flex-col items-center justify-center py-1 px-0.5 text-center group active:scale-95 transition-transform"
+              className="flex flex-col items-center justify-center py-1 px-0.5 text-center group active:scale-[0.95] select-none transition-transform"
               title={item.label}
             >
               <div className={`relative flex items-center justify-center w-8 h-8 rounded-full transition-all ${

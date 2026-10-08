@@ -3,6 +3,7 @@ import { Currency } from '../types';
 import { Menu, X, GraduationCap, Globe } from 'lucide-react';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
 import { useLanguage } from '../context/LanguageContext';
+import { InstallPWAButton } from './common/InstallPWAButton';
 
 interface NavbarProps {
   selectedCurrency?: Currency;
@@ -122,6 +123,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ariaLabel="Alternar idioma entre Español e Inglés"
               />
             </div>
+
+            {/* BOTÓN INSTALAR APP PWA (Universal) */}
+            <InstallPWAButton variant="navbar" />
 
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL (Desktop / Tablet) */}
             <a 

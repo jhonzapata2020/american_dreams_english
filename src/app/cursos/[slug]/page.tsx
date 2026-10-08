@@ -297,11 +297,11 @@ export default function CourseDetailPage() {
 
       {/* ========================================================================= */}
       {/* 5. BARRA FIJA INFERIOR DE CONVERSIÓN (STICKY BOTTOM ACTION BAR)           */}
-      {/* Fijada sobre el MobileBottomNav en móvil (bottom-16) y relativa en desktop */}
+      {/* Fijada sobre el MobileBottomNav en móvil y relativa en desktop             */}
       {/* ========================================================================= */}
       <aside 
         aria-label="Acción de inscripción rápida"
-        className="fixed bottom-16 left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 p-3 shadow-[0_-6px_16px_rgba(0,0,0,0.08)] md:relative md:bottom-0 md:mt-8 md:rounded-2xl md:max-w-3xl md:mx-auto"
+        className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/90 dark:border-slate-800 p-3 shadow-[0_-6px_16px_rgba(0,0,0,0.08)] md:relative md:bottom-0 md:mt-8 md:rounded-2xl md:max-w-3xl md:mx-auto"
       >
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
           

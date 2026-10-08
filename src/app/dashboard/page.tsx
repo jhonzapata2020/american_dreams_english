@@ -24,6 +24,7 @@ import {
   User
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { InstallPWAButton } from '../../components/common/InstallPWAButton'
 
 interface StudentData {
   id: string
@@ -188,6 +189,9 @@ export default function StudentDashboardPage() {
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-6 pt-5 space-y-5">
+
+        {/* Banner PWA para Estudiantes */}
+        <InstallPWAButton variant="banner" />
 
         {/* ========================================================================= */}
         {/* 2. CARD HERO DE ACCIÓN INMEDIATA ("CONTINUAR APRENDIENDO")                 */}

@@ -11,6 +11,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: 'cover',
 }
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="shortcut icon" type="image/png" href="/logo-american-dream.png" />
@@ -53,7 +55,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#C8102E" />
       </head>
-      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-20 md:pb-0" suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0" suppressHydrationWarning>
         <CurrencyProvider>
           <LanguageProvider>
             {children}
