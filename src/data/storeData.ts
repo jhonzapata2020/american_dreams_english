@@ -92,17 +92,17 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     popular: true
   },
   {
-    id: 'prod-kit-estudio',
-    title: 'Kit Oficial ADE: Camiseta Polo + Libreta Institucional',
+    id: 'prod-camiseta-oficial',
+    title: 'Camiseta Oficial ADE',
     type: 'fisico',
     category: 'uniformes',
     formatBadge: 'Físico (Envío nacional)',
     copPrice: 65000,
     usdPrice: 16,
-    description: 'Polo oficial bordado de American Dream English y libreta ejecutiva de notas para clases.',
-    thumbnail: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=600',
+    description: 'Camiseta 100% algodón, cuello redondo, color negro con el escudo oficial de American Dream English estampado al frente.',
+    thumbnail: '/images/camiseta-oficial-ade.png',
     fileType: 'Físico',
-    popular: false
+    popular: true
   },
   {
     id: 'prod-hoodie-ade',

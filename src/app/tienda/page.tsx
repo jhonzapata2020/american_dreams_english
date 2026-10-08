@@ -16,6 +16,7 @@ import {
   Trash2, 
   X, 
   CheckCircle2, 
+  ArrowLeft,
   ArrowRight, 
   Sparkles, 
   Download, 
@@ -216,31 +217,44 @@ export default function TiendaPage() {
 
       {/* 1. TOP APP BAR & SEGMENTADOR SUPERIOR TÁCTIL */}
       <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 shadow-2xs">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3.5 space-y-3">
+          
+          {/* Fila superior: Botón Volver al inicio y Carrito */}
           <div className="flex items-center justify-between">
-            <div>
-              <span className="text-[11px] font-extrabold uppercase tracking-wider text-crimson-600 block">
-                American Dream English
-              </span>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                Tienda & Recursos
-              </h1>
-            </div>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 min-h-[44px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 rounded-xl text-xs font-black tracking-wide active:scale-95 transition-all select-none shadow-2xs"
+            >
+              <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
+              <span>Volver al inicio</span>
+            </Link>
 
             {/* Icono del Carrito con Badge Contador */}
             <button
               type="button"
               onClick={() => setIsDrawerOpen(true)}
-              className="relative p-2.5 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl transition-all"
+              className="relative min-h-[44px] px-3.5 py-2 bg-slate-100 hover:bg-slate-200 active:scale-95 rounded-xl transition-all flex items-center gap-2 select-none"
               aria-label="Abrir carrito"
             >
               <ShoppingBag className="w-5 h-5 text-slate-800" />
+              <span className="text-xs font-black text-slate-700 hidden sm:inline">Carrito</span>
               {totalItemsCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 bg-crimson-600 text-white text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-pulse">
+                <span className="bg-crimson-600 text-white text-[11px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow-sm animate-pulse">
                   {totalItemsCount}
                 </span>
               )}
             </button>
+          </div>
+
+          <div className="flex items-baseline justify-between pt-0.5">
+            <div>
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-crimson-600 block">
+                American Dream English
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                Tienda & Recursos Oficiales
+              </h1>
+            </div>
           </div>
 
           {/* PILLS SEGMENTADORAS TÁCTILES */}
