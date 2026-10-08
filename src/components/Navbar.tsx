@@ -99,14 +99,13 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               {t.nav.liveClasses}
             </button>
-            <button 
-              type="button"
-              onClick={handleScrollToLocation}
-              className="hover:text-[#0F2537] transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-blue-700 bg-blue-50/90 hover:bg-blue-100 px-3 py-1 rounded-full border border-blue-200/70 shadow-2xs hover:scale-105 active:scale-95"
+            <a 
+              href="/tienda"
+              className="hover:text-[#0F2537] transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-slate-800 bg-amber-50/90 hover:bg-amber-100 px-3.5 py-1.5 rounded-full border border-amber-200/80 shadow-2xs hover:scale-105 active:scale-95"
             >
-              <span className="text-xs">📍</span>
-              <span>{t.nav.howToGetThere}</span>
-            </button>
+              <span className="text-xs">🛒</span>
+              <span>Tienda</span>
+            </a>
           </nav>
 
           {/* CONTROLES Y ACCIONES (LADO DERECHO) */}
@@ -205,17 +204,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.nav.liveClassesTitle}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
-            <button 
-              type="button"
-              onClick={() => { setMobileMenuOpen(false); handleScrollToLocation(); }} 
-              className="py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100/80 border border-blue-200/80 flex items-center justify-between text-left w-full text-blue-900 font-bold"
+            <a 
+              href="/tienda"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2.5 px-3 rounded-xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200/80 flex items-center justify-between text-left w-full text-amber-950 font-bold"
             >
               <span className="flex items-center gap-2">
-                <span>📍</span>
-                <span>{t.nav.howToGetThere}</span>
+                <span>🛒</span>
+                <span>Tienda Oficial</span>
               </span>
-              <span className="text-xs text-blue-600 font-bold">→</span>
-            </button>
+              <span className="text-xs text-amber-700 font-bold">→</span>
+            </a>
           </nav>
 
           <div className="pt-2 flex flex-col gap-2.5">
