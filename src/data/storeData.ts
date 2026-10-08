@@ -22,6 +22,111 @@ export const STORE_SEGMENTS = [
 export type StoreSegmentId = typeof STORE_SEGMENTS[number]['id']
 
 export const STORE_PRODUCTS: StoreProduct[] = [
+  // =========================================================================
+  // 📚 E-BOOKS DIGITALES (BESTSELLERS DE APRENDIZAJE)
+  // =========================================================================
+  {
+    id: 'prod-ebook-gramatica-uso',
+    title: 'E-Book: Gramática Práctica en Uso — De Cero a B2',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 45000,
+    usdPrice: 11,
+    description: 'Guía definitiva con más de 120 lecciones visuales, tablas de tiempos verbales y ejercicios prácticos con respuestas comentadas.',
+    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: true
+  },
+  {
+    id: 'prod-ebook-phrasal-verbs',
+    title: 'E-Book: 500 Phrasal Verbs Imprescindibles para Hablar como Nativo',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 39000,
+    usdPrice: 10,
+    description: 'Domina los verbos frasales más usados en el inglés cotidiano con ejemplos reales de conversación y trucos mnemotécnicos.',
+    thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: true
+  },
+  {
+    id: 'prod-ebook-negocios',
+    title: 'E-Book: Inglés Práctico para Negocios y Comercio Internacional',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 49000,
+    usdPrice: 12,
+    description: 'Vocabulario profesional, plantillas de correos ejecutivos y simulación de entrevistas de trabajo en empresas multinacionales.',
+    thumbnail: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: false
+  },
+  {
+    id: 'prod-ebook-historias-cortas',
+    title: 'E-Book: Historias Cortas en Inglés para Principiantes (A2-B1)',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 32000,
+    usdPrice: 8,
+    description: '15 relatos entretenidos con glosario bilingüe integrado en cada página para aumentar vocabulario y fluidez lectora sin frustración.',
+    thumbnail: 'https://images.unsplash.com/photo-1476275466078-4007374efbbe?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: true
+  },
+  {
+    id: 'prod-ebook-pronunciacion',
+    title: 'E-Book: Pronunciación Americana y Reducciones Nativas',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 42000,
+    usdPrice: 10,
+    description: 'Manual fonético para dominar el sonido Schwa, la Flap T, ritmo acentual y contracciones del inglés estadounidense real.',
+    thumbnail: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: false
+  },
+  {
+    id: 'prod-ebook-viajeros',
+    title: 'E-Book: Inglés de Supervivencia para Viajeros y Aeropuertos',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 35000,
+    usdPrice: 9,
+    description: 'Guía de bolsillo con diálogos reales para aduanas, migración, hoteles, restaurantes, transporte y situaciones de emergencia.',
+    thumbnail: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: false
+  },
+  {
+    id: 'prod-guia-conectores',
+    title: 'Guía Rápida de Conectores y Fluidez B1-B2',
+    type: 'digital',
+    category: 'ebooks',
+    formatBadge: 'Digital (Descarga directa)',
+    copPrice: 36000,
+    usdPrice: 9,
+    description: 'Estructuras y conectores avanzados para argumentar, debatir y redactar con fluidez profesional sin traducir mentalmente.',
+    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=600',
+    fileType: 'PDF',
+    downloadUrl: '#',
+    popular: false
+  },
+
+  // =========================================================================
+  // 🎥 PACKS DE AUDIO Y MASTERCLASS DIGITALES
+  // =========================================================================
   {
     id: 'prod-mc-fonetica',
     title: 'Masterclass 4K: Fonética y Pronunciación Nativa',
@@ -37,20 +142,6 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     popular: true
   },
   {
-    id: 'prod-ebook-negocios',
-    title: 'E-Book: Inglés Práctico para Negocios y Comercio Marítimo',
-    type: 'digital',
-    category: 'ebooks',
-    formatBadge: 'Digital (Descarga directa)',
-    copPrice: 48000,
-    usdPrice: 12,
-    description: 'Guía con vocabulario clave para entrevistas, logística comercial y comercio en puertos internacionales.',
-    thumbnail: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600',
-    fileType: 'PDF',
-    downloadUrl: '#',
-    popular: false
-  },
-  {
     id: 'prod-pack-audios',
     title: 'Pack Completo A1-A2: 50 Audios de Inmersión + Guías',
     type: 'digital',
@@ -64,33 +155,10 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     downloadUrl: '#',
     popular: true
   },
-  {
-    id: 'prod-guia-conectores',
-    title: 'Guía Rápida de Conectores y Fluidez B1-B2',
-    type: 'digital',
-    category: 'ebooks',
-    formatBadge: 'Digital (Descarga directa)',
-    copPrice: 36000,
-    usdPrice: 9,
-    description: 'Resumen estructurado de conectores gramaticales para desenvolverte con naturalidad en debates y entrevistas.',
-    thumbnail: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=600',
-    fileType: 'PDF',
-    downloadUrl: '#',
-    popular: false
-  },
-  {
-    id: 'prod-libro-fisico-1',
-    title: 'Libro Oficial ADE Student Book - Nivel 1 (A1)',
-    type: 'fisico',
-    category: 'libros',
-    formatBadge: 'Físico (Envío nacional)',
-    copPrice: 95000,
-    usdPrice: 24,
-    description: 'Libro de trabajo a todo color con código QR para audios interactivos y ejercicios prácticos.',
-    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
-    fileType: 'Físico',
-    popular: true
-  },
+
+  // =========================================================================
+  // 👕 FÍSICO: ROPA OFICIAL, MERCHANDISING Y LIBROS IMPRESOS
+  // =========================================================================
   {
     id: 'prod-camiseta-oficial-ade',
     title: 'Camiseta Oficial ADE',
@@ -103,6 +171,19 @@ export const STORE_PRODUCTS: StoreProduct[] = [
     thumbnail: '/images/camiseta-oficial-ade.png',
     fileType: 'Físico',
     popular: true
+  },
+  {
+    id: 'prod-libro-fisico-1',
+    title: 'Libro Oficial ADE Student Book - Nivel 1 (A1)',
+    type: 'fisico',
+    category: 'libros',
+    formatBadge: 'Físico (Envío nacional)',
+    copPrice: 95000,
+    usdPrice: 24,
+    description: 'Libro de trabajo a todo color con código QR para audios interactivos y ejercicios prácticos.',
+    thumbnail: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
+    fileType: 'Físico',
+    popular: false
   },
   {
     id: 'prod-hoodie-ade',
