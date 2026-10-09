@@ -67,7 +67,7 @@ export function LoginView() {
           } else if (role === 'teacher') {
             window.location.href = '/dashboard/teacher'
           } else {
-            window.location.href = '/dashboard/student'
+            window.location.href = '/campus'
           }
         }, 800)
       }

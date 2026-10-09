@@ -30,13 +30,13 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/teacher')
 
   const isStudentRoute = 
+    (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente') && pathname !== '/campus/login') ||
     pathname.startsWith('/dashboard/student') ||
     pathname.startsWith('/dashboard/aula') ||
     pathname.startsWith('/dashboard/progreso') ||
     pathname.startsWith('/dashboard/biblioteca') ||
     pathname.startsWith('/dashboard/certificados') ||
     pathname.startsWith('/dashboard/pagos') ||
-    (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente') && pathname !== '/campus/login') ||
     pathname === '/dashboard'
 
   // Si no es una ruta protegida, continuar directamente
@@ -105,7 +105,7 @@ export async function middleware(request: NextRequest) {
       userRole = (user.user_metadata?.role as string)?.toLowerCase() || 'student'
     }
 
-    // 3. Redirección automática de la raíz /dashboard al panel del rol correspondiente
+    // 3. Redirección automática de la raíz /dashboard al panel principal
     if (pathname === '/dashboard') {
       const redirectUrl = request.nextUrl.clone()
       if (userRole === 'admin') {
@@ -113,7 +113,8 @@ export async function middleware(request: NextRequest) {
       } else if (userRole === 'teacher') {
         redirectUrl.pathname = '/dashboard/teacher'
       } else {
-        redirectUrl.pathname = '/dashboard/student'
+        // Redirección del estudiante al Campus Principal
+        redirectUrl.pathname = '/campus'
       }
       return NextResponse.redirect(redirectUrl)
     }
@@ -122,17 +123,17 @@ export async function middleware(request: NextRequest) {
     if (isAdminRoute) {
       if (userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = userRole === 'teacher' ? '/dashboard/teacher' : '/dashboard/student'
+        redirectUrl.pathname = userRole === 'teacher' ? '/dashboard/teacher' : '/campus'
         return NextResponse.redirect(redirectUrl)
       }
     } else if (isTeacherRoute) {
       if (userRole !== 'teacher' && userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/dashboard/student'
+        redirectUrl.pathname = '/campus'
         return NextResponse.redirect(redirectUrl)
       }
     } else if (isStudentRoute) {
-      // Un estudiante o admin tiene acceso TOTAL a /dashboard/student y subrutas
+      // Un estudiante o admin tiene acceso TOTAL a /campus, /dashboard/student, /dashboard/aula y subrutas
       if (userRole !== 'student' && userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
         redirectUrl.pathname = userRole === 'teacher' ? '/dashboard/teacher' : '/dashboard/admin'

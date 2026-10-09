@@ -96,7 +96,7 @@ export default function CampusLoginPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
-          window.location.href = '/dashboard/student'
+          window.location.href = '/campus'
         }
       } catch (e) {
         // Silencioso
@@ -153,7 +153,7 @@ export default function CampusLoginPage() {
             text: t.validationSuccess
           })
           setTimeout(() => {
-            window.location.href = '/dashboard/student'
+            window.location.href = '/campus'
           }, 800)
           return
         }
@@ -168,7 +168,7 @@ export default function CampusLoginPage() {
           text: t.welcomeSuccess 
         })
         setTimeout(() => {
-          window.location.href = '/dashboard/student'
+          window.location.href = '/campus'
         }, 800)
       }
     } catch (err: any) {
@@ -177,7 +177,7 @@ export default function CampusLoginPage() {
         text: t.accessVerified 
       })
       setTimeout(() => {
-        window.location.href = '/dashboard/student'
+        window.location.href = '/campus'
       }, 800)
     } finally {
       setLoading(false)

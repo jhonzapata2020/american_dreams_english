@@ -25,6 +25,7 @@ import {
   Download,
   AlertCircle,
   HelpCircle,
+  BarChart3,
   X
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
@@ -446,7 +447,18 @@ export default function CampusVirtualPage() {
                 <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
                   Orientación y Soporte Académico
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <Link 
+                    href="/dashboard/student"
+                    className="p-3.5 bg-blue-50/70 hover:bg-blue-100/80 border border-blue-200/80 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
+                  >
+                    <BarChart3 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block text-slate-800 group-hover:text-blue-900">Panel & Métricas</strong>
+                      <span className="text-[11px] text-slate-500">Horas, rachas y asistencia</span>
+                    </div>
+                  </Link>
+
                   <button 
                     onClick={() => setShowIncidentModal(true)}
                     className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
