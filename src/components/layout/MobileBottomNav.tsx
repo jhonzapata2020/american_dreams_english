@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { trackEvent } from '../../lib/analytics'
+import { getWhatsAppUrl } from '../../config/contact'
 
 export function MobileBottomNav() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
@@ -53,8 +54,8 @@ export function MobileBottomNav() {
     }
   }, [])
 
-  const whatsappVisitorUrl = "https://wa.me/573207105618?text=Hola,%20quiero%20informaci%C3%B3n%20sobre%20los%20cursos%20de%20ADE"
-  const whatsappStudentUrl = "https://wa.me/573207105618?text=Hola,%20soy%20estudiante%20y%20necesito%20soporte"
+  const whatsappVisitorUrl = getWhatsAppUrl("Hola, quiero información sobre los cursos de ADE")
+  const whatsappStudentUrl = getWhatsAppUrl("Hola, soy estudiante y necesito soporte")
 
   const visitorItems = [
     { label: 'Inicio', href: '/', icon: Home, isExternal: false },

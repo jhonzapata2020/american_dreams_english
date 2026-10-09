@@ -62,8 +62,10 @@ export function LoginView() {
         setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo...` })
         
         setTimeout(() => {
-          if (role === 'admin' || role === 'teacher') {
+          if (role === 'admin') {
             window.location.href = '/admin'
+          } else if (role === 'teacher') {
+            window.location.href = '/campus/docente'
           } else {
             window.location.href = '/campus'
           }

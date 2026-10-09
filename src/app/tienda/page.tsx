@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { trackEvent } from '../../lib/analytics'
+import { getWhatsAppUrl } from '../../config/contact'
 
 interface CartItem {
   product: StoreProduct
@@ -248,7 +249,7 @@ export default function TiendaPage() {
           ? `\n📍 Dirección de Envío: ${shippingAddress}, ${shippingCity}${hasApparelItems ? `\n👕 Talla: ${selectedSize}` : ''}`
           : ''
         const message = `¡Hola Anthony / ADE! Acabo de gestionar mi pedido en la tienda:\n${cart.map(c => `• ${c.product.title} (x${c.quantity}) - ${formatCop(c.product.copPrice * c.quantity)}`).join('\n')}\nTotal: ${formatCop(totalAmountCop)}\nCliente: ${fullName}\nCorreo: ${email}\nTeléfono: ${phone}${physicalDetails}\nReferencia: ${ref}`
-        window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
+        window.open(getWhatsAppUrl(message), '_blank')
         setIsProcessing(false)
         setPurchaseSuccess(true)
       }
@@ -264,7 +265,7 @@ export default function TiendaPage() {
       ? `\n📍 Dirección de Despacho: ${shippingAddress}, ${shippingCity}${hasApparelItems ? `\n👕 Talla seleccionada: ${selectedSize}` : ''}`
       : ''
     const message = `¡Hola Anthony! Acabo de realizar el pago de mi compra en la tienda ADE:\n\n• Referencia: ${transactionRef}\n• Total Pagado: ${formatCop(totalAmountCop)} COP\n• Cliente: ${fullName}\n• Correo: ${email}\n• WhatsApp: ${phone}${physicalDetails}\n\nPor favor confírmame el despacho y radicación de mi pedido.`
-    window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
+    window.open(getWhatsAppUrl(message), '_blank')
   }
 
   return (

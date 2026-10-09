@@ -28,6 +28,7 @@ import {
   X
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { getWhatsAppUrl } from '../../config/contact'
 import { getLevelConfig } from '../../data/levelConfig'
 import { StudentProfileModal, StudentProfileData } from '../../components/campus/StudentProfileModal'
 import { StudentAvatarMenu } from '../../components/campus/StudentAvatarMenu'
@@ -469,7 +470,7 @@ export default function CampusVirtualPage() {
                   </button>
 
                   <a 
-                    href="https://wa.me/573000000000?text=Hola,%20solicito%20soporte%20acad%C3%A9mico%20en%20Campus%20Virtual" 
+                    href={getWhatsAppUrl("Hola, solicito soporte académico en Campus Virtual")} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"

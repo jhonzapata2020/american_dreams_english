@@ -10,6 +10,7 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/contact';
 
 interface ClassSchedule {
   id: string;
@@ -113,10 +114,8 @@ export const LiveClassesModal: React.FC<LiveClassesModalProps> = ({
 
   const handleReserveCupo = (schedule: ClassSchedule) => {
     setReservedSchedule(schedule);
-    const message = encodeURIComponent(
-      `Hola American Dream English, deseo reservar un cupo para el Nivel ${schedule.level} (${schedule.days} en horario ${schedule.time} vía ${schedule.platform}).`
-    );
-    window.open(`https://wa.me/573127459728?text=${message}`, '_blank');
+    const message = `Hola American Dream English, deseo reservar un cupo para el Nivel ${schedule.level} (${schedule.days} en horario ${schedule.time} vía ${schedule.platform}).`;
+    window.open(getWhatsAppUrl(message), '_blank');
   };
 
   return (

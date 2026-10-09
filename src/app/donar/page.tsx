@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { trackEvent } from '../../lib/analytics'
+import { getWhatsAppUrl } from '../../config/contact'
 
 const DONATION_PRESETS = [
   { id: 'p1', amount: 50000, label: '$50.000 COP', impact: 'Financia 50% de la mensualidad de 1 estudiante' },
@@ -145,10 +146,30 @@ export default function DonarPage() {
           }
         })
 
-        checkout.open((result: any) => {
+        checkout.open(async (result: any) => {
           setIsProcessing(false)
           const transaction = result.transaction
           if (transaction && (transaction.status === 'APPROVED' || transaction.status === 'PENDING')) {
+            try {
+              const supabase = createClient()
+              await supabase.from('donations').insert([
+                {
+                  donor_name: finalName,
+                  donor_email: finalEmail,
+                  amount: activeAmount,
+                  tier_title: selectedPreset?.label || 'Donación Personalizada',
+                  frequency: 'monthly',
+                  fee_covered: true,
+                  currency: 'COP',
+                  provider: 'wompi',
+                  gateway_provider: 'wompi',
+                  status: 'completed',
+                  transaction_id: transaction.id || ref
+                }
+              ])
+            } catch (supaErr) {
+              console.warn('Nota guardando donación en Supabase:', supaErr)
+            }
             setDonationSuccess(true)
           }
         })
@@ -159,7 +180,7 @@ export default function DonarPage() {
           amount: activeAmount
         })
         const message = `¡Hola ADE! Deseo realizar una donación al Fondo de Becas "Sponsor a Dream" por valor de ${formatCop(activeAmount)}.\nNombre: ${finalName}\nCorreo: ${finalEmail}`
-        window.open(`https://wa.me/573207105618?text=${encodeURIComponent(message)}`, '_blank')
+        window.open(getWhatsAppUrl(message), '_blank')
         setIsProcessing(false)
       }
     } catch (err: any) {

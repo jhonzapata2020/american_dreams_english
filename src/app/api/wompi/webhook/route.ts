@@ -136,7 +136,24 @@ export async function POST(request: Request) {
         )
       }
 
-      // C. Registrar Matrícula Oficial en enrollments
+      // C. Registrar Transacción en enrollments_transactions
+      try {
+        await supabaseAdmin.from('enrollments_transactions').upsert(
+          {
+            wompi_reference: reference,
+            payment_status: 'APPROVED',
+            student_id: effectiveUserId,
+            product_id: 'ade-ing-a1',
+            amount_in_cents: amount_in_cents || 5000000,
+            created_at: new Date().toISOString()
+          },
+          { onConflict: 'wompi_reference' }
+        )
+      } catch (txErr) {
+        console.warn('[Wompi Webhook] Nota en enrollments_transactions:', txErr)
+      }
+
+      // D. Registrar / Activar Matrícula Oficial en enrollments
       try {
         await supabaseAdmin.from('enrollments').upsert(
           {
@@ -145,8 +162,10 @@ export async function POST(request: Request) {
             course_id: 'ade-ing-a1',
             course_title: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
             current_level: 'A1',
-            modality: 'virtual',
             status: 'active',
+            completed_hours: 0,
+            grade: 0.0,
+            modality: 'virtual',
             payment_reference: reference,
             amount_paid: amount_in_cents ? amount_in_cents / 100 : 50000,
             payment_status: 'APPROVED',
@@ -159,7 +178,7 @@ export async function POST(request: Request) {
         console.warn('[Wompi Webhook] Error registrando enrollment:', enrollErr)
       }
 
-      // D. Actualizar lead o liquidación a estado pagado
+      // E. Actualizar lead o liquidación a estado pagado
       try {
         await supabaseAdmin
           .from('leads')

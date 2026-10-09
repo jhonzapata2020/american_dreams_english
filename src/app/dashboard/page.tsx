@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { InstallPWAButton } from '../../components/common/InstallPWAButton'
+import { getWhatsAppUrl } from '../../config/contact'
 
 interface StudentData {
   id: string
@@ -128,9 +129,9 @@ export default function StudentDashboardPage() {
     loadStudentProfile()
   }, [])
 
-  const whatsappSupportUrl = `https://wa.me/573207105618?text=${encodeURIComponent(
+  const whatsappSupportUrl = getWhatsAppUrl(
     `Hola ADE, soy el estudiante ${student.fullName} (ID: ${student.id}, ${student.currentLevel}) y requiero asistencia académica con mi curso.`
-  )}`
+  )
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-24 md:pb-12 text-slate-900">

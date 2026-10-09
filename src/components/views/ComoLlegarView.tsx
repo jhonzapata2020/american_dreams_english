@@ -31,6 +31,7 @@ import {
 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 import { SoftSwitch3D } from '../ui/SoftSwitch3D'
+import { getWhatsAppUrl } from '../../config/contact'
 
 type RegionTab = 'apartado' | 'turbo' | 'currulao' | 'necocli' | 'vehicle'
 
@@ -45,7 +46,7 @@ export function ComoLlegarView() {
 
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coordsDecimal}`
   const wazeUrl = `https://waze.com/ul?ll=${coordsDecimal}&navigate=yes`
-  const whatsappUrl = 'https://wa.me/573127459728?text=Hola%20American%20Dream%20English,%20quisiera%20indicaciones%20para%20llegar%20a%20la%20sede%20f%C3%ADsica%20en%20la%20Vereda%20Casanova,%20Turbo.'
+  const whatsappUrl = getWhatsAppUrl('Hola American Dream English, quisiera indicaciones para llegar a la sede física en la Vereda Casanova, Turbo.')
 
   const handleCopyCoords = () => {
     navigator.clipboard.writeText(coordsDMS)

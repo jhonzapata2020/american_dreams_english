@@ -17,6 +17,7 @@ import {
 import { createClient } from '../utils/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
 import { trackEvent } from '../lib/analytics';
+import { getWhatsAppUrl } from '../config/contact';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -80,7 +81,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     }
   };
 
-  const whatsappContextUrl = "https://wa.me/573207105618?text=Hola,%20quiero%20informaci%C3%B3n%20sobre%20los%20cursos%20de%20ADE";
+  const whatsappContextUrl = getWhatsAppUrl("Hola, quiero información sobre los cursos de ADE");
 
   return (
     <section className="bg-white pt-4 sm:pt-8 pb-8 lg:py-14 border-b border-slate-100 font-sans">

@@ -23,6 +23,7 @@ import {
   ChevronRight
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { getWhatsAppUrl } from '../../config/contact'
 import { trackEvent } from '../../lib/analytics'
 
 type StepNumber = 1 | 2 | 3 | 4 // 4 = Confirmación final
@@ -174,7 +175,7 @@ export default function BecasPage() {
   }
 
   const whatsappMessage = `¡Hola American Dream English! 🎓\nAcabo de radicar mi postulación al Fondo de Becas.\n\n*Ticket:* ${ticketId}\n*Nombre:* ${fullName}\n*Ciudad:* ${city}\n*Modalidad:* ${modality}\n*Motivo:* ${motivation}\n\nAdjunto este mensaje para validar mi postulación oficial.`
-  const whatsappUrl = `https://wa.me/573207105618?text=${encodeURIComponent(whatsappMessage)}`
+  const whatsappUrl = getWhatsAppUrl(whatsappMessage)
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans pb-24 md:pb-12 text-slate-900">

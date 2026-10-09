@@ -18,6 +18,7 @@ import { Currency, PaymentProvider } from '../types';
 import { DONATION_TIERS, SCHOLARSHIP_RECIPIENTS } from '../data/sprint1Data';
 import { formatCOPK } from '../utils/formatters';
 import { createClient } from '../utils/supabase/client';
+import { getWhatsAppUrl } from '../config/contact';
 
 interface ScholarshipModalProps {
   isOpen: boolean;
@@ -108,10 +109,8 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
       setIsSubmitting(false);
 
       setTimeout(() => {
-        const message = encodeURIComponent(
-          `Hola American Dream English, me llamo ${studentName}, vivo en ${municipio} (${studyLevel}) y acabo de registrar mi postulación al Fondo de Becas Urabá.`
-        );
-        window.open(`https://wa.me/573127459728?text=${message}`, '_blank');
+        const message = `Hola American Dream English, me llamo ${studentName}, vivo en ${municipio} (${studyLevel}) y acabo de registrar mi postulación al Fondo de Becas Urabá.`;
+        window.open(getWhatsAppUrl(message), '_blank');
       }, 1500);
     } catch (err) {
       console.error('Error inesperado al postular:', err);

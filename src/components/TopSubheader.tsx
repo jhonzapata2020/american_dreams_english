@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Phone, MessageCircle, UserCheck, Award, ShieldCheck } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/contact';
 
 interface TopSubheaderProps {
   onOpenStudentPortal: () => void;
@@ -60,7 +61,7 @@ export const TopSubheader: React.FC<TopSubheaderProps> = ({ onOpenStudentPortal 
         <div className="flex items-center space-x-4 text-[11px]">
           
           <a 
-            href="https://wa.me/573000000000" 
+            href={getWhatsAppUrl("Hola, quisiera información sobre los cursos y matrículas en ADE")} 
             target="_blank" 
             rel="noopener noreferrer" 
             className="hidden md:flex items-center gap-1.5 text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors"

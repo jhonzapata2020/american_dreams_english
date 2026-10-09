@@ -27,6 +27,7 @@ import {
 import { createClient } from '../../utils/supabase/client'
 import { useCurrency } from '../../context/CurrencyContext'
 import { SoftSwitch3D } from '../../components/ui/SoftSwitch3D'
+import { getWhatsAppUrl } from '../../config/contact'
 
 // Catálogo formativo formal
 interface AcademicProgram {
@@ -534,7 +535,7 @@ export default function MatriculaPage() {
               </button>
 
               <a
-                href={`https://wa.me/573105001234?text=Hola%20American%20Dream,%20acabo%20de%20pagar%20mi%20matr%C3%ADcula%20para%20el%20programa%20${encodeURIComponent(selectedProgram.title)}%20con%20referencia%20${transactionRef}%20y%20documento%20${docNumber.trim()}`}
+                href={getWhatsAppUrl(`Hola American Dream, acabo de pagar mi matrícula para el programa ${selectedProgram.title} con referencia ${transactionRef} y documento ${docNumber.trim()}`)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm py-3.5 px-5 rounded-xl shadow-sm flex items-center justify-center gap-2 transition-colors"
@@ -1132,7 +1133,7 @@ export default function MatriculaPage() {
 
                 {/* Enlace WhatsApp de dudas */}
                 <a
-                  href="https://wa.me/573105001234?text=Hola%20American%20Dream,%20tengo%20una%20pregunta%20sobre%20el%20pago%20de%20mi%20matr%C3%ADcula"
+                  href={getWhatsAppUrl("Hola American Dream, tengo una pregunta sobre el pago de mi matrícula")}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-xl py-2.5 px-3.5 text-xs font-bold flex items-center justify-center gap-2 transition-colors"

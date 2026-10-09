@@ -21,6 +21,7 @@ import {
   School
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
+import { getWhatsAppUrl } from '../config/contact'
 
 type RouteTab = 'apartado' | 'turbo' | 'vehicle'
 
@@ -35,7 +36,7 @@ export const LocationSection: React.FC = () => {
   
   const googleMapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coordsDecimal}`
   const wazeUrl = `https://waze.com/ul?ll=${coordsDecimal}&navigate=yes`
-  const whatsappUrl = 'https://wa.me/573124567890?text=Hola,%20quisiera%20indicaciones%20para%20llegar%20a%20la%20sede%20de%20American%20Dream%20English%20en%20Turbo'
+  const whatsappUrl = getWhatsAppUrl('Hola, quisiera indicaciones para llegar a la sede de American Dream English en Turbo')
 
   const handleCopyCoords = () => {
     navigator.clipboard.writeText(coordsDMS)

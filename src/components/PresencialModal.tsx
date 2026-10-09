@@ -11,6 +11,7 @@ import {
   MessageCircle,
   CheckCircle2
 } from 'lucide-react';
+import { getWhatsAppUrl } from '../config/contact';
 
 interface PresencialModalProps {
   isOpen: boolean;
@@ -34,10 +35,8 @@ export const PresencialModal: React.FC<PresencialModalProps> = ({
   if (!isOpen) return null;
 
   const handleOpenWhatsApp = () => {
-    const message = encodeURIComponent(
-      'Hola American Dream English, me interesa agendar una visita a la Sede Presencial en Turbo para conocer los programas y matricularme.'
-    );
-    window.open(`https://wa.me/573127459728?text=${message}`, '_blank');
+    const message = 'Hola American Dream English, me interesa agendar una visita a la Sede Presencial en Turbo para conocer los programas y matricularme.';
+    window.open(getWhatsAppUrl(message), '_blank');
   };
 
   return (
