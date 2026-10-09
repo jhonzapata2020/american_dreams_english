@@ -49,6 +49,63 @@ interface AcademicForumProps {
   student: StudentProfileData
 }
 
+// Componente para renderizar Avatar con foto de perfil o iniciales estilizadas con fallback onError
+const ForumAvatar: React.FC<{
+  avatarUrl?: string
+  authorName: string
+  isTeacher?: boolean
+  size?: 'md' | 'sm'
+}> = ({ avatarUrl, authorName, isTeacher = false, size = 'md' }) => {
+  const [imgError, setImgError] = useState(false)
+
+  const sizeClasses = size === 'md' 
+    ? 'w-10 h-10 text-xs' 
+    : 'w-8 h-8 text-[11px]'
+
+  const initials = (authorName || 'U')
+    .trim()
+    .split(/\s+/)
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase() || 'U'
+
+  const isValidUrl = Boolean(
+    avatarUrl && 
+    !imgError && 
+    (avatarUrl.startsWith('http://') || 
+     avatarUrl.startsWith('https://') || 
+     avatarUrl.startsWith('data:image/') || 
+     avatarUrl.startsWith('/'))
+  )
+
+  if (isValidUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={authorName}
+        onError={() => setImgError(true)}
+        className={`${sizeClasses} rounded-full object-cover shadow-sm ring-2 ${
+          isTeacher ? 'ring-amber-400' : 'ring-slate-100'
+        } shrink-0`}
+      />
+    )
+  }
+
+  return (
+    <div
+      className={`${sizeClasses} rounded-full flex items-center justify-center font-black shrink-0 shadow-sm ring-2 ${
+        isTeacher
+          ? 'bg-[#002B49] text-amber-400 ring-amber-400/50'
+          : 'bg-slate-100 text-slate-800 ring-slate-200'
+      }`}
+    >
+      <span>{initials}</span>
+    </div>
+  )
+}
+
 export const AcademicForum: React.FC<AcademicForumProps> = ({
   courseId,
   teacherName,
@@ -109,7 +166,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             courseId: p.course_id,
             authorName: p.author_name,
             authorRole: p.author_role || 'student',
-            authorAvatar: p.author_avatar || p.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
+            authorAvatar: p.author_avatar || '',
             content: p.content,
             imageUrl: p.image_url,
             createdAt: new Date(p.created_at).toLocaleDateString('es-ES', { 
@@ -123,7 +180,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
               postId: r.post_id,
               authorName: r.author_name,
               authorRole: r.author_role || 'student',
-              authorAvatar: r.author_avatar || r.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
+              authorAvatar: r.author_avatar || '',
               content: r.content,
               imageUrl: r.image_url,
               createdAt: new Date(r.created_at).toLocaleDateString('es-ES', { 
@@ -243,7 +300,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
 
       const { data: { session } } = await supabase.auth.getSession()
 
-      const avatarInitials = student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+      const userAvatarUrl = student.avatarUrl || session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || ''
 
       // INSERT directo en forum_posts en Supabase
       const { data: insertedPost, error: insertError } = await supabase
@@ -254,7 +311,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             user_id: session?.user?.id || null,
             author_name: student.fullName,
             author_role: 'student',
-            author_avatar: avatarInitials,
+            author_avatar: userAvatarUrl,
             content: newPostContent.trim(),
             image_url: finalImageUrl
           }
@@ -273,7 +330,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
           courseId: insertedPost.course_id,
           authorName: insertedPost.author_name,
           authorRole: insertedPost.author_role || 'student',
-          authorAvatar: insertedPost.author_avatar || avatarInitials,
+          authorAvatar: insertedPost.author_avatar || userAvatarUrl,
           content: insertedPost.content,
           imageUrl: insertedPost.image_url,
           createdAt: 'Hace un momento',
@@ -338,7 +395,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
       }
 
       const { data: { session } } = await supabase.auth.getSession()
-      const avatarInitials = student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+      const userAvatarUrl = student.avatarUrl || session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || ''
 
       // INSERT directo en forum_replies con post_id
       const { data: insertedReply, error: insertError } = await supabase
@@ -349,7 +406,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             user_id: session?.user?.id || null,
             author_name: student.fullName,
             author_role: 'student',
-            author_avatar: avatarInitials,
+            author_avatar: userAvatarUrl,
             content: replyContent.trim(),
             image_url: finalImageUrl
           }
@@ -368,7 +425,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
           postId: insertedReply.post_id,
           authorName: insertedReply.author_name,
           authorRole: insertedReply.author_role || 'student',
-          authorAvatar: insertedReply.author_avatar || avatarInitials,
+          authorAvatar: insertedReply.author_avatar || userAvatarUrl,
           content: insertedReply.content,
           imageUrl: insertedReply.image_url,
           createdAt: 'Hace un momento'
@@ -455,15 +512,24 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
         )}
 
         <form onSubmit={handleCreatePost} className="space-y-3">
-          <div className="relative">
-            <textarea
-              rows={3}
-              value={newPostContent}
-              onChange={(e) => setNewPostContent(e.target.value)}
-              onPaste={(e) => handlePasteImage(e, 'post')}
-              placeholder="Escribe tu duda sobre gramática, fonética o tareas para que el docente y tus compañeros puedan responderte en tiempo real..."
-              className="w-full p-3.5 sm:p-4 bg-white border border-slate-200 focus:border-[#002B49] focus:ring-2 focus:ring-[#002B49]/20 rounded-2xl text-xs sm:text-sm text-slate-800 font-medium outline-none transition-all shadow-2xs resize-none"
-            />
+          <div className="flex items-start gap-3">
+            <div className="hidden sm:block pt-1">
+              <ForumAvatar 
+                avatarUrl={student.avatarUrl} 
+                authorName={student.fullName} 
+                size="md" 
+              />
+            </div>
+            <div className="relative flex-1">
+              <textarea
+                rows={3}
+                value={newPostContent}
+                onChange={(e) => setNewPostContent(e.target.value)}
+                onPaste={(e) => handlePasteImage(e, 'post')}
+                placeholder="Escribe tu duda sobre gramática, fonética o tareas para que el docente y tus compañeros puedan responderte en tiempo real..."
+                className="w-full p-3.5 sm:p-4 bg-white border border-slate-200 focus:border-[#002B49] focus:ring-2 focus:ring-[#002B49]/20 rounded-2xl text-xs sm:text-sm text-slate-800 font-medium outline-none transition-all shadow-2xs resize-none"
+              />
+            </div>
           </div>
 
           {/* Previsualización de Imagen Adjunta */}
@@ -563,17 +629,12 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
                 {/* Cabecera del Post */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs shrink-0 shadow-2xs border ${
-                      isTeacherPost 
-                        ? 'bg-[#002B49] text-amber-400 border-amber-400' 
-                        : 'bg-slate-100 text-slate-800 border-slate-300'
-                    }`}>
-                      {post.authorAvatar?.startsWith('http') ? (
-                        <img src={post.authorAvatar} alt={post.authorName} className="w-full h-full object-cover rounded-2xl" />
-                      ) : (
-                        <span>{post.authorAvatar || 'ST'}</span>
-                      )}
-                    </div>
+                    <ForumAvatar 
+                      avatarUrl={post.authorAvatar} 
+                      authorName={post.authorName} 
+                      isTeacher={isTeacherPost} 
+                      size="md" 
+                    />
 
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
@@ -669,17 +730,12 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
                           }`}
                         >
                           <div className="flex items-start gap-2.5">
-                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
-                              isTeacherReply 
-                                ? 'bg-[#002B49] text-amber-400 border border-amber-400' 
-                                : 'bg-white text-slate-800 border border-slate-200'
-                            }`}>
-                              {reply.authorAvatar?.startsWith('http') ? (
-                                <img src={reply.authorAvatar} alt={reply.authorName} className="w-full h-full object-cover rounded-xl" />
-                              ) : (
-                                <span>{reply.authorAvatar || 'ST'}</span>
-                              )}
-                            </div>
+                            <ForumAvatar 
+                              avatarUrl={reply.authorAvatar} 
+                              authorName={reply.authorName} 
+                              isTeacher={isTeacherReply} 
+                              size="sm" 
+                            />
 
                             <div className="flex-1 overflow-hidden">
                               <div className="flex flex-wrap items-center gap-2">
@@ -753,15 +809,26 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
                       </button>
                     </div>
 
-                    <textarea
-                      rows={2}
-                      required
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      onPaste={(e) => handlePasteImage(e, 'reply')}
-                      placeholder="Escribe tu respuesta o aclaración... (Puedes pegar una imagen con Ctrl+V)"
-                      className="w-full p-3 bg-white border border-slate-300 focus:border-[#002B49] rounded-xl text-xs text-slate-800 font-medium outline-none shadow-2xs resize-none"
-                    />
+                    <div className="flex items-start gap-2.5">
+                      <div className="hidden sm:block pt-0.5">
+                        <ForumAvatar 
+                          avatarUrl={student.avatarUrl} 
+                          authorName={student.fullName} 
+                          size="sm" 
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <textarea
+                          rows={2}
+                          required
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          onPaste={(e) => handlePasteImage(e, 'reply')}
+                          placeholder="Escribe tu respuesta o aclaración... (Puedes pegar una imagen con Ctrl+V)"
+                          className="w-full p-3 bg-white border border-slate-300 focus:border-[#002B49] rounded-xl text-xs text-slate-800 font-medium outline-none shadow-2xs resize-none"
+                        />
+                      </div>
+                    </div>
 
                     {/* Previsualización imagen de respuesta */}
                     {replyImage && (
