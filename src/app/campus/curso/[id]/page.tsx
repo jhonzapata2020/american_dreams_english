@@ -22,7 +22,7 @@ import {
   BookOpen, 
   CornerDownRight,
   ShieldCheck,
-  Check,
+  User,
   Sparkles
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
@@ -314,499 +314,581 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B1528] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-[#060D19] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
       
       {/* ========================================================================= */}
-      {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON PESTAÑAS FLOTANTES          */}
+      {/* CONTENEDOR PRINCIPAL CON ESQUINAS REDONDEADAS TIPO APP (ESTILO MYDOCS)     */}
       {/* ========================================================================= */}
-      <div className="w-full bg-[#0B1528] text-white pt-5 sm:pt-7 relative">
-        
-        {/* Barra Superior con botón Volver y Título */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between gap-4 pb-4">
-            
-            <div className="flex items-center gap-3">
-              <Link 
-                href="/campus" 
-                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all flex items-center justify-center shrink-0 backdrop-blur-md border border-white/10 shadow-sm"
-                title="Volver al Campus"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
+      <div className="w-full max-w-4xl bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-mono shadow-xs">
-                    {cfg.code}
-                  </span>
-                  <span className="text-xs text-slate-300 font-medium">{cfg.levelBadge}</span>
-                </div>
-                <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white mt-0.5">
-                  {cfg.title}
-                </h1>
-              </div>
-            </div>
-
-            <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/10 text-xs text-slate-200 backdrop-blur-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
-            </div>
-
+        {/* ======================================================================= */}
+        {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON PESTAÑAS FLOTANTES        */}
+        {/* ======================================================================= */}
+        <div className="w-full bg-[#0B1528] text-white pt-4 sm:pt-6 relative">
+          
+          {/* Muesca Superior Elegante (Top App Notch Curve) */}
+          <div className="flex justify-center pb-2">
+            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
-          {/* PESTAÑAS EN CÁPSULAS FLOTANTES (PILL TABS - ESTILO MODYCHAT) */}
-          <div className="pt-2 pb-6 overflow-x-auto no-scrollbar scroll-smooth">
-            <div className="inline-flex items-center gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
+          {/* Barra Superior con botón Volver y Título */}
+          <div className="px-4 sm:px-6">
+            <div className="flex items-center justify-between gap-3 pb-3">
               
-              <button
-                onClick={() => setActiveTab('cronograma')}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === 'cronograma'
-                    ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
-                    : 'text-slate-300 hover:text-white font-semibold'
-                }`}
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Cronograma</span>
-              </button>
+              <div className="flex items-center gap-3">
+                <Link 
+                  href="/campus" 
+                  className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all flex items-center justify-center shrink-0 backdrop-blur-md border border-white/15 shadow-sm"
+                  title="Volver al Campus"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Link>
 
-              <button
-                onClick={() => setActiveTab('materiales')}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === 'materiales'
-                    ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
-                    : 'text-slate-300 hover:text-white font-semibold'
-                }`}
-              >
-                <BookOpen className="w-4 h-4" />
-                <span>Material</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('grabadas')}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === 'grabadas'
-                    ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
-                    : 'text-slate-300 hover:text-white font-semibold'
-                }`}
-              >
-                <Film className="w-4 h-4" />
-                <span>Grabadas</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'grabadas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
-                  {recordedSessions.length}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('foro')}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === 'foro'
-                    ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
-                    : 'text-slate-300 hover:text-white font-semibold'
-                }`}
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span>Foro</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'foro' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
-                  {forumList.length}
-                </span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab('tareas')}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm transition-all whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === 'tareas'
-                    ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
-                    : 'text-slate-300 hover:text-white font-semibold'
-                }`}
-              >
-                <FileText className="w-4 h-4" />
-                <span>Tareas</span>
-              </button>
-
-            </div>
-          </div>
-        </div>
-
-        {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA AL 100% ANCHO */}
-        <div className="w-full overflow-hidden leading-none -mb-1">
-          <svg 
-            viewBox="0 0 1440 100" 
-            preserveAspectRatio="none" 
-            className="w-full h-10 sm:h-16 text-white fill-current block"
-          >
-            <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
-          </svg>
-        </div>
-
-      </div>
-
-      {/* ========================================================================= */}
-      {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA (SIN MÁRGENES GRISES LATERALES)   */}
-      {/* ========================================================================= */}
-      <div className="w-full bg-white flex-1 pb-32">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5">
-
-          {/* ===================================================================== */}
-          {/* PESTAÑA 1: CRONOGRAMA & ACCESO A CLASES EN VIVO                       */}
-          {/* ===================================================================== */}
-          {activeTab === 'cronograma' && (
-            <div className="space-y-6">
-              
-              {/* TARJETA DESTACADA DE CLASE EN VIVO */}
-              <div className="bg-gradient-to-br from-slate-50 to-emerald-50/40 rounded-3xl p-6 sm:p-7 shadow-sm border border-emerald-200/80 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
-                <div className="space-y-2">
+                <div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                    <span className="text-xs font-black text-emerald-800 uppercase tracking-wider">
-                      Sala Sincrónica Activa
+                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-mono shadow-xs">
+                      {cfg.code}
+                    </span>
+                    <span className="text-xs text-slate-300 font-medium">{cfg.levelBadge}</span>
+                  </div>
+                  <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white mt-0.5">
+                    {cfg.title}
+                  </h1>
+                </div>
+              </div>
+
+              <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15 text-xs text-slate-200 backdrop-blur-md">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
+              </div>
+
+            </div>
+
+            {/* PESTAÑAS ADAPTATIVAS (EN MÓVIL CABEN LAS 5 PERFECTAMENTE EN PÍLDORAS ELEGANTES) */}
+            <div className="pt-2 pb-5">
+              
+              {/* VISTA MÓVIL: 5 Píldoras Compactas Integradas (100% Pantalla sin recortes) */}
+              <div className="grid grid-cols-5 gap-1.5 sm:hidden p-1.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-xl shadow-lg">
+                
+                <button
+                  onClick={() => setActiveTab('cronograma')}
+                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
+                    activeTab === 'cronograma'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight text-[10px]">Clases</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('materiales')}
+                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
+                    activeTab === 'materiales'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight text-[10px]">Guías</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('grabadas')}
+                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 relative ${
+                    activeTab === 'grabadas'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <Film className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight text-[10px]">Videos</span>
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('foro')}
+                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 relative ${
+                    activeTab === 'foro'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight text-[10px]">Foro</span>
+                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('tareas')}
+                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
+                    activeTab === 'tareas'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
+                      : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  <FileText className="w-4 h-4 shrink-0" />
+                  <span className="leading-tight text-[10px]">Tareas</span>
+                </button>
+
+              </div>
+
+              {/* VISTA TABLET / ESCRITORIO: Píldoras Horizontales Holgadas */}
+              <div className="hidden sm:inline-flex items-center gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
+                
+                <button
+                  onClick={() => setActiveTab('cronograma')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === 'cronograma'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-105'
+                      : 'text-slate-300 hover:text-white font-semibold'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4" />
+                  <span>Cronograma</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('materiales')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === 'materiales'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-105'
+                      : 'text-slate-300 hover:text-white font-semibold'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  <span>Material</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('grabadas')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === 'grabadas'
+                      ? 'bg-white text-[#0B1528] shadow-md scale-105'
+                      : 'text-slate-300 hover:text-white font-semibold'
+                  }`}
+                >
+                  <Film className="w-4 h-4" />
+                  <span>Grabadas</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'grabadas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
+                    {recordedSessions.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('foro')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === 'foro'
+                      ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
+                      : 'text-slate-300 hover:text-white font-semibold'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span>Foro</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'foro' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
+                    {forumList.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('tareas')}
+                  className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
+                    activeTab === 'tareas'
+                      ? 'bg-white text-[#0B1528] font-black shadow-md scale-105'
+                      : 'text-slate-300 hover:text-white font-semibold'
+                  }`}
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Tareas</span>
+                </button>
+
+              </div>
+
+            </div>
+          </div>
+
+          {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA */}
+          <div className="w-full overflow-hidden leading-none -mb-1">
+            <svg 
+              viewBox="0 0 1440 100" 
+              preserveAspectRatio="none" 
+              className="w-full h-10 sm:h-14 text-white fill-current block"
+            >
+              <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
+            </svg>
+          </div>
+
+        </div>
+
+        {/* ======================================================================= */}
+        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA                                 */}
+        {/* ======================================================================= */}
+        <div className="w-full bg-white flex-1 pb-32">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-5">
+
+            {/* =================================================================== */}
+            {/* PESTAÑA 1: CRONOGRAMA & ACCESO A CLASES EN VIVO                     */}
+            {/* =================================================================== */}
+            {activeTab === 'cronograma' && (
+              <div className="space-y-6">
+                
+                {/* TARJETA DESTACADA DE CLASE EN VIVO */}
+                <div className="bg-gradient-to-br from-slate-50 to-emerald-50/40 rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-200/80 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
+                      <span className="text-xs font-black text-emerald-800 uppercase tracking-wider">
+                        Sala Sincrónica Activa
+                      </span>
+                    </div>
+                    <h2 className="text-base sm:text-xl font-black text-slate-900 leading-snug">
+                      {cfg.liveClassTopic}
+                    </h2>
+                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                      <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>{cfg.nextLiveClass} • 7:00 PM a 8:30 PM (UTC-5)</span>
+                    </div>
+                  </div>
+
+                  <a
+                    href="https://teams.microsoft.com/l/meetup-join/american-dream-class"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black px-7 py-3.5 rounded-2xl text-xs sm:text-sm shadow-md hover:shadow-emerald-500/25 transition-all shrink-0 active:scale-95"
+                  >
+                    <Video className="w-5 h-5" />
+                    <span>Entrar a Clase en Teams</span>
+                    <ExternalLink className="w-4 h-4 ml-1" />
+                  </a>
+                </div>
+
+                {/* CRONOGRAMA SEMANAL (4 DÍAS) */}
+                <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                    <div>
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
+                        Cronograma de la Semana
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        4 sesiones sincrónicas en vivo por Microsoft Teams.
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-[#0B1528] bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs">
+                      Lunes a Jueves
                     </span>
                   </div>
-                  <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-snug">
-                    {cfg.liveClassTopic}
-                  </h2>
-                  <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                    <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>{cfg.nextLiveClass} • 7:00 PM a 8:30 PM (UTC-5)</span>
-                  </div>
-                </div>
 
-                <a
-                  href="https://teams.microsoft.com/l/meetup-join/american-dream-class"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black px-8 py-4 rounded-2xl text-sm shadow-md hover:shadow-emerald-500/25 transition-all shrink-0 active:scale-95"
-                >
-                  <Video className="w-5 h-5" />
-                  <span>Entrar a Clase en Teams</span>
-                  <ExternalLink className="w-4 h-4 ml-1" />
-                </a>
-              </div>
-
-              {/* CRONOGRAMA SEMANAL (4 DÍAS) */}
-              <div className="bg-slate-50/60 rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                  <div>
-                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                      Cronograma de la Semana
-                    </h3>
-                    <p className="text-xs text-slate-500">
-                      4 sesiones sincrónicas de inmersión en vivo por Microsoft Teams.
-                    </p>
-                  </div>
-                  <span className="text-xs font-bold text-[#0B1528] bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs">
-                    Lunes a Jueves
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                  {weeklySchedule.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className={`p-4 rounded-2xl border transition-all ${
-                        item.status === 'active'
-                          ? 'bg-white border-emerald-400 shadow-sm'
-                          : item.status === 'completed'
-                          ? 'bg-slate-100/80 border-slate-200 opacity-75'
-                          : 'bg-white border-slate-200 shadow-2xs'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <strong className="text-xs font-black text-slate-900">{item.day}</strong>
-                            <span className="text-[11px] text-slate-500 font-mono">({item.time})</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {weeklySchedule.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className={`p-4 rounded-2xl border transition-all ${
+                          item.status === 'active'
+                            ? 'bg-white border-emerald-400 shadow-sm'
+                            : item.status === 'completed'
+                            ? 'bg-slate-100/80 border-slate-200 opacity-75'
+                            : 'bg-white border-slate-200 shadow-2xs'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <strong className="text-xs font-black text-slate-900">{item.day}</strong>
+                              <span className="text-[11px] text-slate-500 font-mono">({item.time})</span>
+                            </div>
+                            <p className="text-xs font-semibold text-slate-700 leading-snug">{item.topic}</p>
                           </div>
-                          <p className="text-xs font-semibold text-slate-700 leading-snug">{item.topic}</p>
+
+                          <div className="shrink-0">
+                            {item.status === 'active' && (
+                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
+                                Hoy
+                              </span>
+                            )}
+                            {item.status === 'completed' && (
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
+                                Dictada
+                              </span>
+                            )}
+                            {item.status === 'upcoming' && (
+                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                                Próxima
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {/* =================================================================== */}
+            {/* PESTAÑA 2: MATERIAL DE ESTUDIO (PDFs & AUDIOS MP3)                  */}
+            {/* =================================================================== */}
+            {activeTab === 'materiales' && (
+              <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-5">
+                <div className="border-b border-slate-200/80 pb-3">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
+                    Guías de Aprendizaje y Audios Fonéticos
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Materiales directos para estudiar antes y después de cada clase.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {studyMaterials.map((mat) => (
+                    <div
+                      key={mat.id}
+                      className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
+                    >
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                            mat.type === 'pdf' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                          }`}>
+                            {mat.type === 'pdf' ? 'GUÍA PDF' : 'AUDIO MP3'}
+                          </span>
+                          <span className="text-xs text-slate-400 font-mono font-medium">{mat.size}</span>
                         </div>
 
-                        <div className="shrink-0">
-                          {item.status === 'active' && (
-                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                              Hoy
-                            </span>
-                          )}
-                          {item.status === 'completed' && (
-                            <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
-                              Dictada
-                            </span>
-                          )}
-                          {item.status === 'upcoming' && (
-                            <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                              Próxima
-                            </span>
-                          )}
-                        </div>
+                        <h4 className="font-extrabold text-sm text-slate-900 leading-snug">{mat.title}</h4>
+                        <p className="text-xs text-slate-500">{mat.description}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 pt-1">
+                        {mat.type === 'audio' && (
+                          <button
+                            onClick={() => setPlayingAudioId(playingAudioId === mat.id ? null : mat.id)}
+                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs ${
+                              playingAudioId === mat.id
+                                ? 'bg-purple-700 text-white animate-pulse'
+                                : 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100'
+                            }`}
+                          >
+                            {playingAudioId === mat.id ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
+                            <span>{playingAudioId === mat.id ? 'Pausar' : 'Escuchar'}</span>
+                          </button>
+                        )}
+
+                        <a
+                          href={mat.downloadUrl}
+                          download
+                          className="bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-2xs"
+                        >
+                          <Download className="w-4 h-4" />
+                          <span>Descargar</span>
+                        </a>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
+            )}
 
-            </div>
-          )}
+            {/* =================================================================== */}
+            {/* PESTAÑA 3: CLASES GRABADAS (ON-DEMAND)                              */}
+            {/* =================================================================== */}
+            {activeTab === 'grabadas' && (
+              <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-5">
+                <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                  <div>
+                    <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
+                      Videoteca de Sesiones Grabadas
+                    </h3>
+                    <p className="text-xs text-slate-500">
+                      Acceso a las grabaciones en la nube de Microsoft Teams.
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs">
+                    {recordedSessions.length} Grabaciones
+                  </span>
+                </div>
 
-          {/* ===================================================================== */}
-          {/* PESTAÑA 2: MATERIAL DE ESTUDIO (PDFs & AUDIOS MP3)                    */}
-          {/* ===================================================================== */}
-          {activeTab === 'materiales' && (
-            <div className="bg-slate-50/60 rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-5">
-              <div className="border-b border-slate-200/80 pb-3">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  Guías de Aprendizaje y Audios Fonéticos
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Materiales directos para estudiar antes y después de cada clase sincrónica.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {studyMaterials.map((mat) => (
-                  <div
-                    key={mat.id}
-                    className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
-                  >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between">
-                        <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                          mat.type === 'pdf' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                        }`}>
-                          {mat.type === 'pdf' ? 'GUÍA PDF' : 'AUDIO MP3'}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {recordedSessions.map((rec) => (
+                    <div
+                      key={rec.id}
+                      className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:shadow-md transition-all"
+                    >
+                      <div 
+                        onClick={() => setSelectedVideo(rec)}
+                        className="relative aspect-video rounded-xl overflow-hidden bg-slate-950 cursor-pointer group flex items-center justify-center shadow-xs"
+                      >
+                        <img src={rec.thumbnailUrl} alt={rec.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
+                        <div className="absolute w-11 h-11 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                          <Play className="w-5 h-5 fill-slate-950 ml-0.5" />
+                        </div>
+                        <span className="absolute bottom-2 right-2 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-white">
+                          {rec.duration}
                         </span>
-                        <span className="text-xs text-slate-400 font-mono font-medium">{mat.size}</span>
                       </div>
 
-                      <h4 className="font-extrabold text-sm text-slate-900 leading-snug">{mat.title}</h4>
-                      <p className="text-xs text-slate-500">{mat.description}</p>
-                    </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                          <span>{rec.date}</span>
+                          <span>Docente: {rec.teacher}</span>
+                        </div>
+                        <h4 className="font-extrabold text-xs text-slate-900 line-clamp-1">{rec.title}</h4>
+                      </div>
 
-                    <div className="flex items-center gap-2 pt-1">
-                      {mat.type === 'audio' && (
-                        <button
-                          onClick={() => setPlayingAudioId(playingAudioId === mat.id ? null : mat.id)}
-                          className={`flex-1 py-3 px-4 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs ${
-                            playingAudioId === mat.id
-                              ? 'bg-purple-700 text-white animate-pulse'
-                              : 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100'
-                          }`}
-                        >
-                          {playingAudioId === mat.id ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-                          <span>{playingAudioId === mat.id ? 'Pausar Audio' : 'Escuchar Audio'}</span>
-                        </button>
-                      )}
-
-                      <a
-                        href={mat.downloadUrl}
-                        download
-                        className="bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold py-3 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-2xs"
+                      <button
+                        onClick={() => setSelectedVideo(rec)}
+                        className="w-full bg-slate-50 hover:bg-[#0B1528] hover:text-white text-[#0B1528] border border-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
                       >
-                        <Download className="w-4 h-4" />
-                        <span>Descargar</span>
-                      </a>
+                        <Play className="w-3.5 h-3.5" />
+                        <span>Ver Grabación</span>
+                      </button>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* ===================================================================== */}
-          {/* PESTAÑA 3: CLASES GRABADAS (ON-DEMAND)                                */}
-          {/* ===================================================================== */}
-          {activeTab === 'grabadas' && (
-            <div className="bg-slate-50/60 rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
-                <div>
-                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                    Videoteca de Sesiones Grabadas
+            {/* =================================================================== */}
+            {/* PESTAÑA 4: FORO DE DUDAS Y PREGUNTAS AL DOCENTE                     */}
+            {/* =================================================================== */}
+            {activeTab === 'foro' && (
+              <div className="space-y-5">
+                
+                {/* Formulario de Pregunta */}
+                <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-3 shadow-sm">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
+                    Preguntar al Docente
+                  </h3>
+                  <form onSubmit={handleSendQuestion} className="space-y-3">
+                    <textarea
+                      rows={2}
+                      value={newQuestionText}
+                      onChange={(e) => setNewQuestionText(e.target.value)}
+                      placeholder="Escribe aquí tu pregunta sobre gramática, fonética o tareas..."
+                      className="w-full p-3 bg-white border border-slate-200 rounded-2xl text-xs outline-hidden focus:ring-2 focus:ring-[#0B1528] shadow-2xs"
+                    />
+                    <div className="flex justify-end">
+                      <button
+                        type="submit"
+                        disabled={!newQuestionText.trim()}
+                        className="bg-[#0B1528] hover:bg-slate-900 disabled:opacity-50 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm"
+                      >
+                        <Send className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Publicar Pregunta</span>
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {/* Listado de Preguntas */}
+                <div className="space-y-3.5">
+                  {forumList.map((item) => (
+                    <div key={item.id} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/80 space-y-3">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-2xl bg-[#0B1528] text-amber-400 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                          {item.studentAvatar}
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <strong className="text-xs font-bold text-slate-900">{item.studentName}</strong>
+                            <span className="text-[10px] text-slate-400">{item.date}</span>
+                          </div>
+                          <p className="text-xs text-slate-700 leading-relaxed">{item.question}</p>
+                        </div>
+                      </div>
+
+                      {item.reply && (
+                        <div className="ml-5 sm:ml-8 pl-4 border-l-2 border-amber-400 bg-amber-50/60 p-3.5 rounded-r-2xl space-y-1">
+                          <div className="flex items-center gap-2">
+                            <CornerDownRight className="w-3.5 h-3.5 text-amber-700" />
+                            <strong className="text-xs text-amber-950 font-bold">{item.reply.teacherName} (Docente)</strong>
+                            <span className="text-[10px] text-amber-700">{item.reply.date}</span>
+                          </div>
+                          <p className="text-xs text-slate-800 font-medium">{item.reply.response}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+            )}
+
+            {/* =================================================================== */}
+            {/* PESTAÑA 5: TAREAS & ENTREGAS                                        */}
+            {/* =================================================================== */}
+            {activeTab === 'tareas' && (
+              <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-5">
+                <div className="border-b border-slate-200/80 pb-3">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
+                    Tareas y Actividades Calificables
                   </h3>
                   <p className="text-xs text-slate-500">
-                    Acceso a las grabaciones en la nube de Microsoft Teams.
+                    Revisa los plazos y envía tus soluciones en audio o documento.
                   </p>
                 </div>
-                <span className="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs">
-                  {recordedSessions.length} Grabaciones
-                </span>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {recordedSessions.map((rec) => (
-                  <div
-                    key={rec.id}
-                    className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-sm hover:shadow-md transition-all"
-                  >
-                    <div 
-                      onClick={() => setSelectedVideo(rec)}
-                      className="relative aspect-video rounded-xl overflow-hidden bg-slate-950 cursor-pointer group flex items-center justify-center shadow-xs"
+                <div className="space-y-3.5">
+                  {assignments.map((task) => (
+                    <div
+                      key={task.id}
+                      className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
                     >
-                      <img src={rec.thumbnailUrl} alt={rec.title} className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" />
-                      <div className="absolute w-11 h-11 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                        <Play className="w-5 h-5 fill-slate-950 ml-0.5" />
-                      </div>
-                      <span className="absolute bottom-2 right-2 bg-black/80 text-[10px] font-bold px-2 py-0.5 rounded text-white">
-                        {rec.duration}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-[11px] text-slate-400">
-                        <span>{rec.date}</span>
-                        <span>Docente: {rec.teacher}</span>
-                      </div>
-                      <h4 className="font-extrabold text-xs text-slate-900 line-clamp-1">{rec.title}</h4>
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedVideo(rec)}
-                      className="w-full bg-slate-50 hover:bg-[#0B1528] hover:text-white text-[#0B1528] border border-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-                    >
-                      <Play className="w-3.5 h-3.5" />
-                      <span>Ver Grabación</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* ===================================================================== */}
-          {/* PESTAÑA 4: FORO DE DUDAS Y PREGUNTAS AL DOCENTE                       */}
-          {/* ===================================================================== */}
-          {activeTab === 'foro' && (
-            <div className="space-y-5">
-              
-              {/* Formulario de Pregunta */}
-              <div className="bg-slate-50/60 rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-3 shadow-sm">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  Preguntar al Docente
-                </h3>
-                <form onSubmit={handleSendQuestion} className="space-y-3">
-                  <textarea
-                    rows={2}
-                    value={newQuestionText}
-                    onChange={(e) => setNewQuestionText(e.target.value)}
-                    placeholder="Escribe aquí tu pregunta sobre gramática, fonética o tareas..."
-                    className="w-full p-3.5 bg-white border border-slate-200 rounded-2xl text-xs outline-hidden focus:ring-2 focus:ring-[#0B1528] shadow-2xs"
-                  />
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      disabled={!newQuestionText.trim()}
-                      className="bg-[#0B1528] hover:bg-slate-900 disabled:opacity-50 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm"
-                    >
-                      <Send className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Publicar Pregunta</span>
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* Listado de Preguntas */}
-              <div className="space-y-3.5">
-                {forumList.map((item) => (
-                  <div key={item.id} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/80 space-y-3">
-                    <div className="flex items-start gap-3">
-                      <div className="w-9 h-9 rounded-2xl bg-[#0B1528] text-amber-400 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                        {item.studentAvatar}
-                      </div>
-                      <div className="space-y-1">
+                      <div className="space-y-1.5 max-w-xl">
                         <div className="flex items-center gap-2">
-                          <strong className="text-xs font-bold text-slate-900">{item.studentName}</strong>
-                          <span className="text-[10px] text-slate-400">{item.date}</span>
+                          {task.status === 'graded' && (
+                            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                              Calificado: {task.score}
+                            </span>
+                          )}
+                          {task.status === 'submitted' && (
+                            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                              Entregado (En Revisión)
+                            </span>
+                          )}
+                          {task.status === 'pending' && (
+                            <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
+                              Pendiente
+                            </span>
+                          )}
+                          <span className="text-xs font-semibold text-slate-400">Puntos: {task.points}</span>
                         </div>
-                        <p className="text-xs text-slate-700 leading-relaxed">{item.question}</p>
+
+                        <h4 className="font-extrabold text-sm text-slate-900">{task.title}</h4>
+                        <p className="text-xs text-slate-500">Fecha límite: <strong>{task.dueDate}</strong></p>
+
+                        {task.feedback && (
+                          <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 font-medium mt-2">
+                            <strong>Retroalimentación Docente:</strong> {task.feedback}
+                          </p>
+                        )}
                       </div>
+
+                      <button
+                        onClick={() => {
+                          setSelectedTask(task)
+                          setUploadFileName('')
+                          setStudentComment('')
+                          setSubmitSuccess(false)
+                        }}
+                        className={`px-5 py-3 rounded-2xl font-bold text-xs transition-all shrink-0 shadow-xs active:scale-95 ${
+                          task.status === 'pending'
+                            ? 'bg-[#0B1528] text-white hover:bg-slate-900'
+                            : 'bg-slate-50 text-slate-800 border border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {task.status === 'pending' ? 'Adjuntar Solución' : 'Ver Detalles'}
+                      </button>
                     </div>
-
-                    {item.reply && (
-                      <div className="ml-5 sm:ml-8 pl-4 border-l-2 border-amber-400 bg-amber-50/60 p-3.5 rounded-r-2xl space-y-1">
-                        <div className="flex items-center gap-2">
-                          <CornerDownRight className="w-3.5 h-3.5 text-amber-700" />
-                          <strong className="text-xs text-amber-950 font-bold">{item.reply.teacherName} (Docente)</strong>
-                          <span className="text-[10px] text-amber-700">{item.reply.date}</span>
-                        </div>
-                        <p className="text-xs text-slate-800 font-medium">{item.reply.response}</p>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+            )}
 
-            </div>
-          )}
-
-          {/* ===================================================================== */}
-          {/* PESTAÑA 5: TAREAS & ENTREGAS                                          */}
-          {/* ===================================================================== */}
-          {activeTab === 'tareas' && (
-            <div className="bg-slate-50/60 rounded-3xl p-6 sm:p-7 border border-slate-200/80 space-y-5">
-              <div className="border-b border-slate-200/80 pb-3">
-                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">
-                  Tareas y Actividades Calificables
-                </h3>
-                <p className="text-xs text-slate-500">
-                  Revisa los plazos y envía tus soluciones en audio o documento.
-                </p>
-              </div>
-
-              <div className="space-y-3.5">
-                {assignments.map((task) => (
-                  <div
-                    key={task.id}
-                    className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
-                  >
-                    <div className="space-y-1.5 max-w-xl">
-                      <div className="flex items-center gap-2">
-                        {task.status === 'graded' && (
-                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            Calificado: {task.score}
-                          </span>
-                        )}
-                        {task.status === 'submitted' && (
-                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
-                            Entregado (En Revisión)
-                          </span>
-                        )}
-                        {task.status === 'pending' && (
-                          <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200">
-                            Pendiente
-                          </span>
-                        )}
-                        <span className="text-xs font-semibold text-slate-400">Puntos: {task.points}</span>
-                      </div>
-
-                      <h4 className="font-extrabold text-sm text-slate-900">{task.title}</h4>
-                      <p className="text-xs text-slate-500">Fecha límite: <strong>{task.dueDate}</strong></p>
-
-                      {task.feedback && (
-                        <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 font-medium mt-2">
-                          <strong>Retroalimentación Docente:</strong> {task.feedback}
-                        </p>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        setSelectedTask(task)
-                        setUploadFileName('')
-                        setStudentComment('')
-                        setSubmitSuccess(false)
-                      }}
-                      className={`px-5 py-3 rounded-2xl font-bold text-xs transition-all shrink-0 shadow-xs active:scale-95 ${
-                        task.status === 'pending'
-                          ? 'bg-[#0B1528] text-white hover:bg-slate-900'
-                          : 'bg-slate-50 text-slate-800 border border-slate-200 hover:bg-slate-100'
-                      }`}
-                    >
-                      {task.status === 'pending' ? 'Adjuntar Solución' : 'Ver Detalles'}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
+          </div>
         </div>
+
       </div>
 
       {/* ========================================================================= */}
