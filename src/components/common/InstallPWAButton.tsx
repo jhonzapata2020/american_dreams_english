@@ -17,18 +17,33 @@ export function InstallPWAButton({
 }: InstallPWAButtonProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [isStandalone, setIsStandalone] = useState(false)
+  const [isSmallScreen, setIsSmallScreen] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // 1. Detectar si ya corre en modo Standalone PWA
+    // 1. Detectar si la pantalla es de 675px o menos (Mobile Only)
+    const mediaQuery = window.matchMedia('(max-width: 675px)')
+    setIsSmallScreen(mediaQuery.matches)
+
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      setIsSmallScreen(e.matches)
+    }
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', handleMediaChange)
+    } else {
+      mediaQuery.addListener(handleMediaChange)
+    }
+
+    // 2. Detectar si ya corre en modo Standalone PWA
     const isStandaloneMode = 
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true
 
     setIsStandalone(isStandaloneMode)
 
-    // 2. Capturar evento nativo beforeinstallprompt
+    // 3. Capturar evento nativo beforeinstallprompt
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault()
       setDeferredPrompt(e)
@@ -43,13 +58,18 @@ export function InstallPWAButton({
     window.addEventListener('appinstalled', handleAppInstalled)
 
     return () => {
+      if (mediaQuery.removeEventListener) {
+        mediaQuery.removeEventListener('change', handleMediaChange)
+      } else {
+        mediaQuery.removeListener(handleMediaChange)
+      }
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
       window.removeEventListener('appinstalled', handleAppInstalled)
     }
   }, [])
 
-  // Visibilidad condicional estricta: Si no hay evento diferido o ya está instalada, no renderizar nada
-  if (!deferredPrompt || isStandalone) {
+  // Visibilidad condicional estricta: Solo en pantallas de 675px o menos, con evento diferido y si no está instalada
+  if (!isSmallScreen || !deferredPrompt || isStandalone) {
     return null
   }
 
@@ -76,7 +96,7 @@ export function InstallPWAButton({
       <button
         type="button"
         onClick={handleInstall}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white hover:bg-crimson-600 text-xs font-black rounded-xl shadow-xs active:scale-[0.96] select-none transition-all cursor-pointer ${className}`}
+        className={`max-[675px]:inline-flex hidden items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white hover:bg-crimson-600 text-xs font-black rounded-xl shadow-xs active:scale-[0.96] select-none transition-all cursor-pointer ${className}`}
         title="Instalar App de American Dream English"
       >
         <Smartphone className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -87,7 +107,7 @@ export function InstallPWAButton({
 
   if (variant === 'banner') {
     return (
-      <div className={`p-3.5 bg-gradient-to-r from-navy-900 to-navy-950 text-white rounded-2xl border border-navy-800 shadow-lg flex items-center justify-between gap-3 ${className}`}>
+      <div className={`max-[675px]:flex hidden p-3.5 bg-gradient-to-r from-navy-900 to-navy-950 text-white rounded-2xl border border-navy-800 shadow-lg items-center justify-between gap-3 ${className}`}>
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-crimson-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 shadow-sm">
             📲
@@ -114,7 +134,7 @@ export function InstallPWAButton({
     <button
       type="button"
       onClick={handleInstall}
-      className={`min-h-[44px] px-4 py-2 bg-slate-900 hover:bg-crimson-600 text-white text-xs sm:text-sm font-black rounded-xl shadow-sm flex items-center justify-center gap-2 active:scale-[0.97] select-none transition-all cursor-pointer ${className}`}
+      className={`max-[675px]:inline-flex hidden min-h-[44px] px-4 py-2 bg-slate-900 hover:bg-crimson-600 text-white text-xs sm:text-sm font-black rounded-xl shadow-sm items-center justify-center gap-2 active:scale-[0.97] select-none transition-all cursor-pointer ${className}`}
     >
       <Smartphone className="w-4 h-4 stroke-[2.5]" />
       <span>📲 Instalar App</span>

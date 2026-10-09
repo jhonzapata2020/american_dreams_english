@@ -123,8 +123,10 @@ export const Navbar: React.FC<NavbarProps> = ({
               />
             </div>
 
-            {/* BOTÓN INSTALAR APP PWA (Universal) */}
-            <InstallPWAButton variant="navbar" />
+            {/* BOTÓN INSTALAR APP PWA (Solo pantallas móviles <= 675px) */}
+            <div className="max-[675px]:block hidden">
+              <InstallPWAButton variant="navbar" />
+            </div>
 
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL (Desktop / Tablet) */}
             <a 
