@@ -366,9 +366,9 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     <div className="min-h-screen bg-[#060D19] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
       
       {/* ========================================================================= */}
-      {/* CONTENEDOR PRINCIPAL CON ESQUINAS REDONDEADAS TIPO APP (ESTILO MYDOCS)     */}
+      {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-4xl bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
+      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
 
         {/* ======================================================================= */}
         {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON PESTAÑAS FLOTANTES        */}
@@ -380,14 +380,15 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
-          {/* Barra Superior con botón Volver y Título */}
-          <div className="px-4 sm:px-6">
-            <div className="flex items-center justify-between gap-3 pb-3">
+          {/* Barra Superior con distribución equilibrada: Izquierda (Volver + Nivel + Título) y Derecha (Estudiante + Docente) */}
+          <div className="px-4 sm:px-8">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 md:py-6 border-b border-white/10">
               
-              <div className="flex items-center gap-3">
+              {/* Bloque izquierdo: Botón volver + Badge de nivel + Título ENGLISH LEVEL 1 */}
+              <div className="flex items-center gap-3.5 w-full md:w-auto">
                 <Link 
                   href="/campus" 
-                  className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all flex items-center justify-center shrink-0 backdrop-blur-md border border-white/15 shadow-sm"
+                  className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all flex items-center justify-center shrink-0 backdrop-blur-md border border-white/15 shadow-sm"
                   title="Volver al Campus"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -400,14 +401,15 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                     </span>
                     <span className="text-xs text-slate-300 font-medium">{cfg.levelBadge}</span>
                   </div>
-                  <h1 className="text-lg sm:text-2xl font-black tracking-tight text-white mt-0.5">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white mt-0.5">
                     {cfg.title}
                   </h1>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2.5">
-                <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15 text-xs text-slate-200 backdrop-blur-md">
+              {/* Bloque derecho: Ficha compacta de Estudiante y Docente alineada */}
+              <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
+                <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
                 </div>
@@ -425,11 +427,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
             </div>
 
-            {/* PESTAÑAS ADAPTATIVAS (EN MÓVIL CABEN LAS 5 PERFECTAMENTE EN PÍLDORAS ELEGANTES) */}
-            <div className="pt-2 pb-5">
+            {/* PESTAÑAS ADAPTATIVAS (CENTRADO HORIZONTAL DE FORMA EQUILIBRADA) */}
+            <div className="pt-4 pb-6 flex justify-center w-full">
               
               {/* VISTA MÓVIL: 5 Píldoras Compactas Integradas (100% Pantalla sin recortes) */}
-              <div className="grid grid-cols-5 gap-1.5 sm:hidden p-1.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-xl shadow-lg">
+              <div className="grid grid-cols-5 gap-1.5 sm:hidden p-1.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-xl shadow-lg w-full max-w-md">
                 
                 <button
                   onClick={() => setActiveTab('cronograma')}
@@ -495,8 +497,8 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
               </div>
 
-              {/* VISTA TABLET / ESCRITORIO: Píldoras Horizontales Holgadas */}
-              <div className="hidden sm:inline-flex items-center gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
+              {/* VISTA TABLET / ESCRITORIO: Píldoras Horizontales Holgadas Centradas */}
+              <div className="hidden sm:inline-flex items-center justify-center flex-wrap gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
                 
                 <button
                   onClick={() => setActiveTab('cronograma')}

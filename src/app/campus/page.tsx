@@ -222,258 +222,54 @@ export default function CampusVirtualPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans selection:bg-[#002B49] selection:text-white flex flex-col justify-between">
+    <div className="min-h-screen bg-[#060D19] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
       
-      {/* 1. BARRA SUPERIOR INSTITUCIONAL TIPO UNAD */}
-      <div className="bg-[#001f35] text-white border-b border-slate-800 text-[11px] py-1.5 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="font-bold text-amber-400">Campus Virtual UNAD-Style</span>
-            <span className="hidden md:inline text-slate-400">|</span>
-            <span className="hidden md:inline text-slate-300">Periodo Académico: <strong>2026-I (Enero - Junio)</strong></span>
-          </div>
-          <div className="flex items-center gap-4 font-semibold text-slate-300">
-            <a href="/" className="hover:text-white transition-colors">Portal Principal</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowIncidentModal(true); }} className="hover:text-amber-400 transition-colors">Mesa de Ayuda</a>
-          </div>
-        </div>
-      </div>
+      {/* ========================================================================= */}
+      {/* CONTENEDOR PRINCIPAL UNIFICADO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
+      {/* ========================================================================= */}
+      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
 
-      {/* 2. HEADER CON LOGOTIPO INSTITUCIONAL */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#002B49] text-white flex items-center justify-center font-black text-lg shadow-sm">
-              AD
-            </div>
-            <div>
-              <span className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight block leading-tight">
-                AMERICAN DREAM ENGLISH
-              </span>
-              <span className="text-[10px] sm:text-xs font-semibold text-amber-600 uppercase tracking-wider block">
-                Plataforma de Formación y Campus Virtual
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <StudentAvatarMenu
-              student={student}
-              onOpenEditProfile={(tab) => {
-                setProfileInitialTab(tab || 'info')
-                setShowProfileModal(true)
-              }}
-              onLogout={handleLogout}
-              onOpenCert={() => setShowCertModal(true)}
-              variant="header"
-            />
-            
-            <button
-              onClick={handleLogout}
-              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl transition-colors"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span>Salir</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      {/* 3. CARRUSEL DE COMUNICADOS INSTITUCIONALES */}
-      <div className="bg-[#002B49] text-white border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <span className="shrink-0 bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded tracking-wider">
-              {OFFICIAL_ANNOUNCEMENTS[announcementIdx].tag}
-            </span>
-            <p className="text-xs font-medium text-slate-200 truncate">
-              {OFFICIAL_ANNOUNCEMENTS[announcementIdx].title}{' '}
-              <span className="text-amber-300 font-bold ml-1.5">
-                ({OFFICIAL_ANNOUNCEMENTS[announcementIdx].date})
-              </span>
-            </p>
-          </div>
-
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => setAnnouncementIdx((prev) => (prev - 1 + OFFICIAL_ANNOUNCEMENTS.length) % OFFICIAL_ANNOUNCEMENTS.length)}
-              className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setAnnouncementIdx((prev) => (prev + 1) % OFFICIAL_ANNOUNCEMENTS.length)}
-              className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* 4. CUERPO PRINCIPAL: LAYOUT FORMAL UNAD (2 COLUMNAS: 70% / 30%) */}
-      <main className="max-w-6xl mx-auto px-4 py-8 flex-1 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* ======================================================================= */}
+        {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON NOTCH Y CABECERA INSTITUCIONAL */}
+        {/* ======================================================================= */}
+        <div className="w-full bg-[#0B1528] text-white pt-4 sm:pt-6 relative">
           
-          {/* ========================================================== */}
-          {/* COLUMNA IZQUIERDA (70% - lg:col-span-8): CURSOS ACTIVOS    */}
-          {/* ========================================================== */}
-          <div className="lg:col-span-8 space-y-6">
-            
-            {/* Cabecera de Sección */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-[#002B49] text-amber-400 flex items-center justify-center font-bold">
-                  <GraduationCap className="w-5 h-5" />
+          {/* Muesca Superior Elegante (Top App Notch Curve) */}
+          <div className="flex justify-center pb-2">
+            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+          </div>
+
+          {/* Barra Superior Institucional con Saludo y Ficha de Estudiante */}
+          <div className="px-4 sm:px-8 py-3 md:py-4">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+              
+              {/* Bloque Izquierdo: Logo + Nombre Institucional + Saludo */}
+              <div className="flex items-center gap-3.5 w-full md:w-auto">
+                <div className="w-11 h-11 rounded-2xl bg-[#002B49] border border-amber-400/40 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
+                  AD
                 </div>
                 <div>
-                  <h1 className="text-lg sm:text-xl font-black text-slate-900">
-                    Mis Cursos Matriculados
-                  </h1>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Ciclo Formativo Vigente · Periodo 2026-I
+                  <div className="flex items-center gap-2">
+                    <span className="font-black text-base sm:text-lg text-white tracking-tight leading-tight block">
+                      AMERICAN DREAM ENGLISH
+                    </span>
+                    <span className="hidden sm:inline-block bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                      Campus Virtual
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 font-medium">
+                    ¡Hola, <strong className="text-white">{student.fullName.split(' ')[0]}</strong>! Bienvenido a tu entorno académico.
                   </p>
                 </div>
               </div>
 
-              <span className="text-xs font-extrabold text-[#002B49] bg-slate-100 px-3 py-1 rounded-lg">
-                1 Curso Activo
-              </span>
-            </div>
-
-            {/* Listado de Tarjetas de Cursos */}
-            <div className="space-y-4">
-              {enrolledCourses.map((course) => (
-                <div 
-                  key={course.id}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden border-t-4 border-t-[#002B49]"
-                >
-                  {/* Encabezado del curso */}
-                  <div className="p-5 sm:p-6 pb-4">
-                    <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="bg-[#002B49] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider">
-                          {course.code}
-                        </span>
-                        <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                          {course.credits} Créditos Académicos
-                        </span>
-                      </div>
-
-                      <div className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                        <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Próxima clase: <strong className="text-slate-800">{course.nextLiveClass}</strong></span>
-                      </div>
-                    </div>
-
-                    <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                      {course.title}
-                    </h2>
-                    
-                    <p className="text-xs text-slate-500 font-medium mt-1">
-                      Modalidad: <span className="text-slate-700 font-semibold">{course.modality}</span> · Docente: <span className="text-slate-700 font-semibold">{course.teacherName}</span>
-                    </p>
-
-                    {/* Barra de Progreso y Puntuación */}
-                    <div className="mt-5 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold">
-                        <span className="text-slate-600">
-                          Progreso en el Aula Virtual
-                        </span>
-                        <span className="text-[#002B49]">
-                          {course.progress}% Completado
-                        </span>
-                      </div>
-                      <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
-                        <div 
-                          className="bg-gradient-to-r from-amber-400 to-[#002B49] h-full rounded-full transition-all duration-700" 
-                          style={{ width: `${course.progress}%` }} 
-                        />
-                      </div>
-
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 pt-1">
-                        <span className="flex items-center gap-1 text-emerald-700 font-bold">
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          Calificación Acumulada: 🟢 {course.accumulatedPoints} / 🟡 {course.maxPoints} pts
-                        </span>
-                        <span>Nivel MCER: {course.level}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer de la tarjeta con Botón de Acceso */}
-                  <div className="bg-slate-50 px-5 sm:px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
-                      Incluye: Clases Teams, Guías PDF, Audios y Zona de Tareas.
-                    </div>
-
-                    <Link
-                      href={`/campus/curso/${course.id}`}
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-black px-6 py-3 rounded-xl shadow-sm hover:shadow-md transition-all text-xs tracking-wide group active:scale-[0.98]"
-                    >
-                      <span>Acceder al Aula Virtual</span>
-                      <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </div>
+              {/* Bloque Derecho: Badge de Ciclo + Avatar + Salir */}
+              <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="font-bold">Periodo 2026-I</span>
                 </div>
-              ))}
-            </div>
 
-            {/* Servicios y Enlaces Académicos Complementarios */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
-              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Orientación y Soporte Académico
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <button 
-                  onClick={() => setShowIncidentModal(true)}
-                  className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition-colors flex items-start gap-2.5 group"
-                >
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-800 group-hover:text-[#002B49]">Reportar Novedad</strong>
-                    <span className="text-[11px] text-slate-500">Soporte con el aula virtual</span>
-                  </div>
-                </button>
-
-                <button 
-                  onClick={() => setShowCertModal(true)}
-                  className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition-colors flex items-start gap-2.5 group"
-                >
-                  <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-800 group-hover:text-[#002B49]">Certificado Matrícula</strong>
-                    <span className="text-[11px] text-slate-500">Descargar constancia oficial</span>
-                  </div>
-                </button>
-
-                <a 
-                  href="https://wa.me/573000000000?text=Hola,%20solicito%20soporte%20acad%C3%A9mico%20en%20Campus%20Virtual" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-left transition-colors flex items-start gap-2.5 group"
-                >
-                  <MessageSquare className="w-4 h-4 text-[#002B49] shrink-0 mt-0.5" />
-                  <div>
-                    <strong className="block text-slate-800 group-hover:text-[#002B49]">Tutoría por WhatsApp</strong>
-                    <span className="text-[11px] text-slate-500">Línea directa de coordinación</span>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ========================================================== */}
-          {/* COLUMNA DERECHA (30% - lg:col-span-4): FICHA ESTUDIANTE    */}
-          {/* ========================================================== */}
-          <div className="lg:col-span-4 space-y-6">
-            
-            {/* FICHA DEL ESTUDIANTE */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              
-              {/* Cabecera Ficha con Avatar Interactivo */}
-              <div className="bg-[#002B49] text-white p-5 text-center relative">
                 <StudentAvatarMenu
                   student={student}
                   onOpenEditProfile={(tab) => {
@@ -481,96 +277,320 @@ export default function CampusVirtualPage() {
                     setShowProfileModal(true)
                   }}
                   onLogout={handleLogout}
-                  variant="card"
+                  onOpenCert={() => setShowCertModal(true)}
+                  variant="header"
                 />
-                <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
-                  {student.status}
-                </span>
+
+                <button
+                  onClick={handleLogout}
+                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-300 hover:text-white bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Salir</span>
+                </button>
               </div>
 
-              {/* Detalles Académicos */}
-              <div className="p-5 space-y-3.5 text-xs">
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                    Identificación Oficial ({student.docType})
-                  </span>
-                  <span className="font-extrabold text-slate-800 text-sm">
-                    {student.docNumber}
-                  </span>
-                </div>
+            </div>
 
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                    Código Estudiantil
+            {/* Banner Institucional de Comunicados en Header Oscuro */}
+            <div className="mt-4 mb-2 p-2.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-md flex items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="shrink-0 bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-md tracking-wider">
+                  {OFFICIAL_ANNOUNCEMENTS[announcementIdx].tag}
+                </span>
+                <p className="text-slate-200 font-medium truncate text-[11px] sm:text-xs">
+                  {OFFICIAL_ANNOUNCEMENTS[announcementIdx].title}{' '}
+                  <span className="text-amber-300 font-bold ml-1">
+                    ({OFFICIAL_ANNOUNCEMENTS[announcementIdx].date})
                   </span>
-                  <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                    {student.studentCode}
-                  </span>
-                </div>
+                </p>
+              </div>
 
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                    Programa Académico
-                  </span>
-                  <span className="font-semibold text-slate-700">
-                    {student.programName}
-                  </span>
-                </div>
-
-                <div>
-                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                    Correo Institucional
-                  </span>
-                  <span className="font-medium text-slate-600 truncate block">
-                    {student.email}
-                  </span>
-                </div>
-
-                {/* Botones de Acción */}
-                <div className="pt-3 border-t border-slate-100 space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setProfileInitialTab('info')
-                      setShowProfileModal(true)
-                    }}
-                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-300 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
-                  >
-                    <User className="w-4 h-4" />
-                    <span>Editar Perfil & Foto</span>
-                  </button>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Cerrar Sesión Segura</span>
-                  </button>
-                </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  onClick={() => setAnnouncementIdx((prev) => (prev - 1 + OFFICIAL_ANNOUNCEMENTS.length) % OFFICIAL_ANNOUNCEMENTS.length)}
+                  className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setAnnouncementIdx((prev) => (prev + 1) % OFFICIAL_ANNOUNCEMENTS.length)}
+                  className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             </div>
 
-            {/* TARJETA DE SEGURIDAD Y CONEXIÓN */}
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 space-y-2 text-xs text-slate-600">
-              <div className="flex items-center gap-2 text-[#002B49] font-bold">
-                <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                <span>Sesión Cifrada SSL 256-bit</span>
+          </div>
+        </div>
+
+        {/* ======================================================================= */}
+        {/* 2. CONTENEDOR CURVO UNIFICADO (BG-WHITE ROUNDED-T-[32PX] MD:ROUNDED-T-[40PX]) */}
+        {/* ======================================================================= */}
+        <div className="bg-white rounded-t-[32px] md:rounded-t-[40px] shadow-xl w-full flex-1 p-5 sm:p-6 md:p-8">
+          
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* ========================================================== */}
+            {/* COLUMNA IZQUIERDA (lg:col-span-8): CURSOS ACTIVOS & SOPORTE */}
+            {/* ========================================================== */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* Cabecera de Sección */}
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-[#002B49] text-amber-400 flex items-center justify-center font-bold shadow-xs">
+                    <GraduationCap className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h1 className="text-lg sm:text-xl font-black text-slate-900">
+                      Mis Cursos Matriculados
+                    </h1>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Ciclo Formativo Vigente · Periodo 2026-I
+                    </p>
+                  </div>
+                </div>
+
+                <span className="text-xs font-extrabold text-[#002B49] bg-slate-100 border border-slate-200 px-3 py-1 rounded-xl">
+                  1 Curso Activo
+                </span>
               </div>
-              <p className="text-[11px] text-slate-500 leading-relaxed">
-                Tus accesos, entregas de actividades y asistencia a encuentros Teams están protegidos bajo las políticas académicas de American Dream English.
-              </p>
+
+              {/* Listado de Tarjetas de Cursos */}
+              <div className="space-y-4">
+                {enrolledCourses.map((course) => (
+                  <div 
+                    key={course.id}
+                    className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden border-t-4 border-t-[#002B49]"
+                  >
+                    {/* Encabezado del curso */}
+                    <div className="p-5 sm:p-6 pb-4">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="bg-[#002B49] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider font-mono">
+                            {course.code}
+                          </span>
+                          <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                            {course.credits} Créditos Académicos
+                          </span>
+                        </div>
+
+                        <div className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5 text-amber-600" />
+                          <span>Próxima clase: <strong className="text-slate-800">{course.nextLiveClass}</strong></span>
+                        </div>
+                      </div>
+
+                      <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                        {course.title}
+                      </h2>
+                      
+                      <p className="text-xs text-slate-500 font-medium mt-1">
+                        Modalidad: <span className="text-slate-700 font-semibold">{course.modality}</span> · Docente: <span className="text-slate-700 font-semibold">{course.teacherName}</span>
+                      </p>
+
+                      {/* Barra de Progreso y Puntuación */}
+                      <div className="mt-5 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-slate-600">
+                            Progreso en el Aula Virtual
+                          </span>
+                          <span className="text-[#002B49]">
+                            {course.progress}% Completado
+                          </span>
+                        </div>
+                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
+                          <div 
+                            className="bg-gradient-to-r from-amber-400 to-[#002B49] h-full rounded-full transition-all duration-700" 
+                            style={{ width: `${course.progress}%` }} 
+                          />
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 pt-1">
+                          <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Calificación Acumulada: 🟢 {course.accumulatedPoints} / 🟡 {course.maxPoints} pts
+                          </span>
+                          <span>Nivel MCER: {course.level}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Footer de la tarjeta con Botón de Acceso */}
+                    <div className="bg-slate-50 px-5 sm:px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                      <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
+                        Incluye: Clases Teams, Guías PDF, Audios y Zona de Tareas.
+                      </div>
+
+                      <Link
+                        href={`/campus/curso/${course.id}`}
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-black px-6 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all text-xs tracking-wide group active:scale-[0.98]"
+                      >
+                        <span>Acceder al Aula Virtual</span>
+                        <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Servicios y Enlaces Académicos Complementarios */}
+              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-3">
+                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  Orientación y Soporte Académico
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <button 
+                    onClick={() => setShowIncidentModal(true)}
+                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
+                  >
+                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Reportar Novedad</strong>
+                      <span className="text-[11px] text-slate-500">Soporte con el aula virtual</span>
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => setShowCertModal(true)}
+                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
+                  >
+                    <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Certificado Matrícula</strong>
+                      <span className="text-[11px] text-slate-500">Descargar constancia oficial</span>
+                    </div>
+                  </button>
+
+                  <a 
+                    href="https://wa.me/573000000000?text=Hola,%20solicito%20soporte%20acad%C3%A9mico%20en%20Campus%20Virtual" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
+                  >
+                    <MessageSquare className="w-4 h-4 text-[#002B49] shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Tutoría por WhatsApp</strong>
+                      <span className="text-[11px] text-slate-500">Línea directa de coordinación</span>
+                    </div>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+
+            {/* ========================================================== */}
+            {/* COLUMNA DERECHA (lg:col-span-4): FICHA ESTUDIANTE UNIFICADA */}
+            {/* ========================================================== */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* FICHA DEL ESTUDIANTE */}
+              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                
+                {/* Cabecera Ficha con Avatar Interactivo */}
+                <div className="bg-[#002B49] text-white p-6 text-center relative">
+                  <StudentAvatarMenu
+                    student={student}
+                    onOpenEditProfile={(tab) => {
+                      setProfileInitialTab(tab || 'info')
+                      setShowProfileModal(true)
+                    }}
+                    onLogout={handleLogout}
+                    variant="card"
+                  />
+                  <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                    {student.status}
+                  </span>
+                </div>
+
+                {/* Detalles Académicos */}
+                <div className="p-5 sm:p-6 space-y-3.5 text-xs">
+                  <div>
+                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                      Identificación Oficial ({student.docType})
+                    </span>
+                    <span className="font-extrabold text-slate-800 text-sm">
+                      {student.docNumber}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                      Código Estudiantil
+                    </span>
+                    <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg">
+                      {student.studentCode}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                      Programa Académico
+                    </span>
+                    <span className="font-semibold text-slate-700">
+                      {student.programName}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                      Correo Institucional
+                    </span>
+                    <span className="font-medium text-slate-600 truncate block">
+                      {student.email}
+                    </span>
+                  </div>
+
+                  {/* Botones de Acción */}
+                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setProfileInitialTab('info')
+                        setShowProfileModal(true)
+                      }}
+                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-300 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Editar Perfil & Foto</span>
+                    </button>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Cerrar Sesión Segura</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* TARJETA DE SEGURIDAD Y CONEXIÓN */}
+              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-2 text-xs text-slate-600">
+                <div className="flex items-center gap-2 text-[#002B49] font-bold">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Sesión Cifrada SSL 256-bit</span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Tus accesos, entregas de actividades y asistencia a encuentros Teams están protegidos bajo las políticas académicas de American Dream English.
+                </p>
+              </div>
+
             </div>
 
           </div>
 
         </div>
-      </main>
 
-      {/* 5. MODAL: CONSTANCIA DE MATRÍCULA */}
+      </div>
+
+      {/* 3. MODAL: CONSTANCIA DE MATRÍCULA */}
       {showCertModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-center animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-center animate-fadeIn">
             <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
               <Award className="w-6 h-6" />
             </div>
@@ -581,7 +601,7 @@ export default function CampusVirtualPage() {
               Documento con firma digital institucional y código QR de verificación.
             </p>
 
-            <div className="my-4 p-4 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-1.5">
+            <div className="my-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-left text-xs space-y-1.5">
               <p><strong>Estudiante:</strong> {student.fullName}</p>
               <p><strong>Documento:</strong> {student.docType} {student.docNumber}</p>
               <p><strong>Código:</strong> {student.studentCode}</p>
@@ -611,10 +631,10 @@ export default function CampusVirtualPage() {
         </div>
       )}
 
-      {/* 6. MODAL: REPORTAR NOVEDAD TÉCNICA */}
+      {/* 4. MODAL: REPORTAR NOVEDAD TÉCNICA */}
       {showIncidentModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full overflow-hidden animate-fadeIn">
             <div className="bg-[#002B49] text-white p-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-5 h-5 text-amber-400" />
@@ -666,7 +686,7 @@ export default function CampusVirtualPage() {
         </div>
       )}
 
-      {/* 7. MODAL: EDITAR PERFIL & SEGURIDAD */}
+      {/* 5. MODAL: EDITAR PERFIL & SEGURIDAD */}
       <StudentProfileModal
         isOpen={showProfileModal}
         onClose={() => setShowProfileModal(false)}
@@ -675,9 +695,9 @@ export default function CampusVirtualPage() {
         initialTab={profileInitialTab}
       />
 
-      {/* 8. FOOTER INSTITUCIONAL */}
-      <footer className="mt-8 py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
-        <p>© 2026 American Dream English · Campus Virtual e Integración Académica UNAD-Style</p>
+      {/* 6. FOOTER INSTITUCIONAL */}
+      <footer className="mt-8 py-4 text-center text-xs text-slate-400">
+        <p>© 2026 American Dream English · Campus Virtual e Integración Académica</p>
       </footer>
 
     </div>
