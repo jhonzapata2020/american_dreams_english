@@ -29,6 +29,7 @@ import { createClient } from '../../../../utils/supabase/client'
 import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig'
 import { StudentProfileModal, StudentProfileData } from '../../../../components/campus/StudentProfileModal'
 import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
+import { AcademicForum } from '../../../../components/campus/AcademicForum'
 
 
 interface CourseDetailProps {
@@ -67,19 +68,6 @@ interface Assignment {
   feedback?: string
 }
 
-interface ForumQuestion {
-  id: string
-  studentName: string
-  studentAvatar: string
-  date: string
-  question: string
-  reply?: {
-    teacherName: string
-    date: string
-    response: string
-  }
-}
-
 export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const courseId = params?.id || 'a1'
   const supabase = createClient()
@@ -102,35 +90,6 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const [studentComment, setStudentComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
-
-  // Estado del Foro de Dudas
-  const [newQuestionText, setNewQuestionText] = useState('')
-  const [forumList, setForumList] = useState<ForumQuestion[]>([
-    {
-      id: 'fq-1',
-      studentName: 'Valeria Morales',
-      studentAvatar: 'VM',
-      date: 'Ayer, 04:15 PM',
-      question: 'Profesor, ¿en la 3ra persona del singular con verbos terminados en consonante + y (como study) siempre cambia a -ies?',
-      reply: {
-        teacherName: cfg.teacherName,
-        date: 'Ayer, 05:30 PM',
-        response: 'Correcto Valeria. Si antes de la Y hay una consonante cambia a -ies (study -> studies). Si hay una vocal solo se agrega S (play -> plays).'
-      }
-    },
-    {
-      id: 'fq-2',
-      studentName: 'Andrés Felipe Gómez',
-      studentAvatar: 'AG',
-      date: '05 de Octubre, 10:20 AM',
-      question: '¿Dónde puedo encontrar los audios complementarios para practicar la pronunciación de la Flap-T?',
-      reply: {
-        teacherName: cfg.teacherName,
-        date: '05 de Octubre, 11:00 AM',
-        response: 'Hola Andrés. Están disponibles directamente en la pestaña "Material" bajo el nombre Audio Lab 01.'
-      }
-    }
-  ])
 
   // Cronograma semanal de 4 clases
   const weeklySchedule = [
@@ -334,22 +293,6 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     window.location.href = '/campus/login'
   }
 
-  const handleSendQuestion = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newQuestionText.trim()) return
-
-    const newQ: ForumQuestion = {
-      id: `fq-${Date.now()}`,
-      studentName: 'Estudiante Activo',
-      studentAvatar: 'EA',
-      date: 'Hace un momento',
-      question: newQuestionText.trim()
-    }
-
-    setForumList([newQ, ...forumList])
-    setNewQuestionText('')
-  }
-
   const handleSubmitAssignment = (e: React.FormEvent) => {
     e.preventDefault()
     if (!uploadFileName || !selectedTask) return
@@ -549,9 +492,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 >
                   <MessageSquare className="w-4 h-4" />
                   <span>Foro</span>
-                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'foro' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
-                    {forumList.length}
-                  </span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                 </button>
 
                 <button
@@ -813,69 +754,14 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             )}
 
             {/* =================================================================== */}
-            {/* PESTAÑA 4: FORO DE DUDAS Y PREGUNTAS AL DOCENTE                     */}
+            {/* PESTAÑA 4: FORO DE DUDAS Y PREGUNTAS AL DOCENTE (COLABORATIVO)       */}
             {/* =================================================================== */}
             {activeTab === 'foro' && (
-              <div className="space-y-5">
-                
-                {/* Formulario de Pregunta */}
-                <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-3 shadow-sm">
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
-                    Preguntar al Docente
-                  </h3>
-                  <form onSubmit={handleSendQuestion} className="space-y-3">
-                    <textarea
-                      rows={2}
-                      value={newQuestionText}
-                      onChange={(e) => setNewQuestionText(e.target.value)}
-                      placeholder="Escribe aquí tu pregunta sobre gramática, fonética o tareas..."
-                      className="w-full p-3 bg-white border border-slate-200 rounded-2xl text-xs outline-hidden focus:ring-2 focus:ring-[#0B1528] shadow-2xs"
-                    />
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={!newQuestionText.trim()}
-                        className="bg-[#0B1528] hover:bg-slate-900 disabled:opacity-50 text-white font-bold px-6 py-2.5 rounded-xl text-xs flex items-center gap-2 transition-colors shadow-sm"
-                      >
-                        <Send className="w-3.5 h-3.5 text-amber-400" />
-                        <span>Publicar Pregunta</span>
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {/* Listado de Preguntas */}
-                <div className="space-y-3.5">
-                  {forumList.map((item) => (
-                    <div key={item.id} className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200/80 space-y-3">
-                      <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-2xl bg-[#0B1528] text-amber-400 font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
-                          {item.studentAvatar}
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <strong className="text-xs font-bold text-slate-900">{item.studentName}</strong>
-                            <span className="text-[10px] text-slate-400">{item.date}</span>
-                          </div>
-                          <p className="text-xs text-slate-700 leading-relaxed">{item.question}</p>
-                        </div>
-                      </div>
-
-                      {item.reply && (
-                        <div className="ml-5 sm:ml-8 pl-4 border-l-2 border-amber-400 bg-amber-50/60 p-3.5 rounded-r-2xl space-y-1">
-                          <div className="flex items-center gap-2">
-                            <CornerDownRight className="w-3.5 h-3.5 text-amber-700" />
-                            <strong className="text-xs text-amber-950 font-bold">{item.reply.teacherName} (Docente)</strong>
-                            <span className="text-[10px] text-amber-700">{item.reply.date}</span>
-                          </div>
-                          <p className="text-xs text-slate-800 font-medium">{item.reply.response}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-              </div>
+              <AcademicForum
+                courseId={courseId}
+                teacherName={cfg.teacherName}
+                student={student}
+              />
             )}
 
             {/* =================================================================== */}
