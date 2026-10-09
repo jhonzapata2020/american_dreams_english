@@ -134,7 +134,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenDonation, onOpenLocation }
 
         {/* BOTTOM COPYRIGHT & LEGAL LINKS */}
         <div className="border-t border-slate-800/80 pt-6 flex flex-col sm:flex-row items-center justify-between text-slate-500 text-[11px] gap-2">
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 items-center">
+            <a href="/campus/docente" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
+              <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+              <span>{language === 'en' ? 'Teacher Portal' : 'Portal Docente'}</span>
+            </a>
             <a href="/admin/login" className="hover:text-amber-400 font-bold text-slate-300 transition-colors flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5 text-crimson-400" />
               <span>{language === 'en' ? 'Admin Portal' : 'Acceso Administrativo'}</span>

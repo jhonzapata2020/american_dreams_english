@@ -39,7 +39,9 @@ const translations = {
     invalidCreds: 'Invalid credentials. Please verify your document and password.',
     welcomeSuccess: 'Welcome! Loading your courses...',
     accessVerified: 'Access verified. Redirecting to your virtual classroom...',
-    demoLoaded: 'Demo credentials loaded (Doc: 1040892341).'
+    demoLoaded: 'Demo credentials loaded (Doc: 1040892341).',
+    teacherPrompt: 'Are you a faculty teacher? ',
+    teacherLink: 'Access your portal here'
   },
   ES: {
     back: 'Volver a la web',
@@ -61,7 +63,9 @@ const translations = {
     invalidCreds: 'Credenciales inválidas. Verifica tu documento y contraseña.',
     welcomeSuccess: '¡Bienvenido(a)! Cargando tus cursos...',
     accessVerified: 'Acceso verificado. Redirigiendo a tu aula virtual...',
-    demoLoaded: 'Credenciales demo cargadas (Doc: 1040892341).'
+    demoLoaded: 'Credenciales demo cargadas (Doc: 1040892341).',
+    teacherPrompt: '¿Eres docente titular? ',
+    teacherLink: 'Ingresa a tu panel aquí'
   }
 }
 
@@ -340,6 +344,19 @@ export default function CampusLoginPage() {
                     <span>{t.loginBtn}</span>
                   )}
                 </button>
+              </div>
+
+              {/* Acceso Discreto para Docentes Titulares */}
+              <div className="text-center pt-2">
+                <p className="text-[11px] sm:text-xs text-gray-500 font-medium">
+                  {t.teacherPrompt}
+                  <Link 
+                    href="/campus/docente" 
+                    className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline"
+                  >
+                    {t.teacherLink}
+                  </Link>
+                </p>
               </div>
 
             </form>
