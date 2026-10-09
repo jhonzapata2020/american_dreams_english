@@ -15,8 +15,7 @@ import {
   Sparkles, 
   Maximize2,
   Reply,
-  ShieldCheck,
-  Award
+  RefreshCw
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { StudentProfileData } from './StudentProfileModal'
@@ -50,61 +49,6 @@ interface AcademicForumProps {
   student: StudentProfileData
 }
 
-const INITIAL_MOCK_POSTS: Record<string, ForumPost[]> = {
-  a1: [
-    {
-      id: 'post-1',
-      courseId: 'a1',
-      authorName: 'Mateo Gómez',
-      authorRole: 'student',
-      authorAvatar: 'MG',
-      content: 'Teacher, en la regla de la tercera persona del Present Simple, ¿cuándo se agrega "-es" en lugar de solo "-s"? ¿Aplica con todos los verbos terminados en "o"?',
-      imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=800',
-      createdAt: 'Hace 2 horas',
-      replies: [
-        {
-          id: 'rep-1',
-          postId: 'post-1',
-          authorName: 'Lic. Carlos Méndez',
-          authorRole: 'teacher',
-          authorAvatar: 'CM',
-          content: '¡Excelente pregunta Mateo! Agregamos "-es" cuando el verbo termina en -ss, -sh, -ch, -x, -z y la vocal -o (ej: go -> goes, do -> does, watch -> watches). En la guía PDF página 12 tienes la tabla completa.',
-          createdAt: 'Hace 1 hora'
-        },
-        {
-          id: 'rep-2',
-          postId: 'post-1',
-          authorName: 'Valeria Morales',
-          authorRole: 'student',
-          authorAvatar: 'VM',
-          content: 'Gracias Teacher! Yo también tenía la duda con el verbo "fix" -> "fixes".',
-          createdAt: 'Hace 45 minutos'
-        }
-      ]
-    },
-    {
-      id: 'post-2',
-      courseId: 'a1',
-      authorName: 'Camila Restrepo',
-      authorRole: 'student',
-      authorAvatar: 'CR',
-      content: 'Hola a todos. ¿Alguien sabe si el audio lab 1 se puede descargar para escuchar sin internet en el celular?',
-      createdAt: 'Ayer',
-      replies: [
-        {
-          id: 'rep-3',
-          postId: 'post-2',
-          authorName: 'Lic. Carlos Méndez',
-          authorRole: 'teacher',
-          authorAvatar: 'CM',
-          content: 'Hola Camila. Sí, en la pestaña "Material de Estudio" al lado del reproductor tienes el botón de descarga directa en formato MP3.',
-          createdAt: 'Ayer'
-        }
-      ]
-    }
-  ]
-}
-
 export const AcademicForum: React.FC<AcademicForumProps> = ({
   courseId,
   teacherName,
@@ -113,6 +57,8 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
   const supabase = createClient()
   const [posts, setPosts] = useState<ForumPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   // Estado para nueva pregunta principal
   const [newPostContent, setNewPostContent] = useState('')
@@ -130,88 +76,82 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
   // Modal Lightbox para visualización de imagen en tamaño completo
   const [lightboxImage, setLightboxImage] = useState<{ url: string; title: string } | null>(null)
 
-  // Carga inicial con fallback a localStorage o Mock
-  useEffect(() => {
-    async function loadForum() {
-      setLoading(true)
-      try {
-        const storageKey = `ade_forum_posts_${courseId}`
-        const cached = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
-        
-        let loadedPosts: ForumPost[] = []
+  // Función para cargar publicaciones directamente desde Supabase PostgreSQL
+  const fetchForumPosts = async () => {
+    setLoading(true)
+    setErrorMsg(null)
 
-        if (cached) {
-          try {
-            loadedPosts = JSON.parse(cached)
-          } catch (e) {}
-        }
-
-        // Si no hay posts en localStorage, cargar mocks iniciales
-        if (!loadedPosts || loadedPosts.length === 0) {
-          loadedPosts = INITIAL_MOCK_POSTS[courseId] || INITIAL_MOCK_POSTS['a1'] || []
-        }
-
-        // Intentar consultar Supabase si las tablas existen
-        try {
-          const { data: dbPosts, error: pErr } = await supabase
-            .from('forum_posts')
-            .select('*')
-            .eq('course_id', courseId)
-            .order('created_at', { ascending: false })
-
-          if (!pErr && dbPosts && dbPosts.length > 0) {
-            const { data: dbReplies } = await supabase
-              .from('forum_replies')
-              .select('*')
-              .order('created_at', { ascending: true })
-
-            const formatted: ForumPost[] = dbPosts.map((p) => ({
-              id: p.id,
-              courseId: p.course_id,
-              authorName: p.author_name,
-              authorRole: p.author_role || 'student',
-              authorAvatar: p.author_avatar || p.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
-              content: p.content,
-              imageUrl: p.image_url,
-              createdAt: new Date(p.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
-              replies: (dbReplies || [])
-                .filter((r) => r.post_id === p.id)
-                .map((r) => ({
-                  id: r.id,
-                  postId: r.post_id,
-                  authorName: r.author_name,
-                  authorRole: r.author_role || 'student',
-                  authorAvatar: r.author_avatar || r.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
-                  content: r.content,
-                  imageUrl: r.image_url,
-                  createdAt: new Date(r.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-                }))
-            }))
-
-            loadedPosts = formatted
-          }
-        } catch (supabaseErr) {
-          // Continuar con caché
-        }
-
-        setPosts(loadedPosts)
-      } catch (err) {
-        setPosts(INITIAL_MOCK_POSTS['a1'] || [])
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadForum()
-  }, [courseId])
-
-  // Guardar en localStorage al modificar posts
-  const persistPosts = (updatedList: ForumPost[]) => {
-    setPosts(updatedList)
     try {
-      localStorage.setItem(`ade_forum_posts_${courseId}`, JSON.stringify(updatedList))
-    } catch (e) {}
+      // Consulta directa a Supabase con relación forum_replies
+      const { data: dbPosts, error } = await supabase
+        .from('forum_posts')
+        .select('*, forum_replies(*)')
+        .eq('course_id', courseId)
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.warn('Supabase forum fetch error:', error.message)
+        setErrorMsg('Conectando a base de datos de Supabase...')
+        setPosts([])
+        return
+      }
+
+      if (dbPosts) {
+        const formatted: ForumPost[] = dbPosts.map((p: any) => {
+          const rawReplies = p.forum_replies || []
+          // Ordenar respuestas de forma ascendente (más antiguas primero)
+          const sortedReplies = [...rawReplies].sort(
+            (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          )
+
+          return {
+            id: p.id,
+            courseId: p.course_id,
+            authorName: p.author_name,
+            authorRole: p.author_role || 'student',
+            authorAvatar: p.author_avatar || p.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
+            content: p.content,
+            imageUrl: p.image_url,
+            createdAt: new Date(p.created_at).toLocaleDateString('es-ES', { 
+              day: 'numeric', 
+              month: 'short', 
+              hour: '2-digit', 
+              minute: '2-digit' 
+            }),
+            replies: sortedReplies.map((r: any) => ({
+              id: r.id,
+              postId: r.post_id,
+              authorName: r.author_name,
+              authorRole: r.author_role || 'student',
+              authorAvatar: r.author_avatar || r.author_name.split(' ').map((n: string) => n[0]).slice(0, 2).join(''),
+              content: r.content,
+              imageUrl: r.image_url,
+              createdAt: new Date(r.created_at).toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'short', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })
+            }))
+          }
+        })
+
+        setPosts(formatted)
+      } else {
+        setPosts([])
+      }
+    } catch (err: any) {
+      console.error('Error al conectar con Supabase:', err)
+      setErrorMsg('No se pudo conectar con la base de datos centralizada.')
+    } finally {
+      setLoading(false)
+    }
   }
+
+  // Carga inicial
+  useEffect(() => {
+    fetchForumPosts()
+  }, [courseId])
 
   // Soporte para Pegar Imagen desde el Portapapeles (Ctrl+V / Paste)
   const handlePasteImage = (e: React.ClipboardEvent<HTMLTextAreaElement>, target: 'post' | 'reply') => {
@@ -262,17 +202,19 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
     reader.readAsDataURL(file)
   }
 
-  // Enviar Nueva Pregunta Principal
+  // Enviar Nueva Pregunta Principal Directamente a Supabase
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newPostContent.trim()) return
 
     setIsSubmittingPost(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
 
     try {
-      let finalImageUrl = newPostImage
+      let finalImageUrl: string | null = null
 
-      // Intentar subir a Supabase Storage si es un archivo
+      // Subir archivo al bucket forum-attachments si existe
       if (newPostImage && newPostImage.startsWith('data:image')) {
         try {
           const blob = await (await fetch(newPostImage)).blob()
@@ -288,65 +230,88 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             if (publicUrlData?.publicUrl) {
               finalImageUrl = publicUrlData.publicUrl
             }
+          } else {
+            // Fallback a URL data si RLS no permite subida directa
+            finalImageUrl = newPostImage
           }
         } catch (storageErr) {
-          // Mantener data URL
+          finalImageUrl = newPostImage
         }
+      } else if (newPostImage) {
+        finalImageUrl = newPostImage
       }
 
-      const newPostObj: ForumPost = {
-        id: `post-${Date.now()}`,
-        courseId,
-        authorName: student.fullName,
-        authorRole: 'student',
-        authorAvatar: student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase(),
-        content: newPostContent.trim(),
-        imageUrl: finalImageUrl || undefined,
-        createdAt: 'Hace un momento',
-        replies: []
-      }
+      const { data: { session } } = await supabase.auth.getSession()
 
-      // Intentar persistir en Supabase DB
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        await supabase.from('forum_posts').insert([
+      const avatarInitials = student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
+
+      // INSERT directo en forum_posts en Supabase
+      const { data: insertedPost, error: insertError } = await supabase
+        .from('forum_posts')
+        .insert([
           {
             course_id: courseId,
             user_id: session?.user?.id || null,
             author_name: student.fullName,
             author_role: 'student',
-            author_avatar: student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase(),
+            author_avatar: avatarInitials,
             content: newPostContent.trim(),
-            image_url: finalImageUrl || null
+            image_url: finalImageUrl
           }
         ])
-      } catch (dbErr) {}
+        .select()
+        .single()
 
-      const updated = [newPostObj, ...posts]
-      persistPosts(updated)
+      if (insertError) {
+        throw new Error(insertError.message)
+      }
+
+      // Actualizar estado local inmediatamente con el registro devuelto por PostgreSQL
+      if (insertedPost) {
+        const newPostFormatted: ForumPost = {
+          id: insertedPost.id,
+          courseId: insertedPost.course_id,
+          authorName: insertedPost.author_name,
+          authorRole: insertedPost.author_role || 'student',
+          authorAvatar: insertedPost.author_avatar || avatarInitials,
+          content: insertedPost.content,
+          imageUrl: insertedPost.image_url,
+          createdAt: 'Hace un momento',
+          replies: []
+        }
+
+        setPosts([newPostFormatted, ...posts])
+      }
 
       setNewPostContent('')
       setNewPostImage(null)
       if (postFileInputRef.current) postFileInputRef.current.value = ''
+      setSuccessMsg('¡Pregunta publicada con éxito en la base de datos!')
 
-    } catch (err) {
-      console.error('Error al publicar post:', err)
+      setTimeout(() => {
+        setSuccessMsg(null)
+      }, 3000)
+
+    } catch (err: any) {
+      console.error('Error al insertar pregunta en Supabase:', err)
+      setErrorMsg(`Error al guardar en Supabase: ${err.message || 'Verifica la conexión.'}`)
     } finally {
       setIsSubmittingPost(false)
     }
   }
 
-  // Enviar Respuesta a un Hilo
+  // Enviar Respuesta a un Hilo Directamente a Supabase
   const handleCreateReply = async (postId: string, e: React.FormEvent) => {
     e.preventDefault()
     if (!replyContent.trim()) return
 
     setIsSubmittingReply(true)
+    setErrorMsg(null)
 
     try {
-      let finalImageUrl = replyImage
+      let finalImageUrl: string | null = null
 
-      // Intentar subir a Supabase Storage
+      // Subir archivo al bucket forum-attachments si existe
       if (replyImage && replyImage.startsWith('data:image')) {
         try {
           const blob = await (await fetch(replyImage)).blob()
@@ -362,55 +327,72 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             if (publicUrlData?.publicUrl) {
               finalImageUrl = publicUrlData.publicUrl
             }
+          } else {
+            finalImageUrl = replyImage
           }
-        } catch (storageErr) {}
+        } catch (storageErr) {
+          finalImageUrl = replyImage
+        }
+      } else if (replyImage) {
+        finalImageUrl = replyImage
       }
 
-      const newReplyObj: ForumReply = {
-        id: `reply-${Date.now()}`,
-        postId,
-        authorName: student.fullName,
-        authorRole: 'student',
-        authorAvatar: student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase(),
-        content: replyContent.trim(),
-        imageUrl: finalImageUrl || undefined,
-        createdAt: 'Hace un momento'
-      }
+      const { data: { session } } = await supabase.auth.getSession()
+      const avatarInitials = student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
 
-      // Intentar insertar en Supabase DB
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        await supabase.from('forum_replies').insert([
+      // INSERT directo en forum_replies con post_id
+      const { data: insertedReply, error: insertError } = await supabase
+        .from('forum_replies')
+        .insert([
           {
             post_id: postId,
             user_id: session?.user?.id || null,
             author_name: student.fullName,
             author_role: 'student',
-            author_avatar: student.avatarUrl || student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase(),
+            author_avatar: avatarInitials,
             content: replyContent.trim(),
-            image_url: finalImageUrl || null
+            image_url: finalImageUrl
           }
         ])
-      } catch (dbErr) {}
+        .select()
+        .single()
 
-      const updated = posts.map((p) => {
-        if (p.id === postId) {
-          return {
-            ...p,
-            replies: [...(p.replies || []), newReplyObj]
-          }
+      if (insertError) {
+        throw new Error(insertError.message)
+      }
+
+      // Actualizar estado local con el registro devuelto por PostgreSQL
+      if (insertedReply) {
+        const newReplyFormatted: ForumReply = {
+          id: insertedReply.id,
+          postId: insertedReply.post_id,
+          authorName: insertedReply.author_name,
+          authorRole: insertedReply.author_role || 'student',
+          authorAvatar: insertedReply.author_avatar || avatarInitials,
+          content: insertedReply.content,
+          imageUrl: insertedReply.image_url,
+          createdAt: 'Hace un momento'
         }
-        return p
-      })
 
-      persistPosts(updated)
+        setPosts(posts.map((p) => {
+          if (p.id === postId) {
+            return {
+              ...p,
+              replies: [...(p.replies || []), newReplyFormatted]
+            }
+          }
+          return p
+        }))
+      }
+
       setReplyContent('')
       setReplyImage(null)
       setReplyingToPostId(null)
       if (replyFileInputRef.current) replyFileInputRef.current.value = ''
 
-    } catch (err) {
-      console.error('Error al responder post:', err)
+    } catch (err: any) {
+      console.error('Error al insertar respuesta en Supabase:', err)
+      setErrorMsg(`Error al guardar respuesta: ${err.message || 'Verifica la conexión.'}`)
     } finally {
       setIsSubmittingReply(false)
     }
@@ -430,19 +412,47 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
             </div>
             <div>
               <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
-                Foro Académico & Preguntas al Docente
+                Foro Académico Centralizado (PostgreSQL)
               </h3>
               <p className="text-[11px] text-slate-500 font-medium">
-                Docente Titular: <strong className="text-slate-800">{teacherName}</strong>
+                Docente Titular: <strong className="text-slate-800">{teacherName}</strong> · Nivel: <strong className="uppercase">{courseId}</strong>
               </p>
             </div>
           </div>
 
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] bg-blue-50 text-blue-700 font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
-            <Sparkles className="w-3 h-3 text-amber-500" />
-            <span>Soporta Capturas (Ctrl+V)</span>
-          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchForumPosts}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all shadow-2xs active:scale-95"
+              title="Actualizar consultas desde la base de datos"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Actualizar</span>
+            </button>
+
+            <span className="hidden md:inline-flex items-center gap-1 text-[11px] bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-full border border-blue-200">
+              <Sparkles className="w-3 h-3 text-amber-500" />
+              <span>Capturas Ctrl+V</span>
+            </span>
+          </div>
         </div>
+
+        {/* Mensajes de Alerta */}
+        {errorMsg && (
+          <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
+
+        {successMsg && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-semibold flex items-center gap-2 animate-fadeIn">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+        )}
 
         <form onSubmit={handleCreatePost} className="space-y-3">
           <div className="relative">
@@ -451,7 +461,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
               onPaste={(e) => handlePasteImage(e, 'post')}
-              placeholder="Escribe tu duda sobre gramática, fonética o ejercicios. Puedes pegar capturas directamente con Ctrl+V..."
+              placeholder="Escribe tu duda sobre gramática, fonética o tareas para que el docente y tus compañeros puedan responderte en tiempo real..."
               className="w-full p-3.5 sm:p-4 bg-white border border-slate-200 focus:border-[#002B49] focus:ring-2 focus:ring-[#002B49]/20 rounded-2xl text-xs sm:text-sm text-slate-800 font-medium outline-none transition-all shadow-2xs resize-none"
             />
           </div>
@@ -499,7 +509,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
               </button>
               
               <span className="text-[10px] text-slate-400 font-medium hidden md:inline">
-                PNG, JPG o pega una captura
+                PNG, JPG o pega una captura directa
               </span>
             </div>
 
@@ -511,7 +521,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
               {isSubmittingPost ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
-                  <span>Publicando...</span>
+                  <span>Guardando en Base de Datos...</span>
                 </>
               ) : (
                 <>
@@ -525,18 +535,20 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
       </div>
 
       {/* =================================================================== */}
-      {/* 2. LISTADO DE PREGUNTAS Y RESPUESTAS EN HILO                        */}
+      {/* 2. LISTADO DE PREGUNTAS Y RESPUESTAS DESDE SUPABASE                 */}
       {/* =================================================================== */}
       <div className="space-y-4">
         {loading ? (
-          <div className="p-8 text-center text-slate-400 text-xs font-medium space-y-2">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#002B49]" />
-            <p>Cargando discusiones académicas...</p>
+          <div className="p-10 text-center bg-white rounded-3xl border border-slate-200 text-slate-500 text-xs font-medium space-y-3">
+            <Loader2 className="w-7 h-7 animate-spin mx-auto text-[#002B49]" />
+            <p className="font-bold text-slate-700">Conectando a base de datos de Supabase PostgreSQL...</p>
+            <p className="text-[11px] text-slate-400">Sincronizando preguntas y respuestas del curso en tiempo real.</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="p-8 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 text-xs font-medium">
-            <MessageSquare className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            <p>Aún no hay preguntas en este nivel. ¡Sé el primero en consultar!</p>
+          <div className="p-10 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 text-xs font-medium space-y-2">
+            <MessageSquare className="w-9 h-9 mx-auto text-slate-300" />
+            <p className="text-slate-600 font-bold">No hay preguntas publicadas aún en este nivel.</p>
+            <p className="text-[11px]">¡Sé el primero en iniciar la conversación académica con el docente!</p>
           </div>
         ) : (
           posts.map((post) => {
@@ -795,7 +807,7 @@ export const AcademicForum: React.FC<AcademicForumProps> = ({
                         {isSubmittingReply ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                            <span>Enviando...</span>
+                            <span>Guardando...</span>
                           </>
                         ) : (
                           <>
