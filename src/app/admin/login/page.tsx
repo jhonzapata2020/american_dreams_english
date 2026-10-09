@@ -68,38 +68,36 @@ export default function AdminLoginPage() {
       })
 
       if (error) {
-        if (cleanEmail.includes('admin') || cleanEmail.includes('docente') || password.length >= 6) {
-          setMessage({
-            type: 'success',
-            text: '¡Credenciales autorizadas! Ingresando al Panel de Control...'
-          })
-          setTimeout(() => {
-            window.location.href = '/dashboard/admin'
-          }, 800)
-          return
-        }
-
+        const isBadCreds = error.message.toLowerCase().includes('invalid login credentials') || error.message.toLowerCase().includes('invalid')
         setMessage({ 
           type: 'error', 
-          text: error.message || 'Credenciales inválidas. Verifica tu correo y contraseña.' 
+          text: isBadCreds ? 'Credenciales inválidas. Verifica tu correo institucional y contraseña.' : error.message 
         })
-      } else {
+      } else if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
+        const role = profile?.role?.toLowerCase() || (data.user.user_metadata?.role as string)?.toLowerCase() || 'admin'
         setMessage({ 
           type: 'success', 
           text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
         })
         setTimeout(() => {
-          window.location.href = '/dashboard/admin'
-        }, 800)
+          if (role === 'teacher') {
+            window.location.href = '/dashboard/teacher'
+          } else {
+            window.location.href = '/dashboard/admin'
+          }
+        }, 600)
       }
     } catch (err: any) {
       setMessage({ 
-        type: 'success', 
-        text: 'Acceso autorizado. Cargando panel de control...' 
+        type: 'error', 
+        text: err.message || 'Error al conectar con el servidor de autenticación.' 
       })
-      setTimeout(() => {
-        window.location.href = '/dashboard/admin'
-      }, 800)
     } finally {
       setLoading(false)
     }

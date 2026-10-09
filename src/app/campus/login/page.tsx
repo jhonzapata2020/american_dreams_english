@@ -125,13 +125,14 @@ export default function CampusLoginPage() {
     setMessage(null)
 
     try {
-      let loginEmail = identifier.trim()
+      let loginEmail = identifier.trim().toLowerCase()
       
+      // Si el estudiante ingresó su número de documento sin '@'
       if (!loginEmail.includes('@')) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('email')
-          .or(`document_number.eq.${loginEmail},id.eq.${loginEmail}`)
+          .eq('document_number', loginEmail)
           .maybeSingle()
 
         if (profile?.email) {
@@ -147,20 +148,10 @@ export default function CampusLoginPage() {
       })
 
       if (error) {
-        if (password.length >= 6) {
-          setMessage({
-            type: 'success',
-            text: t.validationSuccess
-          })
-          setTimeout(() => {
-            window.location.href = '/campus'
-          }, 800)
-          return
-        }
-
+        const isBadCreds = error.message.toLowerCase().includes('invalid login credentials') || error.message.toLowerCase().includes('invalid')
         setMessage({ 
           type: 'error', 
-          text: t.invalidCreds 
+          text: isBadCreds ? t.invalidCreds : error.message 
         })
       } else {
         setMessage({ 
@@ -169,16 +160,13 @@ export default function CampusLoginPage() {
         })
         setTimeout(() => {
           window.location.href = '/campus'
-        }, 800)
+        }, 600)
       }
     } catch (err: any) {
       setMessage({ 
-        type: 'success', 
-        text: t.accessVerified 
+        type: 'error', 
+        text: err.message || t.invalidCreds 
       })
-      setTimeout(() => {
-        window.location.href = '/campus'
-      }, 800)
     } finally {
       setLoading(false)
     }

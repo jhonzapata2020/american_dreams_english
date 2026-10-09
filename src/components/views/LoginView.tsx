@@ -36,29 +36,41 @@ export function LoginView() {
     setMessage(null)
 
     try {
-      const cleanEmail = email.trim().toLowerCase()
+      let loginEmail = email.trim().toLowerCase()
+
+      // Si el usuario ingresa su número de documento sin '@', buscar su correo oficial en profiles
+      if (!loginEmail.includes('@')) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email')
+          .eq('document_number', loginEmail)
+          .maybeSingle()
+
+        if (profile?.email) {
+          loginEmail = profile.email
+        } else {
+          loginEmail = `${loginEmail}@americandream.edu.co`
+        }
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: cleanEmail,
+        email: loginEmail,
         password,
       })
 
       if (error) {
-        if (cleanEmail.includes('admin') || selectedRole === 'admin') {
-          setMessage({ type: 'success', text: '¡Acceso administrativo confirmado! Redirigiendo a tu panel...' })
-          setTimeout(() => {
-            window.location.href = '/admin'
-          }, 600)
-          return
-        }
-        setMessage({ type: 'error', text: error.message || 'Error al verificar credenciales de acceso.' })
+        const errMsg = error.message === 'Invalid login credentials'
+          ? 'Credenciales inválidas. Por favor verifica tu documento/correo y contraseña.'
+          : error.message || 'Error al verificar credenciales de acceso.'
+        setMessage({ type: 'error', text: errMsg })
       } else if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
           .select('role')
           .eq('id', data.user.id)
-          .single()
+          .maybeSingle()
 
-        const role = profile?.role || selectedRole
+        const role = profile?.role || (data.user.user_metadata?.role as UserRole) || selectedRole
         setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo...` })
         
         setTimeout(() => {
@@ -69,7 +81,7 @@ export function LoginView() {
           } else {
             window.location.href = '/campus'
           }
-        }, 800)
+        }, 600)
       }
     } catch (err: any) {
       setMessage({ type: 'error', text: 'No se pudo conectar con el servidor de autenticación.' })
