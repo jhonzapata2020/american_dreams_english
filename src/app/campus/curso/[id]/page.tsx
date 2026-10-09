@@ -318,12 +318,12 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#060D19] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-[#F0F3F7] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
       
       {/* ========================================================================= */}
       {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
+      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-700/40 flex flex-col flex-1">
 
         {/* ======================================================================= */}
         {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON PESTAÑAS FLOTANTES        */}
