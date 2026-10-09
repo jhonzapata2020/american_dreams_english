@@ -506,13 +506,18 @@ export default function TeacherCampusPage() {
   const unansweredForumCount = forumPosts.filter(p => !p.forum_replies || p.forum_replies.length === 0).length
 
   return (
-    <div className="min-h-screen bg-[#0B1528] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16">
+    <div className="min-h-screen bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
       
-      {/* ======================================================================= */}
-      {/* 1. CABECERA SUPERIOR OSCURA (NAVY #0B1528)                            */}
-      {/* ======================================================================= */}
-      <header className="w-full bg-[#0B1528] border-b border-white/10 pt-6 pb-6 px-4 sm:px-6">
-        <div className="max-w-6xl mx-auto space-y-5">
+      {/* ========================================================================= */}
+      {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
+      {/* ========================================================================= */}
+      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-700/40 flex flex-col flex-1">
+
+        {/* ======================================================================= */}
+        {/* 1. CABECERA SUPERIOR OSCURA (NAVY #0B1528)                            */}
+        {/* ======================================================================= */}
+        <header className="w-full bg-[#0B1528] border-b border-white/10 pt-6 pb-6 px-4 sm:px-6">
+          <div className="w-full space-y-5">
           
           {/* Fila 1: Logo Institucional + Saludo Docente + Acciones Rápidas */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -629,7 +634,7 @@ export default function TeacherCampusPage() {
       {/* ======================================================================= */}
       {/* 2. CONTENEDOR CURVO CONTINUO UNIFICADO (BG-WHITE)                       */}
       {/* ======================================================================= */}
-      <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 flex-1 -mt-2">
+      <main className="w-full flex-1">
         <div className="bg-white text-slate-800 rounded-t-[32px] md:rounded-t-[40px] shadow-2xl p-5 sm:p-7 md:p-8 space-y-6">
           
           {/* =================================================================== */}
@@ -1202,6 +1207,8 @@ export default function TeacherCampusPage() {
 
         </div>
       </main>
+
+      </div>
 
       {/* ======================================================================= */}
       {/* MODAL 1: CARGAR / EDITAR GRABACIÓN DE TEAMS                            */}

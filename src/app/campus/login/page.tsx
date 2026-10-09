@@ -96,7 +96,20 @@ export default function CampusLoginPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
-          window.location.href = '/campus'
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .maybeSingle()
+
+          const role = profile?.role || session.user.user_metadata?.role || 'student'
+          if (role === 'teacher') {
+            window.location.href = '/campus/docente'
+          } else if (role === 'admin') {
+            window.location.href = '/dashboard/admin'
+          } else {
+            window.location.href = '/campus'
+          }
         }
       } catch (e) {
         // Silencioso
@@ -153,13 +166,26 @@ export default function CampusLoginPage() {
           type: 'error', 
           text: isBadCreds ? t.invalidCreds : error.message 
         })
-      } else {
+      } else if (data?.user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', data.user.id)
+          .maybeSingle()
+
+        const role = profile?.role || data.user.user_metadata?.role || 'student'
         setMessage({ 
           type: 'success', 
           text: t.welcomeSuccess 
         })
         setTimeout(() => {
-          window.location.href = '/campus'
+          if (role === 'teacher') {
+            window.location.href = '/campus/docente'
+          } else if (role === 'admin') {
+            window.location.href = '/dashboard/admin'
+          } else {
+            window.location.href = '/campus'
+          }
         }, 600)
       }
     } catch (err: any) {

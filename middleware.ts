@@ -105,13 +105,13 @@ export async function middleware(request: NextRequest) {
       userRole = (user.user_metadata?.role as string)?.toLowerCase() || 'student'
     }
 
-    // 3. Redirección automática de la raíz /dashboard al panel principal
+    // 3. Redirección automática de la raíz /dashboard y /dashboard/teacher
     if (pathname === '/dashboard') {
       const redirectUrl = request.nextUrl.clone()
       if (userRole === 'admin') {
         redirectUrl.pathname = '/dashboard/admin'
       } else if (userRole === 'teacher') {
-        redirectUrl.pathname = '/dashboard/teacher'
+        redirectUrl.pathname = '/campus/docente'
       } else {
         // Redirección del estudiante al Campus Principal
         redirectUrl.pathname = '/campus'
@@ -119,11 +119,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
+    if (pathname === '/dashboard/teacher') {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/campus/docente'
+      return NextResponse.redirect(redirectUrl)
+    }
+
     // 4. Control de Acceso Basado en Roles (RBAC)
     if (isAdminRoute) {
       if (userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = userRole === 'teacher' ? '/dashboard/teacher' : '/campus'
+        redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/campus'
         return NextResponse.redirect(redirectUrl)
       }
     } else if (isTeacherRoute) {
@@ -136,7 +142,7 @@ export async function middleware(request: NextRequest) {
       // Un estudiante o admin tiene acceso TOTAL a /campus, /dashboard/student, /dashboard/aula y subrutas
       if (userRole !== 'student' && userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = userRole === 'teacher' ? '/dashboard/teacher' : '/dashboard/admin'
+        redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/dashboard/admin'
         return NextResponse.redirect(redirectUrl)
       }
     }

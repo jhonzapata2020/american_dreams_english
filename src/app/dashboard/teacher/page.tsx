@@ -61,6 +61,11 @@ interface CourseMaterialItem {
 
 export default function TeacherDashboardPage() {
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    window.location.replace('/campus/docente');
+  }, []);
+
   const [teacherName, setTeacherName] = useState<string>('');
   const [teacherId, setTeacherId] = useState<string>('');
   const [classes, setClasses] = useState<AssignedClass[]>([]);
