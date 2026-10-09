@@ -3,7 +3,6 @@ import { Currency } from '../types';
 import { Menu, X, GraduationCap, Globe, MapPin } from 'lucide-react';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
 import { useLanguage } from '../context/LanguageContext';
-import { InstallPWAButton } from './common/InstallPWAButton';
 
 interface NavbarProps {
   selectedCurrency?: Currency;
@@ -139,11 +138,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
               <span className="max-[380px]:hidden">{language === 'en' ? 'Location' : 'Cómo llegar'}</span>
             </a>
-
-            {/* BOTÓN INSTALAR APP PWA (Solo pantallas móviles <= 675px) */}
-            <div className="max-[675px]:block hidden">
-              <InstallPWAButton variant="navbar" />
-            </div>
 
             {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL (Desktop / Tablet) */}
             <a 
