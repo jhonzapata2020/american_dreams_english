@@ -22,13 +22,13 @@ const translations = {
   EN: {
     back: 'Back to website',
     period: 'Period 2026',
-    welcome: 'Welcome back',
-    subtitle: 'Please enter your details.',
+    welcome: 'ADE Student Portal',
+    subtitle: 'Please enter your student credentials.',
     emailPlaceholder: 'Email or Document',
     passwordPlaceholder: 'Password',
     remember: 'Remember for 30 days',
     forgot: 'Forgot password?',
-    loginBtn: 'Log In',
+    loginBtn: 'Enter Virtual Campus',
     entering: 'Entering...',
     or: 'or',
     demoTooltip: 'Load demo student credentials',
@@ -44,15 +44,15 @@ const translations = {
   ES: {
     back: 'Volver a la web',
     period: 'Periodo 2026',
-    welcome: 'Bienvenido al Campus',
+    welcome: 'Portal del Estudiante ADE',
     subtitle: 'Ingresa tus datos de acceso.',
-    emailPlaceholder: 'Documento o Correo',
+    emailPlaceholder: 'Correo o Documento',
     passwordPlaceholder: 'Contraseña',
     remember: 'Recordar sesión',
     forgot: '¿Olvidaste tu contraseña?',
-    loginBtn: 'Ingresar al Campus',
+    loginBtn: 'Ingresar a mi Campus',
     entering: 'Ingresando...',
-    or: 'o',
+    or: 'or',
     demoTooltip: 'Cargar credenciales de estudiante demo',
     adminTooltip: 'Ir al Portal Administrativo',
     footer: 'American Dream English · Campus Estudiantil',
@@ -66,7 +66,7 @@ const translations = {
 }
 
 export default function CampusLoginPage() {
-  const [lang, setLang] = useState<Language>('EN')
+  const [lang, setLang] = useState<Language>('ES')
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -92,7 +92,7 @@ export default function CampusLoginPage() {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session?.user) {
-          // Sesión activa opcional
+          window.location.href = '/campus'
         }
       } catch (e) {
         // Silencioso

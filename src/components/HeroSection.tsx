@@ -123,7 +123,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {/* Enlace rápido para alumnos */}
             <div className="text-center pt-1">
               <a
-                href="/login"
+                href="/campus/login"
                 className="inline-flex items-center justify-center text-sm font-semibold text-slate-600 hover:text-navy-900 py-1 transition-colors group"
               >
                 <span>¿Ya eres estudiante?</span>

@@ -3,9 +3,10 @@
 import React from 'react'
 import dynamic from 'next/dynamic'
 
-const LoginView = dynamic(() => import('../../components/views/LoginView').then(m => m.LoginView), { ssr: false })
+const CampusLoginPage = dynamic(() => import('../campus/login/page'), { ssr: false })
 
 export default function LoginPage() {
-  return <LoginView />
+  return <CampusLoginPage />
 }
+
 

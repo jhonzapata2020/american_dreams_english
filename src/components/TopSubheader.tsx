@@ -75,11 +75,11 @@ export const TopSubheader: React.FC<TopSubheaderProps> = ({ onOpenStudentPortal 
           </div>
 
           <a
-            href="/login"
+            href="/campus/login"
             className="flex items-center gap-1 text-navy-900 hover:text-red-600 font-extrabold transition-colors"
           >
             <UserCheck className="w-3.5 h-3.5 text-navy-900" />
-            <span>Portales RBAC (Login)</span>
+            <span>Campus Virtual</span>
           </a>
 
         </div>
