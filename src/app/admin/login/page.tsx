@@ -37,8 +37,10 @@ export default function AdminLoginPage() {
             .maybeSingle()
 
           const role = profile?.role?.toLowerCase()
-          if (role === 'admin' || role === 'teacher') {
-            window.location.href = '/admin'
+          if (role === 'admin') {
+            window.location.href = '/dashboard/admin'
+          } else if (role === 'teacher') {
+            window.location.href = '/dashboard/teacher'
           }
         }
       } catch (e) {
@@ -72,7 +74,7 @@ export default function AdminLoginPage() {
             text: '¡Credenciales autorizadas! Ingresando al Panel de Control...'
           })
           setTimeout(() => {
-            window.location.href = '/admin'
+            window.location.href = '/dashboard/admin'
           }, 800)
           return
         }
@@ -87,7 +89,7 @@ export default function AdminLoginPage() {
           text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
         })
         setTimeout(() => {
-          window.location.href = '/admin'
+          window.location.href = '/dashboard/admin'
         }, 800)
       }
     } catch (err: any) {
@@ -96,7 +98,7 @@ export default function AdminLoginPage() {
         text: 'Acceso autorizado. Cargando panel de control...' 
       })
       setTimeout(() => {
-        window.location.href = '/admin'
+        window.location.href = '/dashboard/admin'
       }, 800)
     } finally {
       setLoading(false)
