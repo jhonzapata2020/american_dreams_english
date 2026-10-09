@@ -28,21 +28,10 @@ import {
   X
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
-
 import { getLevelConfig } from '../../data/levelConfig'
+import { StudentProfileModal, StudentProfileData } from '../../components/campus/StudentProfileModal'
+import { StudentAvatarMenu } from '../../components/campus/StudentAvatarMenu'
 
-// Tipos para el campus virtual
-interface StudentProfile {
-  id: string
-  fullName: string
-  email: string
-  docType: string
-  docNumber: string
-  currentLevel: string
-  programName?: string
-  studentCode?: string
-  status?: string
-}
 
 interface EnrolledCourse {
   id: string
@@ -90,14 +79,18 @@ export default function CampusVirtualPage() {
   const [announcementIdx, setAnnouncementIdx] = useState(0)
   const [showCertModal, setShowCertModal] = useState(false)
   const [showIncidentModal, setShowIncidentModal] = useState(false)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileInitialTab, setProfileInitialTab] = useState<'info' | 'security'>('info')
   const [incidentText, setIncidentText] = useState('')
   const [incidentSent, setIncidentSent] = useState(false)
 
   // Perfil del Alumno
-  const [student, setStudent] = useState<StudentProfile>({
+  const [student, setStudent] = useState<StudentProfileData>({
     id: 'stu-valeria-01',
     fullName: 'Valeria Morales Montoya',
     email: 'valeria.morales@americandream.edu.co',
+    phone: '+57 300 892 3410',
+    avatarUrl: '',
     docType: 'C.C.',
     docNumber: '1.040.892.341',
     currentLevel: 'A1',
@@ -131,6 +124,16 @@ export default function CampusVirtualPage() {
         if (typeof window !== 'undefined') {
           const storedLevel = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
           if (storedLevel) detectedLevel = storedLevel
+
+          const savedProfile = localStorage.getItem('ade_student_profile')
+          if (savedProfile) {
+            try {
+              const parsed = JSON.parse(savedProfile)
+              if (parsed && parsed.fullName) {
+                setStudent((prev) => ({ ...prev, ...parsed }))
+              }
+            } catch (e) {}
+          }
         }
 
         const { data: { session } } = await supabase.auth.getSession()
@@ -145,17 +148,20 @@ export default function CampusVirtualPage() {
             const resolvedLvl = profile.mcer_level || profile.current_level || session.user.user_metadata?.course_level || detectedLevel
             detectedLevel = resolvedLvl
 
-            setStudent({
+            setStudent((prev) => ({
+              ...prev,
               id: profile.id,
-              fullName: profile.full_name || profile.name || session.user.user_metadata?.full_name || 'Estudiante American Dream',
-              email: profile.email || session.user.email || 'estudiante@americandream.edu.co',
-              docType: profile.document_type || 'C.C.',
-              docNumber: profile.document_number || '1.040.892.341',
+              fullName: profile.full_name || profile.name || session.user?.user_metadata?.full_name || prev.fullName,
+              email: profile.email || session.user?.email || prev.email,
+              phone: profile.phone || session.user?.user_metadata?.phone || prev.phone,
+              avatarUrl: profile.avatar_url || session.user?.user_metadata?.avatar_url || prev.avatarUrl,
+              docType: profile.document_type || prev.docType,
+              docNumber: profile.document_number || prev.docNumber,
               currentLevel: resolvedLvl,
               programName: 'Programa de Inglés Jóvenes y Adultos',
               studentCode: `ADE-2026-${profile.id.substring(0, 4).toUpperCase()}`,
               status: 'Matriculado Regular'
-            })
+            }))
           }
         }
 
@@ -250,18 +256,24 @@ export default function CampusVirtualPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Estudiante Activo</span>
-            </div>
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <StudentAvatarMenu
+              student={student}
+              onOpenEditProfile={(tab) => {
+                setProfileInitialTab(tab || 'info')
+                setShowProfileModal(true)
+              }}
+              onLogout={handleLogout}
+              onOpenCert={() => setShowCertModal(true)}
+              variant="header"
+            />
             
             <button
               onClick={handleLogout}
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-lg transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 px-3 py-1.5 rounded-xl transition-colors"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Cerrar Sesión</span>
+              <span>Salir</span>
             </button>
           </div>
         </div>
@@ -460,15 +472,18 @@ export default function CampusVirtualPage() {
             {/* FICHA DEL ESTUDIANTE */}
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
               
-              {/* Cabecera Ficha */}
+              {/* Cabecera Ficha con Avatar Interactivo */}
               <div className="bg-[#002B49] text-white p-5 text-center relative">
-                <div className="w-16 h-16 bg-white rounded-2xl text-[#002B49] flex items-center justify-center font-black text-xl mx-auto mb-3 shadow-md border-2 border-amber-400">
-                  {student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                </div>
-                <h3 className="font-extrabold text-base text-white leading-tight">
-                  {student.fullName}
-                </h3>
-                <span className="inline-block mt-1 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                <StudentAvatarMenu
+                  student={student}
+                  onOpenEditProfile={(tab) => {
+                    setProfileInitialTab(tab || 'info')
+                    setShowProfileModal(true)
+                  }}
+                  onLogout={handleLogout}
+                  variant="card"
+                />
+                <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
                   {student.status}
                 </span>
               </div>
@@ -511,8 +526,20 @@ export default function CampusVirtualPage() {
                   </span>
                 </div>
 
-                {/* Botón de Cierre de Sesión Seguro */}
-                <div className="pt-3 border-t border-slate-100">
+                {/* Botones de Acción */}
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileInitialTab('info')
+                      setShowProfileModal(true)
+                    }}
+                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-300 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Editar Perfil & Foto</span>
+                  </button>
+
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
@@ -639,7 +666,16 @@ export default function CampusVirtualPage() {
         </div>
       )}
 
-      {/* 7. FOOTER INSTITUCIONAL */}
+      {/* 7. MODAL: EDITAR PERFIL & SEGURIDAD */}
+      <StudentProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        student={student}
+        onProfileUpdated={(updated) => setStudent(updated)}
+        initialTab={profileInitialTab}
+      />
+
+      {/* 8. FOOTER INSTITUCIONAL */}
       <footer className="mt-8 py-4 text-center text-xs text-slate-400 border-t border-slate-200 bg-white">
         <p>© 2026 American Dream English · Campus Virtual e Integración Académica UNAD-Style</p>
       </footer>

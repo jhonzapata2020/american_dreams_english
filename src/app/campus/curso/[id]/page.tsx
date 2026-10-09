@@ -27,6 +27,9 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig'
+import { StudentProfileModal, StudentProfileData } from '../../../../components/campus/StudentProfileModal'
+import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
+
 
 interface CourseDetailProps {
   params?: { id: string }
@@ -255,6 +258,22 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     }
   ])
 
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileInitialTab, setProfileInitialTab] = useState<'info' | 'security'>('info')
+  const [student, setStudent] = useState<StudentProfileData>({
+    id: 'stu-valeria-01',
+    fullName: 'Valeria Morales Montoya',
+    email: 'valeria.morales@americandream.edu.co',
+    phone: '+57 300 892 3410',
+    avatarUrl: '',
+    docType: 'C.C.',
+    docNumber: '1.040.892.341',
+    currentLevel: 'A1',
+    programName: 'Programa de Inglés Jóvenes y Adultos',
+    studentCode: 'ADE-2026-0894',
+    status: 'Matriculado Regular'
+  })
+
   // Carga reactiva de datos según el nivel del estudiante
   useEffect(() => {
     async function loadLevel() {
@@ -263,6 +282,16 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         if (typeof window !== 'undefined') {
           const stored = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
           if (stored && courseId === 'a1') levelKey = stored
+
+          const savedProfile = localStorage.getItem('ade_student_profile')
+          if (savedProfile) {
+            try {
+              const parsed = JSON.parse(savedProfile)
+              if (parsed && parsed.fullName) {
+                setStudent((prev) => ({ ...prev, ...parsed }))
+              }
+            } catch (e) {}
+          }
         }
 
         const { data: { session } } = await supabase.auth.getSession()
@@ -273,8 +302,21 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             .eq('id', session.user.id)
             .maybeSingle()
 
-          if (profile?.mcer_level && courseId === 'a1') {
-            levelKey = profile.mcer_level
+          if (profile) {
+            if (profile.mcer_level && courseId === 'a1') {
+              levelKey = profile.mcer_level
+            }
+            setStudent((prev) => ({
+              ...prev,
+              id: profile.id,
+              fullName: profile.full_name || profile.name || session.user?.user_metadata?.full_name || prev.fullName,
+              email: profile.email || session.user?.email || prev.email,
+              phone: profile.phone || session.user?.user_metadata?.phone || prev.phone,
+              avatarUrl: profile.avatar_url || session.user?.user_metadata?.avatar_url || prev.avatarUrl,
+              docType: profile.document_type || prev.docType,
+              docNumber: profile.document_number || prev.docNumber,
+              currentLevel: profile.mcer_level || prev.currentLevel
+            }))
           }
         }
 
@@ -284,6 +326,13 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     }
     loadLevel()
   }, [courseId])
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (e) {}
+    window.location.href = '/campus/login'
+  }
 
   const handleSendQuestion = (e: React.FormEvent) => {
     e.preventDefault()
@@ -357,9 +406,21 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </div>
               </div>
 
-              <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15 text-xs text-slate-200 backdrop-blur-md">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
+              <div className="flex items-center gap-2.5">
+                <div className="hidden sm:flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-full border border-white/15 text-xs text-slate-200 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
+                </div>
+
+                <StudentAvatarMenu
+                  student={student}
+                  onOpenEditProfile={(tab) => {
+                    setProfileInitialTab(tab || 'info')
+                    setShowProfileModal(true)
+                  }}
+                  onLogout={handleLogout}
+                  variant="header"
+                />
               </div>
 
             </div>
@@ -983,6 +1044,17 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           </div>
         </div>
       )}
+
+      {/* ========================================================================= */}
+      {/* MODAL DE EDICIÓN DE PERFIL & SEGURIDAD                                    */}
+      {/* ========================================================================= */}
+      <StudentProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        student={student}
+        onProfileUpdated={(updated) => setStudent(updated)}
+        initialTab={profileInitialTab}
+      />
 
     </div>
   )
