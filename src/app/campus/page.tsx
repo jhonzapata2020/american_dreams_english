@@ -224,89 +224,84 @@ export default function CampusVirtualPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#060D19] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
+    <div className="min-h-screen bg-[#F1F4F9] text-slate-900 font-sans antialiased selection:bg-[#002B49] selection:text-white py-4 sm:py-8 px-3 sm:px-6 lg:px-8 flex flex-col items-center justify-start">
       
       {/* ========================================================================= */}
-      {/* CONTENEDOR PRINCIPAL UNIFICADO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
+      {/* CONTENEDOR PRINCIPAL FLUIDO Y ARMONIZADO (MAX-W-7XL)                       */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-800/80 flex flex-col flex-1">
+      <div className="w-full max-w-7xl mx-auto space-y-6">
 
         {/* ======================================================================= */}
-        {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON NOTCH Y CABECERA INSTITUCIONAL */}
+        {/* 1. CABECERA INSTITUCIONAL ELEVADA & UNIFICADA (GLASS / WHITE SURFACE)    */}
         {/* ======================================================================= */}
-        <div className="w-full bg-[#0B1528] text-white pt-4 sm:pt-6 relative">
-          
-          {/* Muesca Superior Elegante (Top App Notch Curve) */}
-          <div className="flex justify-center pb-2">
-            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-          </div>
-
-          {/* Barra Superior Institucional con Saludo y Ficha de Estudiante */}
-          <div className="px-4 sm:px-8 py-3 md:py-4">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              
-              {/* Bloque Izquierdo: Logo + Nombre Institucional + Saludo */}
-              <div className="flex items-center gap-3.5 w-full md:w-auto">
-                <Link href="/" className="shrink-0 group flex items-center">
-                  <img 
-                    src="/logo-american-dream.png" 
-                    alt="American Dream English" 
-                    className="h-11 sm:h-13 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
-                  />
-                </Link>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-base sm:text-lg text-white tracking-tight leading-tight block">
-                      AMERICAN DREAM ENGLISH
-                    </span>
-                    <span className="hidden sm:inline-block bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
-                      Campus Virtual
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300 font-medium">
-                    ¡Hola, <strong className="text-white">{student.fullName.split(' ')[0]}</strong>! Bienvenido a tu entorno académico.
-                  </p>
-                </div>
-              </div>
-
-              {/* Bloque Derecho: Badge de Ciclo + Avatar + Salir */}
-              <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
-                <div className="flex items-center gap-2 bg-white/10 px-3.5 py-1.5 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="font-bold">Periodo 2026-I</span>
-                </div>
-
-                <StudentAvatarMenu
-                  student={student}
-                  onOpenEditProfile={(tab) => {
-                    setProfileInitialTab(tab || 'info')
-                    setShowProfileModal(true)
-                  }}
-                  onLogout={handleLogout}
-                  onOpenCert={() => setShowCertModal(true)}
-                  variant="header"
+        <header className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm p-4 sm:p-6 transition-all">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            {/* Bloque Izquierdo: Logo + Identidad Institucional + Saludo */}
+            <div className="flex items-center gap-3.5 w-full md:w-auto">
+              <Link href="/" className="shrink-0 group flex items-center">
+                <img 
+                  src="/logo-american-dream.png" 
+                  alt="American Dream English" 
+                  className="h-11 sm:h-13 w-auto object-contain filter drop-shadow-xs group-hover:scale-105 transition-transform"
                 />
-
-                <button
-                  onClick={handleLogout}
-                  className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-300 hover:text-white bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 px-3 py-1.5 rounded-xl transition-colors"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span>Salir</span>
-                </button>
+              </Link>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-black text-base sm:text-lg text-[#002B49] tracking-tight leading-tight block">
+                    AMERICAN DREAM ENGLISH
+                  </span>
+                  <span className="inline-flex items-center gap-1 bg-blue-50 text-[#002B49] border border-blue-200/70 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full">
+                    <Sparkles className="w-3 h-3 text-amber-500" />
+                    Campus Virtual
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 font-medium mt-0.5">
+                  ¡Hola, <strong className="text-slate-900 font-bold">{student.fullName.split(' ')[0]}</strong>! Bienvenido a tu entorno académico oficial.
+                </p>
               </div>
-
             </div>
 
-            {/* Banner Institucional de Comunicados en Header Oscuro */}
-            <div className="mt-4 mb-2 p-2.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-md flex items-center justify-between gap-3 text-xs">
+            {/* Bloque Derecho: Badge de Periodo + Perfil del Alumno + Botón Salir */}
+            <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+              <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-700 font-semibold shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Periodo 2026-I</span>
+              </div>
+
+              <StudentAvatarMenu
+                student={student}
+                onOpenEditProfile={(tab) => {
+                  setProfileInitialTab(tab || 'info')
+                  setShowProfileModal(true)
+                }}
+                onLogout={handleLogout}
+                onOpenCert={() => setShowCertModal(true)}
+                variant="header"
+              />
+
+              <button
+                onClick={handleLogout}
+                className="hidden md:inline-flex items-center gap-1.5 text-xs font-bold text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 border border-rose-200 hover:border-rose-600 px-3.5 py-2 rounded-xl transition-all shadow-2xs"
+                title="Cerrar sesión segura"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Salir</span>
+              </button>
+            </div>
+
+          </div>
+
+          {/* Banner Institucional de Comunicados / Avisos Oficiales */}
+          <div className="mt-4 pt-4 border-t border-slate-100">
+            <div className="p-2.5 sm:p-3 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-slate-50 rounded-2xl border border-amber-300/40 flex items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2.5 overflow-hidden">
-                <span className="shrink-0 bg-amber-400 text-slate-950 font-black text-[10px] uppercase px-2 py-0.5 rounded-md tracking-wider">
+                <span className="shrink-0 bg-[#002B49] text-amber-400 font-black text-[10px] uppercase px-2.5 py-0.5 rounded-lg tracking-wider font-mono shadow-2xs">
                   {OFFICIAL_ANNOUNCEMENTS[announcementIdx].tag}
                 </span>
-                <p className="text-slate-200 font-medium truncate text-[11px] sm:text-xs">
+                <p className="text-slate-800 font-semibold truncate text-[11px] sm:text-xs">
                   {OFFICIAL_ANNOUNCEMENTS[announcementIdx].title}{' '}
-                  <span className="text-amber-300 font-bold ml-1">
+                  <span className="text-amber-800 font-bold ml-1">
                     ({OFFICIAL_ANNOUNCEMENTS[announcementIdx].date})
                   </span>
                 </p>
@@ -315,287 +310,286 @@ export default function CampusVirtualPage() {
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   onClick={() => setAnnouncementIdx((prev) => (prev - 1 + OFFICIAL_ANNOUNCEMENTS.length) % OFFICIAL_ANNOUNCEMENTS.length)}
-                  className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-white transition-colors"
+                  aria-label="Aviso anterior"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setAnnouncementIdx((prev) => (prev + 1) % OFFICIAL_ANNOUNCEMENTS.length)}
-                  className="p-1 text-slate-300 hover:text-white rounded hover:bg-white/10"
+                  className="p-1.5 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-white transition-colors"
+                  aria-label="Siguiente aviso"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
             </div>
-
           </div>
-        </div>
+        </header>
 
         {/* ======================================================================= */}
-        {/* 2. CONTENEDOR CURVO UNIFICADO (BG-WHITE ROUNDED-T-[32PX] MD:ROUNDED-T-[40PX]) */}
+        {/* 2. CUERPO PRINCIPAL DEL CAMPUS (GRID DE 2 COLUMNAS INTEGRADO)            */}
         {/* ======================================================================= */}
-        <div className="bg-white rounded-t-[32px] md:rounded-t-[40px] shadow-xl w-full flex-1 p-5 sm:p-6 md:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          {/* ========================================================== */}
+          {/* COLUMNA IZQUIERDA (lg:col-span-8): CURSOS ACTIVOS & SOPORTE */}
+          {/* ========================================================== */}
+          <div className="lg:col-span-8 space-y-6">
             
-            {/* ========================================================== */}
-            {/* COLUMNA IZQUIERDA (lg:col-span-8): CURSOS ACTIVOS & SOPORTE */}
-            {/* ========================================================== */}
-            <div className="lg:col-span-8 space-y-6">
-              
-              {/* Cabecera de Sección */}
-              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-[#002B49] text-amber-400 flex items-center justify-center font-bold shadow-xs">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h1 className="text-lg sm:text-xl font-black text-slate-900">
-                      Mis Cursos Matriculados
-                    </h1>
-                    <p className="text-xs text-slate-500 font-medium">
-                      Ciclo Formativo Vigente · Periodo 2026-I
+            {/* Cabecera de Sección */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 flex items-center justify-center font-bold shadow-xs">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h1 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+                    Mis Cursos Matriculados
+                  </h1>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Ciclo Formativo Vigente · Periodo Académico 2026-I
+                  </p>
+                </div>
+              </div>
+
+              <span className="text-xs font-extrabold text-[#002B49] bg-blue-50/80 border border-blue-200/70 px-3 py-1.5 rounded-xl shadow-2xs">
+                1 Curso Activo
+              </span>
+            </div>
+
+            {/* Listado de Tarjetas de Cursos */}
+            <div className="space-y-4">
+              {enrolledCourses.map((course) => (
+                <div 
+                  key={course.id}
+                  className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all overflow-hidden group"
+                >
+                  {/* Encabezado del curso */}
+                  <div className="p-5 sm:p-7 pb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-[#002B49] text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-lg tracking-wider font-mono shadow-2xs">
+                          {course.code}
+                        </span>
+                        <span className="bg-amber-100/80 text-amber-900 border border-amber-200/60 text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                          {course.credits} Créditos Académicos
+                        </span>
+                      </div>
+
+                      <div className="text-xs font-semibold text-slate-600 flex items-center gap-1.5 bg-slate-50 px-3 py-1 rounded-xl border border-slate-200/60">
+                        <Clock className="w-3.5 h-3.5 text-amber-600" />
+                        <span>Próxima clase: <strong className="text-slate-900">{course.nextLiveClass}</strong></span>
+                      </div>
+                    </div>
+
+                    <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight leading-snug group-hover:text-[#002B49] transition-colors">
+                      {course.title}
+                    </h2>
+                    
+                    <p className="text-xs text-slate-500 font-medium mt-1.5">
+                      Modalidad: <span className="text-slate-800 font-semibold">{course.modality}</span> · Docente: <span className="text-slate-800 font-semibold">{course.teacherName}</span>
                     </p>
+
+                    {/* Barra de Progreso y Puntuación */}
+                    <div className="mt-6 space-y-2.5 bg-slate-50/70 border border-slate-200/60 p-4 rounded-2xl">
+                      <div className="flex items-center justify-between text-xs font-bold">
+                        <span className="text-slate-700">
+                          Progreso en el Aula Virtual
+                        </span>
+                        <span className="text-[#002B49] font-black">
+                          {course.progress}% Completado
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-200/70 h-3 rounded-full overflow-hidden p-0.5">
+                        <div 
+                          className="bg-gradient-to-r from-amber-400 via-amber-500 to-[#002B49] h-full rounded-full transition-all duration-700 shadow-2xs" 
+                          style={{ width: `${course.progress}%` }} 
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 pt-1 flex-wrap gap-2">
+                        <span className="flex items-center gap-1 text-emerald-700 font-bold">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Calificación Acumulada: 🟢 {course.accumulatedPoints} / 🟡 {course.maxPoints} pts
+                        </span>
+                        <span className="bg-slate-200/80 text-slate-800 px-2 py-0.5 rounded-md font-bold">
+                          Nivel MCER: {course.level}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Footer de la tarjeta con Botón de Acceso */}
+                  <div className="bg-slate-50 px-5 sm:px-7 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
+                      Incluye: Clases Teams, Guías PDF, Audios y Zona de Tareas.
+                    </div>
+
+                    <Link
+                      href={`/campus/curso/${course.id}`}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-black px-6 py-3 rounded-xl sm:rounded-2xl shadow-sm hover:shadow-md transition-all text-xs tracking-wide group active:scale-[0.98]"
+                    >
+                      <span>Acceder al Aula Virtual</span>
+                      <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </div>
                 </div>
+              ))}
+            </div>
 
-                <span className="text-xs font-extrabold text-[#002B49] bg-slate-100 border border-slate-200 px-3 py-1 rounded-xl">
-                  1 Curso Activo
+            {/* Servicios y Enlaces Académicos Complementarios */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs space-y-3.5">
+              <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Orientación y Soporte Académico
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                <Link 
+                  href="/dashboard/student"
+                  className="p-4 bg-slate-50 hover:bg-blue-50/60 border border-slate-200 hover:border-blue-200 rounded-2xl text-left transition-all flex items-start gap-3 group shadow-2xs hover:shadow-xs"
+                >
+                  <BarChart3 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <strong className="block text-slate-800 group-hover:text-blue-900">Panel & Métricas</strong>
+                    <span className="text-[11px] text-slate-500">Horas, rachas y asistencia</span>
+                  </div>
+                </Link>
+
+                <button 
+                  onClick={() => setShowIncidentModal(true)}
+                  className="p-4 bg-slate-50 hover:bg-amber-50/60 border border-slate-200 hover:border-amber-200 rounded-2xl text-left transition-all flex items-start gap-3 group shadow-2xs hover:shadow-xs"
+                >
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <strong className="block text-slate-800 group-hover:text-amber-900">Reportar Novedad</strong>
+                    <span className="text-[11px] text-slate-500">Soporte con el aula virtual</span>
+                  </div>
+                </button>
+
+                <button 
+                  onClick={() => setShowCertModal(true)}
+                  className="p-4 bg-slate-50 hover:bg-emerald-50/60 border border-slate-200 hover:border-emerald-200 rounded-2xl text-left transition-all flex items-start gap-3 group shadow-2xs hover:shadow-xs"
+                >
+                  <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <strong className="block text-slate-800 group-hover:text-emerald-900">Certificado Matrícula</strong>
+                    <span className="text-[11px] text-slate-500">Descargar constancia oficial</span>
+                  </div>
+                </button>
+
+                <a 
+                  href={getWhatsAppUrl("Hola, solicito soporte académico en Campus Virtual")} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="p-4 bg-slate-50 hover:bg-teal-50/60 border border-slate-200 hover:border-teal-200 rounded-2xl text-left transition-all flex items-start gap-3 group shadow-2xs hover:shadow-xs"
+                >
+                  <MessageSquare className="w-4 h-4 text-teal-600 shrink-0 mt-0.5 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <strong className="block text-slate-800 group-hover:text-teal-900">Tutoría WhatsApp</strong>
+                    <span className="text-[11px] text-slate-500">Línea directa institucional</span>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          {/* ========================================================== */}
+          {/* COLUMNA DERECHA (lg:col-span-4): FICHA ESTUDIANTE UNIFICADA */}
+          {/* ========================================================== */}
+          <div className="lg:col-span-4 space-y-6">
+            
+            {/* FICHA DEL ESTUDIANTE */}
+            <div className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+              
+              {/* Cabecera Ficha con Avatar Interactivo */}
+              <div className="bg-gradient-to-b from-[#002B49] to-[#011e33] text-white p-6 text-center relative">
+                <StudentAvatarMenu
+                  student={student}
+                  onOpenEditProfile={(tab) => {
+                    setProfileInitialTab(tab || 'info')
+                    setShowProfileModal(true)
+                  }}
+                  onLogout={handleLogout}
+                  variant="card"
+                />
+                <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-3 py-0.5 rounded-full border border-emerald-400/30">
+                  {student.status}
                 </span>
               </div>
 
-              {/* Listado de Tarjetas de Cursos */}
-              <div className="space-y-4">
-                {enrolledCourses.map((course) => (
-                  <div 
-                    key={course.id}
-                    className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-md transition-all overflow-hidden border-t-4 border-t-[#002B49]"
-                  >
-                    {/* Encabezado del curso */}
-                    <div className="p-5 sm:p-6 pb-4">
-                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className="bg-[#002B49] text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-md tracking-wider font-mono">
-                            {course.code}
-                          </span>
-                          <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                            {course.credits} Créditos Académicos
-                          </span>
-                        </div>
-
-                        <div className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5 text-amber-600" />
-                          <span>Próxima clase: <strong className="text-slate-800">{course.nextLiveClass}</strong></span>
-                        </div>
-                      </div>
-
-                      <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                        {course.title}
-                      </h2>
-                      
-                      <p className="text-xs text-slate-500 font-medium mt-1">
-                        Modalidad: <span className="text-slate-700 font-semibold">{course.modality}</span> · Docente: <span className="text-slate-700 font-semibold">{course.teacherName}</span>
-                      </p>
-
-                      {/* Barra de Progreso y Puntuación */}
-                      <div className="mt-5 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-bold">
-                          <span className="text-slate-600">
-                            Progreso en el Aula Virtual
-                          </span>
-                          <span className="text-[#002B49]">
-                            {course.progress}% Completado
-                          </span>
-                        </div>
-                        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200">
-                          <div 
-                            className="bg-gradient-to-r from-amber-400 to-[#002B49] h-full rounded-full transition-all duration-700" 
-                            style={{ width: `${course.progress}%` }} 
-                          />
-                        </div>
-
-                        <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400 pt-1">
-                          <span className="flex items-center gap-1 text-emerald-700 font-bold">
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Calificación Acumulada: 🟢 {course.accumulatedPoints} / 🟡 {course.maxPoints} pts
-                          </span>
-                          <span>Nivel MCER: {course.level}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Footer de la tarjeta con Botón de Acceso */}
-                    <div className="bg-slate-50 px-5 sm:px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                      <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
-                        Incluye: Clases Teams, Guías PDF, Audios y Zona de Tareas.
-                      </div>
-
-                      <Link
-                        href={`/campus/curso/${course.id}`}
-                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-black px-6 py-3 rounded-2xl shadow-sm hover:shadow-md transition-all text-xs tracking-wide group active:scale-[0.98]"
-                      >
-                        <span>Acceder al Aula Virtual</span>
-                        <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Servicios y Enlaces Académicos Complementarios */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-2xs space-y-3">
-                <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                  Orientación y Soporte Académico
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                  <Link 
-                    href="/dashboard/student"
-                    className="p-3.5 bg-blue-50/70 hover:bg-blue-100/80 border border-blue-200/80 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
-                  >
-                    <BarChart3 className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="block text-slate-800 group-hover:text-blue-900">Panel & Métricas</strong>
-                      <span className="text-[11px] text-slate-500">Horas, rachas y asistencia</span>
-                    </div>
-                  </Link>
-
-                  <button 
-                    onClick={() => setShowIncidentModal(true)}
-                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
-                  >
-                    <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Reportar Novedad</strong>
-                      <span className="text-[11px] text-slate-500">Soporte con el aula virtual</span>
-                    </div>
-                  </button>
-
-                  <button 
-                    onClick={() => setShowCertModal(true)}
-                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
-                  >
-                    <Award className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Certificado Matrícula</strong>
-                      <span className="text-[11px] text-slate-500">Descargar constancia oficial</span>
-                    </div>
-                  </button>
-
-                  <a 
-                    href={getWhatsAppUrl("Hola, solicito soporte académico en Campus Virtual")} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="p-3.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-left transition-colors flex items-start gap-2.5 group"
-                  >
-                    <MessageSquare className="w-4 h-4 text-[#002B49] shrink-0 mt-0.5" />
-                    <div>
-                      <strong className="block text-slate-800 group-hover:text-[#002B49]">Tutoría por WhatsApp</strong>
-                      <span className="text-[11px] text-slate-500">Línea directa de coordinación</span>
-                    </div>
-                  </a>
-                </div>
-              </div>
-
-            </div>
-
-            {/* ========================================================== */}
-            {/* COLUMNA DERECHA (lg:col-span-4): FICHA ESTUDIANTE UNIFICADA */}
-            {/* ========================================================== */}
-            <div className="lg:col-span-4 space-y-6">
-              
-              {/* FICHA DEL ESTUDIANTE */}
-              <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                
-                {/* Cabecera Ficha con Avatar Interactivo */}
-                <div className="bg-[#002B49] text-white p-6 text-center relative">
-                  <StudentAvatarMenu
-                    student={student}
-                    onOpenEditProfile={(tab) => {
-                      setProfileInitialTab(tab || 'info')
-                      setShowProfileModal(true)
-                    }}
-                    onLogout={handleLogout}
-                    variant="card"
-                  />
-                  <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
-                    {student.status}
+              {/* Detalles Académicos */}
+              <div className="p-5 sm:p-6 space-y-3.5 text-xs">
+                <div>
+                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                    Identificación Oficial ({student.docType})
+                  </span>
+                  <span className="font-extrabold text-slate-800 text-sm">
+                    {student.docNumber}
                   </span>
                 </div>
 
-                {/* Detalles Académicos */}
-                <div className="p-5 sm:p-6 space-y-3.5 text-xs">
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Identificación Oficial ({student.docType})
-                    </span>
-                    <span className="font-extrabold text-slate-800 text-sm">
-                      {student.docNumber}
-                    </span>
-                  </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                    Código Estudiantil
+                  </span>
+                  <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg inline-block mt-0.5 border border-slate-200/70">
+                    {student.studentCode}
+                  </span>
+                </div>
 
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Código Estudiantil
-                    </span>
-                    <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg">
-                      {student.studentCode}
-                    </span>
-                  </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                    Programa Académico
+                  </span>
+                  <span className="font-semibold text-slate-700 block mt-0.5">
+                    {student.programName}
+                  </span>
+                </div>
 
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Programa Académico
-                    </span>
-                    <span className="font-semibold text-slate-700">
-                      {student.programName}
-                    </span>
-                  </div>
+                <div>
+                  <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                    Correo Institucional
+                  </span>
+                  <span className="font-medium text-slate-600 truncate block mt-0.5">
+                    {student.email}
+                  </span>
+                </div>
 
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Correo Institucional
-                    </span>
-                    <span className="font-medium text-slate-600 truncate block">
-                      {student.email}
-                    </span>
-                  </div>
+                {/* Botones de Acción */}
+                <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfileInitialTab('info')
+                      setShowProfileModal(true)
+                    }}
+                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-50 hover:bg-slate-100 border border-slate-200 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>Editar Perfil & Foto</span>
+                  </button>
 
-                  {/* Botones de Acción */}
-                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setProfileInitialTab('info')
-                        setShowProfileModal(true)
-                      }}
-                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-300 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
-                    >
-                      <User className="w-4 h-4" />
-                      <span>Editar Perfil & Foto</span>
-                    </button>
-
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Cerrar Sesión Segura</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Cerrar Sesión Segura</span>
+                  </button>
                 </div>
               </div>
+            </div>
 
-              {/* TARJETA DE SEGURIDAD Y CONEXIÓN */}
-              <div className="bg-slate-50 border border-slate-200 rounded-3xl p-5 space-y-2 text-xs text-slate-600">
-                <div className="flex items-center gap-2 text-[#002B49] font-bold">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Sesión Cifrada SSL 256-bit</span>
-                </div>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Tus accesos, entregas de actividades y asistencia a encuentros Teams están protegidos bajo las políticas académicas de American Dream English.
-                </p>
+            {/* TARJETA DE SEGURIDAD Y CONEXIÓN */}
+            <div className="bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-5 space-y-2 text-xs text-slate-600 shadow-xs">
+              <div className="flex items-center gap-2 text-[#002B49] font-bold">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Sesión Cifrada SSL 256-bit</span>
               </div>
-
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Tus accesos, entregas de actividades y asistencia a encuentros Teams están protegidos bajo las políticas académicas de American Dream English.
+              </p>
             </div>
 
           </div>
