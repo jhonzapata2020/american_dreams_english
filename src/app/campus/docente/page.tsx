@@ -517,11 +517,15 @@ export default function TeacherCampusPage() {
           {/* Fila 1: Logo Institucional + Saludo Docente + Acciones Rápidas */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             
-            {/* Bloque Izquierdo: Saludo Docente */}
+            {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
             <div className="flex items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shadow-lg ring-4 ring-amber-400/20 shrink-0">
-                <GraduationCap className="w-6 h-6" />
-              </div>
+              <Link href="/" className="shrink-0 group flex items-center">
+                <img 
+                  src="/logo-american-dream.png" 
+                  alt="American Dream English" 
+                  className="h-12 sm:h-14 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
+                />
+              </Link>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">

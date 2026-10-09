@@ -238,11 +238,18 @@ export default function CampusLoginPage() {
           {/* Bloque central: Título, Subtítulo y Form */}
           <div className="my-auto max-w-sm mx-auto w-full py-2">
             
-            <div className="text-center mb-5 mt-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+            <div className="text-center mb-4 mt-1">
+              <Link href="/" className="inline-block group mb-1.5">
+                <img 
+                  src="/logo-american-dream.png" 
+                  alt="American Dream English" 
+                  className="h-10 sm:h-12 w-auto object-contain mx-auto drop-shadow-sm group-hover:scale-105 transition-transform" 
+                />
+              </Link>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
                 {t.welcome}
               </h1>
-              <p className="text-gray-400 text-xs sm:text-sm font-medium mt-1">
+              <p className="text-gray-400 text-xs font-medium mt-0.5">
                 {t.subtitle}
               </p>
             </div>

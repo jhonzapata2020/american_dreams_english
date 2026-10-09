@@ -245,9 +245,13 @@ export default function CampusVirtualPage() {
               
               {/* Bloque Izquierdo: Logo + Nombre Institucional + Saludo */}
               <div className="flex items-center gap-3.5 w-full md:w-auto">
-                <div className="w-11 h-11 rounded-2xl bg-[#002B49] border border-amber-400/40 text-white flex items-center justify-center font-black text-lg shadow-md shrink-0">
-                  AD
-                </div>
+                <Link href="/" className="shrink-0 group flex items-center">
+                  <img 
+                    src="/logo-american-dream.png" 
+                    alt="American Dream English" 
+                    className="h-11 sm:h-13 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
+                  />
+                </Link>
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-black text-base sm:text-lg text-white tracking-tight leading-tight block">
