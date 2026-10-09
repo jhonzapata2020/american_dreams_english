@@ -136,7 +136,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   ]
 
   // Clases Grabadas On-Demand
-  const recordedSessions: RecordedSession[] = [
+  const [recordedSessions, setRecordedSessions] = useState<RecordedSession[]>([
     {
       id: 'rec-04',
       lessonNumber: 4,
@@ -181,7 +181,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
       thumbnailUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
       topics: ['Bienvenida', 'Uso de Teams', 'Descarga de Materiales']
     }
-  ]
+  ])
 
   // Lista de Tareas y Actividades
   const [assignments, setAssignments] = useState<Assignment[]>([
@@ -281,6 +281,18 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
         const resolved = getLevelConfig(levelKey)
         setCfg(resolved)
+
+        if (typeof window !== 'undefined') {
+          const savedRecs = localStorage.getItem(`ade_teacher_recordings_${levelKey}`)
+          if (savedRecs) {
+            try {
+              const parsed = JSON.parse(savedRecs)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setRecordedSessions(parsed)
+              }
+            } catch (e) {}
+          }
+        }
       } catch (e) {}
     }
     loadLevel()
