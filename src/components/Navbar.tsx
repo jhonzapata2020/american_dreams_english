@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Currency } from '../types';
-import { Menu, X, GraduationCap, Globe } from 'lucide-react';
+import { Menu, X, GraduationCap, Globe, MapPin } from 'lucide-react';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
 import { useLanguage } from '../context/LanguageContext';
 import { InstallPWAButton } from './common/InstallPWAButton';
@@ -100,6 +100,13 @@ export const Navbar: React.FC<NavbarProps> = ({
               {t.nav.liveClasses}
             </button>
             <a 
+              href="/como-llegar"
+              className="hover:text-[#0F2537] transition-colors focus:outline-none cursor-pointer inline-flex items-center gap-1.5 text-slate-600 hover:text-red-700 font-semibold"
+            >
+              <MapPin className="w-4 h-4 text-red-600" />
+              <span>{language === 'en' ? 'Location / Map' : 'Cómo llegar'}</span>
+            </a>
+            <a 
               href="/tienda"
               className="hover:text-[#0F2537] transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-slate-800 bg-amber-50/90 hover:bg-amber-100 px-3.5 py-1.5 rounded-full border border-amber-200/80 shadow-2xs hover:scale-105 active:scale-95"
             >
@@ -122,6 +129,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                 ariaLabel="Alternar idioma entre Español e Inglés"
               />
             </div>
+
+            {/* BOTÓN CÓMO LLEGAR (Visible en móviles para acceso directo) */}
+            <a
+              href="/como-llegar"
+              className="inline-flex lg:hidden items-center gap-1 text-[11px] sm:text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200/80 px-2.5 py-1.5 rounded-xl transition-all shadow-2xs active:scale-95 whitespace-nowrap"
+              title="¿Cómo llegar a la Sede Presencial?"
+            >
+              <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
+              <span className="max-[380px]:hidden">{language === 'en' ? 'Location' : 'Cómo llegar'}</span>
+            </a>
 
             {/* BOTÓN INSTALAR APP PWA (Solo pantallas móviles <= 675px) */}
             <div className="max-[675px]:block hidden">
@@ -206,6 +223,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.nav.liveClassesTitle}</span>
               <span className="text-xs text-slate-400">→</span>
             </button>
+            <a 
+              href="/como-llegar"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-2.5 px-3 rounded-xl bg-red-50/70 hover:bg-red-100/80 border border-red-200/70 flex items-center justify-between text-left w-full text-red-950 font-bold"
+            >
+              <span className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-red-600" />
+                <span>{language === 'en' ? '📍 How to Get There (Campus Map)' : '📍 ¿Cómo Llegar? (Mapa y Sede)'}</span>
+              </span>
+              <span className="text-xs text-red-700 font-bold">→</span>
+            </a>
             <a 
               href="/tienda"
               onClick={() => setMobileMenuOpen(false)}

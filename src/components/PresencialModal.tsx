@@ -72,6 +72,35 @@ export const PresencialModal: React.FC<PresencialModalProps> = ({
         {/* MODAL BODY */}
         <div className="p-6 overflow-y-auto flex-1 space-y-6 text-slate-700">
           
+          {/* MAPA INTERACTIVO GOOGLE MAPS DE PRIMERO */}
+          <div className="rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group">
+            <div className="h-44 sm:h-52 w-full bg-slate-100 relative">
+              <iframe
+                title="Mapa Sede American Dream English Turbo"
+                src="https://maps.google.com/maps?q=8.091769,-76.708828&hl=es&z=16&output=embed"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+            </div>
+            <div className="bg-slate-900 text-white p-3 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-red-400 shrink-0" />
+                <span className="font-semibold text-slate-200 truncate">Km 1.5 Vía Nacional, Vereda Casanova, Turbo</span>
+              </div>
+              <a
+                href="/como-llegar"
+                className="inline-flex items-center gap-1 font-bold text-amber-300 hover:text-amber-200 underline whitespace-nowrap ml-2"
+              >
+                <span>Ver Guía Completa de Rutas →</span>
+              </a>
+            </div>
+          </div>
+
           {/* Key Accreditation Badges Banner */}
           <div className="bg-amber-500/10 border border-amber-400/40 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-amber-900">
             <div className="flex items-center space-x-2">
