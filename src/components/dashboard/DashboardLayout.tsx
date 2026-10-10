@@ -108,10 +108,14 @@ export function DashboardLayout({
     } catch (err) {
       console.error('Error al cerrar sesión:', err)
     } finally {
+      try {
+        localStorage.clear()
+        sessionStorage.clear()
+      } catch (e) {}
       if (userRole === 'admin') {
-        window.location.href = '/admin/login'
+        window.location.replace('/admin/login')
       } else {
-        window.location.href = '/campus/login'
+        window.location.replace('/campus/login')
       }
     }
   }
