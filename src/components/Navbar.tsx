@@ -56,10 +56,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-16 sm:h-18">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between relative">
+    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-20 sm:h-22 lg:h-24 transition-all">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between relative py-2 sm:py-3">
         
-        {/* LOGO OFICIAL CON CENTRADO VERTICAL ABSOLUTO (CERO DESPLAZAMIENTO) */}
+        {/* LOGO OFICIAL CON CENTRADO VERTICAL ABSOLUTO Y MARGEN SUPERIOR SEGURO */}
         <a 
           href="/" 
           className="absolute left-2.5 min-[380px]:left-3.5 sm:left-6 top-1/2 -translate-y-1/2 z-20 group inline-flex items-center focus:outline-none flex-shrink-0"
@@ -68,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <img 
             src="/logo-american-dream.png" 
             alt="American Dream English" 
-            className="h-[54px] min-[380px]:h-[58px] min-[440px]:h-[62px] sm:h-20 md:h-22 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+            className="h-[48px] min-[380px]:h-[52px] min-[440px]:h-[56px] sm:h-16 md:h-[68px] w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
           />
         </a>
 
