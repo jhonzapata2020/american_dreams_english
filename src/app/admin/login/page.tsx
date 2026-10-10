@@ -26,15 +26,17 @@ export default function AdminLoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Si la URL contiene parámetro de error o no autorizado, mostrar mensaje y cerrar sesión residual
+    // Si la URL contiene redirectTo, error o no autorizado, mostrar mensaje y evitar rebotes
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      if (params.has('error') || params.has('unauthorized')) {
-        setMessage({
-          type: 'error',
-          text: 'Tu sesión actual no tiene privilegios de Administrador. Por favor ingresa con tus credenciales directivas.'
-        })
-        supabase.auth.signOut().catch(() => {})
+      if (params.has('redirectTo') || params.has('error') || params.has('unauthorized')) {
+        if (params.has('error') || params.has('unauthorized')) {
+          setMessage({
+            type: 'error',
+            text: 'Tu sesión actual no tiene privilegios de Administrador. Por favor ingresa con tus credenciales directivas.'
+          })
+          supabase.auth.signOut().catch(() => {})
+        }
         return
       }
     }

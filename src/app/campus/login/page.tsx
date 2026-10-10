@@ -93,15 +93,17 @@ export default function CampusLoginPage() {
       // Silencioso
     }
 
-    // Si la URL contiene parámetro de error o no autorizado, no redirigir automáticamente
+    // Si la URL contiene redirectTo o error, no forzar redirección automática para evitar rebotes
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      if (params.has('error') || params.has('unauthorized')) {
-        setMessage({
-          type: 'error',
-          text: 'Sesión no autorizada o expirada. Por favor ingresa tus credenciales.'
-        })
-        supabase.auth.signOut().catch(() => {})
+      if (params.has('redirectTo') || params.has('error') || params.has('unauthorized')) {
+        if (params.has('error') || params.has('unauthorized')) {
+          setMessage({
+            type: 'error',
+            text: 'Sesión no autorizada o expirada. Por favor ingresa tus credenciales.'
+          })
+          supabase.auth.signOut().catch(() => {})
+        }
         return
       }
     }
