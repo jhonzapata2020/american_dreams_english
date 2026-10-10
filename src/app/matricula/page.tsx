@@ -375,11 +375,11 @@ export default function MatriculaPage() {
 
             <div className="h-5 w-px bg-slate-200 hidden sm:block" />
 
-            <Link href="/" className="inline-flex items-center">
+            <Link href="/" className="inline-flex items-center group">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-12 sm:h-14 md:h-16 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
               />
             </Link>
           </div>

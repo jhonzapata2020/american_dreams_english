@@ -344,9 +344,9 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           {/* Barra Superior con distribución equilibrada: Izquierda (Volver + Nivel + Título) y Derecha (Estudiante + Docente) */}
           <div className="px-4 sm:px-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 md:py-6 border-b border-white/10">
-              
               {/* Bloque izquierdo: Botón volver + Logo + Badge de nivel + Título ENGLISH LEVEL 1 */}
               <div className="flex items-center gap-3.5 w-full md:w-auto">
+                {/* Botón Volver */}
                 <Link 
                   href="/campus" 
                   className="w-11 h-11 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all flex items-center justify-center shrink-0 backdrop-blur-md border border-white/15 shadow-sm"
@@ -355,22 +355,23 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   <ArrowLeft className="w-5 h-5" />
                 </Link>
 
-                <Link href="/" className="shrink-0 hidden sm:flex items-center group">
+                {/* Logo Institucional Oficial (Visible en Móviles y Desktop) */}
+                <Link href="/" className="shrink-0 flex items-center group p-1 rounded-2xl bg-white/5 border border-white/10 shadow-sm backdrop-blur-sm">
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
-                    className="h-10 sm:h-11 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
+                    className="h-12 sm:h-14 md:h-16 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
                   />
                 </Link>
 
-                <div>
-                  <div className="flex items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-mono shadow-xs">
                       {cfg.code}
                     </span>
                     <span className="text-xs text-slate-300 font-medium">{cfg.levelBadge}</span>
                   </div>
-                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight text-white mt-0.5">
+                  <h1 className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-white mt-0.5 truncate">
                     {cfg.title}
                   </h1>
                 </div>

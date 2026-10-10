@@ -152,12 +152,12 @@ export function ComoLlegarView() {
           </Link>
 
           <div className="flex items-center gap-3">
-            {/* Logo oficial miniatura */}
-            <Link href="/" className="hidden sm:flex items-center gap-2">
+            {/* Logo oficial */}
+            <Link href="/" className="flex items-center group">
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-10 w-auto object-contain drop-shadow-xs hover:scale-105 transition-transform"
+                className="h-11 sm:h-12 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
               />
             </Link>
 

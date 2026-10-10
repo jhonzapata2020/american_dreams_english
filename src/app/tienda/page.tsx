@@ -295,7 +295,7 @@ export default function TiendaPage() {
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-9 sm:h-11 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform" 
+                className="h-12 sm:h-14 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform" 
               />
             </Link>
 

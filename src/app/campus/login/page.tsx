@@ -301,11 +301,11 @@ export default function CampusLoginPage() {
           <div className="my-auto max-w-sm mx-auto w-full py-2">
             
             <div className="text-center mb-4 mt-1">
-              <Link href="/" className="inline-block group mb-1.5">
+              <Link href="/" className="inline-block group mb-2">
                 <img 
                   src="/logo-american-dream.png" 
                   alt="American Dream English" 
-                  className="h-10 sm:h-12 w-auto object-contain mx-auto drop-shadow-sm group-hover:scale-105 transition-transform" 
+                  className="h-14 sm:h-16 w-auto object-contain mx-auto filter drop-shadow-md group-hover:scale-105 transition-transform" 
                 />
               </Link>
               <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">

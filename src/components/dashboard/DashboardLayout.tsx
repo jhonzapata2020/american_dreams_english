@@ -176,17 +176,17 @@ export function DashboardLayout({
       <div className="w-full max-w-[1550px] h-full max-h-[94vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 p-4 flex items-center justify-between sticky top-0 z-40 shrink-0">
+        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shrink-0">
           <div className="flex items-center gap-3">
             <button 
               type="button" 
               onClick={() => onTabChange && onTabChange('overview')}
-              className="inline-flex items-center text-left cursor-pointer"
+              className="inline-flex items-center text-left cursor-pointer p-0.5 rounded-xl bg-white/5 border border-white/10"
             >
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-9 w-auto object-contain" 
+                className="h-12 w-auto object-contain filter drop-shadow-md" 
               />
             </button>
             <div>

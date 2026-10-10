@@ -250,24 +250,24 @@ export default function CampusVirtualPage() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               
               {/* Bloque Izquierdo: Logo + Nombre Institucional + Saludo */}
-              <div className="flex items-center gap-3.5 w-full md:w-auto">
-                <Link href="/" className="shrink-0 group flex items-center">
+              <div className="flex items-center gap-3.5 sm:gap-4 w-full md:w-auto">
+                <Link href="/" className="shrink-0 group flex items-center p-1 rounded-2xl bg-white/5 border border-white/10 shadow-sm backdrop-blur-sm">
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
-                    className="h-11 sm:h-13 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
+                    className="h-14 min-[380px]:h-16 sm:h-16 md:h-18 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
                   />
                 </Link>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-base sm:text-lg text-white tracking-tight leading-tight block">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-black text-sm min-[380px]:text-base sm:text-lg text-white tracking-tight leading-tight block truncate">
                       AMERICAN DREAM ENGLISH
                     </span>
-                    <span className="hidden sm:inline-block bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-full">
+                    <span className="inline-block bg-amber-400/20 text-amber-300 border border-amber-400/40 text-[10px] font-black uppercase px-2 py-0.5 rounded-full shrink-0">
                       Campus Virtual
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 font-medium">
+                  <p className="text-xs text-slate-300 font-medium truncate mt-0.5">
                     ¡Hola, <strong className="text-white">{student.fullName.split(' ')[0]}</strong>! Bienvenido a tu entorno académico.
                   </p>
                 </div>
