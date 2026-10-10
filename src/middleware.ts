@@ -69,6 +69,15 @@ export async function middleware(request: NextRequest) {
       },
     })
 
+    const redirectWithCookies = (targetUrl: URL) => {
+      const redirectResponse = NextResponse.redirect(targetUrl)
+      // Preservar cookies de autenticación de Supabase en la respuesta de redirección
+      response.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
+      })
+      return redirectResponse
+    }
+
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -84,7 +93,7 @@ export async function middleware(request: NextRequest) {
         redirectUrl.pathname = '/campus/login'
       }
       redirectUrl.searchParams.set('redirectTo', pathname)
-      return NextResponse.redirect(redirectUrl)
+      return redirectWithCookies(redirectUrl)
     }
 
     // 2. Obtener rol de public.profiles con fallback a user_metadata o 'student'
@@ -116,13 +125,13 @@ export async function middleware(request: NextRequest) {
         // Redirección del estudiante al Campus Principal
         redirectUrl.pathname = '/campus'
       }
-      return NextResponse.redirect(redirectUrl)
+      return redirectWithCookies(redirectUrl)
     }
 
     if (pathname === '/dashboard/teacher') {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/campus/docente'
-      return NextResponse.redirect(redirectUrl)
+      return redirectWithCookies(redirectUrl)
     }
 
     // 4. Control de Acceso Basado en Roles (RBAC)
@@ -130,20 +139,20 @@ export async function middleware(request: NextRequest) {
       if (userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
         redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/campus'
-        return NextResponse.redirect(redirectUrl)
+        return redirectWithCookies(redirectUrl)
       }
     } else if (isTeacherRoute) {
       if (userRole !== 'teacher' && userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
         redirectUrl.pathname = '/campus'
-        return NextResponse.redirect(redirectUrl)
+        return redirectWithCookies(redirectUrl)
       }
     } else if (isStudentRoute) {
       // Un estudiante o admin tiene acceso TOTAL a /campus, /dashboard/student, /dashboard/aula y subrutas
       if (userRole !== 'student' && userRole !== 'admin') {
         const redirectUrl = request.nextUrl.clone()
         redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/dashboard/admin'
-        return NextResponse.redirect(redirectUrl)
+        return redirectWithCookies(redirectUrl)
       }
     }
 
