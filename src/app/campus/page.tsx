@@ -207,9 +207,13 @@ export default function CampusVirtualPage() {
     try {
       await supabase.auth.signOut()
     } catch (e) {
-      // Continuar
+      console.error('Logout error:', e)
     }
-    window.location.href = '/campus/login'
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+    } catch (e) {}
+    window.location.replace('/campus/login')
   }
 
   const handleSendIncident = (e: React.FormEvent) => {

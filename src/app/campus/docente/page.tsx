@@ -494,6 +494,19 @@ export default function TeacherCampusPage() {
     setTimeout(() => setBannerNotice(null), 4000)
   }
 
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('Error al cerrar sesión:', err)
+    }
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
+    } catch (e) {}
+    window.location.replace('/login')
+  }
+
   // Filtrado de Tareas
   const filteredSubmissions = submissions.filter(s => {
     if (gradingFilter === 'pending') return s.status === 'pending'
@@ -578,13 +591,15 @@ export default function TeacherCampusPage() {
               </Link>
 
               {/* Salir */}
-              <Link
-                href="/campus/login"
-                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors"
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                title="Cerrar Sesión Segura"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Cerrar Sesión</span>
-              </Link>
+              </button>
 
             </div>
 

@@ -301,8 +301,14 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut()
+    } catch (e) {
+      console.error('Logout error:', e)
+    }
+    try {
+      localStorage.clear()
+      sessionStorage.clear()
     } catch (e) {}
-    window.location.href = '/campus/login'
+    window.location.replace('/campus/login')
   }
 
   const handleSubmitAssignment = (e: React.FormEvent) => {
