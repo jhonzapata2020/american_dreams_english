@@ -2,6 +2,17 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname
+
+  // 1. Excluir páginas públicas de autenticación del middleware
+  if (
+    pathname === '/login' ||
+    pathname === '/campus/login' ||
+    pathname === '/admin/login'
+  ) {
+    return NextResponse.next()
+  }
+
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -10,47 +21,10 @@ export async function middleware(request: NextRequest) {
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjmpkoezeyhjhrzkw.supabase.co'
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_0N0XR9pwO_83Y_t75aie1g_ajIRgD1O'
-  const pathname = request.nextUrl.pathname
 
-  // 1. Recursos y páginas públicas de autenticación
-  const isPublicAuthRoute = 
-    pathname === '/login' ||
-    pathname === '/campus/login' ||
-    pathname === '/admin/login'
-
-  // 2. Definición de grupos de rutas protegidas
-  const isAdminRoute = 
-    (pathname.startsWith('/admin') && pathname !== '/admin/login') ||
-    pathname.startsWith('/dashboard/admin')
-
-  const isTeacherRoute = 
-    pathname.startsWith('/dashboard/teacher') ||
-    pathname.startsWith('/campus/docente') ||
-    pathname.startsWith('/docente') ||
-    pathname.startsWith('/teacher')
-
-  const isStudentRoute = 
-    (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente') && pathname !== '/campus/login') ||
-    pathname.startsWith('/dashboard/student') ||
-    pathname.startsWith('/dashboard/aula') ||
-    pathname.startsWith('/dashboard/progreso') ||
-    pathname.startsWith('/dashboard/biblioteca') ||
-    pathname.startsWith('/dashboard/certificados') ||
-    pathname.startsWith('/dashboard/pagos') ||
-    pathname === '/dashboard'
-
-  // Si no es una ruta protegida, continuar directamente
-  if (!isAdminRoute && !isTeacherRoute && !isStudentRoute) {
+  // Si Supabase no está configurado, continuar
+  if (!url || !key || url.includes('placeholder')) {
     return response
-  }
-
-  // Comprobar si Supabase tiene credenciales reales
-  const isValidConfig = url && key && !url.includes('placeholder') && !url.includes('your-supabase')
-  if (!isValidConfig) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/login'
-    redirectUrl.searchParams.set('error', 'supabase_not_configured')
-    return NextResponse.redirect(redirectUrl)
   }
 
   try {
@@ -69,31 +43,23 @@ export async function middleware(request: NextRequest) {
       },
     })
 
-    const redirectWithCookies = (targetUrl: URL) => {
-      const redirectResponse = NextResponse.redirect(targetUrl)
-      // Preservar cookies de autenticación de Supabase en la respuesta de redirección
-      response.cookies.getAll().forEach((cookie) => {
-        redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
-      })
-      return redirectResponse
-    }
-
     const {
       data: { user },
     } = await supabase.auth.getUser()
 
-    // 1. Si no hay usuario autenticado, redirigir al login correspondiente
+    const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/dashboard/admin')
+    const isTeacherRoute = pathname.startsWith('/campus/docente') || pathname.startsWith('/dashboard/teacher') || pathname.startsWith('/docente') || pathname.startsWith('/teacher')
+    const isStudentRoute = (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente')) || pathname.startsWith('/dashboard/student') || pathname.startsWith('/dashboard/aula')
+
+    // 1. Redirigir a login si no hay usuario autenticado
     if (!user) {
-      const redirectUrl = request.nextUrl.clone()
-      if (isAdminRoute) {
-        redirectUrl.pathname = '/admin/login'
-      } else if (isTeacherRoute) {
-        redirectUrl.pathname = '/login'
-      } else {
-        redirectUrl.pathname = '/campus/login'
-      }
+      let targetLogin = '/campus/login'
+      if (isAdminRoute) targetLogin = '/admin/login'
+      else if (isTeacherRoute) targetLogin = '/login'
+
+      const redirectUrl = new URL(targetLogin, request.url)
       redirectUrl.searchParams.set('redirectTo', pathname)
-      return redirectWithCookies(redirectUrl)
+      return NextResponse.redirect(redirectUrl)
     }
 
     // 2. Obtener rol de public.profiles con fallback a user_metadata o 'student'
@@ -116,44 +82,28 @@ export async function middleware(request: NextRequest) {
 
     // 3. Redirección automática de la raíz /dashboard y /dashboard/teacher
     if (pathname === '/dashboard') {
-      const redirectUrl = request.nextUrl.clone()
-      if (userRole === 'admin') {
-        redirectUrl.pathname = '/dashboard/admin'
-      } else if (userRole === 'teacher') {
-        redirectUrl.pathname = '/campus/docente'
-      } else {
-        // Redirección del estudiante al Campus Principal
-        redirectUrl.pathname = '/campus'
-      }
-      return redirectWithCookies(redirectUrl)
+      if (userRole === 'admin') return NextResponse.redirect(new URL('/dashboard/admin', request.url))
+      if (userRole === 'teacher') return NextResponse.redirect(new URL('/campus/docente', request.url))
+      return NextResponse.redirect(new URL('/campus', request.url))
     }
 
     if (pathname === '/dashboard/teacher') {
-      const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/campus/docente'
-      return redirectWithCookies(redirectUrl)
+      return NextResponse.redirect(new URL('/campus/docente', request.url))
     }
 
     // 4. Control de Acceso Basado en Roles (RBAC)
-    if (isAdminRoute) {
-      if (userRole !== 'admin') {
-        const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/campus'
-        return redirectWithCookies(redirectUrl)
-      }
-    } else if (isTeacherRoute) {
-      if (userRole !== 'teacher' && userRole !== 'admin') {
-        const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = '/campus'
-        return redirectWithCookies(redirectUrl)
-      }
-    } else if (isStudentRoute) {
-      // Un estudiante o admin tiene acceso TOTAL a /campus, /dashboard/student, /dashboard/aula y subrutas
-      if (userRole !== 'student' && userRole !== 'admin') {
-        const redirectUrl = request.nextUrl.clone()
-        redirectUrl.pathname = userRole === 'teacher' ? '/campus/docente' : '/dashboard/admin'
-        return redirectWithCookies(redirectUrl)
-      }
+    if (isAdminRoute && userRole !== 'admin') {
+      const fallback = userRole === 'teacher' ? '/campus/docente' : '/campus'
+      return NextResponse.redirect(new URL(fallback, request.url))
+    }
+
+    if (isTeacherRoute && userRole !== 'teacher' && userRole !== 'admin') {
+      return NextResponse.redirect(new URL('/campus', request.url))
+    }
+
+    if (isStudentRoute && userRole !== 'student' && userRole !== 'admin') {
+      const fallback = userRole === 'teacher' ? '/campus/docente' : '/dashboard/admin'
+      return NextResponse.redirect(new URL(fallback, request.url))
     }
 
     return response
@@ -165,6 +115,10 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/dashboard/:path*',
+    '/admin/:path*',
+    '/campus/:path*',
+    '/docente/:path*',
+    '/teacher/:path*',
   ],
 }
