@@ -62,13 +62,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* LOGO OFICIAL */}
         <a 
           href="/" 
-          className="relative sm:absolute left-0 sm:left-6 top-0 sm:top-0.5 z-20 group inline-flex items-center focus:outline-none flex-shrink-0"
+          className="relative sm:absolute left-0 sm:left-6 z-20 group inline-flex items-center focus:outline-none flex-shrink-0 my-auto"
           title="American Dream English"
         >
           <img 
             src="/logo-american-dream.png" 
             alt="American Dream English" 
-            className="h-12 sm:h-20 md:h-22 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+            className="h-[52px] min-[400px]:h-14 sm:h-20 md:h-22 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
           />
         </a>
 
