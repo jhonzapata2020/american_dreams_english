@@ -8,8 +8,15 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Excluir la página de login del campus
+  if (request.nextUrl.pathname === '/campus/login') {
+    return response
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjmpkoezeyhjhrzkw.supabase.co'
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_0N0XR9pwO_83Y_t75aie1g_ajIRgD1O'
+
+  let user = null
 
   if (supabaseUrl && supabaseKey && !supabaseUrl.includes('placeholder')) {
     try {
@@ -34,19 +41,24 @@ export async function middleware(request: NextRequest) {
         },
       })
 
-      // Único trabajo: refrescar la sesión
-      await supabase.auth.getUser()
+      const { data } = await supabase.auth.getUser()
+      user = data?.user || null
     } catch {
-      // Silencioso - Cero bloqueos
+      user = null
     }
   }
 
-  // SIEMPRE retornar next() - CERO REDIRECCIONES EN EL MIDDLEWARE
+  // Si no hay sesión válida en rutas protegidas, redirigir al login
+  if (!user) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
   return response
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/dashboard/:path*',
+    '/campus/:path*',
   ],
 }
