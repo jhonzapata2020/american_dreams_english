@@ -332,46 +332,40 @@ export default function AdminDashboardPage() {
     try {
       const supabase = createClient()
 
-      let studentProfiles: any[] = []
-      const { data: fallbackProfiles } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('role', 'student')
-        .order('created_at', { ascending: false })
+      const [
+        studentsRes,
+        teachersRes,
+        pendingBecasRes,
+        leadsCountRes,
+        leadsDataRes,
+        donationsRes,
+        appsRes,
+        enrollRes
+      ] = await Promise.all([
+        supabase.from('profiles').select('*').eq('role', 'student').order('created_at', { ascending: false }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'teacher'),
+        supabase.from('scholarship_applications').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('leads').select('*', { count: 'exact', head: true }),
+        supabase.from('leads').select('*').order('created_at', { ascending: false }),
+        supabase.from('donations').select('amount, total_amount'),
+        supabase.from('scholarship_applications').select('*').eq('status', 'pending').order('created_at', { ascending: false }),
+        supabase.from('enrollments').select(`
+          id,
+          completed_hours,
+          status,
+          student:profiles ( id, full_name, email ),
+          course:courses ( level, total_hours )
+        `)
+      ])
 
-      if (fallbackProfiles) {
-        studentProfiles = fallbackProfiles
-      }
-
+      const studentProfiles = studentsRes.data || []
       setStudentsCount(studentProfiles.length)
+      setTeachersCount(teachersRes.count || 0)
+      setPendingBecasCount(pendingBecasRes.count || 0)
+      setLeadsCount(leadsCountRes.count || 0)
 
-      const { count: cTeachers } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'teacher')
-
-      setTeachersCount(cTeachers || 0)
-
-      const { count: cPendingBecas } = await supabase
-        .from('scholarship_applications')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', 'pending')
-
-      setPendingBecasCount(cPendingBecas || 0)
-
-      const { count: cLeads } = await supabase
-        .from('leads')
-        .select('*', { count: 'exact', head: true })
-
-      setLeadsCount(cLeads || 0)
-
-      const { data: leadsData } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (leadsData && leadsData.length > 0) {
-        const mappedLeads: WebLead[] = leadsData.map((l: any) => ({
+      if (leadsDataRes.data && leadsDataRes.data.length > 0) {
+        const mappedLeads: WebLead[] = leadsDataRes.data.map((l: any) => ({
           id: l.id,
           first_name: l.first_name || l.full_name || 'Prospecto',
           last_name: l.last_name || '',
@@ -385,32 +379,15 @@ export default function AdminDashboardPage() {
         setLeadsList([])
       }
 
-      const { data: donData } = await supabase
-        .from('donations')
-        .select('amount, total_amount')
-        .eq('status', 'completed')
-
-      if (donData && donData.length > 0) {
-        const sum = donData.reduce((acc, curr) => acc + Number(curr.amount || curr.total_amount || 0), 0)
+      if (donationsRes.data && donationsRes.data.length > 0) {
+        const sum = donationsRes.data.reduce((acc: number, curr: any) => acc + Number(curr.amount || curr.total_amount || 0), 0)
         setTotalDonationsAmount(sum)
       } else {
-        const { data: allDon } = await supabase.from('donations').select('amount, total_amount')
-        if (allDon && allDon.length > 0) {
-          const sum = allDon.reduce((acc, curr) => acc + Number(curr.amount || curr.total_amount || 0), 0)
-          setTotalDonationsAmount(sum)
-        } else {
-          setTotalDonationsAmount(0)
-        }
+        setTotalDonationsAmount(0)
       }
 
-      const { data: appData } = await supabase
-        .from('scholarship_applications')
-        .select('*')
-        .eq('status', 'pending')
-        .order('created_at', { ascending: false })
-
-      if (appData && appData.length > 0) {
-        const mappedApps: ScholarshipApp[] = appData.map((app: any) => ({
+      if (appsRes.data && appsRes.data.length > 0) {
+        const mappedApps: ScholarshipApp[] = appsRes.data.map((app: any) => ({
           id: app.id,
           full_name: app.full_name || 'Postulante Urabá',
           phone: app.phone || 'N/A',
@@ -424,17 +401,8 @@ export default function AdminDashboardPage() {
         setApplications([])
       }
 
-      const { data: enrollData } = await supabase
-        .from('enrollments')
-        .select(`
-          id,
-          completed_hours,
-          status,
-          student:profiles ( id, full_name, email ),
-          course:courses ( level, total_hours )
-        `)
-
-      if (studentProfiles && studentProfiles.length > 0) {
+      const enrollData = enrollRes.data
+      if (studentProfiles.length > 0) {
         const enrollMap = new Map<string, any>()
         if (enrollData && enrollData.length > 0) {
           enrollData.forEach((e: any) => {
