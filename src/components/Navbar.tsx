@@ -59,7 +59,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur border-b border-slate-100 shadow-2xs font-sans h-16 sm:h-20 transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between relative">
         
-        {/* LOGO OFICIAL - GRANDE Y DESPLAZADO HACIA ABAJO (CON RESPIRO SUPERIOR SEGURO) */}
+        {/* LOGO OFICIAL - GRANDE EN DESKTOP CON EFECTO ESCUDO FLOTANTE */}
         <a 
           href="/" 
           className="absolute left-2.5 min-[380px]:left-3.5 sm:left-6 top-2 sm:top-2.5 z-20 group inline-flex items-center focus:outline-none flex-shrink-0"
@@ -68,12 +68,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <img 
             src="/logo-american-dream.png" 
             alt="American Dream English" 
-            className="h-[58px] min-[380px]:h-[62px] sm:h-20 md:h-22 lg:h-24 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+            className="h-[58px] min-[380px]:h-[62px] sm:h-24 md:h-28 lg:h-[112px] xl:h-[120px] w-auto object-contain filter drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
           />
         </a>
 
         {/* CONTENEDOR DE NAVEGACIÓN Y ACCIONES */}
-        <div className="flex items-center justify-between w-full pl-20 min-[380px]:pl-24 sm:pl-28 md:pl-32">
+        <div className="flex items-center justify-between w-full pl-20 min-[380px]:pl-24 sm:pl-32 md:pl-36 lg:pl-40">
           
           {/* ENLACES CENTRALES (DESKTOP) */}
           <nav className="hidden lg:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-slate-600">
