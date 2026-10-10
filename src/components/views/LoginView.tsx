@@ -30,6 +30,19 @@ export function LoginView() {
 
   const supabase = createClient()
 
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('error') || params.has('unauthorized')) {
+        setMessage({
+          type: 'error',
+          text: 'Acceso no autorizado para este perfil. Por favor inicia sesión con las credenciales correspondientes.'
+        })
+        supabase.auth.signOut().catch(() => {})
+      }
+    }
+  }, [])
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)

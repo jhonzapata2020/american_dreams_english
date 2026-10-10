@@ -93,6 +93,19 @@ export default function CampusLoginPage() {
       // Silencioso
     }
 
+    // Si la URL contiene parámetro de error o no autorizado, no redirigir automáticamente
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('error') || params.has('unauthorized')) {
+        setMessage({
+          type: 'error',
+          text: 'Sesión no autorizada o expirada. Por favor ingresa tus credenciales.'
+        })
+        supabase.auth.signOut().catch(() => {})
+        return
+      }
+    }
+
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()

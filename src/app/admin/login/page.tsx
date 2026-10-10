@@ -26,6 +26,19 @@ export default function AdminLoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
+    // Si la URL contiene parámetro de error o no autorizado, mostrar mensaje y cerrar sesión residual
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      if (params.has('error') || params.has('unauthorized')) {
+        setMessage({
+          type: 'error',
+          text: 'Tu sesión actual no tiene privilegios de Administrador. Por favor ingresa con tus credenciales directivas.'
+        })
+        supabase.auth.signOut().catch(() => {})
+        return
+      }
+    }
+
     const checkAdminSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
@@ -36,11 +49,9 @@ export default function AdminLoginPage() {
             .eq('id', session.user.id)
             .maybeSingle()
 
-          const role = profile?.role?.toLowerCase()
+          const role = profile?.role?.toLowerCase() || (session.user.user_metadata?.role as string)?.toLowerCase()
           if (role === 'admin') {
             window.location.href = '/dashboard/admin'
-          } else if (role === 'teacher') {
-            window.location.href = '/campus/docente'
           }
         }
       } catch (e) {

@@ -23,7 +23,6 @@ export async function middleware(request: NextRequest) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjmpkoezeyhjhrzkw.supabase.co'
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'sb_publishable_0N0XR9pwO_83Y_t75aie1g_ajIRgD1O'
 
-  // 2. Cliente oficial Supabase SSR estándar
   let user = null
   let supabase = null
 
@@ -62,7 +61,23 @@ export async function middleware(request: NextRequest) {
   const isTeacherRoute = pathname.startsWith('/campus/docente') || pathname.startsWith('/dashboard/teacher') || pathname.startsWith('/docente') || pathname.startsWith('/teacher')
   const isStudentRoute = (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente')) || pathname.startsWith('/dashboard/student') || pathname.startsWith('/dashboard/aula')
 
-  // 3. Caso usuario NO autenticado
+  // Helper de redirección seguro que solo transfiere cookies necesarias y rompe bucles
+  const redirectClean = (targetPath: string) => {
+    const targetUrl = new URL(targetPath, request.url)
+    
+    // Si la URL actual es exactamente igual a la de destino, retornar next() sin redirigir
+    if (request.nextUrl.pathname === targetUrl.pathname && request.nextUrl.search === targetUrl.search) {
+      return response
+    }
+
+    const redirectResponse = NextResponse.redirect(targetUrl)
+    response.cookies.getAll().forEach((cookie) => {
+      redirectResponse.cookies.set(cookie.name, cookie.value)
+    })
+    return redirectResponse
+  }
+
+  // 2. CASO USUARIO NO AUTENTICADO: Único caso donde se redirige al login
   if (!user) {
     if (isAuthPage) {
       return response
@@ -72,7 +87,6 @@ export async function middleware(request: NextRequest) {
     if (isAdminRoute) targetLogin = '/admin/login'
     else if (isTeacherRoute) targetLogin = '/login'
 
-    // Si ya estamos en el login destino, retornar next() sin redirigir
     if (pathname === targetLogin) {
       return response
     }
@@ -80,10 +94,10 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = request.nextUrl.clone()
     redirectUrl.pathname = targetLogin
     redirectUrl.searchParams.set('redirectTo', pathname)
-    return NextResponse.redirect(redirectUrl)
+    return redirectClean(redirectUrl.toString())
   }
 
-  // 4. Caso usuario AUTENTICADO: Resolver rol
+  // 3. CASO USUARIO AUTENTICADO: Determinar rol
   let userRole = (user.user_metadata?.role as string)?.toLowerCase() || 'student'
   if (supabase) {
     try {
@@ -97,78 +111,57 @@ export async function middleware(request: NextRequest) {
         userRole = profile.role.toLowerCase()
       }
     } catch {
-      // Mantener fallback de user_metadata
+      // Mantener fallback
     }
   }
 
-  // Si está autenticado y visita una página de login, dirigir a su home
+  // Si visita página de login y tiene parámetro error/unauthorized, no redirigir automáticamente
+  const hasErrorParam = request.nextUrl.searchParams.has('error') || request.nextUrl.searchParams.has('unauthorized')
   if (isAuthPage) {
-    let home = '/campus'
-    if (userRole === 'admin') home = '/dashboard/admin'
-    else if (userRole === 'teacher') home = '/campus/docente'
-
-    if (pathname === home) {
+    if (hasErrorParam) {
       return response
     }
-
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = home
-    redirectUrl.search = ''
-    return NextResponse.redirect(redirectUrl)
+    const home = userRole === 'admin' ? '/dashboard/admin' : userRole === 'teacher' ? '/campus/docente' : '/campus'
+    return redirectClean(home)
   }
 
   // Redirección de la raíz /dashboard
   if (pathname === '/dashboard') {
-    let dest = '/campus'
-    if (userRole === 'admin') dest = '/dashboard/admin'
-    else if (userRole === 'teacher') dest = '/campus/docente'
-
-    if (pathname === dest) {
-      return response
-    }
-
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = dest
-    return NextResponse.redirect(redirectUrl)
+    const dest = userRole === 'admin' ? '/dashboard/admin' : userRole === 'teacher' ? '/campus/docente' : '/campus'
+    return redirectClean(dest)
   }
 
   if (pathname === '/dashboard/teacher') {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/campus/docente'
-    return NextResponse.redirect(redirectUrl)
+    const dest = userRole === 'teacher' || userRole === 'admin' ? '/campus/docente' : '/campus'
+    return redirectClean(dest)
   }
 
-  // RBAC para roles protegidos
-  if (isAdminRoute && userRole !== 'admin') {
-    const fallback = userRole === 'teacher' ? '/campus/docente' : '/campus'
-    if (pathname === fallback) {
-      return response
+  // 4. CONTROL DE ACCESO (RBAC) - DIRECTO AL PORTAL DEL USUARIO (NUNCA A /LOGIN)
+  if (isAdminRoute) {
+    if (userRole === 'admin') {
+      return response // Paso directo permitido al admin
     }
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = fallback
-    return NextResponse.redirect(redirectUrl)
+    // Usuario autenticado que NO es admin -> redirigir a su propio portal, NUNCA a login
+    const userPortal = userRole === 'teacher' ? '/campus/docente' : '/campus'
+    return redirectClean(userPortal)
   }
 
-  if (isTeacherRoute && userRole !== 'teacher' && userRole !== 'admin') {
-    if (pathname === '/campus') {
-      return response
+  if (isTeacherRoute) {
+    if (userRole === 'teacher' || userRole === 'admin') {
+      return response // Paso permitido
     }
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/campus'
-    return NextResponse.redirect(redirectUrl)
+    // Estudiante en ruta docente -> enviar a su campus
+    return redirectClean('/campus')
   }
 
-  if (isStudentRoute && userRole !== 'student' && userRole !== 'admin') {
-    const fallback = userRole === 'teacher' ? '/campus/docente' : '/dashboard/admin'
-    if (pathname === fallback) {
-      return response
+  if (isStudentRoute) {
+    if (userRole === 'student' || userRole === 'admin') {
+      return response // Paso permitido
     }
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = fallback
-    return NextResponse.redirect(redirectUrl)
+    // Docente en ruta de estudiante -> enviar a su portal docente
+    return redirectClean('/campus/docente')
   }
 
-  // Si todo coincide y el usuario tiene permisos, paso directo sin bucle ni nuevas cabeceras
   return response
 }
 
