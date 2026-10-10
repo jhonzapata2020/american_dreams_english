@@ -26,41 +26,17 @@ export default function AdminLoginPage() {
   const supabase = createClient()
 
   useEffect(() => {
-    // Si la URL contiene redirectTo, error o no autorizado, mostrar mensaje y evitar rebotes
+    // Si la URL contiene error o unauthorized, mostrar mensaje
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      if (params.has('redirectTo') || params.has('error') || params.has('unauthorized')) {
-        if (params.has('error') || params.has('unauthorized')) {
-          setMessage({
-            type: 'error',
-            text: 'Tu sesión actual no tiene privilegios de Administrador. Por favor ingresa con tus credenciales directivas.'
-          })
-          supabase.auth.signOut().catch(() => {})
-        }
-        return
+      if (params.has('error') || params.has('unauthorized')) {
+        setMessage({
+          type: 'error',
+          text: 'Tu sesión actual no tiene privilegios de Administrador. Por favor ingresa con tus credenciales directivas.'
+        })
+        supabase.auth.signOut().catch(() => {})
       }
     }
-
-    const checkAdminSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .maybeSingle()
-
-          const role = profile?.role?.toLowerCase() || (session.user.user_metadata?.role as string)?.toLowerCase()
-          if (role === 'admin') {
-            window.location.href = '/dashboard/admin'
-          }
-        }
-      } catch (e) {
-        // Silencioso
-      }
-    }
-    checkAdminSession()
   }, [])
 
   const handleAdminLogin = async (e: React.FormEvent) => {

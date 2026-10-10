@@ -93,45 +93,17 @@ export default function CampusLoginPage() {
       // Silencioso
     }
 
-    // Si la URL contiene redirectTo o error, no forzar redirección automática para evitar rebotes
+    // Si la URL contiene error o unauthorized, informar al usuario
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
-      if (params.has('redirectTo') || params.has('error') || params.has('unauthorized')) {
-        if (params.has('error') || params.has('unauthorized')) {
-          setMessage({
-            type: 'error',
-            text: 'Sesión no autorizada o expirada. Por favor ingresa tus credenciales.'
-          })
-          supabase.auth.signOut().catch(() => {})
-        }
-        return
+      if (params.has('error') || params.has('unauthorized')) {
+        setMessage({
+          type: 'error',
+          text: 'Sesión no autorizada o expirada. Por favor ingresa tus credenciales.'
+        })
+        supabase.auth.signOut().catch(() => {})
       }
     }
-
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .maybeSingle()
-
-          const role = profile?.role || session.user.user_metadata?.role || 'student'
-          if (role === 'teacher') {
-            window.location.href = '/campus/docente'
-          } else if (role === 'admin') {
-            window.location.href = '/dashboard/admin'
-          } else {
-            window.location.href = '/campus'
-          }
-        }
-      } catch (e) {
-        // Silencioso
-      }
-    }
-    checkSession()
   }, [])
 
   const handleLanguageChange = (newLang: Language) => {
