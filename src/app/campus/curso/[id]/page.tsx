@@ -307,6 +307,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     try {
       localStorage.clear()
       sessionStorage.clear()
+      document.cookie = 'ade_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 UTC'
     } catch (e) {}
     window.location.replace('/campus/login')
   }

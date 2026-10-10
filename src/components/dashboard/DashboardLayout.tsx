@@ -111,6 +111,7 @@ export function DashboardLayout({
       try {
         localStorage.clear()
         sessionStorage.clear()
+        document.cookie = 'ade_role=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 UTC'
       } catch (e) {}
       if (userRole === 'admin') {
         window.location.replace('/admin/login')

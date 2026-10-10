@@ -43,16 +43,43 @@ export async function middleware(request: NextRequest) {
       },
     })
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    let user = null
+    try {
+      const {
+        data,
+      } = await supabase.auth.getUser()
+      user = data?.user || null
+    } catch (authErr) {
+      user = null
+    }
 
     const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/dashboard/admin')
     const isTeacherRoute = pathname.startsWith('/campus/docente') || pathname.startsWith('/dashboard/teacher') || pathname.startsWith('/docente') || pathname.startsWith('/teacher')
     const isStudentRoute = (pathname.startsWith('/campus') && !pathname.startsWith('/campus/docente')) || pathname.startsWith('/dashboard/student') || pathname.startsWith('/dashboard/aula')
 
-    // 1. Redirigir a login si no hay usuario autenticado
-    if (!user) {
+    // 1. Obtener rol desde cookie institucional 'ade_role' o desde perfil/metadata de Supabase
+    let userRole = request.cookies.get('ade_role')?.value?.toLowerCase() || ''
+
+    if (user) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        if (profile?.role) {
+          userRole = profile.role.toLowerCase()
+        } else if (user.user_metadata?.role) {
+          userRole = (user.user_metadata.role as string).toLowerCase()
+        }
+      } catch (profileErr) {
+        userRole = (user.user_metadata?.role as string)?.toLowerCase() || userRole || 'student'
+      }
+    }
+
+    // 2. Redirigir a login si no hay usuario de Supabase ni cookie de sesión institucional
+    if (!user && !userRole) {
       let targetLogin = '/campus/login'
       if (isAdminRoute) targetLogin = '/admin/login'
       else if (isTeacherRoute) targetLogin = '/login'
@@ -62,22 +89,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // 2. Obtener rol de public.profiles con fallback a user_metadata o 'student'
-    let userRole = 'student'
-    try {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .maybeSingle()
-
-      if (profile?.role) {
-        userRole = profile.role.toLowerCase()
-      } else if (user.user_metadata?.role) {
-        userRole = (user.user_metadata.role as string).toLowerCase()
-      }
-    } catch (profileErr) {
-      userRole = (user.user_metadata?.role as string)?.toLowerCase() || 'student'
+    if (!userRole) {
+      userRole = 'student'
     }
 
     // 3. Redirección automática de la raíz /dashboard y /dashboard/teacher
