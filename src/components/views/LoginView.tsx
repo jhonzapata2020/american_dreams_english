@@ -125,7 +125,7 @@ export function LoginView() {
           if (role === 'admin') {
             window.location.href = '/dashboard/admin'
           } else if (role === 'teacher') {
-            window.location.href = '/campus/docente'
+            window.location.href = '/dashboard/teacher'
           } else {
             window.location.href = '/campus'
           }

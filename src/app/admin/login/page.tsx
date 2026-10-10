@@ -104,18 +104,23 @@ export default function AdminLoginPage() {
           .eq('id', data.user.id)
           .maybeSingle()
 
-        const role = profile?.role?.toLowerCase() || (data.user.user_metadata?.role as string)?.toLowerCase() || 'admin'
-        setMessage({ 
-          type: 'success', 
-          text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
-        })
-        setTimeout(() => {
-          if (role === 'teacher') {
-            window.location.href = '/campus/docente'
-          } else {
+        const role = profile?.role?.toLowerCase() || (data.user.user_metadata?.role as string)?.toLowerCase()
+
+        if (role === 'admin') {
+          setMessage({ 
+            type: 'success', 
+            text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
+          })
+          setTimeout(() => {
             window.location.href = '/dashboard/admin'
-          }
-        }, 600)
+          }, 600)
+        } else {
+          await supabase.auth.signOut()
+          setMessage({
+            type: 'error',
+            text: 'Rol no autorizado para este formulario. Este acceso es exclusivo para Administradores.'
+          })
+        }
       }
     } catch (err: any) {
       setMessage({ 
