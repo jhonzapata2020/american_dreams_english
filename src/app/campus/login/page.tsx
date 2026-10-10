@@ -164,7 +164,6 @@ export default function CampusLoginPage() {
       // Fallback inteligente para credenciales demo si no están creadas en Supabase Auth
       if (error) {
         if (loginEmail.startsWith('estudiante') || loginEmail.includes('1040892341') || password === '1040892341' || password.toLowerCase().includes('estudiante')) {
-          document.cookie = 'ade_role=student; path=/; max-age=2592000; SameSite=Lax'
           localStorage.setItem('ade_student_level', 'A1')
           localStorage.setItem('ade_student_profile', JSON.stringify({
             id: 'stu-valeria-01',
@@ -190,7 +189,6 @@ export default function CampusLoginPage() {
         }
 
         if (loginEmail.startsWith('docente') || loginEmail.includes('teacher') || password === 'Docente2026*') {
-          document.cookie = 'ade_role=teacher; path=/; max-age=2592000; SameSite=Lax'
           setMessage({ 
             type: 'success', 
             text: '¡Acceso docente confirmado! Redirigiendo a tu aula...' 
@@ -202,7 +200,6 @@ export default function CampusLoginPage() {
         }
 
         if (loginEmail.startsWith('admin') || password === 'Admin2026*') {
-          document.cookie = 'ade_role=admin; path=/; max-age=2592000; SameSite=Lax'
           setMessage({ 
             type: 'success', 
             text: '¡Acceso directivo confirmado! Redirigiendo...' 
@@ -226,7 +223,6 @@ export default function CampusLoginPage() {
           .maybeSingle()
 
         const role = profile?.role || data.user.user_metadata?.role || 'student'
-        document.cookie = `ade_role=${role}; path=/; max-age=2592000; SameSite=Lax`
         setMessage({ 
           type: 'success', 
           text: t.welcomeSuccess 

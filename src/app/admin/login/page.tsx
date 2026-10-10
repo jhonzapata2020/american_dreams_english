@@ -69,7 +69,6 @@ export default function AdminLoginPage() {
 
       if (error) {
         if (cleanEmail.startsWith('admin') || password === 'Admin2026*') {
-          document.cookie = 'ade_role=admin; path=/; max-age=2592000; SameSite=Lax'
           setMessage({ 
             type: 'success', 
             text: '¡Acceso directivo confirmado! Redirigiendo a tu panel de control...' 
@@ -93,7 +92,6 @@ export default function AdminLoginPage() {
           .maybeSingle()
 
         const role = profile?.role?.toLowerCase() || (data.user.user_metadata?.role as string)?.toLowerCase() || 'admin'
-        document.cookie = `ade_role=${role}; path=/; max-age=2592000; SameSite=Lax`
         setMessage({ 
           type: 'success', 
           text: '¡Acceso confirmado! Redirigiendo a tu panel de control...' 
