@@ -54,6 +54,27 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#C8102E" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (typeof document !== 'undefined') {
+                  var cookies = document.cookie.split(';');
+                  for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    var eqPos = cookie.indexOf('=');
+                    var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    if (name.indexOf('sb-') === 0 && name.indexOf('auth-token') > -1) {
+                      document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0;';
+                      document.cookie = name + '=; Path=/; Domain=' + window.location.hostname + '; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0;';
+                      document.cookie = name + '=; Path=/; Domain=.' + window.location.hostname + '; Expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0;';
+                    }
+                  }
+                }
+              } catch(e) {}
+            `,
+          }}
+        />
       </head>
       <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0" suppressHydrationWarning>
         <CurrencyProvider>
