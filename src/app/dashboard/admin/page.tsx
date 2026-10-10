@@ -212,20 +212,19 @@ export default function AdminDashboardPage() {
     try {
       const studentIdToDelete = studentToDelete.id
       const deletedName = studentToDelete.student_name
+      const supabase = createClient()
 
-      const res = await fetch(`/api/admin/students?id=${studentIdToDelete}`, {
-        method: 'DELETE'
-      })
+      // 1. Eliminar matrículas asociadas
+      await supabase.from('enrollments').delete().eq('student_id', studentIdToDelete)
 
-      const data = await res.json()
+      // 2. Eliminar de profiles
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', studentIdToDelete)
 
-      if (!res.ok || !data.success) {
-        setToast({
-          title: 'Error al eliminar',
-          message: data.error || 'Error al eliminar el estudiante en la base de datos'
-        })
-        setTimeout(() => setToast(null), 4500)
-        return
+      if (profileError) {
+        throw profileError
       }
 
       setToast({
@@ -260,34 +259,23 @@ export default function AdminDashboardPage() {
 
     setIsSubmittingStudent(true)
     try {
-      let studentId = crypto.randomUUID()
-
-      const res = await fetch('/api/admin/create-student', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, municipality, mcerLevel })
-      })
-
-      const result = await res.json()
-
-      if (result.student?.id) {
-        studentId = result.student.id
+      const studentId = crypto.randomUUID()
+      const supabase = createClient()
+      const profilePayload: any = {
+        id: studentId,
+        full_name: fullName,
+        email: email,
+        role: 'student',
+        origin_location: municipality,
+        mcer_level: mcerLevel,
+        academic_level: mcerLevel,
+        document_type: 'C.C.',
+        document_number: `${Math.floor(1000000000 + Math.random() * 9000000000)}`
       }
 
-      if (!res.ok || !result.success) {
-        console.warn('Endpoint backend devolvió respuesta inesperada, ejecutando cliente Supabase:', result.error)
-        const supabase = createClient()
-        const profilePayload: any = {
-          id: studentId,
-          full_name: fullName,
-          email: email,
-          role: 'student',
-          origin_location: municipality
-        }
-        const { error: directErr } = await supabase.from('profiles').upsert(profilePayload)
-        if (directErr && !directErr.message?.toLowerCase().includes('duplicate')) {
-          throw new Error(result.error || directErr.message || 'No se pudo registrar el estudiante.')
-        }
+      const { error: directErr } = await supabase.from('profiles').upsert(profilePayload)
+      if (directErr && !directErr.message?.toLowerCase().includes('duplicate')) {
+        throw directErr
       }
 
       setIsAddStudentOpen(false)
@@ -345,23 +333,14 @@ export default function AdminDashboardPage() {
       const supabase = createClient()
 
       let studentProfiles: any[] = []
-      try {
-        const res = await fetch('/api/admin/students')
-        const result = await res.json()
-        if (res.ok && result.students) {
-          studentProfiles = result.students
-        }
-      } catch (e) {
-        console.warn('Fallo al obtener estudiantes por API /api/admin/students, usando fallback cliente:', e)
-      }
+      const { data: fallbackProfiles } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('role', 'student')
+        .order('created_at', { ascending: false })
 
-      if (!studentProfiles || studentProfiles.length === 0) {
-        const { data: fallbackProfiles } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('role', 'student')
-          .order('created_at', { ascending: false })
-        if (fallbackProfiles) studentProfiles = fallbackProfiles
+      if (fallbackProfiles) {
+        studentProfiles = fallbackProfiles
       }
 
       setStudentsCount(studentProfiles.length)
