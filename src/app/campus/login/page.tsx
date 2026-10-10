@@ -11,7 +11,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Lock,
-  ArrowLeft
+  ArrowLeft,
+  GraduationCap
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { SoftSwitch3D } from '../../../components/ui/SoftSwitch3D'
@@ -207,6 +208,18 @@ export default function CampusLoginPage() {
     })
   }
 
+  const handleSelectTeacherMode = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault()
+    setIdentifier('docente@americandream.edu.co')
+    setPassword('Docente2026*')
+    setMessage({
+      type: 'info',
+      text: lang === 'ES' 
+        ? 'Credenciales de Docente Titular cargadas (docente@americandream.edu.co). Haz clic en "Ingresar a mi Campus" para entrar.' 
+        : 'Faculty Teacher credentials loaded (docente@americandream.edu.co). Click "Enter Virtual Campus" to continue.'
+    })
+  }
+
   return (
     <div className="bg-[#183ec2] min-h-screen h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans selection:bg-[#11246b] selection:text-white overflow-hidden">
       
@@ -371,12 +384,13 @@ export default function CampusLoginPage() {
               <div className="text-center pt-2">
                 <p className="text-[11px] sm:text-xs text-gray-500 font-medium">
                   {t.teacherPrompt}
-                  <Link 
-                    href="/campus/docente" 
-                    className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline"
+                  <button 
+                    type="button"
+                    onClick={handleSelectTeacherMode} 
+                    className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
                   >
                     {t.teacherLink}
-                  </Link>
+                  </button>
                 </p>
               </div>
 
@@ -398,9 +412,17 @@ export default function CampusLoginPage() {
                 type="button"
                 onClick={handleFillDemoStudent}
                 title={t.demoTooltip}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
               >
                 <KeyRound className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleSelectTeacherMode}
+                title={lang === 'ES' ? 'Cargar credenciales de docente demo' : 'Load demo teacher credentials'}
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-amber-400 hover:bg-amber-50 text-gray-600 hover:text-amber-600 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
               </button>
               <Link
                 href="/admin/login"
