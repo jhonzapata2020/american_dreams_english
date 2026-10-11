@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { 
   ArrowLeft, 
@@ -23,13 +23,15 @@ import {
   CornerDownRight,
   ShieldCheck,
   User,
-  Sparkles
+  Sparkles,
+  Volume2
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig'
 import { StudentProfileModal, StudentProfileData } from '../../../../components/campus/StudentProfileModal'
 import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
 import { AcademicForum } from '../../../../components/campus/AcademicForum'
+import { StudyMaterial, INITIAL_MATERIALS_BY_LEVEL } from '../../../../data/studyMaterials'
 
 
 interface CourseDetailProps {
@@ -46,16 +48,6 @@ interface RecordedSession {
   videoUrl: string
   thumbnailUrl: string
   topics: string[]
-}
-
-interface StudyMaterial {
-  id: string
-  title: string
-  type: 'pdf' | 'audio'
-  size: string
-  downloadUrl: string
-  description: string
-  audioSrc?: string
 }
 
 interface Assignment {
@@ -78,8 +70,45 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   // Pestañas funcionales de trabajo
   const [activeTab, setActiveTab] = useState<'cronograma' | 'materiales' | 'grabadas' | 'foro' | 'tareas'>('cronograma')
 
-  // Reproductor de Audio
+  // Reproductor de Audio y Materiales Reactivos
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
+  const [materials, setMaterials] = useState<StudyMaterial[]>(INITIAL_MATERIALS_BY_LEVEL.a1)
+  const [materialFilter, setMaterialFilter] = useState<'all' | 'pdf' | 'audio'>('all')
+  const [audioPlaybackRate, setAudioPlaybackRate] = useState<number>(1.0)
+  const studentAudioRef = useRef<HTMLAudioElement | null>(null)
+
+  const handleToggleStudentAudio = (mat: StudyMaterial) => {
+    if (playingAudioId === mat.id) {
+      if (studentAudioRef.current) {
+        studentAudioRef.current.pause()
+      }
+      setPlayingAudioId(null)
+    } else {
+      setPlayingAudioId(mat.id)
+      if (studentAudioRef.current) {
+        const src = mat.audioSrc || mat.downloadUrl
+        studentAudioRef.current.src = src
+        studentAudioRef.current.playbackRate = audioPlaybackRate
+        studentAudioRef.current.play().catch(() => {})
+      }
+    }
+  }
+
+  const handleSetSpeed = (rate: number) => {
+    setAudioPlaybackRate(rate)
+    if (studentAudioRef.current) {
+      studentAudioRef.current.playbackRate = rate
+    }
+  }
+
+  // Filtrado y conteo de recursos didácticos
+  const filteredMaterials = materials.filter(m => {
+    if (materialFilter === 'pdf') return m.type === 'pdf'
+    if (materialFilter === 'audio') return m.type === 'audio'
+    return true
+  })
+  const pdfCount = materials.filter(m => m.type === 'pdf').length
+  const audioCount = materials.filter(m => m.type === 'audio').length
 
   // Reproductor de Video Grabado
   const [selectedVideo, setSelectedVideo] = useState<RecordedSession | null>(null)
@@ -97,42 +126,6 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     { day: 'Martes', time: '7:00 PM - 8:30 PM', topic: 'Listening Lab & Phonetics (Schwa & Reductions)', status: 'completed' },
     { day: 'Miércoles (HOY)', time: '7:00 PM - 8:30 PM', topic: cfg.liveClassTopic, status: 'active' },
     { day: 'Jueves', time: '7:00 PM - 8:30 PM', topic: 'Speaking Workshop & Real-Life Interaction', status: 'upcoming' }
-  ]
-
-  // Material de Estudio Directo
-  const studyMaterials: StudyMaterial[] = [
-    {
-      id: 'mat-1',
-      title: `${cfg.unit1GrammarGuide} (PDF)`,
-      type: 'pdf',
-      size: '2.4 MB',
-      downloadUrl: '#',
-      description: 'Guía oficial con explicaciones, tablas y 25 ejercicios para resolver esta semana.'
-    },
-    {
-      id: 'mat-2',
-      title: 'Audio Lab 01: Morning Routine & Daily Conversations (MP3)',
-      type: 'audio',
-      size: '8.7 MB',
-      downloadUrl: '#',
-      description: 'Pistas fonéticas de práctica con hablantes nativos para entrenar el oído.'
-    },
-    {
-      id: 'mat-3',
-      title: `${cfg.unit2GrammarGuide} (PDF)`,
-      type: 'pdf',
-      size: '3.1 MB',
-      downloadUrl: '#',
-      description: 'Material complementario para las sesiones de conversación y vocabulario laboral.'
-    },
-    {
-      id: 'mat-4',
-      title: 'Audio Lab 02: Coffee Shop, Airport & Travel Dialogues (MP3)',
-      type: 'audio',
-      size: '9.4 MB',
-      downloadUrl: '#',
-      description: 'Diálogos reales para situaciones de viaje y atención al público.'
-    }
   ]
 
   // Clases Grabadas On-Demand
@@ -292,10 +285,54 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
               }
             } catch (e) {}
           }
+
+          const savedMaterials = localStorage.getItem(`ade_teacher_materials_${levelKey}`)
+          if (savedMaterials) {
+            try {
+              const parsed = JSON.parse(savedMaterials)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setMaterials(parsed)
+              } else {
+                setMaterials(INITIAL_MATERIALS_BY_LEVEL[levelKey] || INITIAL_MATERIALS_BY_LEVEL.a1)
+              }
+            } catch (e) {
+              setMaterials(INITIAL_MATERIALS_BY_LEVEL[levelKey] || INITIAL_MATERIALS_BY_LEVEL.a1)
+            }
+          } else {
+            setMaterials(INITIAL_MATERIALS_BY_LEVEL[levelKey] || INITIAL_MATERIALS_BY_LEVEL.a1)
+          }
         }
       } catch (e) {}
     }
     loadLevel()
+  }, [courseId])
+
+  // Sincronización en tiempo real de recursos y guías didácticas del docente
+  useEffect(() => {
+    const handleSyncMaterials = () => {
+      if (typeof window !== 'undefined') {
+        let levelKey = courseId
+        const stored = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
+        if (stored && courseId === 'a1') levelKey = stored
+
+        const savedMaterials = localStorage.getItem(`ade_teacher_materials_${levelKey}`)
+        if (savedMaterials) {
+          try {
+            const parsed = JSON.parse(savedMaterials)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setMaterials(parsed)
+            }
+          } catch (e) {}
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleSyncMaterials)
+    window.addEventListener('ade_materials_updated', handleSyncMaterials)
+    return () => {
+      window.removeEventListener('storage', handleSyncMaterials)
+      window.removeEventListener('ade_materials_updated', handleSyncMaterials)
+    }
   }, [courseId])
 
   const handleLogout = async () => {
@@ -490,8 +527,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                       : 'text-slate-300 hover:text-white font-semibold'
                   }`}
                 >
-                  <BookOpen className="w-4 h-4" />
-                  <span>Material</span>
+                  <Headphones className="w-4 h-4" />
+                  <span>Recursos & Guías</span>
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${activeTab === 'materiales' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'}`}>
+                    {materials.length}
+                  </span>
                 </button>
 
                 <button
@@ -661,63 +701,201 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             {/* PESTAÑA 2: MATERIAL DE ESTUDIO (PDFs & AUDIOS MP3)                  */}
             {/* =================================================================== */}
             {activeTab === 'materiales' && (
-              <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-5">
-                <div className="border-b border-slate-200/80 pb-3">
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
-                    Guías de Aprendizaje y Audios Fonéticos
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Materiales directos para estudiar antes y después de cada clase.
-                  </p>
+              <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-6">
+                
+                {/* Cabecera y Filtros */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-[10px] font-black uppercase bg-purple-100 text-purple-900 px-2.5 py-0.5 rounded-full border border-purple-200">
+                        Nivel {cfg.shortLevel}
+                      </span>
+                      <span className="text-xs text-slate-500 font-bold">Docente: {cfg.teacherName}</span>
+                    </div>
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 mt-1">
+                      Biblioteca Oficial de Recursos & Audio Labs
+                    </h3>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Guías didácticas en PDF y pistas de fonética subidas por tu docente para entrenar tu oído y prepararte para cada sesión.
+                    </p>
+                  </div>
+
+                  {/* Selector de Filtro */}
+                  <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border border-slate-200 shadow-2xs self-start sm:self-center">
+                    <button
+                      onClick={() => setMaterialFilter('all')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        materialFilter === 'all'
+                          ? 'bg-[#0B1528] text-white shadow-2xs'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      Todos ({materials.length})
+                    </button>
+                    <button
+                      onClick={() => setMaterialFilter('pdf')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        materialFilter === 'pdf'
+                          ? 'bg-blue-600 text-white font-black shadow-2xs'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Guías PDF ({pdfCount})</span>
+                    </button>
+                    <button
+                      onClick={() => setMaterialFilter('audio')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                        materialFilter === 'audio'
+                          ? 'bg-purple-600 text-white font-black shadow-2xs'
+                          : 'text-slate-600 hover:bg-slate-100'
+                      }`}
+                    >
+                      <Headphones className="w-3.5 h-3.5" />
+                      <span>Audio Labs ({audioCount})</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {studyMaterials.map((mat) => (
-                    <div
-                      key={mat.id}
-                      className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
-                    >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                            mat.type === 'pdf' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
-                          }`}>
-                            {mat.type === 'pdf' ? 'GUÍA PDF' : 'AUDIO MP3'}
-                          </span>
-                          <span className="text-xs text-slate-400 font-mono font-medium">{mat.size}</span>
-                        </div>
+                {/* Banner de Reproducción Activa (cuando el estudiante está escuchando) */}
+                {playingAudioId && (() => {
+                  const currentTrack = materials.find(m => m.id === playingAudioId)
+                  if (!currentTrack) return null
 
-                        <h4 className="font-extrabold text-sm text-slate-900 leading-snug">{mat.title}</h4>
-                        <p className="text-xs text-slate-500">{mat.description}</p>
+                  return (
+                    <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white rounded-2xl p-4 shadow-lg border border-purple-400/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-fadeIn">
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400/40 text-purple-300 flex items-center justify-center shrink-0">
+                          <Volume2 className="w-5 h-5 animate-pulse" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-black uppercase bg-purple-400/30 text-purple-200 px-2 py-0.2 rounded-full font-mono">
+                              Reproduciendo ahora
+                            </span>
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                          </div>
+                          <h4 className="text-xs sm:text-sm font-black truncate max-w-md mt-0.5">
+                            {currentTrack.title}
+                          </h4>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-1">
-                        {mat.type === 'audio' && (
+                      {/* Controles de Velocidad Fonética & Pausa */}
+                      <div className="flex items-center gap-3">
+                        {/* Selector de Velocidad */}
+                        <div className="flex items-center gap-1 bg-white/10 p-1 rounded-xl border border-white/15 text-[11px] font-black">
+                          <span className="text-slate-300 text-[10px] px-1 hidden sm:inline">Velocidad:</span>
                           <button
-                            onClick={() => setPlayingAudioId(playingAudioId === mat.id ? null : mat.id)}
-                            className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs ${
-                              playingAudioId === mat.id
-                                ? 'bg-purple-700 text-white animate-pulse'
-                                : 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100'
+                            onClick={() => handleSetSpeed(0.8)}
+                            className={`px-2 py-1 rounded-lg transition-all ${
+                              audioPlaybackRate === 0.8 ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-300 hover:text-white'
+                            }`}
+                            title="Velocidad lenta para escuchar pronunciación y fonética clara"
+                          >
+                            0.8x (Lento)
+                          </button>
+                          <button
+                            onClick={() => handleSetSpeed(1.0)}
+                            className={`px-2 py-1 rounded-lg transition-all ${
+                              audioPlaybackRate === 1.0 ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-300 hover:text-white'
                             }`}
                           >
-                            {playingAudioId === mat.id ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current" />}
-                            <span>{playingAudioId === mat.id ? 'Pausar' : 'Escuchar'}</span>
+                            1.0x (Normal)
                           </button>
-                        )}
+                          <button
+                            onClick={() => handleSetSpeed(1.2)}
+                            className={`px-2 py-1 rounded-lg transition-all ${
+                              audioPlaybackRate === 1.2 ? 'bg-amber-400 text-slate-950 font-black' : 'text-slate-300 hover:text-white'
+                            }`}
+                          >
+                            1.2x
+                          </button>
+                        </div>
 
-                        <a
-                          href={mat.downloadUrl}
-                          download
-                          className="bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-2xs"
+                        {/* Botón Detener / Pausar */}
+                        <button
+                          onClick={() => handleToggleStudentAudio(currentTrack)}
+                          className="px-3.5 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm transition-all"
                         >
-                          <Download className="w-4 h-4" />
-                          <span>Descargar</span>
-                        </a>
+                          <Pause className="w-3.5 h-3.5" />
+                          <span>Pausar</span>
+                        </button>
                       </div>
                     </div>
-                  ))}
+                  )
+                })()}
+
+                {/* Grid de Tarjetas de Materiales */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredMaterials.map((mat) => {
+                    const isAudio = mat.type === 'audio'
+                    const isPlayingThis = playingAudioId === mat.id
+
+                    return (
+                      <div
+                        key={mat.id}
+                        className={`bg-white border rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all ${
+                          isPlayingThis 
+                            ? 'border-purple-400 ring-2 ring-purple-400/20' 
+                            : 'border-slate-200'
+                        }`}
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                                isAudio ? 'bg-purple-100 text-purple-900 border border-purple-200' : 'bg-blue-100 text-blue-900 border border-blue-200'
+                              }`}>
+                                {isAudio ? <Headphones className="w-3 h-3 text-purple-700" /> : <FileText className="w-3 h-3 text-blue-700" />}
+                                <span>{isAudio ? 'AUDIO LAB MP3' : 'GUÍA DIDÁCTICA PDF'}</span>
+                              </span>
+
+                              {mat.unitTag && (
+                                <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                                  {mat.unitTag}
+                                </span>
+                              )}
+                            </div>
+
+                            <span className="text-xs text-slate-400 font-mono font-bold">{mat.size}</span>
+                          </div>
+
+                          <h4 className="font-extrabold text-sm text-slate-900 leading-snug">{mat.title}</h4>
+                          <p className="text-xs text-slate-600 leading-relaxed">{mat.description}</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                          {isAudio && (
+                            <button
+                              onClick={() => handleToggleStudentAudio(mat)}
+                              className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 shadow-xs ${
+                                isPlayingThis
+                                  ? 'bg-purple-700 text-white animate-pulse shadow-purple-500/25'
+                                  : 'bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100'
+                              }`}
+                            >
+                              {isPlayingThis ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+                              <span>{isPlayingThis ? 'Pausar Reproducción' : 'Escuchar en Aula'}</span>
+                            </button>
+                          )}
+
+                          <a
+                            href={mat.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            className="bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200 font-bold py-2.5 px-4 rounded-xl text-xs transition-colors flex items-center justify-center gap-1.5 shrink-0 shadow-2xs"
+                          >
+                            <Download className="w-4 h-4 text-slate-600" />
+                            <span>Descargar</span>
+                          </a>
+                        </div>
+                      </div>
+                    )
+                  })}
                 </div>
+
               </div>
             )}
 
@@ -969,6 +1147,14 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         student={student}
         onProfileUpdated={(updated) => setStudent(updated)}
         initialTab={profileInitialTab}
+      />
+
+      {/* Reproductor de Audio Oculto para Aula del Estudiante */}
+      <audio 
+        ref={studentAudioRef} 
+        onEnded={() => setPlayingAudioId(null)} 
+        onError={() => setPlayingAudioId(null)} 
+        className="hidden" 
       />
 
     </div>

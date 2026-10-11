@@ -34,10 +34,16 @@ import {
   Calendar,
   Filter,
   Layers,
-  ArrowUpRight
+  ArrowUpRight,
+  Headphones,
+  Download,
+  Pause,
+  Music,
+  FolderPlus
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
+import { StudyMaterial as TeacherStudyMaterial, INITIAL_MATERIALS_BY_LEVEL } from '../../../data/studyMaterials'
 
 // Tipos de Grabación
 export interface TeacherRecordedSession {
@@ -196,7 +202,7 @@ export default function TeacherCampusPage() {
   const [teacherName, setTeacherName] = useState('Lic. Carlos Méndez')
   const [teacherEmail, setTeacherEmail] = useState('carlos.mendez@americandream.edu.co')
   const [activeLevel, setActiveLevel] = useState<'a1' | 'a2' | 'b1' | 'b2'>('a1')
-  const [activeTab, setActiveTab] = useState<'recordings' | 'grading' | 'forum' | 'students'>('recordings')
+  const [activeTab, setActiveTab] = useState<'recordings' | 'materials' | 'grading' | 'forum' | 'students'>('recordings')
 
   // Módulo 1: Grabaciones
   const [recordings, setRecordings] = useState<TeacherRecordedSession[]>(INITIAL_RECORDINGS)
@@ -211,6 +217,24 @@ export default function TeacherCampusPage() {
     thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
     topicsText: 'Gramática, Vocabulario, Práctica Oral'
   })
+
+  // Módulo: Recursos & Guías Didácticas
+  const [materials, setMaterials] = useState<TeacherStudyMaterial[]>(INITIAL_MATERIALS_BY_LEVEL.a1)
+  const [materialTypeFilter, setMaterialTypeFilter] = useState<'all' | 'pdf' | 'audio'>('all')
+  const [materialSearchQuery, setMaterialSearchQuery] = useState('')
+  const [showMaterialModal, setShowMaterialModal] = useState(false)
+  const [editingMaterial, setEditingMaterial] = useState<TeacherStudyMaterial | null>(null)
+  const [materialForm, setMaterialForm] = useState({
+    title: '',
+    type: 'pdf' as 'pdf' | 'audio',
+    size: '2.5 MB',
+    downloadUrl: '',
+    audioSrc: '',
+    description: '',
+    unitTag: 'Unidad 1 · Gramática y Reglas'
+  })
+  const [previewingAudioId, setPreviewingAudioId] = useState<string | null>(null)
+  const previewAudioRef = useRef<HTMLAudioElement | null>(null)
 
   // Módulo 2: Calificaciones
   const [submissions, setSubmissions] = useState<StudentSubmission[]>(INITIAL_SUBMISSIONS)
@@ -268,6 +292,28 @@ export default function TeacherCampusPage() {
             try {
               setSubmissions(JSON.parse(savedSubs))
             } catch (e) {}
+          }
+
+          // Cargar materiales didácticos guardados en localStorage
+          const savedMaterials = localStorage.getItem(`ade_teacher_materials_${activeLevel}`)
+          if (savedMaterials) {
+            try {
+              const parsed = JSON.parse(savedMaterials)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setMaterials(parsed)
+              } else {
+                const fallback = INITIAL_MATERIALS_BY_LEVEL[activeLevel] || INITIAL_MATERIALS_BY_LEVEL.a1
+                setMaterials(fallback)
+                localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(fallback))
+              }
+            } catch (e) {
+              const fallback = INITIAL_MATERIALS_BY_LEVEL[activeLevel] || INITIAL_MATERIALS_BY_LEVEL.a1
+              setMaterials(fallback)
+            }
+          } else {
+            const fallback = INITIAL_MATERIALS_BY_LEVEL[activeLevel] || INITIAL_MATERIALS_BY_LEVEL.a1
+            setMaterials(fallback)
+            localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(fallback))
           }
         }
       } catch (err) {
@@ -396,6 +442,124 @@ export default function TeacherCampusPage() {
   }
 
   // =========================================================================
+  // HANDLERS: GESTIÓN DE RECURSOS & GUÍAS DIDÁCTICAS
+  // =========================================================================
+  const handleOpenNewMaterialModal = () => {
+    setEditingMaterial(null)
+    setMaterialForm({
+      title: '',
+      type: 'pdf',
+      size: '2.5 MB',
+      downloadUrl: '',
+      audioSrc: '',
+      description: '',
+      unitTag: activeLevel === 'a1' ? 'Unidad 1 · Gramática y Reglas' : `Unidad 1 · Nivel ${activeLevel.toUpperCase()}`
+    })
+    setShowMaterialModal(true)
+  }
+
+  const handleEditMaterial = (mat: TeacherStudyMaterial) => {
+    setEditingMaterial(mat)
+    setMaterialForm({
+      title: mat.title,
+      type: mat.type,
+      size: mat.size,
+      downloadUrl: mat.downloadUrl,
+      audioSrc: mat.audioSrc || (mat.type === 'audio' ? mat.downloadUrl : ''),
+      description: mat.description,
+      unitTag: mat.unitTag || 'Recurso General'
+    })
+    setShowMaterialModal(true)
+  }
+
+  const handleDeleteMaterial = (id: string) => {
+    if (confirm('¿Estás seguro de que deseas eliminar este recurso didáctico? Los estudiantes ya no podrán descargarlo ni escucharlo en su aula.')) {
+      const updated = materials.filter(m => m.id !== id)
+      setMaterials(updated)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification('Recurso didáctico eliminado con éxito.')
+      if (previewingAudioId === id) {
+        if (previewAudioRef.current) previewAudioRef.current.pause()
+        setPreviewingAudioId(null)
+      }
+    }
+  }
+
+  const handleSaveMaterial = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!materialForm.title.trim()) return
+
+    const effectiveDownloadUrl = materialForm.downloadUrl.trim() || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+    const effectiveAudioSrc = materialForm.type === 'audio' 
+      ? (materialForm.audioSrc.trim() || effectiveDownloadUrl)
+      : undefined
+
+    if (editingMaterial) {
+      const updated = materials.map(m => {
+        if (m.id === editingMaterial.id) {
+          return {
+            ...m,
+            title: materialForm.title.trim(),
+            type: materialForm.type,
+            size: materialForm.size.trim() || (materialForm.type === 'pdf' ? '2.5 MB' : '8.5 MB'),
+            downloadUrl: effectiveDownloadUrl,
+            audioSrc: effectiveAudioSrc,
+            description: materialForm.description.trim(),
+            unitTag: materialForm.unitTag.trim()
+          }
+        }
+        return m
+      })
+      setMaterials(updated)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification('¡Recurso didáctico actualizado y sincronizado!')
+    } else {
+      const newMaterial: TeacherStudyMaterial = {
+        id: `mat-${activeLevel}-${Date.now()}`,
+        title: materialForm.title.trim(),
+        type: materialForm.type,
+        size: materialForm.size.trim() || (materialForm.type === 'pdf' ? '2.5 MB' : '8.5 MB'),
+        downloadUrl: effectiveDownloadUrl,
+        audioSrc: effectiveAudioSrc,
+        description: materialForm.description.trim(),
+        unitTag: materialForm.unitTag.trim(),
+        createdAt: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+      }
+      const updated = [newMaterial, ...materials]
+      setMaterials(updated)
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification('¡Nuevo recurso didáctico publicado en el aula de los estudiantes!')
+    }
+
+    setShowMaterialModal(false)
+  }
+
+  const handleToggleAudioPreview = (mat: TeacherStudyMaterial) => {
+    if (previewingAudioId === mat.id) {
+      if (previewAudioRef.current) {
+        previewAudioRef.current.pause()
+      }
+      setPreviewingAudioId(null)
+    } else {
+      setPreviewingAudioId(mat.id)
+      if (previewAudioRef.current) {
+        const src = mat.audioSrc || mat.downloadUrl
+        previewAudioRef.current.src = src
+        previewAudioRef.current.play().catch(() => {})
+      }
+    }
+  }
+
+  // =========================================================================
   // HANDLERS: REVISIÓN DE CALIFICACIONES
   // =========================================================================
   const handleOpenGradingModal = (sub: StudentSubmission) => {
@@ -518,6 +682,22 @@ export default function TeacherCampusPage() {
   const pendingGradingCount = submissions.filter(s => s.status === 'pending').length
   const unansweredForumCount = forumPosts.filter(p => !p.forum_replies || p.forum_replies.length === 0).length
 
+  // Filtrado y Conteo de Recursos Didácticos
+  const filteredMaterials = materials.filter(m => {
+    if (materialTypeFilter === 'pdf' && m.type !== 'pdf') return false
+    if (materialTypeFilter === 'audio' && m.type !== 'audio') return false
+    if (materialSearchQuery.trim()) {
+      const q = materialSearchQuery.toLowerCase()
+      const inTitle = m.title.toLowerCase().includes(q)
+      const inDesc = m.description.toLowerCase().includes(q)
+      const inTag = m.unitTag?.toLowerCase().includes(q) || false
+      if (!inTitle && !inDesc && !inTag) return false
+    }
+    return true
+  })
+  const pdfMaterialsCount = materials.filter(m => m.type === 'pdf').length
+  const audioMaterialsCount = materials.filter(m => m.type === 'audio').length
+
   return (
     <div className="min-h-screen bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
       
@@ -625,6 +805,10 @@ export default function TeacherCampusPage() {
                 <span><strong>{recordings.length}</strong> Clases Subidas</span>
               </div>
               <div className="flex items-center gap-1.5">
+                <Headphones className="w-3.5 h-3.5 text-purple-400" />
+                <span><strong>{materials.length}</strong> Recursos Didácticos</span>
+              </div>
+              <div className="flex items-center gap-1.5">
                 <FileText className="w-3.5 h-3.5 text-blue-400" />
                 <span><strong className={pendingGradingCount > 0 ? 'text-amber-400' : 'text-slate-300'}>{pendingGradingCount}</strong> Tareas Pendientes</span>
               </div>
@@ -672,6 +856,24 @@ export default function TeacherCampusPage() {
                 activeTab === 'recordings' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
               }`}>
                 {recordings.length}
+              </span>
+            </button>
+
+            {/* Tab 2: Recursos & Guías Didácticas */}
+            <button
+              onClick={() => setActiveTab('materials')}
+              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+                activeTab === 'materials'
+                  ? 'bg-[#002B49] text-white shadow-md'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
+              }`}
+            >
+              <Headphones className="w-4 h-4 text-purple-400" />
+              <span>Recursos & Guías Didácticas</span>
+              <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
+                activeTab === 'materials' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
+              }`}>
+                {materials.length}
               </span>
             </button>
 
@@ -835,6 +1037,226 @@ export default function TeacherCampusPage() {
                   </div>
                 ))}
               </div>
+
+            </div>
+          )}
+
+          {/* =================================================================== */}
+          {/* SECCIÓN: GESTIÓN DE RECURSOS Y GUÍAS DIDÁCTICAS                     */}
+          {/* =================================================================== */}
+          {activeTab === 'materials' && (
+            <div className="space-y-6 animate-fadeIn">
+              
+              {/* Barra de Acciones de Recursos */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 sm:p-5 rounded-3xl border border-slate-200">
+                <div>
+                  <h2 className="text-base sm:text-lg font-black text-slate-900">
+                    Biblioteca de Recursos y Guías Didácticas · {activeLevel.toUpperCase()}
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Sube y gestiona fichas PDF, hojas de trabajo y audios fonéticos MP3 sincronizados en vivo con los alumnos.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleOpenNewMaterialModal}
+                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#002B49] hover:bg-[#001f35] text-white rounded-2xl text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all active:scale-95 shrink-0"
+                >
+                  <Plus className="w-4 h-4 text-amber-400" />
+                  <span>Subir Nuevo Recurso</span>
+                </button>
+              </div>
+
+              {/* Filtros por tipo y búsqueda */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white p-3 rounded-2xl border border-slate-200 shadow-2xs">
+                {/* Selector de Tipo */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <button
+                    onClick={() => setMaterialTypeFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      materialTypeFilter === 'all'
+                        ? 'bg-[#002B49] text-white'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    Todos ({materials.length})
+                  </button>
+                  <button
+                    onClick={() => setMaterialTypeFilter('pdf')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      materialTypeFilter === 'pdf'
+                        ? 'bg-blue-600 text-white font-black'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Guías PDF ({pdfMaterialsCount})</span>
+                  </button>
+                  <button
+                    onClick={() => setMaterialTypeFilter('audio')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                      materialTypeFilter === 'audio'
+                        ? 'bg-purple-600 text-white font-black'
+                        : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Headphones className="w-3.5 h-3.5" />
+                    <span>Audios MP3 ({audioMaterialsCount})</span>
+                  </button>
+                </div>
+
+                {/* Input de Búsqueda */}
+                <div className="relative w-full md:w-72">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={materialSearchQuery}
+                    onChange={(e) => setMaterialSearchQuery(e.target.value)}
+                    placeholder="Buscar por tema o título..."
+                    className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl outline-none focus:border-[#002B49] bg-slate-50 focus:bg-white transition-all text-slate-800"
+                  />
+                  {materialSearchQuery && (
+                    <button
+                      onClick={() => setMaterialSearchQuery('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      &times;
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Grid de Tarjetas de Recursos Didácticos */}
+              {filteredMaterials.length === 0 ? (
+                <div className="p-12 text-center bg-slate-50 rounded-3xl border border-slate-200 text-slate-400 space-y-3">
+                  <BookOpen className="w-10 h-10 mx-auto text-slate-400" />
+                  <p className="text-slate-700 font-bold text-sm">No se encontraron materiales para este filtro.</p>
+                  <p className="text-xs">Sube guías didácticas o audios para que los estudiantes de {activeLevel.toUpperCase()} puedan estudiar.</p>
+                  <button
+                    onClick={handleOpenNewMaterialModal}
+                    className="mt-2 inline-flex items-center gap-2 px-4 py-2 bg-amber-400 text-slate-950 font-black rounded-xl text-xs shadow-sm hover:bg-amber-300"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Subir Primer Recurso</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredMaterials.map((mat) => {
+                    const isAudio = mat.type === 'audio'
+                    const isPlaying = previewingAudioId === mat.id
+
+                    return (
+                      <div
+                        key={mat.id}
+                        className={`bg-white border rounded-3xl p-5 sm:p-6 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all ${
+                          isAudio ? 'border-purple-200/90 hover:border-purple-300' : 'border-blue-200/90 hover:border-blue-300'
+                        }`}
+                      >
+                        <div className="space-y-3">
+                          {/* Top Badges */}
+                          <div className="flex items-center justify-between gap-2 flex-wrap">
+                            <div className="flex items-center gap-2">
+                              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                                isAudio 
+                                  ? 'bg-purple-100 text-purple-900 border border-purple-200' 
+                                  : 'bg-blue-100 text-blue-900 border border-blue-200'
+                              }`}>
+                                {isAudio ? <Headphones className="w-3 h-3 text-purple-700" /> : <FileText className="w-3 h-3 text-blue-700" />}
+                                <span>{isAudio ? 'AUDIO LAB MP3' : 'GUÍA DIDÁCTICA PDF'}</span>
+                              </span>
+
+                              {mat.unitTag && (
+                                <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                                  {mat.unitTag}
+                                </span>
+                              )}
+                            </div>
+
+                            <span className="text-xs text-slate-400 font-mono font-bold bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200">
+                              {mat.size}
+                            </span>
+                          </div>
+
+                          {/* Título & Descripción */}
+                          <div>
+                            <h3 className="font-black text-sm sm:text-base text-slate-900 leading-snug">
+                              {mat.title}
+                            </h3>
+                            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                              {mat.description}
+                            </p>
+                          </div>
+
+                          {/* Reproductor de audio preview (si es audio) */}
+                          {isAudio && (
+                            <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-2.5">
+                                <button
+                                  type="button"
+                                  onClick={() => handleToggleAudioPreview(mat)}
+                                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-xs ${
+                                    isPlaying 
+                                      ? 'bg-purple-700 text-white animate-pulse' 
+                                      : 'bg-purple-200 text-purple-900 hover:bg-purple-300'
+                                  }`}
+                                  title={isPlaying ? 'Pausar audio' : 'Reproducir audio'}
+                                >
+                                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-current ml-0.5" />}
+                                </button>
+                                <div>
+                                  <span className="text-xs font-black text-purple-950 block">
+                                    {isPlaying ? 'Reproduciendo vista previa...' : 'Vista previa de audio'}
+                                  </span>
+                                  <span className="text-[10px] text-purple-700 font-medium">
+                                    {mat.audioSrc || mat.downloadUrl}
+                                  </span>
+                                </div>
+                              </div>
+
+                              <span className="text-[10px] font-mono font-bold text-purple-800 bg-purple-100 px-2 py-1 rounded-lg">
+                                MP3
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Barra de Acciones Inferior */}
+                        <div className="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+                          {/* Enlace de Descarga / Ver Archivo */}
+                          <a
+                            href={mat.downloadUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors"
+                          >
+                            <Download className="w-3.5 h-3.5 text-slate-600" />
+                            <span>Descargar / Abrir</span>
+                          </a>
+
+                          {/* Botones de Edición y Eliminación */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleEditMaterial(mat)}
+                              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-colors"
+                              title="Editar este material"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteMaterial(mat.id)}
+                              className="p-2 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors"
+                              title="Eliminar este material"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
 
             </div>
           )}
@@ -1478,6 +1900,190 @@ export default function TeacherCampusPage() {
           </div>
         </div>
       )}
+
+      {/* ======================================================================= */}
+      {/* MODAL 3: SUBIR / EDITAR RECURSO DIDÁCTICO (PDF O AUDIO MP3)             */}
+      {/* ======================================================================= */}
+      {showMaterialModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl space-y-5 text-slate-800 border border-slate-200 max-h-[90vh] overflow-y-auto">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-white ${
+                  materialForm.type === 'audio' ? 'bg-purple-600' : 'bg-[#002B49]'
+                }`}>
+                  {materialForm.type === 'audio' ? <Headphones className="w-5 h-5 text-purple-200" /> : <FileText className="w-5 h-5 text-amber-400" />}
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    {editingMaterial ? 'Editar Recurso Didáctico' : 'Subir Nuevo Recurso Didáctico'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">Nivel {activeLevel.toUpperCase()} · Periodo 2026-I</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowMaterialModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveMaterial} className="space-y-4 text-xs font-bold">
+              
+              {/* Selector de Tipo: PDF vs Audio */}
+              <div>
+                <label className="text-slate-700 block mb-1.5">Tipo de Recurso</label>
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setMaterialForm({ ...materialForm, type: 'pdf', size: materialForm.size.includes('MB') ? materialForm.size : '2.5 MB' })}
+                    className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black ${
+                      materialForm.type === 'pdf'
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <FileText className="w-4 h-4" />
+                    <span>Guía Didáctica (PDF)</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setMaterialForm({ ...materialForm, type: 'audio', size: materialForm.size.includes('MB') ? materialForm.size : '8.5 MB' })}
+                    className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 transition-all font-black ${
+                      materialForm.type === 'audio'
+                        ? 'bg-purple-600 text-white border-purple-600 shadow-sm'
+                        : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                    }`}
+                  >
+                    <Headphones className="w-4 h-4" />
+                    <span>Audio Lab (MP3)</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Título */}
+              <div>
+                <label className="text-slate-700 block mb-1">Título del Material</label>
+                <input
+                  type="text"
+                  required
+                  value={materialForm.title}
+                  onChange={(e) => setMaterialForm({ ...materialForm, title: e.target.value })}
+                  placeholder={materialForm.type === 'audio' ? 'Ej: Audio Lab 05: Airport Dialogues & Fast Speech (MP3)' : 'Ej: Guía Práctica 04: Present Perfect & Time Prepositions (PDF)'}
+                  className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium text-slate-900"
+                />
+              </div>
+
+              {/* Unidad / Tag y Tamaño */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-slate-700 block mb-1">Unidad o Etiqueta Temática</label>
+                  <input
+                    type="text"
+                    required
+                    value={materialForm.unitTag}
+                    onChange={(e) => setMaterialForm({ ...materialForm, unitTag: e.target.value })}
+                    placeholder="Ej: Unidad 1 · Gramática"
+                    className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium text-slate-900"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-slate-700 block mb-1">Tamaño Estimado del Archivo</label>
+                  <input
+                    type="text"
+                    required
+                    value={materialForm.size}
+                    onChange={(e) => setMaterialForm({ ...materialForm, size: e.target.value })}
+                    placeholder="Ej: 3.4 MB"
+                    className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium text-slate-900 font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* URL de Descarga / Archivo */}
+              <div>
+                <label className="text-slate-700 block mb-1">
+                  Enlace de Descarga o Almacenamiento (Google Drive, OneDrive, S3, Enlace Directo)
+                </label>
+                <input
+                  type="url"
+                  required
+                  value={materialForm.downloadUrl}
+                  onChange={(e) => setMaterialForm({ ...materialForm, downloadUrl: e.target.value })}
+                  placeholder="https://... (enlace para descarga de estudiantes)"
+                  className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium font-mono text-slate-900 text-xs"
+                />
+              </div>
+
+              {/* URL de Reproducción de Audio (solo si es audio) */}
+              {materialForm.type === 'audio' && (
+                <div>
+                  <label className="text-purple-900 block mb-1">
+                    Enlace de Audio Directo para Reproducción Inmediata (Stream MP3)
+                  </label>
+                  <input
+                    type="url"
+                    value={materialForm.audioSrc}
+                    onChange={(e) => setMaterialForm({ ...materialForm, audioSrc: e.target.value })}
+                    placeholder="https://... (archivo .mp3 directo para escuchar en la plataforma)"
+                    className="w-full p-3 border border-purple-300 focus:border-purple-600 rounded-xl outline-none font-medium font-mono text-purple-900 text-xs bg-purple-50/30"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 font-normal">
+                    Si se deja vacío, se usará el mismo enlace de descarga para reproducir.
+                  </p>
+                </div>
+              )}
+
+              {/* Descripción Pedagógica */}
+              <div>
+                <label className="text-slate-700 block mb-1">
+                  Descripción Pedagógica e Instrucciones para el Estudiante
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  value={materialForm.description}
+                  onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })}
+                  placeholder="Explica qué ejercicios resolver, o qué pista fonética escuchar antes de la sesión sincrónica..."
+                  className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium text-slate-900 leading-relaxed"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowMaterialModal(false)}
+                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-[#002B49] hover:bg-[#001f35] text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5"
+                >
+                  <Check className="w-4 h-4 text-amber-400" />
+                  <span>{editingMaterial ? 'Guardar Cambios' : 'Publicar Recurso'}</span>
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* Reproductor de Audio Oculto para vista previa en el portal docente */}
+      <audio 
+        ref={previewAudioRef} 
+        onEnded={() => setPreviewingAudioId(null)} 
+        onError={() => setPreviewingAudioId(null)}
+        className="hidden" 
+      />
 
     </div>
   )
