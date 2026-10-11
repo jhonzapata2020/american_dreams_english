@@ -40,6 +40,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const getLeadWhatsAppUrl = () => {
+    const audienceText = audience === 'self' ? 'Para mí' : 'Para mi hijo/a';
+    const waMsg = `¡Hola Profe Anthony! 🚀 Acabo de registrarme en American Dream English.\n\n*Nombre:* ${firstName.trim()} ${lastName.trim()}\n*Teléfono:* ${phone.trim()}\n*Correo:* ${email.trim()}\n*Modalidad:* ${audienceText}\n\nQuiero recibir la oferta especial y asegurar mi cupo de matrícula.`;
+    return getWhatsAppUrl(waMsg);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -51,10 +57,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
       const { error } = await supabase.from('leads').insert([
         {
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          phone: phone,
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
           audience: audienceType,
         },
       ]);
@@ -71,9 +77,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         audience: audienceType,
         source: 'hero_form',
       });
+
+      // Redirigir suavemente a WhatsApp con el Profe Anthony
+      const targetWaUrl = getLeadWhatsAppUrl();
       setTimeout(() => {
-        onExplorePrograms();
-      }, 1500);
+        window.location.href = targetWaUrl;
+      }, 1800);
     } catch (err) {
       console.error('Error inesperado al registrar prospecto:', err);
       setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
@@ -90,139 +99,258 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* ========================================================= */}
         {/* VISTA MÓVIL MOBILE-FIRST (Primer pliegue utilitario y rápido) */}
         {/* ========================================================= */}
-        <div className="block lg:hidden space-y-6">
+        <div className="block lg:hidden space-y-5">
           
-          {/* Encabezado directo y contundente */}
-          <div className="text-center sm:text-left space-y-1.5 pt-1">
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-none uppercase">
-              AMERICAN DREAM ENGLISH
+          {/* Eyebrow de campaña / tráfico social */}
+          <div className="space-y-2 pt-1 text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-black tracking-wide">
+              <Sparkles className="w-3.5 h-3.5 text-red-600" />
+              <span>{t.hero.badge || 'Abre las puertas del mundo al dominar el inglés'}</span>
+            </div>
+
+            {/* Titular contundente de conversión */}
+            <h1 className="text-2xl min-[380px]:text-[26px] sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+              Logra la <span className="text-red-600">fluidez en inglés</span> con American Dream English
             </h1>
-            <p className="text-base sm:text-lg text-slate-600 font-medium leading-snug">
-              Aprende inglés. Cambia tu futuro.
-            </p>
           </div>
 
-          {/* Botonera principal con jerarquía visual clara */}
-          <div className="space-y-3">
-            {/* Botón primario (ancho completo, altura mínima 48px) */}
-            <a
-              href="/matricula"
-              className="w-full min-h-[48px] bg-crimson-600 hover:bg-crimson-700 active:scale-[0.99] text-white font-black py-3.5 px-6 rounded-2xl shadow-lg shadow-red-600/20 flex items-center justify-center space-x-2 text-base uppercase tracking-wider transition-all"
-            >
-              <span>EMPEZAR AHORA</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-            </a>
-
-            {/* Botón secundario outline */}
-            <a
-              href="/cursos"
-              className="w-full min-h-[48px] border-2 border-slate-300 hover:border-slate-400 active:scale-[0.99] bg-white text-slate-800 font-extrabold py-3 px-6 rounded-2xl flex items-center justify-center space-x-2 text-sm uppercase tracking-wider transition-all"
-            >
-              <span>VER CURSOS</span>
-            </a>
-
-            {/* Enlace rápido para alumnos */}
-            <div className="text-center pt-1">
-              <a
-                href="/campus/login"
-                className="inline-flex items-center justify-center text-sm font-semibold text-slate-600 hover:text-navy-900 py-1 transition-colors group"
-              >
-                <span>¿Ya eres estudiante?</span>
-                <span className="text-crimson-600 group-hover:text-crimson-700 font-bold ml-1.5 underline underline-offset-4">
-                  Entrar al aula
-                </span>
-              </a>
+          {/* Tarjeta de autoridad y credenciales: Teacher Anthony */}
+          <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs">
+            <div className="relative flex-shrink-0">
+              <img
+                src="/teacher-anthony.jpg"
+                alt="Teacher Anthony"
+                className="w-12 h-12 rounded-full object-cover border-2 border-red-600 shadow-sm"
+              />
+              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <h4 className="font-extrabold text-slate-900 text-xs truncate">Teacher Anthony</h4>
+                <span className="bg-red-100 text-red-700 text-[10px] font-black px-1.5 py-0.5 rounded-md">Bilingüe C1/C2</span>
+              </div>
+              <p className="text-[11px] text-slate-500 font-medium truncate">
+                Director Académico • Clases Online & Presencial Urabá
+              </p>
             </div>
           </div>
 
-          {/* Sección inmediata inferior de autoidentificación rápida (4 tarjetas verticales compactas tipo botón) */}
-          <div className="pt-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              
-              {/* Tarjeta 1: Aprender inglés */}
-              <a
-                href="/matricula"
-                className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-red-50/50 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group"
+          {/* Beneficios directos con checks verdes */}
+          <div className="space-y-2 text-xs sm:text-sm font-bold text-slate-800">
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+              <span>{t.hero.bullet1}</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+              <span>{t.hero.bullet2}</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+              <span>{t.hero.bullet3}</span>
+            </div>
+          </div>
+
+          {/* FORMULARIO OFICIAL DE CAPTACIÓN DE LEADS EN MÓVIL (OPEN ENGLISH STYLE) */}
+          <div id="formulario-leads-movil" className="bg-white rounded-2xl shadow-xl border-2 border-red-100 p-4 sm:p-5 space-y-4">
+            <div className="text-center space-y-1">
+              <div className="inline-block px-2.5 py-0.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-black uppercase tracking-wide">
+                ⚡ Oferta Especial Disponible
+              </div>
+              <h3 className="text-lg min-[380px]:text-xl font-black text-slate-900">
+                {t.hero.formTitle} <span className="text-red-600">{t.hero.formOffer}</span>
+              </h3>
+              <p className="text-xs text-slate-500 font-medium">
+                Déjanos tus datos para recibir asesoría personalizada y congelar tu precio.
+              </p>
+            </div>
+
+            {/* Switch de audiencia: Para mí / Para mi hijo */}
+            <div className="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold border border-slate-200">
+              <button
+                type="button"
+                onClick={() => setAudience('self')}
+                className={`flex-1 py-1.5 text-center rounded-lg transition-all ${
+                  audience === 'self'
+                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
-                    🎓
+                {t.hero.audienceSelf}
+              </button>
+              <button
+                type="button"
+                onClick={() => setAudience('child')}
+                className={`flex-1 py-1.5 text-center rounded-lg transition-all ${
+                  audience === 'child'
+                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
+                    : 'text-slate-500 hover:text-slate-900'
+                }`}
+              >
+                {t.hero.audienceChild}
+              </button>
+            </div>
+
+            {/* Contenido del formulario o estado exitoso */}
+            {submitted ? (
+              <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3 animate-fadeIn">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                </div>
+                <h4 className="font-extrabold text-navy-900 text-base">{t.hero.successTitle}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {firstName ? `¡Excelente, ${firstName}! ` : ''}Tus datos han sido registrados en la base de datos con éxito. Te estamos conectando con el Profe Anthony por WhatsApp para entregarte tu oferta especial de matrícula.
+                </p>
+                <a
+                  href={getLeadWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Abrir WhatsApp Ahora</span>
+                </a>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-3">
+                {errorMessage && (
+                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                    {errorMessage}
                   </div>
-                  <div className="text-left">
-                    <h3 className="font-black text-slate-900 text-sm group-hover:text-red-700 transition-colors">
-                      Aprender inglés
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium">Programas para niños y adultos</p>
+                )}
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.firstName}</label>
+                    <input
+                      type="text"
+                      required
+                      autoComplete="given-name"
+                      disabled={isSubmitting}
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="Nombre"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.lastName}</label>
+                    <input
+                      type="text"
+                      required
+                      autoComplete="family-name"
+                      disabled={isSubmitting}
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Apellido"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
+                    />
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-red-600 transition-colors" />
-              </a>
 
-              {/* Tarjeta 2: Comprar recursos */}
-              <a
-                href="/tienda"
-                className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-amber-50/50 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
-                    🛒
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-black text-slate-900 text-sm group-hover:text-amber-800 transition-colors">
-                      Comprar recursos
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium">Libros, guías y material digital</p>
-                  </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.email}</label>
+                  <input
+                    type="email"
+                    required
+                    inputMode="email"
+                    autoComplete="email"
+                    disabled={isSubmitting}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
+                  />
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-600 transition-colors" />
-              </a>
 
-              {/* Tarjeta 3: Solicitar beca */}
-              <a
-                href="/becas"
-                className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-emerald-50/50 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group text-left w-full cursor-pointer"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
-                    🎁
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-black text-slate-900 text-sm group-hover:text-emerald-800 transition-colors">
-                      Solicitar beca
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium">Fondo de becas e impacto social</p>
-                  </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.phone}</label>
+                  <input
+                    type="tel"
+                    required
+                    inputMode="tel"
+                    autoComplete="tel"
+                    disabled={isSubmitting}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+57 300 000 0000"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
+                  />
                 </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
-              </a>
 
-              {/* Tarjeta 4: Hablar con ADE */}
-              <a
-                href={whatsappContextUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => {
-                  trackEvent('whatsapp_click', {
-                    source: 'hero_mobile_card',
-                    action: 'hablar_con_ade'
-                  });
-                }}
-                className="flex items-center justify-between p-3.5 bg-slate-50 hover:bg-emerald-50/60 active:scale-[0.98] border border-slate-200 rounded-2xl transition-all group"
+                {/* BOTÓN ROJO DE ALTO IMPACTO "COMENZAR AHORA" */}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full min-h-[50px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 text-base uppercase tracking-wider transition-all active:scale-[0.98] mt-2 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>{t.hero.saving || 'Guardando...'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{t.hero.ctaButton || 'Comienza ahora'}</span>
+                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                    </>
+                  )}
+                </button>
+
+                <p className="text-[10px] text-slate-400 text-center font-medium pt-0.5">
+                  {t.hero.habeasData}
+                </p>
+              </form>
+            )}
+          </div>
+
+          {/* Opciones y canales secundarios */}
+          <div className="space-y-2.5 pt-1">
+            {/* Botón WhatsApp directo de apoyo */}
+            <a
+              href={whatsappContextUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                trackEvent('whatsapp_click', {
+                  source: 'hero_mobile_banner',
+                  action: 'hablar_con_profe_anthony'
+                });
+              }}
+              className="w-full py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-2xl flex items-center justify-center space-x-2 text-xs font-bold transition-all shadow-2xs active:scale-[0.98]"
+            >
+              <MessageCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>¿Prefieres chatear antes de registrarte? WhatsApp</span>
+            </a>
+
+            {/* Accesos rápidos: Becas y Sede Presencial */}
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <button
+                type="button"
+                onClick={onOpenDonation}
+                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
               >
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl flex-shrink-0 group-hover:scale-105 transition-transform">
-                    💬
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-black text-slate-900 text-sm group-hover:text-emerald-700 transition-colors">
-                      Hablar con ADE
-                    </h3>
-                    <p className="text-[11px] text-slate-500 font-medium">Asesoría directa por WhatsApp</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                🎁 Fondo de Becas
+              </button>
+              <a
+                href="/como-llegar"
+                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                📍 Sede Presencial
               </a>
+            </div>
 
+            {/* Enlace para alumnos existentes */}
+            <div className="text-center pt-1 pb-1">
+              <a
+                href="/campus/login"
+                className="inline-flex items-center justify-center text-xs font-semibold text-slate-500 hover:text-navy-900 py-1 transition-colors"
+              >
+                <span>¿Ya eres estudiante?</span>
+                <span className="text-red-600 font-bold ml-1.5 underline underline-offset-4">
+                  Entrar al aula
+                </span>
+              </a>
             </div>
           </div>
 
@@ -381,10 +509,23 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Form Content */}
             {submitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-2 animate-fadeIn">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
-                <h4 className="font-extrabold text-navy-900 text-sm">{t.hero.successTitle}</h4>
-                <p className="text-xs text-slate-600">{t.hero.successMsg}</p>
+              <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3 animate-fadeIn">
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                </div>
+                <h4 className="font-extrabold text-navy-900 text-base">{t.hero.successTitle}</h4>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {firstName ? `¡Excelente, ${firstName}! ` : ''}Tus datos han sido registrados con éxito. Te estamos conectando con el Profe Anthony por WhatsApp para entregarte tu oferta especial de matrícula.
+                </p>
+                <a
+                  href={getLeadWhatsAppUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Abrir WhatsApp Ahora</span>
+                </a>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
