@@ -51,22 +51,39 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    const audienceType = audience === 'self' ? 'para_mi' : 'para_mi_hijo';
+    const payload = {
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      audience: audienceType,
+    };
+
     try {
-      const supabase = createClient();
-      const audienceType = audience === 'self' ? 'para_mi' : 'para_mi_hijo';
+      // 1. Intentar registrar a través de /api/leads (guarda en Supabase y dispara notificación WhatsApp)
+      const res = await fetch('/api/leads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-      const { error } = await supabase.from('leads').insert([
-        {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
+      if (res.ok) {
+        setSubmitted(true);
+        trackEvent('lead_capture', {
           audience: audienceType,
-        },
-      ]);
+          source: 'hero_form',
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
-      if (error) {
-        console.error('Error al registrar prospecto:', error);
+      // 2. Respaldo directo en cliente Supabase en caso de fallo en el endpoint
+      const supabase = createClient();
+      const { error: sbError } = await supabase.from('leads').insert([payload]);
+
+      if (sbError) {
+        console.error('Error al registrar prospecto en respaldo:', sbError);
         setErrorMessage('No se pudieron enviar tus datos. Por favor intenta de nuevo.');
         setIsSubmitting(false);
         return;
@@ -75,11 +92,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       setSubmitted(true);
       trackEvent('lead_capture', {
         audience: audienceType,
-        source: 'hero_form',
+        source: 'hero_form_fallback',
       });
+      setIsSubmitting(false);
     } catch (err) {
       console.error('Error inesperado al registrar prospecto:', err);
-      setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
+      try {
+        const supabase = createClient();
+        await supabase.from('leads').insert([payload]);
+        setSubmitted(true);
+      } catch (fallbackErr) {
+        setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
+      }
       setIsSubmitting(false);
     }
   };
