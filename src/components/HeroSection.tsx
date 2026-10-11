@@ -77,12 +77,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         audience: audienceType,
         source: 'hero_form',
       });
-
-      // Redirigir suavemente a WhatsApp con el Profe Anthony
-      const targetWaUrl = getLeadWhatsAppUrl();
-      setTimeout(() => {
-        window.location.href = targetWaUrl;
-      }, 1800);
     } catch (err) {
       console.error('Error inesperado al registrar prospecto:', err);
       setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
@@ -197,19 +191,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                 </div>
-                <h4 className="font-extrabold text-navy-900 text-base">{t.hero.successTitle}</h4>
+                <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {firstName ? `¡Excelente, ${firstName}! ` : ''}Tus datos han sido registrados en la base de datos con éxito. Te estamos conectando con el Profe Anthony por WhatsApp para entregarte tu oferta especial de matrícula.
+                  {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
                 </p>
-                <a
-                  href={getLeadWhatsAppUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Abrir WhatsApp Ahora</span>
-                </a>
+                <div className="pt-2 space-y-2">
+                  <a
+                    href={getLeadWhatsAppUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Abrir chat de WhatsApp (Opcional)</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setFirstName('');
+                      setLastName('');
+                      setEmail('');
+                      setPhone('');
+                    }}
+                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
+                  >
+                    Registrar a otra persona
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
@@ -513,19 +522,34 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
                   <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                 </div>
-                <h4 className="font-extrabold text-navy-900 text-base">{t.hero.successTitle}</h4>
+                <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  {firstName ? `¡Excelente, ${firstName}! ` : ''}Tus datos han sido registrados con éxito. Te estamos conectando con el Profe Anthony por WhatsApp para entregarte tu oferta especial de matrícula.
+                  {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
                 </p>
-                <a
-                  href={getLeadWhatsAppUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Abrir WhatsApp Ahora</span>
-                </a>
+                <div className="pt-2 space-y-2">
+                  <a
+                    href={getLeadWhatsAppUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>Abrir chat de WhatsApp (Opcional)</span>
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubmitted(false);
+                      setFirstName('');
+                      setLastName('');
+                      setEmail('');
+                      setPhone('');
+                    }}
+                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
+                  >
+                    Registrar a otra persona
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3">
