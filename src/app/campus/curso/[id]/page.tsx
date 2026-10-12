@@ -629,13 +629,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                     href="https://teams.microsoft.com/l/meetup-join/american-dream-class"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[22px] bg-gradient-to-b from-white via-[#FAFBFD] to-[#EEF2F6] text-[#002B49] font-black text-xs sm:text-sm tracking-wide border border-white/90 border-b-slate-200/90 shadow-[0_12px_24px_-4px_rgba(15,23,42,0.18),_0_6px_12px_-2px_rgba(15,23,42,0.10),_inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_18px_32px_-4px_rgba(15,23,42,0.22),_0_8px_16px_-2px_rgba(15,23,42,0.12),_inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_8px_-2px_rgba(15,23,42,0.18),_inset_0_2px_4px_rgba(0,0,0,0.06)] transition-all shrink-0 cursor-pointer select-none"
+                    className="group relative inline-flex items-center justify-center gap-3 px-8 sm:px-9 py-3.5 sm:py-4 rounded-full bg-gradient-to-b from-[#22C55E] via-[#16A34A] to-[#15803D] text-white font-extrabold text-xs sm:text-sm tracking-wide border-t border-emerald-300/50 border-b border-emerald-950/30 shadow-[0_14px_28px_-4px_rgba(21,128,61,0.50),_0_6px_12px_-2px_rgba(21,128,61,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_18px_36px_-4px_rgba(21,128,61,0.65),_0_8px_16px_-2px_rgba(21,128,61,0.45),_inset_0_1px_1px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_10px_-2px_rgba(21,128,61,0.5),_inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all shrink-0 cursor-pointer select-none"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
-                      <Video className="w-4 h-4" />
-                    </div>
-                    <span>Entrar a Clase en Teams</span>
-                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                    <Video className="w-5 h-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)] group-hover:scale-110 transition-transform" />
+                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]">Entrar a Clase en Teams</span>
+                    <ExternalLink className="w-4 h-4 text-emerald-100/90 group-hover:text-white transition-colors" />
                   </a>
                 </div>
 
