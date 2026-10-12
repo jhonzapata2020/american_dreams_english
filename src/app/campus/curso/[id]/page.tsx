@@ -24,7 +24,8 @@ import {
   ShieldCheck,
   User,
   Sparkles,
-  Volume2
+  Volume2,
+  ChevronLeft
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig'
@@ -369,21 +370,22 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
       <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-none sm:rounded-[40px] overflow-hidden shadow-none sm:shadow-2xl border-0 sm:border sm:border-slate-700/40 flex flex-col flex-1">
 
         {/* ======================================================================= */}
-        {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON PESTAÑAS FLOTANTES        */}
+        {/* 1. SECCIÓN SUPERIOR AZUL MARINO (#0B1528) CON NAVEGACIÓN PRO PARA MÓVIL  */}
         {/* ======================================================================= */}
-        <div className="w-full bg-[#0B1528] text-white pt-3 sm:pt-6 relative">
+        <div className="w-full bg-[#0B1528] text-white pt-2 sm:pt-6 relative">
           
           {/* Muesca Superior Elegante (Top App Notch Curve - Solo Desktop/Tablet) */}
           <div className="hidden sm:flex justify-center pb-2">
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
-          {/* Barra Superior con distribución equilibrada: Izquierda (Volver + Nivel + Título) y Derecha (Estudiante + Docente) */}
-          <div className="px-4 sm:px-8">
+          {/* ===================================================================== */}
+          {/* VISTA ESCRITORIO / TABLET (>= sm)                                     */}
+          {/* ===================================================================== */}
+          <div className="hidden sm:block px-4 sm:px-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 md:py-6 border-b border-white/10">
               {/* Bloque izquierdo: LOGO DE PRIMERO A LA IZQUIERDA + Nivel + Título */}
               <div className="flex items-center gap-3.5 sm:gap-4 w-full lg:w-auto">
-                {/* Logo Institucional Oficial (PRIMERO A LA IZQUIERDA) */}
                 <Link href="/" className="shrink-0 flex items-center group p-1 rounded-2xl bg-white/5 border border-white/10 shadow-sm backdrop-blur-sm">
                   <img 
                     src="/logo-american-dream.png" 
@@ -404,9 +406,8 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </div>
               </div>
 
-              {/* Bloque derecho: Elementos en esa línea a la misma distancia (Mis Cursos + Docente + Estudiante) */}
+              {/* Bloque derecho: Mis Cursos + Docente + Estudiante */}
               <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
-                {/* Botón Mis Cursos (Sin flecha, botón limpio con icono de cursos) */}
                 <Link 
                   href="/campus" 
                   className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all shrink-0 backdrop-blur-md border border-white/15 shadow-sm text-xs font-bold"
@@ -416,13 +417,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   <span>Mis Cursos</span>
                 </Link>
 
-                {/* Ficha Docente */}
                 <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
                 </div>
 
-                {/* Ficha Estudiante */}
                 <StudentAvatarMenu
                   student={student}
                   onOpenEditProfile={(tab) => {
@@ -433,82 +432,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   variant="header"
                 />
               </div>
-
             </div>
 
-            {/* PESTAÑAS ADAPTATIVAS (CENTRADO HORIZONTAL DE FORMA EQUILIBRADA) */}
+            {/* PESTAÑAS ESCRITORIO CENTRADAS */}
             <div className="pt-4 pb-6 flex justify-center w-full">
-              
-              {/* VISTA MÓVIL: 5 Píldoras Compactas Integradas (100% Pantalla sin recortes) */}
-              <div className="grid grid-cols-5 gap-1.5 sm:hidden p-1.5 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-xl shadow-lg w-full max-w-md">
-                
-                <button
-                  onClick={() => setActiveTab('cronograma')}
-                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
-                    activeTab === 'cronograma'
-                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <Calendar className="w-4 h-4 shrink-0" />
-                  <span className="leading-tight text-[10px]">Clases</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('materiales')}
-                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
-                    activeTab === 'materiales'
-                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <BookOpen className="w-4 h-4 shrink-0" />
-                  <span className="leading-tight text-[10px]">Guías</span>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('grabadas')}
-                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 relative ${
-                    activeTab === 'grabadas'
-                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <Film className="w-4 h-4 shrink-0" />
-                  <span className="leading-tight text-[10px]">Videos</span>
-                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-amber-400" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('foro')}
-                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 relative ${
-                    activeTab === 'foro'
-                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <MessageSquare className="w-4 h-4 shrink-0" />
-                  <span className="leading-tight text-[10px]">Foro</span>
-                  <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('tareas')}
-                  className={`py-2 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-0.5 ${
-                    activeTab === 'tareas'
-                      ? 'bg-white text-[#0B1528] shadow-md scale-102'
-                      : 'text-slate-300 hover:text-white'
-                  }`}
-                >
-                  <FileText className="w-4 h-4 shrink-0" />
-                  <span className="leading-tight text-[10px]">Tareas</span>
-                </button>
-
-              </div>
-
-              {/* VISTA TABLET / ESCRITORIO: Píldoras Horizontales Holgadas Centradas */}
-              <div className="hidden sm:inline-flex items-center justify-center flex-wrap gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
-                
+              <div className="inline-flex items-center justify-center flex-wrap gap-2 p-1.5 bg-white/10 rounded-full border border-white/15 backdrop-blur-xl shadow-lg">
                 <button
                   onClick={() => setActiveTab('cronograma')}
                   className={`px-5 py-2.5 rounded-full text-xs font-black transition-all whitespace-nowrap flex items-center gap-2 ${
@@ -575,14 +503,170 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   <FileText className="w-4 h-4" />
                   <span>Tareas</span>
                 </button>
-
               </div>
-
             </div>
           </div>
 
-          {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA */}
-          <div className="w-full overflow-hidden leading-none -mb-1">
+          {/* ===================================================================== */}
+          {/* VISTA MÓVIL DEDICADA DE MÁXIMO CONFORT UX (< sm)                       */}
+          {/* ===================================================================== */}
+          <div className="block sm:hidden px-3 pt-1 pb-3 space-y-3">
+            
+            {/* 1. Barra de Navegación Rápida Superior */}
+            <div className="flex items-center justify-between gap-2.5 pt-1">
+              {/* Botón Volver a Mis Cursos con Logo Badge */}
+              <Link 
+                href="/campus" 
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 text-white text-xs font-bold border border-white/15 transition-all shadow-xs backdrop-blur-md shrink-0"
+                title="Volver al Campus y Mis Cursos"
+              >
+                <ChevronLeft className="w-4 h-4 text-amber-400 -ml-0.5" />
+                <BookOpen className="w-3.5 h-3.5 text-amber-400/90" />
+                <span>Mis Cursos</span>
+              </Link>
+
+              {/* Indicador Central de Nivel & Estado */}
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[11px] font-black uppercase text-amber-300 font-mono tracking-wide">
+                  {cfg.code}
+                </span>
+              </div>
+
+              {/* Perfil del Alumno con Dropdown */}
+              <div className="shrink-0">
+                <StudentAvatarMenu
+                  student={student}
+                  onOpenEditProfile={(tab) => {
+                    setProfileInitialTab(tab || 'info')
+                    setShowProfileModal(true)
+                  }}
+                  onLogout={handleLogout}
+                  variant="header"
+                />
+              </div>
+            </div>
+
+            {/* 2. Tarjeta Resumen del Curso (Compacta & Elegante) */}
+            <div className="px-1 flex items-center justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-base font-black text-white tracking-tight leading-tight truncate">
+                  {cfg.title}
+                </h1>
+                <div className="flex items-center gap-2 text-[11px] text-slate-300 font-medium truncate mt-0.5">
+                  <span className="text-amber-400 font-semibold truncate">
+                    {cfg.teacherName}
+                  </span>
+                  <span className="text-white/30">•</span>
+                  <span className="text-emerald-300 font-bold flex items-center gap-1 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
+                    En vivo hoy
+                  </span>
+                </div>
+              </div>
+
+              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-xl bg-white/10 border border-white/15 text-slate-200 shrink-0 tracking-wider">
+                {cfg.levelBadge.split(' ')[0]}
+              </span>
+            </div>
+
+            {/* 3. Zona de Pestañas Flotantes Ergonómicas (Scroll Horizontal Suave) */}
+            <div className="relative -mx-3 px-3">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 scroll-smooth snap-x">
+                
+                {/* Pestaña: Clases */}
+                <button
+                  onClick={() => setActiveTab('cronograma')}
+                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                    activeTab === 'cronograma'
+                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                  }`}
+                >
+                  <Calendar className="w-4 h-4 shrink-0 text-emerald-600" />
+                  <span>Clases</span>
+                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
+                    activeTab === 'cronograma' ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-500/30 text-emerald-300'
+                  }`}>
+                    Hoy
+                  </span>
+                </button>
+
+                {/* Pestaña: Guías */}
+                <button
+                  onClick={() => setActiveTab('materiales')}
+                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                    activeTab === 'materiales'
+                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                  }`}
+                >
+                  <Headphones className="w-4 h-4 shrink-0 text-blue-500" />
+                  <span>Guías & Audio</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    activeTab === 'materiales' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
+                  }`}>
+                    {materials.length}
+                  </span>
+                </button>
+
+                {/* Pestaña: Videos Grabados */}
+                <button
+                  onClick={() => setActiveTab('grabadas')}
+                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                    activeTab === 'grabadas'
+                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                  }`}
+                >
+                  <Film className="w-4 h-4 shrink-0 text-amber-500" />
+                  <span>Grabadas</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    activeTab === 'grabadas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
+                  }`}>
+                    {recordedSessions.length}
+                  </span>
+                </button>
+
+                {/* Pestaña: Foro Académico */}
+                <button
+                  onClick={() => setActiveTab('foro')}
+                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                    activeTab === 'foro'
+                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4 shrink-0 text-emerald-500" />
+                  <span>Foro</span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                </button>
+
+                {/* Pestaña: Tareas */}
+                <button
+                  onClick={() => setActiveTab('tareas')}
+                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                    activeTab === 'tareas'
+                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                  }`}
+                >
+                  <FileText className="w-4 h-4 shrink-0 text-purple-500" />
+                  <span>Tareas</span>
+                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                    activeTab === 'tareas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
+                  }`}>
+                    {assignments.length}
+                  </span>
+                </button>
+
+              </div>
+            </div>
+
+          </div>
+
+          {/* TRANSICIÓN DE ONDA ORGÁNICA (SOLO ESCRITORIO) */}
+          <div className="hidden sm:block w-full overflow-hidden leading-none -mb-1">
             <svg 
               viewBox="0 0 1440 100" 
               preserveAspectRatio="none" 
@@ -595,10 +679,10 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         </div>
 
         {/* ======================================================================= */}
-        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA                                 */}
+        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA (TARJETA TIPO HOJA NATIVA)       */}
         {/* ======================================================================= */}
-        <div className="w-full bg-white flex-1 pb-32">
-          <div className="px-4 sm:px-6 pt-3 sm:pt-5">
+        <div className="w-full bg-white flex-1 pb-32 rounded-t-[28px] sm:rounded-none relative z-10 shadow-2xl sm:shadow-none">
+          <div className="px-3.5 sm:px-6 pt-4 sm:pt-5">
 
             {/* =================================================================== */}
             {/* PESTAÑA 1: CRONOGRAMA & ACCESO A CLASES EN VIVO                     */}

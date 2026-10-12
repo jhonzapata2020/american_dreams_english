@@ -116,7 +116,7 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2.5 p-1 sm:px-2.5 sm:py-1.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all group focus:outline-none focus:ring-2 focus:ring-[#002B49]/30"
+        className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1.5 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 text-white transition-all group focus:outline-none focus:ring-2 focus:ring-amber-400/40 backdrop-blur-md shadow-sm"
         aria-expanded={isOpen}
       >
         <div className="relative shrink-0">
@@ -127,30 +127,30 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
               className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl object-cover border border-amber-400 shadow-2xs"
             />
           ) : (
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#002B49] text-amber-400 flex items-center justify-center font-black text-xs sm:text-sm shadow-2xs border border-amber-400/60">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black text-xs sm:text-sm shadow-2xs border border-amber-300">
               {initials}
             </div>
           )}
           {/* Indicador en línea verde */}
-          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full shadow-2xs" />
+          <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#0B1528] rounded-full shadow-2xs" />
         </div>
 
         <div className="hidden sm:block text-left">
-          <div className="text-xs font-black text-slate-800 leading-tight group-hover:text-[#002B49] flex items-center gap-1">
+          <div className="text-xs font-black text-white leading-tight group-hover:text-amber-300 flex items-center gap-1.5">
             <span className="truncate max-w-[120px]">{student.fullName.split(' ')[0]}</span>
-            <span className="text-[10px] font-bold text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded">
+            <span className="text-[10px] font-bold text-amber-300 bg-amber-400/20 border border-amber-400/30 px-1.5 py-0.2 rounded">
               {student.currentLevel}
             </span>
           </div>
-          <span className="text-[10px] text-slate-400 font-medium block">Estudiante</span>
+          <span className="text-[10px] text-slate-300 font-medium block">Estudiante</span>
         </div>
 
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-300 group-hover:text-white transition-transform ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Menú Desplegable Flotante */}
       {isOpen && (
-        <div className="origin-top-right absolute right-0 mt-2 w-72 sm:w-80 rounded-2xl shadow-2xl bg-white border border-slate-200 z-50 animate-fadeIn overflow-hidden">
+        <div className="origin-top-right absolute right-0 mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] rounded-2xl shadow-2xl bg-white border border-slate-200 z-50 animate-fadeIn overflow-hidden">
           
           {/* Cabecera del Menú */}
           <div className="bg-[#002B49] text-white p-4">
