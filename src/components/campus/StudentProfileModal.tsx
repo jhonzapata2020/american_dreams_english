@@ -21,6 +21,7 @@ import {
   FileText
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
+import { optimizeAndConvertToWebP } from '../../utils/imageOptimizer'
 
 export interface StudentProfileData {
   id: string
@@ -72,32 +73,53 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
   // States
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [pendingAvatarBlob, setPendingAvatarBlob] = useState<Blob | null>(null)
+  const [isOptimizing, setIsOptimizing] = useState(false)
+  const [optimizationStats, setOptimizationStats] = useState<{ originalKB: number; optimizedKB: number; savings: number } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const supabase = createClient()
 
   if (!isOpen) return null
 
-  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 5 * 1024 * 1024) {
-      setMessage({ type: 'error', text: 'La imagen debe ser menor a 5MB.' })
+    if (file.size > 15 * 1024 * 1024) {
+      setMessage({ type: 'error', text: 'La imagen debe ser menor a 15MB.' })
       return
     }
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      const result = reader.result as string
-      setAvatarUrl(result)
-      setMessage({ type: 'success', text: 'Foto cargada con éxito. Recuerda guardar los cambios.' })
+    setIsOptimizing(true)
+    setMessage(null)
+
+    try {
+      // Algoritmo: recorte 1:1 y conversión a WebP ultra ligera en memoria
+      const result = await optimizeAndConvertToWebP(file, { maxDimension: 400, quality: 0.85 })
+      setPendingAvatarBlob(result.blob)
+      setAvatarUrl(result.dataUrl)
+      setOptimizationStats({
+        originalKB: result.originalSizeKB,
+        optimizedKB: result.optimizedSizeKB,
+        savings: result.savingsPercent
+      })
+      setMessage({
+        type: 'success',
+        text: `¡Foto convertida a WebP (${result.optimizedSizeKB} KB, ahorro del ${result.savingsPercent}%)! Haz clic en "Guardar Cambios".`
+      })
+    } catch (err) {
+      console.error('Error optimizando avatar:', err)
+      setMessage({ type: 'error', text: 'No se pudo procesar la foto. Intenta con otra imagen.' })
+    } finally {
+      setIsOptimizing(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const handleRemoveAvatar = () => {
     setAvatarUrl('')
+    setPendingAvatarBlob(null)
+    setOptimizationStats(null)
     setMessage({ type: 'success', text: 'Foto eliminada. Se usarán las iniciales de tu nombre.' })
   }
 
@@ -150,11 +172,57 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
         return
       }
 
+      let finalAvatarUrl = avatarUrl
+
+      // Si hay un archivo WebP optimizado listo para subir a Supabase Storage:
+      if (pendingAvatarBlob) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          const userId = session?.user?.id || student.id || 'student'
+          const fileName = `avatar-${userId}-${Date.now()}.webp`
+
+          // 1. Intentar subir al bucket 'avatars'
+          const { data: uploadData, error: upErr } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, pendingAvatarBlob, {
+              contentType: 'image/webp',
+              upsert: true
+            })
+
+          if (!upErr && uploadData?.path) {
+            const { data: pubData } = supabase.storage
+              .from('avatars')
+              .getPublicUrl(uploadData.path)
+            if (pubData?.publicUrl) {
+              finalAvatarUrl = pubData.publicUrl
+            }
+          } else {
+            // 2. Fallback al bucket 'forum-attachments' (que ya tiene políticas públicas)
+            const { data: fbData, error: fbErr } = await supabase.storage
+              .from('forum-attachments')
+              .upload(`avatars/${fileName}`, pendingAvatarBlob, {
+                contentType: 'image/webp',
+                upsert: true
+              })
+            if (!fbErr && fbData?.path) {
+              const { data: fbPub } = supabase.storage
+                .from('forum-attachments')
+                .getPublicUrl(fbData.path)
+              if (fbPub?.publicUrl) {
+                finalAvatarUrl = fbPub.publicUrl
+              }
+            }
+          }
+        } catch (storageErr) {
+          console.warn('Nota: Supabase storage fallback a dataURL WebP ultra liviana:', storageErr)
+        }
+      }
+
       const updatedStudent: StudentProfileData = {
         ...student,
         fullName: fullName.trim(),
         phone: phone.trim(),
-        avatarUrl: avatarUrl
+        avatarUrl: finalAvatarUrl
       }
 
       // Intentar actualizar en Supabase Auth y base de datos
@@ -165,14 +233,14 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
             data: {
               full_name: fullName.trim(),
               phone: phone.trim(),
-              avatar_url: avatarUrl
+              avatar_url: finalAvatarUrl
             }
           })
 
           await supabase.from('profiles').update({
             full_name: fullName.trim(),
             phone: phone.trim(),
-            avatar_url: avatarUrl,
+            avatar_url: finalAvatarUrl,
             updated_at: new Date().toISOString()
           }).eq('id', session.user.id)
         }
@@ -293,7 +361,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
           {activeTab === 'info' && (
             <div className="space-y-5 animate-fadeIn">
               
-              {/* Sección de Foto de Perfil */}
+              {/* Sección de Foto de Perfil con Algoritmo WebP */}
               <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                 <div className="relative group shrink-0">
                   {avatarUrl ? (
@@ -308,11 +376,19 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                     </div>
                   )}
 
+                  {isOptimizing && (
+                    <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center text-white backdrop-blur-2xs">
+                      <Loader2 className="w-6 h-6 animate-spin text-amber-400" />
+                      <span className="text-[9px] font-bold mt-1">WebP...</span>
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="absolute -bottom-2 -right-2 bg-amber-500 hover:bg-amber-600 text-slate-950 p-2 rounded-xl shadow-lg border-2 border-white transition-transform transform hover:scale-110"
-                    title="Subir foto"
+                    disabled={isOptimizing}
+                    className="absolute -bottom-2 -right-2 bg-amber-500 hover:bg-amber-600 text-slate-950 p-2 rounded-xl shadow-lg border-2 border-white transition-transform transform hover:scale-110 disabled:opacity-50"
+                    title="Subir foto (Conversión automática a WebP)"
                   >
                     <Camera className="w-3.5 h-3.5" />
                   </button>
@@ -326,20 +402,29 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                 </div>
 
                 <div className="space-y-1.5 text-center sm:text-left flex-1">
-                  <span className="text-xs font-bold text-slate-800 block">
-                    Foto de Perfil del Estudiante
-                  </span>
+                  <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                    <span className="text-xs font-bold text-slate-800">
+                      Foto de Perfil del Estudiante
+                    </span>
+                    {optimizationStats && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300 animate-fadeIn">
+                        <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
+                        WebP {optimizationStats.optimizedKB} KB (-{optimizationStats.savings}%)
+                      </span>
+                    )}
+                  </div>
                   <p className="text-[11px] text-slate-500 leading-tight">
-                    JPG, PNG o WEBP. Máximo 5MB.
+                    Carga cualquier foto (JPG, PNG). Nuestro algoritmo la recortará 1:1 y la convertirá a <strong>WebP ultra ligera</strong>.
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-3 py-1 bg-white border border-slate-300 hover:border-[#002B49] text-slate-700 hover:text-[#002B49] text-xs font-bold rounded-lg shadow-2xs transition-colors"
+                      disabled={isOptimizing}
+                      className="px-3 py-1 bg-white border border-slate-300 hover:border-[#002B49] text-slate-700 hover:text-[#002B49] text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50"
                     >
-                      Subir Foto
+                      {isOptimizing ? 'Procesando...' : 'Subir Foto'}
                     </button>
                     {avatarUrl && (
                       <button
@@ -367,7 +452,9 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                       type="button"
                       onClick={() => {
                         setAvatarUrl(url)
-                        setMessage({ type: 'success', text: 'Avatar seleccionado. Guarda los cambios.' })
+                        setPendingAvatarBlob(null)
+                        setOptimizationStats(null)
+                        setMessage({ type: 'success', text: 'Avatar seleccionado. Recuerda guardar los cambios.' })
                       }}
                       className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${
                         avatarUrl === url ? 'border-[#002B49] scale-105 shadow-md ring-2 ring-amber-400' : 'border-slate-200 hover:border-slate-400 opacity-80 hover:opacity-100'
