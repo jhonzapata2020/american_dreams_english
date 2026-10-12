@@ -31,7 +31,7 @@ import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig
 import { StudentProfileModal, StudentProfileData } from '../../../../components/campus/StudentProfileModal'
 import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
 import { AcademicForum } from '../../../../components/campus/AcademicForum'
-import { StudyMaterial, INITIAL_MATERIALS_BY_LEVEL } from '../../../../data/studyMaterials'
+import { StudyMaterial, INITIAL_MATERIALS_BY_LEVEL, formatAudioStreamUrl } from '../../../../data/studyMaterials'
 
 
 interface CourseDetailProps {
@@ -86,7 +86,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     } else {
       setPlayingAudioId(mat.id)
       if (studentAudioRef.current) {
-        const src = mat.audioSrc || mat.downloadUrl
+        const src = formatAudioStreamUrl(mat.audioSrc || mat.downloadUrl)
         studentAudioRef.current.src = src
         studentAudioRef.current.playbackRate = audioPlaybackRate
         studentAudioRef.current.play().catch(() => {})

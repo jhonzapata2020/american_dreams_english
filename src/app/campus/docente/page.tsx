@@ -39,11 +39,12 @@ import {
   Download,
   Pause,
   Music,
-  FolderPlus
+  FolderPlus,
+  UploadCloud
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
-import { StudyMaterial as TeacherStudyMaterial, INITIAL_MATERIALS_BY_LEVEL } from '../../../data/studyMaterials'
+import { StudyMaterial as TeacherStudyMaterial, INITIAL_MATERIALS_BY_LEVEL, formatAudioStreamUrl } from '../../../data/studyMaterials'
 
 // Tipos de Grabación
 export interface TeacherRecordedSession {
@@ -233,6 +234,10 @@ export default function TeacherCampusPage() {
     description: '',
     unitTag: 'Unidad 1 · Gramática y Reglas'
   })
+  const [pdfSourceMode, setPdfSourceMode] = useState<'file' | 'url'>('file')
+  const [selectedPdfFile, setSelectedPdfFile] = useState<File | null>(null)
+  const [pdfUploadLoading, setPdfUploadLoading] = useState(false)
+  const [showCloudGuide, setShowCloudGuide] = useState(false)
   const [previewingAudioId, setPreviewingAudioId] = useState<string | null>(null)
   const previewAudioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -446,6 +451,9 @@ export default function TeacherCampusPage() {
   // =========================================================================
   const handleOpenNewMaterialModal = () => {
     setEditingMaterial(null)
+    setSelectedPdfFile(null)
+    setPdfSourceMode('file')
+    setShowCloudGuide(false)
     setMaterialForm({
       title: '',
       type: 'pdf',
@@ -460,6 +468,9 @@ export default function TeacherCampusPage() {
 
   const handleEditMaterial = (mat: TeacherStudyMaterial) => {
     setEditingMaterial(mat)
+    setSelectedPdfFile(null)
+    setPdfSourceMode('url')
+    setShowCloudGuide(false)
     setMaterialForm({
       title: mat.title,
       type: mat.type,
@@ -470,6 +481,33 @@ export default function TeacherCampusPage() {
       unitTag: mat.unitTag || 'Recurso General'
     })
     setShowMaterialModal(true)
+  }
+
+  const handlePdfFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validar extensión
+    if (!file.name.toLowerCase().endsWith('.pdf') && file.type !== 'application/pdf') {
+      alert('Por favor selecciona un archivo en formato PDF (.pdf).')
+      return
+    }
+
+    // Validar tamaño (máximo 15 MB)
+    const maxBytes = 15 * 1024 * 1024
+    if (file.size > maxBytes) {
+      alert(`El archivo pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB. Para guías mayores a 15 MB, por favor usa la opción de Google Drive o OneDrive.`)
+      return
+    }
+
+    const sizeText = (file.size / (1024 * 1024)).toFixed(1) + ' MB'
+    setSelectedPdfFile(file)
+    const cleanTitle = file.name.replace(/\.pdf$/i, '').replace(/[-_]/g, ' ')
+    setMaterialForm(prev => ({
+      ...prev,
+      title: prev.title.trim() ? prev.title : cleanTitle,
+      size: sizeText
+    }))
   }
 
   const handleDeleteMaterial = (id: string) => {
@@ -488,14 +526,58 @@ export default function TeacherCampusPage() {
     }
   }
 
-  const handleSaveMaterial = (e: React.FormEvent) => {
+  const handleSaveMaterial = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!materialForm.title.trim()) return
 
-    const effectiveDownloadUrl = materialForm.downloadUrl.trim() || 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
-    const effectiveAudioSrc = materialForm.type === 'audio' 
-      ? (materialForm.audioSrc.trim() || effectiveDownloadUrl)
-      : undefined
+    let finalDownloadUrl = materialForm.downloadUrl.trim()
+    let finalAudioSrc = materialForm.audioSrc.trim()
+
+    // 1. Si es PDF y subió archivo desde el PC
+    if (materialForm.type === 'pdf') {
+      if (pdfSourceMode === 'file' && selectedPdfFile) {
+        setPdfUploadLoading(true)
+        try {
+          const fileExt = selectedPdfFile.name.split('.').pop() || 'pdf'
+          const safeName = selectedPdfFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
+          const storagePath = `guides/${activeLevel}/${Date.now()}-${safeName}`
+          
+          // Intentar subir a Supabase Storage bucket 'materials'
+          const { data: uploadData, error: uploadErr } = await supabase.storage
+            .from('materials')
+            .upload(storagePath, selectedPdfFile, {
+              cacheControl: '3600',
+              upsert: true
+            })
+
+          if (!uploadErr && uploadData) {
+            const { data: pubUrlData } = supabase.storage
+              .from('materials')
+              .getPublicUrl(storagePath)
+            if (pubUrlData?.publicUrl) {
+              finalDownloadUrl = pubUrlData.publicUrl
+            }
+          } else {
+            console.warn('Aviso Supabase Storage:', uploadErr?.message)
+            finalDownloadUrl = URL.createObjectURL(selectedPdfFile)
+          }
+        } catch (err) {
+          console.warn('Fallback carga local:', err)
+          finalDownloadUrl = URL.createObjectURL(selectedPdfFile)
+        } finally {
+          setPdfUploadLoading(false)
+        }
+      } else if (!finalDownloadUrl) {
+        finalDownloadUrl = 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'
+      }
+    } else {
+      // 2. Si es Audio, formatear URL de Google Drive / Dropbox para stream directo
+      const formattedStream = formatAudioStreamUrl(finalAudioSrc || finalDownloadUrl)
+      finalAudioSrc = formattedStream
+      if (!finalDownloadUrl) {
+        finalDownloadUrl = formattedStream
+      }
+    }
 
     if (editingMaterial) {
       const updated = materials.map(m => {
@@ -505,8 +587,8 @@ export default function TeacherCampusPage() {
             title: materialForm.title.trim(),
             type: materialForm.type,
             size: materialForm.size.trim() || (materialForm.type === 'pdf' ? '2.5 MB' : '8.5 MB'),
-            downloadUrl: effectiveDownloadUrl,
-            audioSrc: effectiveAudioSrc,
+            downloadUrl: finalDownloadUrl,
+            audioSrc: materialForm.type === 'audio' ? finalAudioSrc : undefined,
             description: materialForm.description.trim(),
             unitTag: materialForm.unitTag.trim()
           }
@@ -525,8 +607,8 @@ export default function TeacherCampusPage() {
         title: materialForm.title.trim(),
         type: materialForm.type,
         size: materialForm.size.trim() || (materialForm.type === 'pdf' ? '2.5 MB' : '8.5 MB'),
-        downloadUrl: effectiveDownloadUrl,
-        audioSrc: effectiveAudioSrc,
+        downloadUrl: finalDownloadUrl,
+        audioSrc: materialForm.type === 'audio' ? finalAudioSrc : undefined,
         description: materialForm.description.trim(),
         unitTag: materialForm.unitTag.trim(),
         createdAt: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -2005,37 +2087,145 @@ export default function TeacherCampusPage() {
                 </div>
               </div>
 
-              {/* URL de Descarga / Archivo */}
-              <div>
-                <label className="text-slate-700 block mb-1">
-                  Enlace de Descarga o Almacenamiento (Google Drive, OneDrive, S3, Enlace Directo)
-                </label>
-                <input
-                  type="url"
-                  required
-                  value={materialForm.downloadUrl}
-                  onChange={(e) => setMaterialForm({ ...materialForm, downloadUrl: e.target.value })}
-                  placeholder="https://... (enlace para descarga de estudiantes)"
-                  className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium font-mono text-slate-900 text-xs"
-                />
-              </div>
+              {/* SECCIÓN ESPECÍFICA SEGÚN TIPO: PDF (CARGA DESDE PC O ENLACE) VS AUDIO (DRIVE / ONEDRIVE) */}
+              {materialForm.type === 'pdf' ? (
+                <div className="space-y-3 bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <label className="text-slate-800 block text-xs font-bold">
+                      Origen de la Guía PDF
+                    </label>
+                    <div className="flex items-center gap-1 bg-white p-0.5 rounded-xl border border-slate-200 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setPdfSourceMode('file')}
+                        className={`px-2.5 py-1 rounded-lg font-black transition-all ${
+                          pdfSourceMode === 'file' 
+                            ? 'bg-blue-600 text-white shadow-2xs' 
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        📁 Cargar desde mi PC
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPdfSourceMode('url')}
+                        className={`px-2.5 py-1 rounded-lg font-black transition-all ${
+                          pdfSourceMode === 'url' 
+                            ? 'bg-blue-600 text-white shadow-2xs' 
+                            : 'text-slate-600 hover:text-slate-900'
+                        }`}
+                      >
+                        🔗 Enlace Web / Drive
+                      </button>
+                    </div>
+                  </div>
 
-              {/* URL de Reproducción de Audio (solo si es audio) */}
-              {materialForm.type === 'audio' && (
-                <div>
-                  <label className="text-purple-900 block mb-1">
-                    Enlace de Audio Directo para Reproducción Inmediata (Stream MP3)
-                  </label>
-                  <input
-                    type="url"
-                    value={materialForm.audioSrc}
-                    onChange={(e) => setMaterialForm({ ...materialForm, audioSrc: e.target.value })}
-                    placeholder="https://... (archivo .mp3 directo para escuchar en la plataforma)"
-                    className="w-full p-3 border border-purple-300 focus:border-purple-600 rounded-xl outline-none font-medium font-mono text-purple-900 text-xs bg-purple-50/30"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1 font-normal">
-                    Si se deja vacío, se usará el mismo enlace de descarga para reproducir.
-                  </p>
+                  {pdfSourceMode === 'file' ? (
+                    <div>
+                      <label 
+                        htmlFor="pdf-file-upload" 
+                        className="cursor-pointer border-2 border-dashed border-blue-300 hover:border-blue-500 bg-white hover:bg-blue-50/40 transition-all rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-center group shadow-2xs"
+                      >
+                        <input
+                          id="pdf-file-upload"
+                          type="file"
+                          accept=".pdf,application/pdf"
+                          onChange={handlePdfFileSelect}
+                          className="hidden"
+                        />
+                        <div className="w-10 h-10 rounded-xl bg-blue-100 group-hover:bg-blue-200 text-blue-700 flex items-center justify-center transition-all">
+                          <UploadCloud className="w-5 h-5" />
+                        </div>
+                        {selectedPdfFile ? (
+                          <div>
+                            <span className="text-xs font-black text-blue-900 block truncate max-w-xs">
+                              ✓ {selectedPdfFile.name}
+                            </span>
+                            <span className="text-[10px] text-emerald-600 font-bold">
+                              {(selectedPdfFile.size / (1024 * 1024)).toFixed(2)} MB · Listo para publicar
+                            </span>
+                          </div>
+                        ) : (
+                          <div>
+                            <span className="text-xs font-black text-slate-800 block">
+                              Haz clic para seleccionar el PDF de tu computador
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium">
+                              Archivos .pdf de hasta 15 MB
+                            </span>
+                          </div>
+                        )}
+                      </label>
+                    </div>
+                  ) : (
+                    <div>
+                      <label className="text-slate-700 block mb-1">
+                        Enlace a la Guía PDF (Google Drive, OneDrive o enlace directo)
+                      </label>
+                      <input
+                        type="url"
+                        value={materialForm.downloadUrl}
+                        onChange={(e) => setMaterialForm({ ...materialForm, downloadUrl: e.target.value })}
+                        placeholder="https://drive.google.com/... o https://..."
+                        className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium font-mono text-slate-900 text-xs bg-white"
+                      />
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="bg-purple-50/80 border border-purple-200 rounded-2xl p-3.5 space-y-2">
+                    <div className="flex items-start gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                        <Headphones className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <strong className="text-xs text-purple-950 font-black block">
+                          Alojamiento en la Nube (Google Drive / OneDrive)
+                        </strong>
+                        <p className="text-[11px] text-purple-900/80 font-medium leading-relaxed">
+                          Pega el enlace de compartir de tu audio. El reproductor del aula lo transformará automáticamente para que tus alumnos lo escuchen sin límites.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowCloudGuide(!showCloudGuide)}
+                      className="text-[10px] font-black text-purple-700 hover:text-purple-900 underline flex items-center gap-1 pt-1 cursor-pointer"
+                    >
+                      <span>{showCloudGuide ? '▲ Ocultar ayuda' : '💡 ¿Cómo sacar el enlace en Google Drive / OneDrive en 3 pasos?'}</span>
+                    </button>
+
+                    {showCloudGuide && (
+                      <div className="bg-white p-3 rounded-xl border border-purple-200 text-[10px] text-slate-700 space-y-1.5 animate-fadeIn">
+                        <p><strong>Paso 1:</strong> Sube tu audio (.mp3) a tu Google Drive o OneDrive.</p>
+                        <p><strong>Paso 2:</strong> Clic derecho &rarr; <em>Compartir</em> &rarr; Acceso general: <em>"Cualquier persona con el enlace"</em>.</p>
+                        <p><strong>Paso 3:</strong> Copia el enlace y pégalo abajo. ¡La plataforma lo reproducirá en vivo en el aula!</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="text-slate-700 block mb-1">
+                      Enlace de Audio (Google Drive, OneDrive, MP3 directo)
+                    </label>
+                    <input
+                      type="url"
+                      required
+                      value={materialForm.audioSrc || materialForm.downloadUrl}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        setMaterialForm({ 
+                          ...materialForm, 
+                          audioSrc: val, 
+                          downloadUrl: val 
+                        })
+                      }}
+                      placeholder="https://drive.google.com/file/d/... o https://...audio.mp3"
+                      className="w-full p-3 border border-purple-300 focus:border-purple-600 rounded-xl outline-none font-medium font-mono text-purple-950 text-xs bg-purple-50/20"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -2064,10 +2254,11 @@ export default function TeacherCampusPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-[#002B49] hover:bg-[#001f35] text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5"
+                  disabled={pdfUploadLoading}
+                  className="px-5 py-2.5 bg-[#002B49] hover:bg-[#001f35] disabled:opacity-50 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 cursor-pointer"
                 >
                   <Check className="w-4 h-4 text-amber-400" />
-                  <span>{editingMaterial ? 'Guardar Cambios' : 'Publicar Recurso'}</span>
+                  <span>{pdfUploadLoading ? 'Subiendo archivo...' : editingMaterial ? 'Guardar Cambios' : 'Publicar Recurso'}</span>
                 </button>
               </div>
 

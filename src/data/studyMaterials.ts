@@ -142,3 +142,24 @@ export const INITIAL_MATERIALS_BY_LEVEL: Record<string, StudyMaterial[]> = {
     }
   ]
 }
+
+/**
+ * Convierte enlaces compartidos de Google Drive o Dropbox a URLs directas de stream/reproducción
+ */
+export function formatAudioStreamUrl(url: string): string {
+  if (!url) return ''
+  const trimmed = url.trim()
+
+  // Google Drive: https://drive.google.com/file/d/FILE_ID/view... o ?id=FILE_ID
+  const driveMatch = trimmed.match(/\/d\/([a-zA-Z0-9_-]+)/) || trimmed.match(/id=([a-zA-Z0-9_-]+)/)
+  if (driveMatch && driveMatch[1]) {
+    return `https://docs.google.com/uc?export=download&id=${driveMatch[1]}`
+  }
+
+  // Dropbox: dl=0 -> raw=1 para streaming directo
+  if (trimmed.includes('dropbox.com') && trimmed.includes('dl=0')) {
+    return trimmed.replace('dl=0', 'raw=1')
+  }
+
+  return trimmed
+}
