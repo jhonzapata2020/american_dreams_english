@@ -629,11 +629,13 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                     href="https://teams.microsoft.com/l/meetup-join/american-dream-class"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-black px-7 py-3.5 rounded-2xl text-xs sm:text-sm shadow-md hover:shadow-emerald-500/25 transition-all shrink-0 active:scale-95"
+                    className="group relative inline-flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-[22px] bg-gradient-to-b from-white via-[#FAFBFD] to-[#EEF2F6] text-[#002B49] font-black text-xs sm:text-sm tracking-wide border border-white/90 border-b-slate-200/90 shadow-[0_12px_24px_-4px_rgba(15,23,42,0.18),_0_6px_12px_-2px_rgba(15,23,42,0.10),_inset_0_1px_1px_rgba(255,255,255,0.95)] hover:shadow-[0_18px_32px_-4px_rgba(15,23,42,0.22),_0_8px_16px_-2px_rgba(15,23,42,0.12),_inset_0_1px_1px_rgba(255,255,255,1)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_8px_-2px_rgba(15,23,42,0.18),_inset_0_2px_4px_rgba(0,0,0,0.06)] transition-all shrink-0 cursor-pointer select-none"
                   >
-                    <Video className="w-5 h-5" />
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                      <Video className="w-4 h-4" />
+                    </div>
                     <span>Entrar a Clase en Teams</span>
-                    <ExternalLink className="w-4 h-4 ml-1" />
+                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                   </a>
                 </div>
 
