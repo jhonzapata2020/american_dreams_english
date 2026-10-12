@@ -33,7 +33,8 @@ import {
   Settings,
   KeyRound,
   LogOut,
-  MessageCircle
+  MessageCircle,
+  Home
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import { getWhatsAppUrl } from '../../../../config/contact'
@@ -524,29 +525,44 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           <div className="block sm:hidden px-3 pt-1 pb-2 space-y-2.5">
             
             {/* 1. Barra Superior Compacta Estilo App Nativa con Menú Hamburguesa */}
-            <div className="flex items-center justify-between gap-2.5 pt-1">
+            <div className="flex items-center justify-between gap-2 pt-1">
               
-              {/* Botón Menú Hamburguesa Pro (ÚNICO DISPARADOR DEL DRAWER) */}
-              <button
-                type="button"
-                onClick={() => setMobileDrawerOpen(true)}
-                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0 cursor-pointer"
-                title="Abrir menú académico"
-              >
-                <Menu className="w-5 h-5 text-amber-400" />
-              </button>
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* Botón Menú Hamburguesa Pro (ÚNICO DISPARADOR DEL DRAWER) */}
+                <button
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(true)}
+                  className="w-9 h-9 min-[380px]:w-10 min-[380px]:h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0 cursor-pointer"
+                  title="Abrir menú académico"
+                >
+                  <Menu className="w-5 h-5 text-amber-400" />
+                </button>
+
+                {/* Logo oficial que enlaza a Home */}
+                <Link
+                  href="/"
+                  className="shrink-0 flex items-center p-1 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 shadow-xs transition-all cursor-pointer"
+                  title="Ir a la Página Principal (Home)"
+                >
+                  <img 
+                    src="/logo-american-dream.png" 
+                    alt="American Dream English" 
+                    className="h-7 min-[380px]:h-8 w-auto object-contain filter drop-shadow-sm" 
+                  />
+                </Link>
+              </div>
 
               {/* Título Central del Curso + Badge MCER (Elemento Informativo, no interactivo) */}
               <div className="min-w-0 flex-1 flex flex-col items-center justify-center text-center px-1 select-none pointer-events-none">
-                <div className="flex items-center gap-1.5 max-w-full">
-                  <span className="text-sm font-black text-white tracking-tight truncate leading-tight">
+                <div className="flex items-center gap-1 max-w-full">
+                  <span className="text-xs min-[380px]:text-sm font-black text-white tracking-tight truncate leading-tight">
                     {cfg.title}
                   </span>
-                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
+                  <span className="text-[9px] min-[380px]:text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
                     {cfg.code.split('-')[1] || cfg.levelBadge.split(' ')[0]}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-slate-300 font-medium truncate mt-0.5">
+                <div className="flex items-center gap-1 text-[10px] min-[380px]:text-[11px] text-slate-300 font-medium truncate mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                   <span className="text-emerald-300 font-bold">En vivo Teams</span>
                   <span className="text-white/30">•</span>
@@ -1268,21 +1284,26 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             
             {/* Cabecera del Drawer */}
             <div className="p-4 border-b border-white/10 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
+              <Link
+                href="/"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="flex items-center gap-2.5 group cursor-pointer active:scale-95 transition-transform"
+                title="Ir a la Página Principal (Home)"
+              >
                 <img 
                   src="/logo-american-dream.png" 
                   alt="American Dream English" 
-                  className="h-9 w-auto object-contain filter drop-shadow-md"
+                  className="h-9 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform"
                 />
                 <div>
-                  <span className="font-black text-xs text-white tracking-tight block leading-none">
+                  <span className="font-black text-xs text-white tracking-tight block leading-none group-hover:text-amber-400 transition-colors">
                     AMERICAN DREAM
                   </span>
                   <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mt-0.5">
                     Campus Virtual
                   </span>
                 </div>
-              </div>
+              </Link>
 
               <button
                 type="button"
@@ -1473,6 +1494,28 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </div>
                 <ExternalLink className="w-4 h-4 text-emerald-400 group-hover:text-white" />
               </a>
+
+              {/* Ir a la Página Principal (Home) */}
+              <Link
+                href="/"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-98 transition-all border border-white/10 group text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-white group-hover:text-amber-300">
+                      Página Principal (Home)
+                    </span>
+                    <span className="block text-[10px] text-slate-400">
+                      americandreamenglish.com
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white" />
+              </Link>
             </div>
 
             {/* Pie del Drawer: Cerrar Sesión */}
