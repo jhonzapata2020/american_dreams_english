@@ -149,7 +149,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{t.nav.campusVirtual}</span>
             </a>
 
-            {/* Inscribirme / Matricúlate CTA Button estilo UNAD (Desktop / Tablet) */}
+            {/* Inscribirme / Matricúlate CTA Button (Desktop / Tablet) */}
             <a 
               href="/matricula"
               onClick={handleMatricularme}

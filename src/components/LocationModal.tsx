@@ -278,7 +278,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 font-medium">
                       <Fuel className="w-4 h-4 text-amber-600 shrink-0" />
-                      <span>{t.location.landmarkUnad}</span>
+                      <span>{t.location.landmarkCasanova}</span>
                     </div>
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 font-medium">
                       <Building2 className="w-4 h-4 text-red-600 shrink-0" />
@@ -388,7 +388,7 @@ export const LocationModal: React.FC<LocationModalProps> = ({
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                     <span className="font-semibold">
-                      {language === 'en' ? 'Gas Station & Casanova Entrance | Hospital: 1.2 km' : 'Bomba & Entrada Casanova | Hospital: 1.2 km'}
+                      {language === 'en' ? 'Between Gas Station & Casanova · Right lane towards Apartadó' : 'Entre la bomba y entrada Casanova · Calzada derecha hacia Apartadó'}
                     </span>
                   </div>
                   <span className="font-mono text-amber-300 bg-white/10 px-2 py-0.5 rounded">

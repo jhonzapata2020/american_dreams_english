@@ -49,7 +49,7 @@ interface EnrolledCourse {
   nextLiveClass: string
 }
 
-// Avisos de carrusel institucional estilo UNAD
+// Avisos de carrusel institucional académico
 const OFFICIAL_ANNOUNCEMENTS = [
   {
     id: 1,

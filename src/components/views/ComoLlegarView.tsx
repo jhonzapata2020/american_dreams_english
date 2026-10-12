@@ -62,12 +62,12 @@ export function ComoLlegarView() {
       transportType: language === 'en' ? 'Regional Buses (Cootransuroccidente / Sotragolfo)' : 'Buses Intermunicipales (Cootransuroccidente, Sotragolfo, Cootransur)',
       steps: language === 'en' ? [
         'Take any regional bus or van from the transport terminal or national highway heading to Turbo.',
-        'Inform the driver or assistant to stop at "Vereda Casanova (Km 1.5)", near the Casanova entrance and the gas station, before reaching Francisco Valderrama Hospital.',
-        'The American Dream English campus is situated right on the main paved highway with large institutional signage on your right.'
+        'Inform the driver or assistant to stop at "Vereda Casanova (Km 1.5)", exactly between the Casanova entrance and the gas station.',
+        'The American Dream English campus is situated on the right roadway heading from Turbo to Apartadó (on your left arriving from Apartadó), with large visible institutional signage.'
       ] : [
         'Aborda cualquier bus o microbús intermunicipal en la terminal o sobre la Troncal Nacional con destino a Turbo.',
-        'Indica al conductor o auxiliar que te deje en la "Vereda Casanova (Km 1.5)", cerca de la entrada a Casanova y la estación de servicio (bomba), antes de llegar al Hospital Francisco Valderrama.',
-        'La sede de American Dream English se encuentra sobre el margen derecho de la vía nacional pavimentada, con señalización institucional visible.'
+        'Indica al conductor o auxiliar que te deje en la "Vereda Casanova (Km 1.5)", exactamente entre la entrada a Casanova y la bomba de gasolina.',
+        'La sede de American Dream English se encuentra ubicada sobre la calzada derecha saliendo de Turbo hacia Apartadó (sobre el costado izquierdo a tu llegada desde Apartadó), con señalización institucional visible.'
       ]
     },
     turbo: {
@@ -77,12 +77,12 @@ export function ComoLlegarView() {
       transportType: language === 'en' ? 'Mototaxi / Urban Taxi / Local Bus' : 'Mototaxi ($3.000 - $4.000) / Taxi Urbano / Colectivo',
       steps: language === 'en' ? [
         'Head out through Carrera 14 or Calle 100 toward the National Highway (direction Apartadó).',
-        'Pass the Francisco Valderrama Hospital area and continue approximately 1.5 km.',
-        'Stop at Vereda Casanova. The campus is on your left, near the gas station and the Casanova entrance.'
+        'Pass the Francisco Valderrama Hospital area (1.2 km) and continue heading towards Apartadó.',
+        'Stop at Vereda Casanova (Km 1.5): the campus is directly on your right roadway, right between the gas station and the Vereda Casanova entrance.'
       ] : [
         'Sal por la Carrera 14 o Calle 100 en dirección a la Troncal Nacional rumbo a Apartadó.',
-        'Pasa el sector del Hospital Francisco Valderrama y avanza aproximadamente 1.5 kilómetros.',
-        'Pide la parada en la Vereda Casanova. La sede estará sobre tu costado izquierdo, cerca de la estación de servicio (bomba) y la entrada a Casanova.'
+        'Pasa el sector del Hospital Francisco Valderrama (1.2 km) y avanza por la vía nacional hacia Apartadó.',
+        'Pide la parada en la Vereda Casanova (Km 1.5): la sede está ubicada sobre la calzada derecha, exactamente entre la bomba de gasolina y la entrada a Casanova.'
       ]
     },
     currulao: {
@@ -211,8 +211,8 @@ export function ComoLlegarView() {
 
           <p className="text-slate-200 text-xs sm:text-base leading-relaxed font-medium max-w-3xl">
             {language === 'en'
-              ? 'Strategically located at Km 1.5 on the paved National Highway in Vereda Casanova, Turbo — close to Francisco Valderrama Hospital, the gas station, and the Casanova entrance.'
-              : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5 en la Vereda Casanova, Turbo — cerca al Hospital Francisco Valderrama, la estación de servicio (bomba) y la entrada a Casanova.'}
+              ? 'Strategically located along the National Highway at Km 1.5, on the right roadway heading from Turbo towards Apartadó — between the gas station and the Vereda Casanova entrance.'
+              : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5, en la calzada derecha saliendo de Turbo hacia Apartadó — entre la bomba de gasolina y la entrada a la Vereda Casanova.'}
           </p>
 
           {/* Quick GPS Bar */}
@@ -263,8 +263,8 @@ export function ComoLlegarView() {
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
                   {language === 'en' 
-                    ? 'Km 1.5 Turbo National Highway · Vereda Casanova (Near the gas station & Casanova entrance)' 
-                    : 'Km 1.5 Vía Nacional Turbo · Vereda Casanova (Cerca a la bomba y entrada a Casanova)'}
+                    ? 'Km 1.5 Turbo National Highway · Right lane heading to Apartadó (Between the gas station & Casanova entrance)' 
+                    : 'Km 1.5 Vía Nacional Turbo · Calzada derecha hacia Apartadó (Entre la bomba y la entrada a Casanova)'}
                 </p>
               </div>
             </div>
@@ -349,7 +349,7 @@ export function ComoLlegarView() {
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span className="font-semibold">
-                  {language === 'en' ? 'Gas Station & Casanova Entrance | Hospital: 1.2 km' : 'Bomba & Entrada Casanova | Hospital: 1.2 km'}
+                  {language === 'en' ? 'Between Gas Station & Casanova · Right lane towards Apartadó' : 'Entre la bomba y entrada Casanova · Calzada derecha hacia Apartadó'}
                 </span>
               </div>
               <span className="font-mono text-amber-300 text-[11px] bg-white/10 px-2.5 py-0.5 rounded-xl">
@@ -505,10 +505,10 @@ export function ComoLlegarView() {
                     </div>
                     <div>
                       <strong className="block font-bold text-slate-900">
-                        {language === 'en' ? 'Gas Station & Casanova Turnoff' : 'Bomba y Entrada a Casanova'}
+                        {language === 'en' ? 'Gas Station & Casanova Turnoff' : 'Entre la Bomba y Entrada a Casanova'}
                       </strong>
                       <span className="text-slate-500 font-medium">
-                        {language === 'en' ? 'Directly on the paved highway' : 'Sobre la vía nacional pavimentada'}
+                        {language === 'en' ? 'Right roadway exiting Turbo towards Apartadó' : 'Calzada derecha saliendo de Turbo hacia Apartadó'}
                       </span>
                     </div>
                   </div>

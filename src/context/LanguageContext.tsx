@@ -135,7 +135,7 @@ export interface TranslationSchema {
     elevationLabel: string
     elevationValue: string
     landmarksTitle: string
-    landmarkUnad: string
+    landmarkCasanova: string
     landmarkHospital: string
     landmarkHighway: string
     routesTitle: string
@@ -311,7 +311,7 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
     location: {
       badge: '📍 Sede Oficial & Georreferenciación',
       title: '¿Cómo Llegar a American Dream English?',
-      subtitle: 'Ubicados estratégicamente sobre la Vía Nacional en la Vereda Casanova (Km 1.5), cerca a la entrada de Casanova, la bomba de gasolina y el Hospital Francisco Valderrama en Turbo, Urabá.',
+      subtitle: 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5, en la calzada derecha saliendo de Turbo hacia Apartadó — entre la bomba de gasolina y la entrada a la Vereda Casanova.',
       addressLabel: 'Dirección Oficial de la Sede',
       addressValue: 'Km 1,5 Vía nacional, Vereda Casanova',
       addressSub: 'Turbo, Antioquia · Urabá Colombiano (NIT 901.182.137-9)',
@@ -320,16 +320,16 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       elevationLabel: 'Elevación del suelo',
       elevationValue: '7.83 m s.n.m.',
       landmarksTitle: 'Puntos de Referencia Clave',
-      landmarkUnad: 'Bomba de gasolina y entrada a Casanova sobre la vía',
+      landmarkCasanova: 'Entre la bomba y la entrada a Casanova (calzada derecha)',
       landmarkHospital: 'Hospital Francisco Valderrama a 1.2 km',
-      landmarkHighway: 'Directo sobre la Vía Nacional Turbo - Apartadó',
+      landmarkHighway: 'Calzada derecha saliendo de Turbo hacia Apartadó',
       routesTitle: 'Elige tu Ruta de Llegada:',
       tabApartado: 'Desde Apartadó / Carepa / Chigorodó',
       tabApartadoTime: '🚗 ~35 min (30 km)',
-      tabApartadoDesc: 'Toma cualquier bus o microbús intermunicipal (Cootransuroccidente / Sotragolfo) vía Turbo. Pide la parada en la Vereda Casanova (Km 1.5), cerca de la entrada a Casanova y la bomba de gasolina, antes de llegar al Hospital Francisco Valderrama.',
+      tabApartadoDesc: 'Toma cualquier bus o microbús intermunicipal vía Turbo. Pide la parada en la Vereda Casanova (Km 1.5): la sede se encuentra entre la entrada a Casanova y la bomba, en la calzada derecha saliendo de Turbo hacia Apartadó.',
       tabTurbo: 'Desde Turbo Centro / Muelle',
       tabTurboTime: '🛵 ~5 min (2.5 km)',
-      tabTurboDesc: 'Salida hacia la Vía Nacional rumbo a Apartadó. Pasa el Hospital Francisco Valderrama y avanza 1.5 km hasta la Vereda Casanova. Disponible en taxi, mototaxi o colectivo urbano.',
+      tabTurboDesc: 'Salida hacia la Troncal Nacional rumbo a Apartadó. Pasa el Hospital Francisco Valderrama (1.2 km) y avanza hasta la sede: ubicada sobre la calzada derecha, exactamente entre la bomba de gasolina y la entrada a Casanova.',
       tabVehicle: 'En Auto Particular / Moto',
       tabVehicleTime: '🅿️ Parqueadero Gratis',
       tabVehicleDesc: 'Vía 100% pavimentada con parqueadero privado, vigilado y gratuito dentro del campus para estudiantes, padres de familia y visitantes.',
@@ -494,7 +494,7 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
     location: {
       badge: '📍 Official Campus & GPS Navigation',
       title: 'How to Get to American Dream English?',
-      subtitle: 'Strategically located along the National Highway in Vereda Casanova (Km 1.5), near the Casanova entrance, the gas station, and Francisco Valderrama Hospital in Turbo, Urabá.',
+      subtitle: 'Strategically located along the National Highway at Km 1.5, on the right roadway heading from Turbo towards Apartadó — between the gas station and the Vereda Casanova entrance.',
       addressLabel: 'Official Campus Address',
       addressValue: 'Km 1.5 Vía nacional, Vereda Casanova',
       addressSub: 'Turbo, Antioquia · Colombian Urabá Region (NIT 901.182.137-9)',
@@ -503,16 +503,16 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       elevationLabel: 'Ground Elevation',
       elevationValue: '7.83 m above sea level',
       landmarksTitle: 'Key Landmarks Nearby',
-      landmarkUnad: 'Gas station & Casanova entrance along the highway',
+      landmarkCasanova: 'Between the gas station & Casanova entrance (right lane)',
       landmarkHospital: 'Francisco Valderrama Hospital 1.2 km away',
-      landmarkHighway: 'Directly on the paved Turbo - Apartadó National Highway',
+      landmarkHighway: 'Right roadway heading from Turbo towards Apartadó',
       routesTitle: 'Choose Your Travel Route:',
       tabApartado: 'From Apartadó / Carepa / Chigorodó',
       tabApartadoTime: '🚗 ~35 min (30 km)',
-      tabApartadoDesc: 'Take any regional bus toward Turbo. Request a stop at Vereda Casanova (Km 1.5), near the Casanova entrance and the gas station before reaching Francisco Valderrama Hospital. The campus is directly on the main highway.',
+      tabApartadoDesc: 'Take any regional bus toward Turbo. Request a stop at Vereda Casanova (Km 1.5): the campus is located between the Casanova entrance and the gas station, on the right roadway heading from Turbo to Apartadó.',
       tabTurbo: 'From Downtown Turbo / Port Area',
       tabTurboTime: '🛵 ~5 min (2.5 km)',
-      tabTurboDesc: 'Head out via the National Highway towards Apartadó. Pass the Francisco Valderrama Hospital and proceed 1.5 km to Vereda Casanova. Accessible via taxi, mototaxi, or local bus.',
+      tabTurboDesc: 'Head out via the National Highway towards Apartadó. Pass the Francisco Valderrama Hospital (1.2 km) and proceed to campus: located on the right roadway, right between the gas station and the Casanova entrance.',
       tabVehicle: 'By Private Car / Motorcycle',
       tabVehicleTime: '🅿️ Free On-Site Parking',
       tabVehicleDesc: '100% paved road access with free, secure on-campus private parking for all students, parents, and visitors.',
