@@ -43,36 +43,23 @@ import { StudentProfileModal, StudentProfileData } from '../../../../components/
 import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
 import { AcademicForum } from '../../../../components/campus/AcademicForum'
 import { StudyMaterial, INITIAL_MATERIALS_BY_LEVEL, formatAudioStreamUrl } from '../../../../data/studyMaterials'
-
+import { 
+  INITIAL_RECORDINGS_BY_LEVEL, 
+  INITIAL_ASSIGNMENTS_BY_LEVEL,
+  INITIAL_SUBMISSIONS_BY_LEVEL,
+  LevelRecordedSession,
+  LevelAssignment
+} from '../../../../data/levelData'
 
 interface CourseDetailProps {
   params?: { id: string }
 }
 
-interface RecordedSession {
-  id: string
-  lessonNumber: number
-  title: string
-  date: string
-  duration: string
-  teacher: string
-  videoUrl: string
-  thumbnailUrl: string
-  topics: string[]
-}
-
-interface Assignment {
-  id: string
-  title: string
-  dueDate: string
-  points: number
-  status: 'pending' | 'submitted' | 'graded'
-  score?: string
-  feedback?: string
-}
+export type RecordedSession = LevelRecordedSession
+export type Assignment = LevelAssignment
 
 export default function AulaVirtualPage({ params }: CourseDetailProps) {
-  const courseId = params?.id || 'a1'
+  const courseId = (params?.id || 'a1').toLowerCase().trim()
   const supabase = createClient()
 
   // Configuración de Nivel (A1, A2, B1, B2, C1)
@@ -83,7 +70,9 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
   // Reproductor de Audio y Materiales Reactivos
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null)
-  const [materials, setMaterials] = useState<StudyMaterial[]>(INITIAL_MATERIALS_BY_LEVEL.a1)
+  const [materials, setMaterials] = useState<StudyMaterial[]>(() => {
+    return INITIAL_MATERIALS_BY_LEVEL[courseId] || INITIAL_MATERIALS_BY_LEVEL.a1
+  })
   const [materialFilter, setMaterialFilter] = useState<'all' | 'pdf' | 'audio'>('all')
   const [audioPlaybackRate, setAudioPlaybackRate] = useState<number>(1.0)
   const studentAudioRef = useRef<HTMLAudioElement | null>(null)
@@ -139,87 +128,15 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     { day: 'Jueves', time: '7:00 PM - 8:30 PM', topic: 'Speaking Workshop & Real-Life Interaction', status: 'upcoming' }
   ]
 
-  // Clases Grabadas On-Demand
-  const [recordedSessions, setRecordedSessions] = useState<RecordedSession[]>([
-    {
-      id: 'rec-04',
-      lessonNumber: 4,
-      title: 'Clase 04: Present Simple vs Continuous & Flap-T Pronunciation',
-      date: '06 de Octubre, 2026',
-      duration: '1h 20m',
-      teacher: cfg.teacherName,
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
-      topics: ['Present Simple', 'Present Continuous', 'Reglas fonéticas', 'Ejercicios de sala']
-    },
-    {
-      id: 'rec-03',
-      lessonNumber: 3,
-      title: 'Clase 03: Describing Jobs, Daily Habits & Third Person -s Rule',
-      date: '02 de Octubre, 2026',
-      duration: '1h 15m',
-      teacher: cfg.teacherName,
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600',
-      topics: ['Regla de la 3ra Persona (-s / -es)', 'Profesiones', 'Entrevistas Simuladas']
-    },
-    {
-      id: 'rec-02',
-      lessonNumber: 2,
-      title: 'Clase 02: Subject Pronouns, Possessives & Numbers in Real Life',
-      date: '28 de Septiembre, 2026',
-      duration: '1h 25m',
-      teacher: cfg.teacherName,
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600',
-      topics: ['Pronombres Personales', 'Adjetivos Posesivos', 'Listening Fonético']
-    },
-    {
-      id: 'rec-01',
-      lessonNumber: 1,
-      title: 'Clase 01: Inducción al Curso, Metodología 4 Días & Alfabeto Fonético',
-      date: '24 de Septiembre, 2026',
-      duration: '1h 10m',
-      teacher: cfg.teacherName,
-      videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-      thumbnailUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
-      topics: ['Bienvenida', 'Uso de Teams', 'Descarga de Materiales']
-    }
-  ])
+  // Clases Grabadas On-Demand específicas del nivel
+  const [recordedSessions, setRecordedSessions] = useState<RecordedSession[]>(() => {
+    return (INITIAL_RECORDINGS_BY_LEVEL[courseId] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as RecordedSession[]
+  })
 
-  // Lista de Tareas y Actividades
-  const [assignments, setAssignments] = useState<Assignment[]>([
-    {
-      id: 'task-1',
-      title: 'Taller Escrito 1: Redacción de Rutina Diaria y Familia',
-      dueDate: '12 de Octubre, 11:59 PM',
-      points: 75,
-      status: 'graded',
-      score: '4.8 / 5.0 (72 pts)',
-      feedback: 'Buen uso de conectores y presente simple. Repasar tercera persona (she watches / he goes).'
-    },
-    {
-      id: 'task-2',
-      title: 'Actividad Oral 1: Grabación de Audio - Presentación Personal (1 min)',
-      dueDate: '16 de Octubre, 11:59 PM',
-      points: 100,
-      status: 'submitted'
-    },
-    {
-      id: 'task-3',
-      title: 'Taller Práctico 2: Role-Play Escrito y Preguntas en Pasado',
-      dueDate: '22 de Octubre, 11:59 PM',
-      points: 75,
-      status: 'pending'
-    },
-    {
-      id: 'task-4',
-      title: 'Evaluación Final MCER: Quiz en Línea & Entrevista Oral',
-      dueDate: '31 de Octubre, 11:59 PM',
-      points: 125,
-      status: 'pending'
-    }
-  ])
+  // Lista de Tareas y Actividades específicas del nivel
+  const [assignments, setAssignments] = useState<Assignment[]>(() => {
+    return (INITIAL_ASSIGNMENTS_BY_LEVEL[courseId] || INITIAL_ASSIGNMENTS_BY_LEVEL.a1) as Assignment[]
+  })
 
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileInitialTab, setProfileInitialTab] = useState<'info' | 'security'>('info')
@@ -239,15 +156,12 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     status: 'Matriculado Regular'
   })
 
-  // Carga reactiva de datos según el nivel del estudiante
+  // Carga reactiva de datos según el nivel del curso
   useEffect(() => {
     async function loadLevel() {
       try {
-        let levelKey = courseId
+        const levelKey = (courseId || 'a1').toLowerCase().trim()
         if (typeof window !== 'undefined') {
-          const stored = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
-          if (stored && courseId === 'a1') levelKey = stored
-
           const savedProfile = localStorage.getItem('ade_student_profile')
           if (savedProfile) {
             try {
@@ -268,9 +182,6 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             .maybeSingle()
 
           if (profile) {
-            if (profile.mcer_level && courseId === 'a1') {
-              levelKey = profile.mcer_level
-            }
             setStudent((prev) => ({
               ...prev,
               id: profile.id,
@@ -289,16 +200,24 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         setCfg(resolved)
 
         if (typeof window !== 'undefined') {
+          // 1. Grabaciones de Teams para este nivel
           const savedRecs = localStorage.getItem(`ade_teacher_recordings_${levelKey}`)
           if (savedRecs) {
             try {
               const parsed = JSON.parse(savedRecs)
               if (Array.isArray(parsed) && parsed.length > 0) {
                 setRecordedSessions(parsed)
+              } else {
+                setRecordedSessions((INITIAL_RECORDINGS_BY_LEVEL[levelKey] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as RecordedSession[])
               }
-            } catch (e) {}
+            } catch (e) {
+              setRecordedSessions((INITIAL_RECORDINGS_BY_LEVEL[levelKey] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as RecordedSession[])
+            }
+          } else {
+            setRecordedSessions((INITIAL_RECORDINGS_BY_LEVEL[levelKey] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as RecordedSession[])
           }
 
+          // 2. Materiales Didácticos para este nivel
           const savedMaterials = localStorage.getItem(`ade_teacher_materials_${levelKey}`)
           if (savedMaterials) {
             try {
@@ -314,19 +233,34 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           } else {
             setMaterials(INITIAL_MATERIALS_BY_LEVEL[levelKey] || INITIAL_MATERIALS_BY_LEVEL.a1)
           }
+
+          // 3. Tareas y Actividades para este nivel
+          const savedAssignments = localStorage.getItem(`ade_teacher_assignments_${levelKey}`)
+          if (savedAssignments) {
+            try {
+              const parsed = JSON.parse(savedAssignments)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setAssignments(parsed)
+              } else {
+                setAssignments((INITIAL_ASSIGNMENTS_BY_LEVEL[levelKey] || INITIAL_ASSIGNMENTS_BY_LEVEL.a1) as Assignment[])
+              }
+            } catch (e) {
+              setAssignments((INITIAL_ASSIGNMENTS_BY_LEVEL[levelKey] || INITIAL_ASSIGNMENTS_BY_LEVEL.a1) as Assignment[])
+            }
+          } else {
+            setAssignments((INITIAL_ASSIGNMENTS_BY_LEVEL[levelKey] || INITIAL_ASSIGNMENTS_BY_LEVEL.a1) as Assignment[])
+          }
         }
       } catch (e) {}
     }
     loadLevel()
   }, [courseId])
 
-  // Sincronización en tiempo real de recursos y guías didácticas del docente
+  // Sincronización en tiempo real de recursos y grabaciones del docente
   useEffect(() => {
-    const handleSyncMaterials = () => {
+    const handleSync = () => {
       if (typeof window !== 'undefined') {
-        let levelKey = courseId
-        const stored = localStorage.getItem('ade_student_level') || localStorage.getItem('student_level')
-        if (stored && courseId === 'a1') levelKey = stored
+        const levelKey = (courseId || 'a1').toLowerCase().trim()
 
         const savedMaterials = localStorage.getItem(`ade_teacher_materials_${levelKey}`)
         if (savedMaterials) {
@@ -337,14 +271,26 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             }
           } catch (e) {}
         }
+
+        const savedRecs = localStorage.getItem(`ade_teacher_recordings_${levelKey}`)
+        if (savedRecs) {
+          try {
+            const parsed = JSON.parse(savedRecs)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setRecordedSessions(parsed)
+            }
+          } catch (e) {}
+        }
       }
     }
 
-    window.addEventListener('storage', handleSyncMaterials)
-    window.addEventListener('ade_materials_updated', handleSyncMaterials)
+    window.addEventListener('storage', handleSync)
+    window.addEventListener('ade_materials_updated', handleSync)
+    window.addEventListener('ade_recordings_updated', handleSync)
     return () => {
-      window.removeEventListener('storage', handleSyncMaterials)
-      window.removeEventListener('ade_materials_updated', handleSyncMaterials)
+      window.removeEventListener('storage', handleSync)
+      window.removeEventListener('ade_materials_updated', handleSync)
+      window.removeEventListener('ade_recordings_updated', handleSync)
     }
   }, [courseId])
 
@@ -369,7 +315,41 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     setTimeout(() => {
       setIsSubmitting(false)
       setSubmitSuccess(true)
-      setAssignments(prev => prev.map(a => a.id === selectedTask.id ? { ...a, status: 'submitted' } : a))
+      const updatedAssignments = assignments.map(a => a.id === selectedTask.id ? { ...a, status: 'submitted' as const } : a)
+      setAssignments(updatedAssignments)
+
+      // Guardar entrega en el buzón docente para este nivel específico
+      if (typeof window !== 'undefined') {
+        const levelKey = (courseId || 'a1').toLowerCase().trim()
+        const savedSubs = localStorage.getItem(`ade_teacher_submissions_${levelKey}`)
+        let currentSubs: any[] = []
+        if (savedSubs) {
+          try {
+            currentSubs = JSON.parse(savedSubs)
+          } catch (e) {}
+        } else {
+          currentSubs = INITIAL_SUBMISSIONS_BY_LEVEL[levelKey] || []
+        }
+
+        const newSubmission = {
+          id: `sub-${levelKey}-${Date.now()}`,
+          studentId: student.id,
+          studentName: student.fullName,
+          studentCode: student.studentCode,
+          studentAvatar: student.avatarUrl,
+          assignmentTitle: selectedTask.title,
+          assignmentType: 'pdf' as const,
+          submissionDate: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+          dueDate: selectedTask.dueDate,
+          fileUrl: '#',
+          textContent: studentComment || 'Archivo adjunto entregado por el estudiante.',
+          status: 'pending' as const,
+          maxGrade: 5.0
+        }
+
+        const nextSubs = [newSubmission, ...currentSubs]
+        localStorage.setItem(`ade_teacher_submissions_${levelKey}`, JSON.stringify(nextSubs))
+      }
     }, 800)
   }
 

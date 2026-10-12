@@ -45,6 +45,15 @@ import {
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
 import { StudyMaterial as TeacherStudyMaterial, INITIAL_MATERIALS_BY_LEVEL, formatAudioStreamUrl } from '../../../data/studyMaterials'
+import { LEVEL_CONFIGURATIONS } from '../../../data/levelConfig'
+import { 
+  INITIAL_RECORDINGS_BY_LEVEL, 
+  INITIAL_SUBMISSIONS_BY_LEVEL, 
+  INITIAL_STUDENTS_BY_LEVEL,
+  LevelRecordedSession,
+  LevelStudentSubmission,
+  EnrolledStudent
+} from '../../../data/levelData'
 
 // Tipos de Grabación
 export interface TeacherRecordedSession {
@@ -58,6 +67,7 @@ export interface TeacherRecordedSession {
   topics: string[]
   level: string
   status: 'published' | 'draft'
+  teacher?: string
 }
 
 // Tipos de Tarea Entregada
@@ -81,120 +91,10 @@ export interface StudentSubmission {
   gradedAt?: string
 }
 
-// Datos iniciales de grabaciones
-const INITIAL_RECORDINGS: TeacherRecordedSession[] = [
-  {
-    id: 'rec-04',
-    lessonNumber: 4,
-    title: 'Clase 04: Present Simple vs Continuous & Flap-T Pronunciation',
-    date: '06 de Octubre, 2026',
-    duration: '1h 20m',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
-    topics: ['Present Simple', 'Present Continuous', 'Reglas fonéticas', 'Ejercicios de sala'],
-    level: 'A1',
-    status: 'published'
-  },
-  {
-    id: 'rec-03',
-    lessonNumber: 3,
-    title: 'Clase 03: Describing Jobs, Daily Habits & Third Person -s Rule',
-    date: '02 de Octubre, 2026',
-    duration: '1h 15m',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600',
-    topics: ['Regla de la 3ra Persona (-s / -es)', 'Profesiones', 'Entrevistas Simuladas'],
-    level: 'A1',
-    status: 'published'
-  },
-  {
-    id: 'rec-02',
-    lessonNumber: 2,
-    title: 'Clase 02: Subject Pronouns, Possessives & Numbers in Real Life',
-    date: '28 de Septiembre, 2026',
-    duration: '1h 25m',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=600',
-    topics: ['Pronombres Personales', 'Adjetivos Posesivos', 'Listening Fonético'],
-    level: 'A1',
-    status: 'published'
-  },
-  {
-    id: 'rec-01',
-    lessonNumber: 1,
-    title: 'Clase 01: Inducción al Curso, Metodología 4 Días & Alfabeto Fonético',
-    date: '24 de Septiembre, 2026',
-    duration: '1h 10m',
-    videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4',
-    thumbnailUrl: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600',
-    topics: ['Bienvenida', 'Uso de Teams', 'Descarga de Materiales'],
-    level: 'A1',
-    status: 'published'
-  }
-]
+// Datos iniciales de grabaciones y entregas por defecto (A1)
+const INITIAL_RECORDINGS: TeacherRecordedSession[] = INITIAL_RECORDINGS_BY_LEVEL.a1 as unknown as TeacherRecordedSession[]
+const INITIAL_SUBMISSIONS: StudentSubmission[] = INITIAL_SUBMISSIONS_BY_LEVEL.a1
 
-// Datos iniciales de entregas de estudiantes
-const INITIAL_SUBMISSIONS: StudentSubmission[] = [
-  {
-    id: 'sub-01',
-    studentId: 'stu-valeria-01',
-    studentName: 'Valeria Morales Montoya',
-    studentCode: 'ADE-2026-0894',
-    studentAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    assignmentTitle: 'Actividad Oral 1: Grabación de Audio - Presentación Personal (1 min)',
-    assignmentType: 'audio',
-    submissionDate: '07 de Octubre, 10:42 PM',
-    dueDate: '16 de Octubre, 11:59 PM',
-    audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    textContent: 'Hello Teacher! My name is Valeria. I am from Colombia. I am studying English at American Dream. I like learning new words and practicing pronunciation every day.',
-    status: 'pending',
-    maxGrade: 5.0
-  },
-  {
-    id: 'sub-02',
-    studentId: 'stu-mateo-02',
-    studentName: 'Mateo Restrepo Gómez',
-    studentCode: 'ADE-2026-0912',
-    assignmentTitle: 'Taller Escrito 1: Redacción de Rutina Diaria y Familia',
-    assignmentType: 'pdf',
-    submissionDate: '06 de Octubre, 04:15 PM',
-    dueDate: '12 de Octubre, 11:59 PM',
-    fileUrl: '#',
-    textContent: 'Every morning I wake up at 6:00 AM. I have breakfast with my family. My sister works in a hospital and my brother studies engineering...',
-    status: 'pending',
-    maxGrade: 5.0
-  },
-  {
-    id: 'sub-03',
-    studentId: 'stu-camila-03',
-    studentName: 'Camila Andrea Torres',
-    studentCode: 'ADE-2026-0781',
-    assignmentTitle: 'Taller Escrito 1: Redacción de Rutina Diaria y Familia',
-    assignmentType: 'text',
-    submissionDate: '04 de Octubre, 08:30 PM',
-    dueDate: '12 de Octubre, 11:59 PM',
-    textContent: 'I get up at 7:00 AM. I drink coffee and read articles. My mother teaches mathematics. We always have dinner together at 8:00 PM.',
-    status: 'graded',
-    grade: 4.8,
-    maxGrade: 5.0,
-    feedback: '¡Excelente estructura gramatical y uso del presente simple! Cuidado con la tercera persona en verbos irregulares.',
-    gradedAt: '05 de Octubre, 09:12 AM'
-  },
-  {
-    id: 'sub-04',
-    studentId: 'stu-daniel-04',
-    studentName: 'Daniel Felipe Castro',
-    studentCode: 'ADE-2026-0845',
-    assignmentTitle: 'Taller Práctico 2: Role-Play Escrito y Preguntas en Pasado',
-    assignmentType: 'pdf',
-    submissionDate: '08 de Octubre, 02:20 PM',
-    dueDate: '22 de Octubre, 11:59 PM',
-    fileUrl: '#',
-    textContent: 'Dialogue at the hotel check-in: Good afternoon, I have a reservation for three nights under the name of Daniel Castro...',
-    status: 'pending',
-    maxGrade: 5.0
-  }
-]
 
 export default function TeacherCampusPage() {
   const supabase = createClient()
@@ -277,29 +177,62 @@ export default function TeacherCampusPage() {
             setTeacherName(profile.full_name)
           } else if (session.user.user_metadata?.full_name) {
             setTeacherName(session.user.user_metadata.full_name)
+          } else {
+            setTeacherName(LEVEL_CONFIGURATIONS[activeLevel]?.teacherName || 'Docente Titular')
           }
           if (session.user.email) {
             setTeacherEmail(session.user.email)
           }
+        } else {
+          setTeacherName(LEVEL_CONFIGURATIONS[activeLevel]?.teacherName || 'Docente Titular')
         }
 
-        // Cargar grabaciones guardadas en localStorage si existen
+        // Cargar grabaciones guardadas en localStorage para este nivel específico
         if (typeof window !== 'undefined') {
           const savedRecs = localStorage.getItem(`ade_teacher_recordings_${activeLevel}`)
           if (savedRecs) {
             try {
-              setRecordings(JSON.parse(savedRecs))
-            } catch (e) {}
+              const parsed = JSON.parse(savedRecs)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setRecordings(parsed)
+              } else {
+                const fallback = (INITIAL_RECORDINGS_BY_LEVEL[activeLevel] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as TeacherRecordedSession[]
+                setRecordings(fallback)
+                localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(fallback))
+              }
+            } catch (e) {
+              const fallback = (INITIAL_RECORDINGS_BY_LEVEL[activeLevel] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as TeacherRecordedSession[]
+              setRecordings(fallback)
+            }
+          } else {
+            const fallback = (INITIAL_RECORDINGS_BY_LEVEL[activeLevel] || INITIAL_RECORDINGS_BY_LEVEL.a1) as unknown as TeacherRecordedSession[]
+            setRecordings(fallback)
+            localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(fallback))
           }
 
+          // Cargar entregas de estudiantes para este nivel específico
           const savedSubs = localStorage.getItem(`ade_teacher_submissions_${activeLevel}`)
           if (savedSubs) {
             try {
-              setSubmissions(JSON.parse(savedSubs))
-            } catch (e) {}
+              const parsed = JSON.parse(savedSubs)
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                setSubmissions(parsed)
+              } else {
+                const fallback = INITIAL_SUBMISSIONS_BY_LEVEL[activeLevel] || INITIAL_SUBMISSIONS_BY_LEVEL.a1
+                setSubmissions(fallback)
+                localStorage.setItem(`ade_teacher_submissions_${activeLevel}`, JSON.stringify(fallback))
+              }
+            } catch (e) {
+              const fallback = INITIAL_SUBMISSIONS_BY_LEVEL[activeLevel] || INITIAL_SUBMISSIONS_BY_LEVEL.a1
+              setSubmissions(fallback)
+            }
+          } else {
+            const fallback = INITIAL_SUBMISSIONS_BY_LEVEL[activeLevel] || INITIAL_SUBMISSIONS_BY_LEVEL.a1
+            setSubmissions(fallback)
+            localStorage.setItem(`ade_teacher_submissions_${activeLevel}`, JSON.stringify(fallback))
           }
 
-          // Cargar materiales didácticos guardados en localStorage
+          // Cargar materiales didácticos guardados en localStorage para este nivel específico
           const savedMaterials = localStorage.getItem(`ade_teacher_materials_${activeLevel}`)
           if (savedMaterials) {
             try {
@@ -412,16 +345,20 @@ export default function TeacherCampusPage() {
         return r
       })
       setRecordings(updated)
-      localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
-      showNotification('¡Clase grabada actualizada con éxito!')
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification(`¡Clase grabada de ${activeLevel.toUpperCase()} actualizada con éxito!`)
     } else {
       // Crear nueva
       const newRec: TeacherRecordedSession = {
-        id: `rec-${Date.now()}`,
+        id: `rec-${activeLevel}-${Date.now()}`,
         lessonNumber: Number(recordingForm.lessonNumber),
         title: recordingForm.title,
         date: recordingForm.date,
         duration: recordingForm.duration,
+        teacher: teacherName,
         videoUrl: recordingForm.videoUrl,
         thumbnailUrl: recordingForm.thumbnailUrl,
         topics: topicsArray,
@@ -430,8 +367,11 @@ export default function TeacherCampusPage() {
       }
       const updated = [newRec, ...recordings]
       setRecordings(updated)
-      localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
-      showNotification('¡Nueva grabación de Teams publicada en el aula del estudiante!')
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification(`¡Nueva grabación de Teams publicada en el aula de ${activeLevel.toUpperCase()}!`)
     }
 
     setShowRecordingModal(false)
@@ -441,8 +381,11 @@ export default function TeacherCampusPage() {
     if (confirm('¿Estás seguro de que deseas eliminar esta grabación? Los alumnos ya no podrán verla en su aula.')) {
       const updated = recordings.filter(r => r.id !== id)
       setRecordings(updated)
-      localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
-      showNotification('Grabación eliminada del catálogo.')
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
+        window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
+      }
+      showNotification(`Grabación eliminada del catálogo de ${activeLevel.toUpperCase()}.`)
     }
   }
 
@@ -852,10 +795,10 @@ export default function TeacherCampusPage() {
               <Link
                 href={`/campus/curso/${activeLevel}`}
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-colors"
-                title="Abrir vista de estudiante para este nivel"
+                title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
               >
                 <Eye className="w-3.5 h-3.5 text-amber-400" />
-                <span>Ver Aula Alumno</span>
+                <span>Ver Aula {activeLevel.toUpperCase()}</span>
               </Link>
 
               {/* Salir */}
@@ -882,7 +825,7 @@ export default function TeacherCampusPage() {
               <div>
                 <span className="text-slate-400 font-medium">Grupo Activo:</span>
                 <strong className="text-white ml-1.5 font-extrabold uppercase">
-                  English Level 1 ({activeLevel.toUpperCase()}) - Periodo 2026-I
+                  {LEVEL_CONFIGURATIONS[activeLevel]?.title || `English Level ${activeLevel.toUpperCase()}`} ({activeLevel.toUpperCase()}) - Periodo 2026-I
                 </strong>
               </div>
             </div>
@@ -1695,29 +1638,43 @@ export default function TeacherCampusPage() {
             <div className="space-y-6 animate-fadeIn">
               <div className="bg-slate-50 p-4 sm:p-5 rounded-3xl border border-slate-200">
                 <h2 className="text-base sm:text-lg font-black text-slate-900">
-                  Estudiantes Matriculados en {activeLevel.toUpperCase()} (Periodo 2026-I)
+                  Estudiantes Matriculados en {LEVEL_CONFIGURATIONS[activeLevel]?.title || activeLevel.toUpperCase()} (Periodo 2026-I)
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
-                  Seguimiento individual de avance y estado de actividades.
+                  Seguimiento individual de avance y estado de actividades para {activeLevel.toUpperCase()}.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[
-                  { name: 'Valeria Morales Montoya', code: 'ADE-2026-0894', doc: 'C.C. 1.040.892.341', progress: 68, avg: '4.8 / 5.0' },
-                  { name: 'Mateo Restrepo Gómez', code: 'ADE-2026-0912', doc: 'C.C. 1.035.712.940', progress: 55, avg: '4.5 / 5.0' },
-                  { name: 'Camila Andrea Torres', code: 'ADE-2026-0781', doc: 'C.C. 1.152.441.802', progress: 82, avg: '4.9 / 5.0' },
-                  { name: 'Daniel Felipe Castro', code: 'ADE-2026-0845', doc: 'C.C. 1.020.914.331', progress: 40, avg: '4.2 / 5.0' },
-                  { name: 'Sara Sofía Henao', code: 'ADE-2026-0901', doc: 'C.C. 1.017.653.229', progress: 75, avg: '4.7 / 5.0' }
-                ].map((st, i) => (
+                {(INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1).map((st, i) => (
                   <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center">
-                        {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center">
+                          {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                        </div>
+                        <div className="overflow-hidden">
+                          <strong className="text-xs font-bold text-slate-900 block truncate">{st.name}</strong>
+                          <span className="text-[10px] font-mono text-slate-400">{st.code}</span>
+                        </div>
                       </div>
-                      <div className="overflow-hidden">
-                        <strong className="text-xs font-bold text-slate-900 block truncate">{st.name}</strong>
-                        <span className="text-[10px] font-mono text-slate-400">{st.code}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        st.status === 'Activo' ? 'bg-emerald-100 text-emerald-800' :
+                        st.status === 'Al día' ? 'bg-blue-100 text-blue-800' :
+                        'bg-amber-100 text-amber-800'
+                      }`}>
+                        {st.status}
+                      </span>
+                    </div>
+
+                    <div className="text-[11px] text-slate-500 font-medium space-y-1">
+                      <div className="flex justify-between">
+                        <span>Documento:</span>
+                        <strong className="text-slate-700">{st.doc}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Correo:</span>
+                        <span className="text-slate-600 truncate max-w-[170px]" title={st.email}>{st.email}</span>
                       </div>
                     </div>
 
