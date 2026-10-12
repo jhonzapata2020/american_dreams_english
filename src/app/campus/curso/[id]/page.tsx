@@ -381,19 +381,9 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           {/* Barra Superior con distribución equilibrada: Izquierda (Volver + Nivel + Título) y Derecha (Estudiante + Docente) */}
           <div className="px-4 sm:px-8">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 md:py-6 border-b border-white/10">
-              {/* Bloque izquierdo: Botón volver + Logo + Badge de nivel + Título ENGLISH LEVEL 1 */}
-              <div className="flex items-center gap-3.5 w-full md:w-auto">
-                {/* Botón Mis Cursos */}
-                <Link 
-                  href="/campus" 
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all shrink-0 backdrop-blur-md border border-white/15 shadow-sm text-xs font-bold group"
-                  title="Ver todos mis cursos en Campus"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5 text-amber-400 group-hover:-translate-x-0.5 transition-transform" />
-                  <span className="hidden sm:inline">Mis Cursos</span>
-                </Link>
-
-                {/* Logo Institucional Oficial (Visible en Móviles y Desktop) */}
+              {/* Bloque izquierdo: LOGO DE PRIMERO A LA IZQUIERDA + Nivel + Título */}
+              <div className="flex items-center gap-3.5 sm:gap-4 w-full lg:w-auto">
+                {/* Logo Institucional Oficial (PRIMERO A LA IZQUIERDA) */}
                 <Link href="/" className="shrink-0 flex items-center group p-1 rounded-2xl bg-white/5 border border-white/10 shadow-sm backdrop-blur-sm">
                   <img 
                     src="/logo-american-dream.png" 
@@ -415,13 +405,25 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </div>
               </div>
 
-              {/* Bloque derecho: Ficha compacta de Estudiante y Docente alineada */}
-              <div className="flex items-center justify-between sm:justify-end gap-3 w-full md:w-auto">
+              {/* Bloque derecho: Elementos en esa línea a la misma distancia (Mis Cursos + Docente + Estudiante) */}
+              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
+                {/* Botón Mis Cursos (Sin flecha, botón limpio con icono de cursos) */}
+                <Link 
+                  href="/campus" 
+                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all shrink-0 backdrop-blur-md border border-white/15 shadow-sm text-xs font-bold"
+                  title="Ver catálogo y listado de Mis Cursos"
+                >
+                  <BookOpen className="w-4 h-4 text-amber-400" />
+                  <span>Mis Cursos</span>
+                </Link>
+
+                {/* Ficha Docente */}
                 <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
                   <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
                 </div>
 
+                {/* Ficha Estudiante */}
                 <StudentAvatarMenu
                   student={student}
                   onOpenEditProfile={(tab) => {
