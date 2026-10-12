@@ -106,7 +106,7 @@ export default function CampusVirtualPage() {
     {
       id: 'a1',
       code: 'ADE-ING101',
-      title: 'ENGLISH LEVEL 1 (A1) - GENERAL PROGRAM',
+      title: 'English Level A1',
       level: 'A1 Principiante',
       modality: 'Virtual en Vivo (Microsoft Teams) & Aula Virtual',
       progress: 68,

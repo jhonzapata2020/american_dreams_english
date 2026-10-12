@@ -21,7 +21,7 @@ export const LEVEL_CONFIGURATIONS: Record<string, LevelConfiguration> = {
   a1: {
     id: 'a1',
     code: 'ADE-ING101',
-    title: 'ENGLISH LEVEL 1 (A1) - GENERAL PROGRAM',
+    title: 'English Level A1',
     shortLevel: 'A1',
     levelBadge: 'A1 Principiante',
     credits: 3,
@@ -39,7 +39,7 @@ export const LEVEL_CONFIGURATIONS: Record<string, LevelConfiguration> = {
   a2: {
     id: 'a2',
     code: 'ADE-ING102',
-    title: 'ENGLISH LEVEL 2 (A2) - ELEMENTARY PROGRAM',
+    title: 'English Level A2',
     shortLevel: 'A2',
     levelBadge: 'A2 Elemental',
     credits: 3,
@@ -57,7 +57,7 @@ export const LEVEL_CONFIGURATIONS: Record<string, LevelConfiguration> = {
   b1: {
     id: 'b1',
     code: 'ADE-ING201',
-    title: 'ENGLISH LEVEL 3 (B1) - PRE-INTERMEDIATE PROGRAM',
+    title: 'English Level B1',
     shortLevel: 'B1',
     levelBadge: 'B1 Pre-Intermedio',
     credits: 3,
@@ -75,7 +75,7 @@ export const LEVEL_CONFIGURATIONS: Record<string, LevelConfiguration> = {
   b2: {
     id: 'b2',
     code: 'ADE-ING202',
-    title: 'ENGLISH LEVEL 4 (B2) - UPPER INTERMEDIATE',
+    title: 'English Level B2',
     shortLevel: 'B2',
     levelBadge: 'B2 Intermedio Alto',
     credits: 3,
@@ -93,7 +93,7 @@ export const LEVEL_CONFIGURATIONS: Record<string, LevelConfiguration> = {
   c1: {
     id: 'c1',
     code: 'ADE-ING301',
-    title: 'ENGLISH LEVEL 5 (C1) - ADVANCED MASTERY',
+    title: 'English Level C1',
     shortLevel: 'C1',
     levelBadge: 'C1 Avanzado',
     credits: 4,
