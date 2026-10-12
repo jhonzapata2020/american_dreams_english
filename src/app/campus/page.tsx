@@ -514,25 +514,29 @@ export default function CampusVirtualPage() {
             </div>
 
             {/* ========================================================== */}
-            {/* COLUMNA DERECHA (lg:col-span-4): FICHA ESTUDIANTE UNIFICADA */}
+            {/* COLUMNA DERECHA (lg:col-span-4): FICHA DE MATRÍCULA OFICIAL */}
             {/* ========================================================== */}
             <div className="lg:col-span-4 space-y-6">
               
-              {/* FICHA DEL ESTUDIANTE */}
+              {/* FICHA ACADÉMICA OFICIAL (SIN DUPLICAR AVATAR) */}
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 
-                {/* Cabecera Ficha con Avatar Interactivo */}
-                <div className="bg-[#002B49] text-white p-6 text-center relative">
-                  <StudentAvatarMenu
-                    student={student}
-                    onOpenEditProfile={(tab) => {
-                      setProfileInitialTab(tab || 'info')
-                      setShowProfileModal(true)
-                    }}
-                    onLogout={handleLogout}
-                    variant="card"
-                  />
-                  <span className="inline-block mt-2 text-[11px] bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full border border-emerald-400/30">
+                {/* Cabecera Ficha Institucional */}
+                <div className="bg-gradient-to-r from-[#002B49] to-[#083556] text-white p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black shadow-xs">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-white leading-tight">
+                        Ficha de Matrícula
+                      </h3>
+                      <p className="text-[11px] text-slate-300 font-medium">
+                        Registro oficial del estudiante
+                      </p>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
                     {student.status}
                   </span>
                 </div>
@@ -541,20 +545,31 @@ export default function CampusVirtualPage() {
                 <div className="p-5 sm:p-6 space-y-3.5 text-xs">
                   <div>
                     <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Identificación Oficial ({student.docType})
+                      Estudiante Titular
                     </span>
-                    <span className="font-extrabold text-slate-800 text-sm">
-                      {student.docNumber}
-                    </span>
+                    <strong className="text-slate-800 text-sm block">
+                      {student.fullName}
+                    </strong>
                   </div>
 
-                  <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">
-                      Código Estudiantil
-                    </span>
-                    <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-lg">
-                      {student.studentCode}
-                    </span>
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                        Identificación ({student.docType})
+                      </span>
+                      <span className="font-bold text-slate-700">
+                        {student.docNumber}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-400 block text-[10px] font-bold uppercase">
+                        Código Estudiantil
+                      </span>
+                      <span className="font-mono font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded">
+                        {student.studentCode}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -575,26 +590,15 @@ export default function CampusVirtualPage() {
                     </span>
                   </div>
 
-                  {/* Botones de Acción */}
-                  <div className="pt-4 border-t border-slate-100 space-y-2.5">
+                  {/* Descarga Directa de Certificado */}
+                  <div className="pt-3 border-t border-slate-100">
                     <button
                       type="button"
-                      onClick={() => {
-                        setProfileInitialTab('info')
-                        setShowProfileModal(true)
-                      }}
+                      onClick={() => setShowCertModal(true)}
                       className="w-full flex items-center justify-center gap-2 text-xs font-bold text-[#002B49] bg-slate-100 hover:bg-slate-200 border border-slate-300 py-2.5 px-4 rounded-xl transition-colors shadow-2xs"
                     >
-                      <User className="w-4 h-4" />
-                      <span>Editar Perfil & Foto</span>
-                    </button>
-
-                    <button
-                      onClick={handleLogout}
-                      className="w-full flex items-center justify-center gap-2 text-xs font-bold text-rose-700 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 border border-rose-200 py-2.5 px-4 rounded-xl transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Cerrar Sesión Segura</span>
+                      <Download className="w-4 h-4 text-amber-500" />
+                      <span>Descargar Certificado de Matrícula</span>
                     </button>
                   </div>
                 </div>

@@ -82,10 +82,10 @@ export function LoginView() {
           error = null
         } else {
           localStorage.setItem('ade_student_level', 'A1')
-          setMessage({ type: 'success', text: '¡Bienvenido/a! Autenticado como ESTUDIANTE. Redirigiendo...' })
+          setMessage({ type: 'success', text: '¡Bienvenido/a! Autenticado como ESTUDIANTE. Redirigiendo a tu aula...' })
           setTimeout(() => {
-            window.location.href = '/campus'
-          }, 600)
+            window.location.href = '/campus/curso/a1'
+          }, 300)
           return
         }
       }
@@ -114,7 +114,7 @@ export function LoginView() {
       } else if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, mcer_level')
           .eq('id', data.user.id)
           .maybeSingle()
 
@@ -128,7 +128,9 @@ export function LoginView() {
           } else if (role === 'teacher') {
             window.location.href = '/campus/docente'
           } else {
-            window.location.href = '/campus'
+            const rawLevel = (profile?.mcer_level || data.user.user_metadata?.mcer_level || 'a1').toLowerCase()
+            const studentLevel = ['a1', 'a2', 'b1', 'b2'].includes(rawLevel) ? rawLevel : 'a1'
+            window.location.href = `/campus/curso/${studentLevel}`
           }
         }, 300)
       }

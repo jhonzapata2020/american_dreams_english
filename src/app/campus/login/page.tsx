@@ -170,8 +170,8 @@ export default function CampusLoginPage() {
             text: t.welcomeSuccess 
           })
           setTimeout(() => {
-            window.location.href = '/campus'
-          }, 600)
+            window.location.href = '/campus/curso/a1'
+          }, 300)
           return
         }
 
@@ -205,7 +205,7 @@ export default function CampusLoginPage() {
       } else if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, mcer_level')
           .eq('id', data.user.id)
           .maybeSingle()
 
@@ -215,13 +215,15 @@ export default function CampusLoginPage() {
           type: 'success', 
           text: role === 'teacher' ? '¡Acceso docente confirmado! Redirigiendo a tu aula...' : t.welcomeSuccess 
         })
+        const rawLevel = (profile?.mcer_level || data.user.user_metadata?.mcer_level || 'a1').toLowerCase()
+        const studentLevel = ['a1', 'a2', 'b1', 'b2'].includes(rawLevel) ? rawLevel : 'a1'
         setTimeout(() => {
           if (role === 'admin') {
             window.location.href = '/dashboard/admin'
           } else if (role === 'teacher') {
             window.location.href = '/campus/docente'
           } else {
-            window.location.href = '/campus'
+            window.location.href = `/campus/curso/${studentLevel}`
           }
         }, 300)
       }
