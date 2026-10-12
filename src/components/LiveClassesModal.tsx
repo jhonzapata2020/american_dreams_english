@@ -29,9 +29,9 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     level: 'A1',
     days: 'Lunes y Miércoles',
     time: '7:00 PM - 8:30 PM',
-    platform: 'Zoom',
-    availableSeats: 3,
-    totalSeats: 12,
+    platform: 'Microsoft Teams',
+    availableSeats: 8,
+    totalSeats: 30,
     instructor: 'Teacher Chris (Nativo)'
   },
   {
@@ -40,8 +40,8 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     days: 'Sábados Intensivos',
     time: '8:00 AM - 12:00 PM',
     platform: 'Microsoft Teams',
-    availableSeats: 5,
-    totalSeats: 12,
+    availableSeats: 12,
+    totalSeats: 30,
     instructor: 'Profe. Alexander Palacios'
   },
   {
@@ -49,9 +49,9 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     level: 'A2',
     days: 'Martes y Jueves',
     time: '6:00 PM - 7:30 PM',
-    platform: 'Google Meet',
-    availableSeats: 4,
-    totalSeats: 12,
+    platform: 'Microsoft Teams',
+    availableSeats: 9,
+    totalSeats: 30,
     instructor: 'Teacher Sarah Miller'
   },
   {
@@ -59,9 +59,9 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     level: 'B1',
     days: 'Lunes y Miércoles',
     time: '8:30 PM - 10:00 PM',
-    platform: 'Zoom',
-    availableSeats: 2,
-    totalSeats: 12,
+    platform: 'Microsoft Teams',
+    availableSeats: 7,
+    totalSeats: 30,
     instructor: 'Teacher Chris (Nativo)'
   },
   {
@@ -70,8 +70,8 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     days: 'Sábados Intensivos',
     time: '2:00 PM - 6:00 PM',
     platform: 'Microsoft Teams',
-    availableSeats: 6,
-    totalSeats: 12,
+    availableSeats: 14,
+    totalSeats: 30,
     instructor: 'Dra. Elena Córdoba'
   },
   {
@@ -79,9 +79,9 @@ const SCHEDULES_DATA: ClassSchedule[] = [
     level: 'C1',
     days: 'Viernes Conversacional',
     time: '7:00 PM - 9:00 PM',
-    platform: 'Zoom',
-    availableSeats: 4,
-    totalSeats: 12,
+    platform: 'Microsoft Teams',
+    availableSeats: 11,
+    totalSeats: 30,
     instructor: 'Teacher Chris & Team'
   }
 ];
@@ -134,8 +134,8 @@ export const LiveClassesModal: React.FC<LiveClassesModalProps> = ({
               <Video className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-white">Aulas Virtuales Sincrónicas en Vivo</h3>
-              <p className="text-xs text-slate-300">Grupos reducidos con máximo 12 estudiantes por sala</p>
+              <h3 className="font-extrabold text-lg text-white">Aulas Virtuales Sincrónicas en Vivo (Microsoft Teams)</h3>
+              <p className="text-xs text-slate-300">Grupos organizados de máximo 30 estudiantes · Clases 100% grabadas en el Campus</p>
             </div>
           </div>
 
@@ -204,6 +204,11 @@ export const LiveClassesModal: React.FC<LiveClassesModalProps> = ({
                       <div className="flex items-center space-x-2 text-xs text-slate-600 font-medium">
                         <Users className="w-4 h-4 text-slate-400" />
                         <span>Docente: <strong>{sch.instructor}</strong></span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-[11px] text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        <span>Clase en vivo Teams · Queda grabada en tu Campus</span>
                       </div>
                     </div>
 

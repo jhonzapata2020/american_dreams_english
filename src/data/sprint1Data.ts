@@ -135,14 +135,14 @@ export const BUSINESS_SEGMENTS_ES: BusinessSegment[] = [
     id: 'seg-3',
     number: '03',
     title: 'Clases Virtuales en Vivo',
-    subtitle: 'Grupos Reducidos (Máx. 12 Alumnos)',
-    description: 'Aulas sincrónicas interactivas guiadas por profesores en tiempo real a través de Zoom, Microsoft Teams y Google Meet con enfoque 100% conversacional.',
+    subtitle: 'Grupos Organizados (Máx. 30 Alumnos)',
+    description: 'Aulas sincrónicas interactivas guiadas por profesores en tiempo real a través de Microsoft Teams con enfoque conversacional y grabaciones disponibles en el Campus.',
     badge: 'Sincrónico Interactivo',
     features: [
-      'Máximo 12 estudiantes por sala para interacción real',
+      'Máximo 30 estudiantes por sala para interacción organizada',
       'Horarios flexibles entre semana y fines de semana',
-      'Simulacros de entrevistas de trabajo en inglés',
-      'Grabaciones de clase disponibles por 30 días'
+      'Simulacros y dinámicas conversacionales en Teams',
+      'Clases 100% grabadas y disponibles 24/7 en el Campus'
     ],
     ctaText: 'Ver Horarios en Vivo',
     ctaAction: 'live',
