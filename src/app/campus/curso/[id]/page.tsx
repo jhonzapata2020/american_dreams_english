@@ -526,24 +526,20 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             {/* 1. Barra Superior Compacta Estilo App Nativa con Menú Hamburguesa */}
             <div className="flex items-center justify-between gap-2.5 pt-1">
               
-              {/* Botón Menú Hamburguesa Pro */}
+              {/* Botón Menú Hamburguesa Pro (ÚNICO DISPARADOR DEL DRAWER) */}
               <button
                 type="button"
                 onClick={() => setMobileDrawerOpen(true)}
-                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0"
+                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0 cursor-pointer"
                 title="Abrir menú académico"
               >
                 <Menu className="w-5 h-5 text-amber-400" />
               </button>
 
-              {/* Título Central del Curso + Badge MCER */}
-              <button
-                type="button"
-                onClick={() => setMobileDrawerOpen(true)}
-                className="min-w-0 flex-1 flex flex-col items-center justify-center text-center px-1 group focus:outline-none"
-              >
+              {/* Título Central del Curso + Badge MCER (Elemento Informativo, no interactivo) */}
+              <div className="min-w-0 flex-1 flex flex-col items-center justify-center text-center px-1 select-none pointer-events-none">
                 <div className="flex items-center gap-1.5 max-w-full">
-                  <span className="text-sm font-black text-white tracking-tight truncate leading-tight group-hover:text-amber-300 transition-colors">
+                  <span className="text-sm font-black text-white tracking-tight truncate leading-tight">
                     {cfg.title}
                   </span>
                   <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
@@ -556,14 +552,17 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   <span className="text-white/30">•</span>
                   <span className="truncate">{cfg.teacherName.replace('Lic. ', '')}</span>
                 </div>
-              </button>
+              </div>
 
-              {/* Avatar del Estudiante (Abre Drawer o Perfil) */}
+              {/* Avatar del Estudiante (Abre directamente su perfil y foto) */}
               <button
                 type="button"
-                onClick={() => setMobileDrawerOpen(true)}
-                className="relative shrink-0 p-0.5 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 transition-all shadow-sm"
-                title="Ver menú y perfil"
+                onClick={() => {
+                  setProfileInitialTab('info')
+                  setShowProfileModal(true)
+                }}
+                className="relative shrink-0 p-0.5 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 transition-all shadow-sm cursor-pointer"
+                title="Editar mi perfil y foto"
               >
                 {student.avatarUrl ? (
                   <img 
