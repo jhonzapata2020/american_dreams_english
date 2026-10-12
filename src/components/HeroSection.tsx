@@ -136,9 +136,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs">
             <div className="relative flex-shrink-0">
               <img
-                src="/teacher-anthony.jpg"
+                src="/teacher-anthony-avatar.jpg"
                 alt="Teacher Anthony"
-                className="w-12 h-12 rounded-full object-cover border-2 border-red-600 shadow-sm"
+                className="w-12 h-12 rounded-full object-cover object-top border-2 border-red-600 shadow-sm"
               />
               <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
             </div>
@@ -403,7 +403,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <img
                 src="/teacher-anthony.jpg"
                 alt="Teacher Anthony - Director Académico"
-                className="w-full h-[480px] sm:h-[540px] md:h-[570px] object-cover object-center transform hover:scale-[1.02] transition-transform duration-500"
+                className="w-full h-[480px] sm:h-[540px] md:h-[570px] object-cover object-top transform hover:scale-[1.02] transition-transform duration-500"
               />
 
               {/* Gradient Overlay bottom */}
