@@ -132,9 +132,9 @@ export function DashboardLayout({
       { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart }
     ],
     teacher: [
-      { label: 'Mis Clases Sincrónicas', href: '/dashboard/teacher', icon: Video },
-      { label: 'Registro de Asistencia', href: '/dashboard/teacher', icon: CheckSquare },
-      { label: 'Mi Perfil Docente', href: '/dashboard/teacher', icon: User }
+      { label: 'Portal Docente Titular', href: '/campus/docente', icon: Video },
+      { label: 'Recursos & Guías', href: '/campus/docente', icon: CheckSquare },
+      { label: 'Mi Perfil Docente', href: '/campus/docente', icon: User }
     ],
     student: [
       { label: 'Mi Aula Virtual', href: '/dashboard/student', icon: BookOpen },

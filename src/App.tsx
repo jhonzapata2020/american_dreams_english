@@ -32,6 +32,7 @@ import { ComoLlegarView } from './components/views/ComoLlegarView';
 import AdminDashboardPage from './app/dashboard/admin/page';
 import AdminProductsPage from './app/dashboard/admin/products/page';
 import TeacherDashboardPage from './app/dashboard/teacher/page';
+import TeacherCampusPage from './app/campus/docente/page';
 import StudentDashboardPage from './app/dashboard/student/page';
 import MatriculaPage from './app/matricula/page';
 import CampusVirtualPage from './app/campus/page';
@@ -115,6 +116,9 @@ export function App() {
   }
   if (currentPath === '/admin/tienda' || currentPath === '/dashboard/admin/tienda' || currentPath === '/dashboard/admin/products' || currentPath === '/admin/products') {
     return <AdminProductsPage />;
+  }
+  if (currentPath === '/campus/docente' || currentPath === '/docente') {
+    return <TeacherCampusPage />;
   }
   if (currentPath === '/dashboard/teacher') {
     return <TeacherDashboardPage />;

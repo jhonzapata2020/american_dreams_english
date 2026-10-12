@@ -118,18 +118,19 @@ export function LoginView() {
           .eq('id', data.user.id)
           .maybeSingle()
 
-        const role = profile?.role || (data.user.user_metadata?.role as UserRole) || selectedRole
+        const isTeacherEmail = loginEmail.startsWith('docente') || loginEmail.includes('teacher')
+        const role = profile?.role || (data.user.user_metadata?.role as UserRole) || (isTeacherEmail ? 'teacher' : selectedRole)
         setMessage({ type: 'success', text: `¡Bienvenido/a! Autenticado como ${role.toUpperCase()}. Redirigiendo...` })
         
         setTimeout(() => {
           if (role === 'admin') {
             window.location.href = '/dashboard/admin'
           } else if (role === 'teacher') {
-            window.location.href = '/dashboard/teacher'
+            window.location.href = '/campus/docente'
           } else {
             window.location.href = '/campus'
           }
-        }, 600)
+        }, 300)
       }
     } catch (err: any) {
       setMessage({ type: 'error', text: 'No se pudo conectar con el servidor de autenticación.' })

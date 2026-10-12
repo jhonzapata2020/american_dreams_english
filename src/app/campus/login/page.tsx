@@ -209,20 +209,21 @@ export default function CampusLoginPage() {
           .eq('id', data.user.id)
           .maybeSingle()
 
-        const role = profile?.role || data.user.user_metadata?.role || 'student'
+        const isTeacherEmail = loginEmail.startsWith('docente') || loginEmail.includes('teacher')
+        const role = profile?.role || data.user.user_metadata?.role || (isTeacherEmail ? 'teacher' : 'student')
         setMessage({ 
           type: 'success', 
-          text: t.welcomeSuccess 
+          text: role === 'teacher' ? '¡Acceso docente confirmado! Redirigiendo a tu aula...' : t.welcomeSuccess 
         })
         setTimeout(() => {
           if (role === 'admin') {
             window.location.href = '/dashboard/admin'
           } else if (role === 'teacher') {
-            window.location.href = '/dashboard/teacher'
+            window.location.href = '/campus/docente'
           } else {
             window.location.href = '/campus'
           }
-        }, 600)
+        }, 300)
       }
     } catch (err: any) {
       setMessage({ 
