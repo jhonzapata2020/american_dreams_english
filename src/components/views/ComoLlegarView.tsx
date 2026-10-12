@@ -187,37 +187,29 @@ export function ComoLlegarView() {
         {/* VISTA DESKTOP: Redistribución balanceada y profesional */}
         <div className="hidden md:flex max-w-7xl mx-auto px-6 lg:px-8 h-full items-center justify-between gap-4">
           
-          {/* Lado Izquierdo: Logo Institucional + Separador + Volver al Inicio */}
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-3 group focus:outline-none">
-              <img 
-                src="/logo-american-dream.png" 
-                alt="American Dream English" 
-                className="h-12 lg:h-13 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
-              />
-              <div className="flex flex-col">
-                <span className="text-sm font-black text-[#002B49] tracking-tight leading-none">
-                  American Dream English
-                </span>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
-                  {language === 'en' ? 'Official Campus · Urabá' : 'Sede Presencial · Urabá'}
-                </span>
-              </div>
-            </Link>
-
-            <div className="h-6 w-px bg-slate-200 mx-1" />
-
-            <Link 
-              href="/"
-              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#002B49] transition-colors bg-slate-100/90 hover:bg-slate-200/90 px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-2xs group"
-            >
-              <ArrowLeft className="w-4 h-4 text-red-600 group-hover:-translate-x-0.5 transition-transform" />
-              <span>{language === 'en' ? 'Back to Home' : 'Volver al Inicio'}</span>
-            </Link>
-          </div>
+          {/* Lado Izquierdo: Logo Institucional (hace navegación a inicio) */}
+          <Link 
+            href="/" 
+            className="flex items-center gap-3 group focus:outline-none"
+            title={language === 'en' ? 'Back to Home' : 'Ir al Inicio'}
+          >
+            <img 
+              src="/logo-american-dream.png" 
+              alt="American Dream English" 
+              className="h-12 lg:h-13 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-black text-[#002B49] tracking-tight leading-none">
+                American Dream English
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                {language === 'en' ? 'Official Campus · Urabá' : 'Sede Presencial · Urabá'}
+              </span>
+            </div>
+          </Link>
 
           {/* Centro: Badge contextual de Georreferenciación y Vía Nacional */}
-          <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200/90 rounded-full text-xs text-slate-600 font-semibold shadow-2xs">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200/90 rounded-full text-xs text-slate-600 font-semibold shadow-2xs">
             <MapPin className="w-3.5 h-3.5 text-red-600 animate-pulse shrink-0" />
             <span className="font-extrabold text-[#002B49]">
               {language === 'en' ? 'Campus & Geolocation' : 'Georreferenciación & Sede'}
