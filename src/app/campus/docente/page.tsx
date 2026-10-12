@@ -791,8 +791,14 @@ export default function TeacherCampusPage() {
         {/* ======================================================================= */}
         {/* 1. CABECERA SUPERIOR OSCURA (NAVY #0B1528)                            */}
         {/* ======================================================================= */}
-        <header className="w-full bg-[#0B1528] border-b border-white/10 pt-6 pb-6 px-4 sm:px-6">
-          <div className="w-full space-y-5">
+        <header className="w-full bg-[#0B1528] text-white pt-4 sm:pt-6 relative">
+          
+          {/* Muesca Superior Elegante (Top App Notch Curve) */}
+          <div className="flex justify-center pb-2">
+            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
+          </div>
+
+          <div className="px-4 sm:px-8 space-y-5">
           
           {/* Fila 1: Logo Institucional + Saludo Docente + Acciones Rápidas */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -909,14 +915,24 @@ export default function TeacherCampusPage() {
             </div>
           )}
 
-        </div>
-      </header>
+          </div>
 
-      {/* ======================================================================= */}
-      {/* 2. CONTENEDOR CURVO CONTINUO UNIFICADO (BG-WHITE)                       */}
-      {/* ======================================================================= */}
-      <main className="w-full flex-1">
-        <div className="bg-white text-slate-800 rounded-t-[32px] md:rounded-t-[40px] shadow-2xl p-5 sm:p-7 md:p-8 space-y-6">
+          {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA */}
+          <div className="w-full overflow-hidden leading-none -mb-1 select-none pointer-events-none">
+            <svg 
+              viewBox="0 0 1440 100" 
+              preserveAspectRatio="none" 
+              className="w-full h-10 sm:h-14 text-white fill-current block"
+            >
+              <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
+            </svg>
+          </div>
+        </header>
+
+        {/* ======================================================================= */}
+        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA (BG-WHITE)                      */}
+        {/* ======================================================================= */}
+        <main className="w-full bg-white text-slate-800 flex-1 p-5 sm:p-7 md:p-8 space-y-6">
           
           {/* =================================================================== */}
           {/* PESTAÑAS TIPO PÍLDORA FLOTANTE (TEACHER PILL TABS)                  */}
@@ -1724,7 +1740,6 @@ export default function TeacherCampusPage() {
             </div>
           )}
 
-        </div>
       </main>
 
       </div>

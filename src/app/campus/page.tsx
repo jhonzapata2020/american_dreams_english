@@ -333,12 +333,23 @@ export default function CampusVirtualPage() {
             </div>
 
           </div>
+
+          {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA */}
+          <div className="w-full overflow-hidden leading-none -mb-1 select-none pointer-events-none">
+            <svg 
+              viewBox="0 0 1440 100" 
+              preserveAspectRatio="none" 
+              className="w-full h-10 sm:h-14 text-white fill-current block"
+            >
+              <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
+            </svg>
+          </div>
         </div>
 
         {/* ======================================================================= */}
-        {/* 2. CONTENEDOR CURVO BLANCO UNIFICADO DENTRO DE LA APP                     */}
+        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA DENTRO DE LA APP                 */}
         {/* ======================================================================= */}
-        <div className="bg-white rounded-t-[32px] md:rounded-t-[40px] shadow-xl w-full flex-1 p-5 sm:p-6 md:p-8">
+        <div className="bg-white w-full flex-1 p-5 sm:p-6 md:p-8">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
