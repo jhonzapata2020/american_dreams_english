@@ -18,7 +18,7 @@ import {
   Copy,
   Layers,
   Sparkles,
-  School
+  Fuel
 } from 'lucide-react'
 import { useLanguage } from '../context/LanguageContext'
 import { getWhatsAppUrl } from '../config/contact'
@@ -225,7 +225,7 @@ export const LocationSection: React.FC = () => {
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 font-medium">
-                    <School className="w-4 h-4 text-blue-600 shrink-0" />
+                    <Fuel className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>{t.location.landmarkUnad}</span>
                   </div>
                   <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 font-medium">
@@ -336,7 +336,7 @@ export const LocationSection: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                   <span className="font-semibold">
-                    {language === 'en' ? 'UNAD: 500m | Hospital: 1.2km' : 'UNAD: 500m | Hospital: 1.2km'}
+                    {language === 'en' ? 'Gas Station & Casanova Entrance | Hospital: 1.2 km' : 'Bomba & Entrada Casanova | Hospital: 1.2 km'}
                   </span>
                 </div>
                 <span className="font-mono text-amber-300 text-[10px] bg-white/10 px-2 py-0.5 rounded">

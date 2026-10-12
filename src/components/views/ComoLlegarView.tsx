@@ -17,7 +17,7 @@ import {
   ExternalLink, 
   MessageSquare, 
   Building2, 
-  School, 
+  Fuel, 
   ShieldCheck, 
   Sparkles, 
   Layers, 
@@ -62,11 +62,11 @@ export function ComoLlegarView() {
       transportType: language === 'en' ? 'Regional Buses (Cootransuroccidente / Sotragolfo)' : 'Buses Intermunicipales (Cootransuroccidente, Sotragolfo, Cootransur)',
       steps: language === 'en' ? [
         'Take any regional bus or van from the transport terminal or national highway heading to Turbo.',
-        'Inform the driver or assistant to stop at "Vereda Casanova (Km 1.5)", right 500 meters after the UNAD University turnoff.',
+        'Inform the driver or assistant to stop at "Vereda Casanova (Km 1.5)", near the Casanova entrance and the gas station, before reaching Francisco Valderrama Hospital.',
         'The American Dream English campus is situated right on the main paved highway with large institutional signage on your right.'
       ] : [
         'Aborda cualquier bus o microbús intermunicipal en la terminal o sobre la Troncal Nacional con destino a Turbo.',
-        'Indica al conductor o auxiliar que te deje en la "Vereda Casanova (Km 1.5)", exactamente 500 metros después de la entrada a la UNAD.',
+        'Indica al conductor o auxiliar que te deje en la "Vereda Casanova (Km 1.5)", cerca de la entrada a Casanova y la estación de servicio (bomba), antes de llegar al Hospital Francisco Valderrama.',
         'La sede de American Dream English se encuentra sobre el margen derecho de la vía nacional pavimentada, con señalización institucional visible.'
       ]
     },
@@ -78,11 +78,11 @@ export function ComoLlegarView() {
       steps: language === 'en' ? [
         'Head out through Carrera 14 or Calle 100 toward the National Highway (direction Apartadó).',
         'Pass the Francisco Valderrama Hospital area and continue approximately 1.5 km.',
-        'Stop at Vereda Casanova. The campus is on your left before reaching the UNAD junction.'
+        'Stop at Vereda Casanova. The campus is on your left, near the gas station and the Casanova entrance.'
       ] : [
         'Sal por la Carrera 14 o Calle 100 en dirección a la Troncal Nacional rumbo a Apartadó.',
         'Pasa el sector del Hospital Francisco Valderrama y avanza aproximadamente 1.5 kilómetros.',
-        'Pide la parada en la Vereda Casanova. La sede estará sobre tu costado izquierdo antes de llegar al cruce de la UNAD.'
+        'Pide la parada en la Vereda Casanova. La sede estará sobre tu costado izquierdo, cerca de la estación de servicio (bomba) y la entrada a Casanova.'
       ]
     },
     currulao: {
@@ -211,8 +211,8 @@ export function ComoLlegarView() {
 
           <p className="text-slate-200 text-xs sm:text-base leading-relaxed font-medium max-w-3xl">
             {language === 'en'
-              ? 'Strategically located at Km 1.5 on the paved National Highway in Vereda Casanova, Turbo — just 500 meters from UNAD University and close to Francisco Valderrama Hospital.'
-              : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5 en la Vereda Casanova, Turbo — a solo 500 metros de la UNAD y cerca al Hospital Francisco Valderrama.'}
+              ? 'Strategically located at Km 1.5 on the paved National Highway in Vereda Casanova, Turbo — close to Francisco Valderrama Hospital, the gas station, and the Casanova entrance.'
+              : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5 en la Vereda Casanova, Turbo — cerca al Hospital Francisco Valderrama, la estación de servicio (bomba) y la entrada a Casanova.'}
           </p>
 
           {/* Quick GPS Bar */}
@@ -262,7 +262,9 @@ export function ComoLlegarView() {
                   {language === 'en' ? 'Interactive Campus Map (Live GPS)' : 'Mapa Satelital Interactivo de la Sede'}
                 </h2>
                 <p className="text-xs text-slate-500 font-medium">
-                  Km 1.5 Vía Nacional Turbo · Vereda Casanova (A 500m de la UNAD)
+                  {language === 'en' 
+                    ? 'Km 1.5 Turbo National Highway · Vereda Casanova (Near the gas station & Casanova entrance)' 
+                    : 'Km 1.5 Vía Nacional Turbo · Vereda Casanova (Cerca a la bomba y entrada a Casanova)'}
                 </p>
               </div>
             </div>
@@ -347,7 +349,7 @@ export function ComoLlegarView() {
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <span className="font-semibold">
-                  UNAD: 500m | Hospital: 1.2km
+                  {language === 'en' ? 'Gas Station & Casanova Entrance | Hospital: 1.2 km' : 'Bomba & Entrada Casanova | Hospital: 1.2 km'}
                 </span>
               </div>
               <span className="font-mono text-amber-300 text-[11px] bg-white/10 px-2.5 py-0.5 rounded-xl">
@@ -498,12 +500,16 @@ export function ComoLlegarView() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   
                   <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-                    <div className="p-2.5 bg-blue-100 text-blue-800 rounded-xl shrink-0">
-                      <School className="w-5 h-5" />
+                    <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl shrink-0">
+                      <Fuel className="w-5 h-5" />
                     </div>
                     <div>
-                      <strong className="block font-bold text-slate-900">UNAD Turbo</strong>
-                      <span className="text-slate-500 font-medium">{language === 'en' ? 'A 500m walking distance' : 'A 500 metros sobre la vía'}</span>
+                      <strong className="block font-bold text-slate-900">
+                        {language === 'en' ? 'Gas Station & Casanova Turnoff' : 'Bomba y Entrada a Casanova'}
+                      </strong>
+                      <span className="text-slate-500 font-medium">
+                        {language === 'en' ? 'Directly on the paved highway' : 'Sobre la vía nacional pavimentada'}
+                      </span>
                     </div>
                   </div>
 
