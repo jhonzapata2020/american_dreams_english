@@ -25,9 +25,18 @@ import {
   User,
   Sparkles,
   Volume2,
-  ChevronLeft
+  ChevronLeft,
+  Menu,
+  ChevronRight,
+  GraduationCap,
+  Award,
+  Settings,
+  KeyRound,
+  LogOut,
+  MessageCircle
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
+import { getWhatsAppUrl } from '../../../../config/contact'
 import { getLevelConfig, LevelConfiguration } from '../../../../data/levelConfig'
 import { StudentProfileModal, StudentProfileData } from '../../../../components/campus/StudentProfileModal'
 import { StudentAvatarMenu } from '../../../../components/campus/StudentAvatarMenu'
@@ -213,6 +222,8 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
   const [showProfileModal, setShowProfileModal] = useState(false)
   const [profileInitialTab, setProfileInitialTab] = useState<'info' | 'security'>('info')
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
+  const [showCertModal, setShowCertModal] = useState(false)
   const [student, setStudent] = useState<StudentProfileData>({
     id: 'stu-valeria-01',
     fullName: 'Valeria Morales Montoya',
@@ -510,154 +521,161 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           {/* ===================================================================== */}
           {/* VISTA MÓVIL DEDICADA DE MÁXIMO CONFORT UX (< sm)                       */}
           {/* ===================================================================== */}
-          <div className="block sm:hidden px-3 pt-1 pb-3 space-y-3">
+          <div className="block sm:hidden px-3 pt-1 pb-2 space-y-2.5">
             
-            {/* 1. Barra de Navegación Rápida Superior */}
+            {/* 1. Barra Superior Compacta Estilo App Nativa con Menú Hamburguesa */}
             <div className="flex items-center justify-between gap-2.5 pt-1">
-              {/* Botón Volver a Mis Cursos con Logo Badge */}
-              <Link 
-                href="/campus" 
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 text-white text-xs font-bold border border-white/15 transition-all shadow-xs backdrop-blur-md shrink-0"
-                title="Volver al Campus y Mis Cursos"
+              
+              {/* Botón Menú Hamburguesa Pro */}
+              <button
+                type="button"
+                onClick={() => setMobileDrawerOpen(true)}
+                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0"
+                title="Abrir menú académico"
               >
-                <ChevronLeft className="w-4 h-4 text-amber-400 -ml-0.5" />
-                <BookOpen className="w-3.5 h-3.5 text-amber-400/90" />
-                <span>Mis Cursos</span>
-              </Link>
+                <Menu className="w-5 h-5 text-amber-400" />
+              </button>
 
-              {/* Indicador Central de Nivel & Estado */}
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-400/15 border border-amber-400/30 shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[11px] font-black uppercase text-amber-300 font-mono tracking-wide">
-                  {cfg.code}
-                </span>
-              </div>
-
-              {/* Perfil del Alumno con Dropdown */}
-              <div className="shrink-0">
-                <StudentAvatarMenu
-                  student={student}
-                  onOpenEditProfile={(tab) => {
-                    setProfileInitialTab(tab || 'info')
-                    setShowProfileModal(true)
-                  }}
-                  onLogout={handleLogout}
-                  variant="header"
-                />
-              </div>
-            </div>
-
-            {/* 2. Tarjeta Resumen del Curso (Compacta & Elegante) */}
-            <div className="px-1 flex items-center justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <h1 className="text-base font-black text-white tracking-tight leading-tight truncate">
-                  {cfg.title}
-                </h1>
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 font-medium truncate mt-0.5">
-                  <span className="text-amber-400 font-semibold truncate">
-                    {cfg.teacherName}
+              {/* Título Central del Curso + Badge MCER */}
+              <button
+                type="button"
+                onClick={() => setMobileDrawerOpen(true)}
+                className="min-w-0 flex-1 flex flex-col items-center justify-center text-center px-1 group focus:outline-none"
+              >
+                <div className="flex items-center gap-1.5 max-w-full">
+                  <span className="text-sm font-black text-white tracking-tight truncate leading-tight group-hover:text-amber-300 transition-colors">
+                    {cfg.title}
                   </span>
-                  <span className="text-white/30">•</span>
-                  <span className="text-emerald-300 font-bold flex items-center gap-1 shrink-0">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
-                    En vivo hoy
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
+                    {cfg.code.split('-')[1] || cfg.levelBadge.split(' ')[0]}
                   </span>
                 </div>
-              </div>
+                <div className="flex items-center gap-1 text-[11px] text-slate-300 font-medium truncate mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                  <span className="text-emerald-300 font-bold">En vivo Teams</span>
+                  <span className="text-white/30">•</span>
+                  <span className="truncate">{cfg.teacherName.replace('Lic. ', '')}</span>
+                </div>
+              </button>
 
-              <span className="text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-xl bg-white/10 border border-white/15 text-slate-200 shrink-0 tracking-wider">
-                {cfg.levelBadge.split(' ')[0]}
-              </span>
+              {/* Avatar del Estudiante (Abre Drawer o Perfil) */}
+              <button
+                type="button"
+                onClick={() => setMobileDrawerOpen(true)}
+                className="relative shrink-0 p-0.5 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 border border-white/15 transition-all shadow-sm"
+                title="Ver menú y perfil"
+              >
+                {student.avatarUrl ? (
+                  <img 
+                    src={student.avatarUrl} 
+                    alt={student.fullName}
+                    className="w-9 h-9 rounded-xl object-cover border border-amber-400"
+                  />
+                ) : (
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black text-xs border border-amber-300">
+                    {student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                  </div>
+                )}
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 border-2 border-[#0B1528] rounded-full shadow-2xs" />
+              </button>
+
             </div>
 
-            {/* 3. Zona de Pestañas Flotantes Ergonómicas (Scroll Horizontal Suave) */}
-            <div className="relative -mx-3 px-3">
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 scroll-smooth snap-x">
+            {/* 2. Zona de Pestañas Segregadas (100% Pantalla, NADA Cortado, Cero Scroll) */}
+            <div className="pt-0.5">
+              <div className="grid grid-cols-5 gap-1 p-1 bg-white/10 rounded-2xl border border-white/15 backdrop-blur-xl shadow-lg w-full">
                 
                 {/* Pestaña: Clases */}
                 <button
                   onClick={() => setActiveTab('cronograma')}
-                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                  className={`py-2 px-0.5 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-1 relative select-none active:scale-95 ${
                     activeTab === 'cronograma'
-                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
-                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                      ? 'bg-white text-[#0B1528] shadow-md shadow-black/20 scale-[1.02]'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <Calendar className="w-4 h-4 shrink-0 text-emerald-600" />
-                  <span>Clases</span>
-                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
-                    activeTab === 'cronograma' ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-500/30 text-emerald-300'
-                  }`}>
-                    Hoy
-                  </span>
+                  <div className="relative">
+                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === 'cronograma' ? 'text-emerald-600' : 'text-slate-300'}`} />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500" />
+                  </div>
+                  <span className="leading-tight truncate max-w-full">Clases</span>
                 </button>
 
                 {/* Pestaña: Guías */}
                 <button
                   onClick={() => setActiveTab('materiales')}
-                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                  className={`py-2 px-0.5 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-1 relative select-none active:scale-95 ${
                     activeTab === 'materiales'
-                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
-                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                      ? 'bg-white text-[#0B1528] shadow-md shadow-black/20 scale-[1.02]'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <Headphones className="w-4 h-4 shrink-0 text-blue-500" />
-                  <span>Guías & Audio</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    activeTab === 'materiales' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
-                  }`}>
-                    {materials.length}
-                  </span>
+                  <div className="relative">
+                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === 'materiales' ? 'text-blue-600' : 'text-slate-300'}`} />
+                    <span className={`absolute -top-1.5 -right-2 text-[9px] font-extrabold px-1 rounded-full leading-none py-0.5 ${
+                      activeTab === 'materiales' ? 'bg-[#0B1528] text-white' : 'bg-blue-500 text-white'
+                    }`}>
+                      {materials.length}
+                    </span>
+                  </div>
+                  <span className="leading-tight truncate max-w-full">Guías</span>
                 </button>
 
-                {/* Pestaña: Videos Grabados */}
+                {/* Pestaña: Videos */}
                 <button
                   onClick={() => setActiveTab('grabadas')}
-                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                  className={`py-2 px-0.5 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-1 relative select-none active:scale-95 ${
                     activeTab === 'grabadas'
-                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
-                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                      ? 'bg-white text-[#0B1528] shadow-md shadow-black/20 scale-[1.02]'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <Film className="w-4 h-4 shrink-0 text-amber-500" />
-                  <span>Grabadas</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    activeTab === 'grabadas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
-                  }`}>
-                    {recordedSessions.length}
-                  </span>
+                  <div className="relative">
+                    <Film className={`w-4 h-4 shrink-0 ${activeTab === 'grabadas' ? 'text-amber-600' : 'text-slate-300'}`} />
+                    <span className={`absolute -top-1.5 -right-2 text-[9px] font-extrabold px-1 rounded-full leading-none py-0.5 ${
+                      activeTab === 'grabadas' ? 'bg-[#0B1528] text-white' : 'bg-amber-400 text-slate-950'
+                    }`}>
+                      {recordedSessions.length}
+                    </span>
+                  </div>
+                  <span className="leading-tight truncate max-w-full">Videos</span>
                 </button>
 
-                {/* Pestaña: Foro Académico */}
+                {/* Pestaña: Foro */}
                 <button
                   onClick={() => setActiveTab('foro')}
-                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                  className={`py-2 px-0.5 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-1 relative select-none active:scale-95 ${
                     activeTab === 'foro'
-                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
-                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                      ? 'bg-white text-[#0B1528] shadow-md shadow-black/20 scale-[1.02]'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <MessageSquare className="w-4 h-4 shrink-0 text-emerald-500" />
-                  <span>Foro</span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                  <div className="relative">
+                    <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === 'foro' ? 'text-emerald-600' : 'text-slate-300'}`} />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <span className="leading-tight truncate max-w-full">Foro</span>
                 </button>
 
                 {/* Pestaña: Tareas */}
                 <button
                   onClick={() => setActiveTab('tareas')}
-                  className={`snap-start shrink-0 h-10 px-4 rounded-2xl text-xs font-black transition-all flex items-center gap-2 border select-none active:scale-95 ${
+                  className={`py-2 px-0.5 rounded-xl text-[11px] font-black transition-all flex flex-col items-center justify-center gap-1 relative select-none active:scale-95 ${
                     activeTab === 'tareas'
-                      ? 'bg-white text-[#0B1528] border-white shadow-lg shadow-black/25 ring-2 ring-white/60 scale-[1.02]'
-                      : 'bg-white/10 text-slate-200 border-white/15 hover:bg-white/15'
+                      ? 'bg-white text-[#0B1528] shadow-md shadow-black/20 scale-[1.02]'
+                      : 'text-slate-300 hover:text-white'
                   }`}
                 >
-                  <FileText className="w-4 h-4 shrink-0 text-purple-500" />
-                  <span>Tareas</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    activeTab === 'tareas' ? 'bg-[#0B1528] text-white' : 'bg-white/20 text-white'
-                  }`}>
-                    {assignments.length}
-                  </span>
+                  <div className="relative">
+                    <FileText className={`w-4 h-4 shrink-0 ${activeTab === 'tareas' ? 'text-purple-600' : 'text-slate-300'}`} />
+                    <span className={`absolute -top-1.5 -right-2 text-[9px] font-extrabold px-1 rounded-full leading-none py-0.5 ${
+                      activeTab === 'tareas' ? 'bg-[#0B1528] text-white' : 'bg-purple-500 text-white'
+                    }`}>
+                      {assignments.length}
+                    </span>
+                  </div>
+                  <span className="leading-tight truncate max-w-full">Tareas</span>
                 </button>
 
               </div>
@@ -1234,6 +1252,294 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         onProfileUpdated={(updated) => setStudent(updated)}
         initialTab={profileInitialTab}
       />
+
+      {/* ========================================================================= */}
+      {/* MENÚ HAMBURGUESA LATERAL PRO PARA MÓVIL (OFFCANVAS DRAWER)                */}
+      {/* ========================================================================= */}
+      {mobileDrawerOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden">
+          {/* Fondo oscuro traslúcido con cierre táctil */}
+          <div 
+            className="fixed inset-0 bg-slate-950/75 backdrop-blur-xs transition-opacity animate-fadeIn"
+            onClick={() => setMobileDrawerOpen(false)}
+          />
+
+          {/* Panel deslizante lateral */}
+          <aside className="fixed inset-y-0 left-0 w-[88%] max-w-sm bg-[#0B1528] text-white shadow-2xl z-50 flex flex-col border-r border-white/10 animate-slideRight overflow-y-auto">
+            
+            {/* Cabecera del Drawer */}
+            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <img 
+                  src="/logo-american-dream.png" 
+                  alt="American Dream English" 
+                  className="h-9 w-auto object-contain filter drop-shadow-md"
+                />
+                <div>
+                  <span className="font-black text-xs text-white tracking-tight block leading-none">
+                    AMERICAN DREAM
+                  </span>
+                  <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block mt-0.5">
+                    Campus Virtual
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/15 text-slate-300 hover:text-white flex items-center justify-center transition-colors"
+                title="Cerrar menú"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Ficha Principal del Estudiante */}
+            <div className="p-4 border-b border-white/10 bg-white/5 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="relative shrink-0">
+                  {student.avatarUrl ? (
+                    <img 
+                      src={student.avatarUrl} 
+                      alt={student.fullName}
+                      className="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-md"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black text-lg border-2 border-amber-300 shadow-md">
+                      {student.fullName.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                    </div>
+                  )}
+                  <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 border-2 border-[#0B1528] rounded-full shadow-xs ring-1 ring-emerald-500/50" />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-black text-sm text-white truncate leading-tight">
+                    {student.fullName}
+                  </h3>
+                  <p className="text-[11px] text-slate-300 truncate mt-0.5">
+                    {student.email}
+                  </p>
+                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 font-mono shadow-2xs">
+                      {student.studentCode}
+                    </span>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                      Nivel {student.currentLevel}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Botón rápido editar perfil */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  setProfileInitialTab('info')
+                  setShowProfileModal(true)
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 active:scale-98 text-xs font-bold text-amber-300 border border-white/10 transition-all"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span>Editar Foto & Perfil</span>
+              </button>
+            </div>
+
+            {/* Tarjeta del Curso Actual */}
+            <div className="p-4 border-b border-white/10">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                Curso en Curso
+              </span>
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/15 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 border border-amber-400/30 font-mono">
+                    {cfg.code}
+                  </span>
+                  <span className="text-[10px] font-extrabold text-emerald-400 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    En vivo Teams
+                  </span>
+                </div>
+                <h4 className="font-black text-sm text-white leading-snug">
+                  {cfg.title}
+                </h4>
+                <div className="text-[11px] text-slate-300 space-y-0.5 pt-1 border-t border-white/10">
+                  <p><strong className="text-white">Docente:</strong> {cfg.teacherName}</p>
+                  <p><strong className="text-white">Horario:</strong> Lunes a Jueves · 7:00 PM</p>
+                  <p><strong className="text-white">Créditos:</strong> {cfg.credits} Académicos MCER</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Accesos Rápidos del Menú */}
+            <div className="p-4 space-y-1.5 flex-1">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                Navegación & Servicios
+              </span>
+
+              {/* Mis Cursos */}
+              <Link
+                href="/campus"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-98 transition-all border border-white/10 group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-400/20 text-amber-300 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="block text-xs font-bold text-white group-hover:text-amber-300">
+                      Mis Cursos Matriculados
+                    </span>
+                    <span className="block text-[10px] text-slate-400">
+                      Ver catálogo y ciclos
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white" />
+              </Link>
+
+              {/* Certificado de Matrícula */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  setShowCertModal(true)
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-98 transition-all border border-white/10 group text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center">
+                    <Award className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-white group-hover:text-purple-300">
+                      Certificado de Matrícula
+                    </span>
+                    <span className="block text-[10px] text-slate-400">
+                      Constancia oficial con firma
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white" />
+              </button>
+
+              {/* Cambiar Contraseña */}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  setProfileInitialTab('security')
+                  setShowProfileModal(true)
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-white/5 hover:bg-white/10 active:scale-98 transition-all border border-white/10 group text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-white group-hover:text-blue-300">
+                      Seguridad & Contraseña
+                    </span>
+                    <span className="block text-[10px] text-slate-400">
+                      Actualizar clave de acceso
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-white" />
+              </button>
+
+              {/* Soporte WhatsApp */}
+              <a
+                href={getWhatsAppUrl('Hola soporte de American Dream English, requiero asistencia con mi aula virtual.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMobileDrawerOpen(false)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 active:scale-98 transition-all border border-emerald-500/30 group text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500 text-white flex items-center justify-center">
+                    <MessageCircle className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="block text-xs font-bold text-emerald-300 group-hover:text-white">
+                      WhatsApp Académico
+                    </span>
+                    <span className="block text-[10px] text-emerald-400/80">
+                      Atención docente y soporte
+                    </span>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-emerald-400 group-hover:text-white" />
+              </a>
+            </div>
+
+            {/* Pie del Drawer: Cerrar Sesión */}
+            <div className="p-4 border-t border-white/10 mt-auto bg-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileDrawerOpen(false)
+                  handleLogout()
+                }}
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 active:scale-98 text-rose-300 font-bold text-xs border border-rose-500/30 transition-all"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Cerrar Sesión del Campus</span>
+              </button>
+            </div>
+
+          </aside>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* MODAL DE CONSTANCIA OFICIAL DE MATRÍCULA                                  */}
+      {/* ========================================================================= */}
+      {showCertModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-3">
+              <Award className="w-6 h-6" />
+            </div>
+            <h3 className="font-black text-lg text-slate-900">
+              Certificado Oficial de Matrícula
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Documento con firma digital institucional y código QR de verificación.
+            </p>
+
+            <div className="my-4 p-4 bg-slate-50 border border-slate-200 rounded-2xl text-left text-xs space-y-1.5">
+              <p><strong>Estudiante:</strong> {student.fullName}</p>
+              <p><strong>Documento:</strong> {student.docType} {student.docNumber}</p>
+              <p><strong>Código:</strong> {student.studentCode}</p>
+              <p><strong>Periodo:</strong> 2026-I</p>
+              <p><strong>Estado:</strong> {student.status}</p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                onClick={() => setShowCertModal(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => {
+                  alert('Descargando Certificado de Matrícula en PDF...')
+                  setShowCertModal(false)
+                }}
+                className="px-4 py-2 text-xs font-extrabold text-white bg-[#002B49] hover:bg-[#001f35] rounded-xl flex items-center gap-1.5 shadow-sm"
+              >
+                <Download className="w-3.5 h-3.5 text-amber-400" />
+                <span>Descargar PDF</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Reproductor de Audio Oculto para Aula del Estudiante */}
       <audio 
