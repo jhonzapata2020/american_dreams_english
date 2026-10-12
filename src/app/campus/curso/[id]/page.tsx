@@ -393,11 +393,10 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </Link>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-mono shadow-xs">
                       {cfg.code}
                     </span>
-                    <span className="text-xs text-slate-300 font-medium">{cfg.levelBadge}</span>
                   </div>
                   <h1 className="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-white mt-0.5 truncate">
                     {cfg.title}
