@@ -525,44 +525,29 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           <div className="block sm:hidden px-3 pt-1 pb-2 space-y-2.5">
             
             {/* 1. Barra Superior Compacta Estilo App Nativa con Menú Hamburguesa */}
-            <div className="flex items-center justify-between gap-2 pt-1">
+            <div className="flex items-center justify-between gap-2.5 pt-1">
               
-              <div className="flex items-center gap-1.5 shrink-0">
-                {/* Botón Menú Hamburguesa Pro (ÚNICO DISPARADOR DEL DRAWER) */}
-                <button
-                  type="button"
-                  onClick={() => setMobileDrawerOpen(true)}
-                  className="w-9 h-9 min-[380px]:w-10 min-[380px]:h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0 cursor-pointer"
-                  title="Abrir menú académico"
-                >
-                  <Menu className="w-5 h-5 text-amber-400" />
-                </button>
-
-                {/* Logo oficial que enlaza a Home */}
-                <Link
-                  href="/"
-                  className="shrink-0 flex items-center p-1 rounded-2xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 shadow-xs transition-all cursor-pointer"
-                  title="Ir a la Página Principal (Home)"
-                >
-                  <img 
-                    src="/logo-american-dream.png" 
-                    alt="American Dream English" 
-                    className="h-7 min-[380px]:h-8 w-auto object-contain filter drop-shadow-sm" 
-                  />
-                </Link>
-              </div>
+              {/* Botón Menú Hamburguesa Pro (ÚNICO DISPARADOR DEL DRAWER) */}
+              <button
+                type="button"
+                onClick={() => setMobileDrawerOpen(true)}
+                className="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/15 active:scale-95 text-white border border-white/15 shadow-sm transition-all flex items-center justify-center shrink-0 cursor-pointer"
+                title="Abrir menú académico"
+              >
+                <Menu className="w-5 h-5 text-amber-400" />
+              </button>
 
               {/* Título Central del Curso + Badge MCER (Elemento Informativo, no interactivo) */}
               <div className="min-w-0 flex-1 flex flex-col items-center justify-center text-center px-1 select-none pointer-events-none">
-                <div className="flex items-center gap-1 max-w-full">
-                  <span className="text-xs min-[380px]:text-sm font-black text-white tracking-tight truncate leading-tight">
+                <div className="flex items-center gap-1.5 max-w-full">
+                  <span className="text-sm font-black text-white tracking-tight truncate leading-tight">
                     {cfg.title}
                   </span>
-                  <span className="text-[9px] min-[380px]:text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
+                  <span className="text-[10px] font-black uppercase px-1.5 py-0.5 rounded-md bg-amber-400 text-slate-950 font-mono shrink-0 shadow-2xs leading-none">
                     {cfg.code.split('-')[1] || cfg.levelBadge.split(' ')[0]}
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] min-[380px]:text-[11px] text-slate-300 font-medium truncate mt-0.5">
+                <div className="flex items-center gap-1 text-[11px] text-slate-300 font-medium truncate mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                   <span className="text-emerald-300 font-bold">En vivo Teams</span>
                   <span className="text-white/30">•</span>
