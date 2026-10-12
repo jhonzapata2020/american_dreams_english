@@ -10,7 +10,11 @@ import { Currency, PaymentProvider } from '../types';
 import { createClient } from '../utils/supabase/client';
 import { formatMoney } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
+import { useLanguage } from '../context/LanguageContext';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
+
+// Cache en memoria para renderizado instantáneo (0ms)
+let cachedProducts: Product[] | null = null;
 
 export interface Product {
   id: string;
@@ -82,7 +86,8 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   onClose,
 }) => {
   const { currency, setCurrency, formatPrice: formatCurrencyPrice } = useCurrency();
-  const [products, setProducts] = useState<Product[]>(FALLBACK_PRODUCTS);
+  const { language } = useLanguage();
+  const [products, setProducts] = useState<Product[]>(cachedProducts || FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'ebooks' | 'masterclass' | 'audios'>('all');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -96,15 +101,25 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 
   const supabase = createClient();
 
-  // Consulta dinámica a la tabla public.products filtrando por active = true
+  // Consulta dinámica optimizada con cache en memoria y fallback instantáneo (0ms)
   const fetchActiveProducts = async () => {
-    setLoading(true);
+    // Si no hay productos en memoria en lo absoluto, mostramos el estado de carga
+    if (!cachedProducts && products.length === 0) {
+      setLoading(true);
+    }
     try {
-      const { data, error } = await supabase
+      // Timeout de salvaguarda de 3.5s para no bloquear si Supabase tarda en responder
+      const queryPromise = supabase
         .from('products')
         .select('*')
         .eq('active', true)
         .order('created_at', { ascending: false });
+
+      const timeoutPromise = new Promise<{ data: any; error: any }>((resolve) =>
+        setTimeout(() => resolve({ data: null, error: new Error('timeout') }), 3500)
+      );
+
+      const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
 
       if (!error && data && data.length > 0) {
         const mappedProducts: Product[] = data.map((item: any) => ({
@@ -118,12 +133,17 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
           thumbnail: item.thumbnail || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=400',
           active: item.active
         }));
+        cachedProducts = mappedProducts;
         setProducts(mappedProducts);
-      } else {
+      } else if (!cachedProducts) {
+        cachedProducts = FALLBACK_PRODUCTS;
         setProducts(FALLBACK_PRODUCTS);
       }
     } catch (err) {
-      setProducts(FALLBACK_PRODUCTS);
+      if (!cachedProducts) {
+        cachedProducts = FALLBACK_PRODUCTS;
+        setProducts(FALLBACK_PRODUCTS);
+      }
     } finally {
       setLoading(false);
     }
@@ -131,7 +151,10 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchActiveProducts();
+      // Si aún no hemos cacheado los productos de Supabase, consultamos en segundo plano
+      if (!cachedProducts) {
+        fetchActiveProducts();
+      }
     }
   }, [isOpen]);
 
@@ -185,12 +208,18 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
         {/* MODAL HEADER */}
         <div className="bg-navy-900 text-white p-6 flex items-center justify-between border-b border-navy-800">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-blue-600 rounded-xl text-white">
+            <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-sm">
               <ShoppingBag className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-white">Catálogo Dinámico de Infoproductos (public.products)</h3>
-              <p className="text-xs text-slate-300">Precios actualizados en tiempo real en COP y USD</p>
+              <h3 className="font-extrabold text-lg text-white">
+                {language === 'en' ? 'Digital Courses & Learning Resources' : 'Cursos Digitales & Recursos de Inglés'}
+              </h3>
+              <p className="text-xs text-slate-300">
+                {language === 'en' 
+                  ? '4K Video Masterclasses, Interactive Guides & Audio Labs' 
+                  : 'Masterclasses en video 4K, guías interactivas y audios fonéticos'}
+              </p>
             </div>
           </div>
 
@@ -351,7 +380,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Todos los Productos
+                    {language === 'en' ? 'All Courses' : 'Todos los Cursos'}
                   </button>
                   <button
                     onClick={() => setActiveCategory('masterclass')}
@@ -371,7 +400,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    E-books en PDF
+                    {language === 'en' ? 'PDF E-Books' : 'E-books en PDF'}
                   </button>
                   <button
                     onClick={() => setActiveCategory('audios')}
@@ -381,12 +410,12 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Audios Fonéticos
+                    {language === 'en' ? 'Phonetic Audios' : 'Audios Fonéticos'}
                   </button>
                 </div>
 
                 <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-bold text-slate-500">Moneda:</span>
+                  <span className="text-[11px] font-bold text-slate-500">{language === 'en' ? 'Currency:' : 'Moneda:'}</span>
                   <SoftSwitch3D
                     checked={currency === 'USD'}
                     onChange={(isUsd) => setCurrency(isUsd ? 'USD' : 'COP')}
@@ -398,10 +427,10 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                 </div>
               </div>
 
-              {loading ? (
+              {loading && products.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 text-xs">
                   <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-navy-900" />
-                  Cargando catálogo dinámico desde Supabase...
+                  {language === 'en' ? 'Loading digital courses...' : 'Cargando catálogo de cursos digitales...'}
                 </div>
               ) : (
                 /* Product Cards Grid */
@@ -435,7 +464,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 
                       <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-200/60 mt-4">
                         <div>
-                          <span className="text-[10px] text-slate-400 font-bold block">Precio Oficial:</span>
+                          <span className="text-[10px] text-slate-400 font-bold block">{language === 'en' ? 'Official Price:' : 'Precio Oficial:'}</span>
                           <span className="text-lg font-black text-crimson-600">
                             {formatPrice(prod)}
                           </span>
@@ -445,7 +474,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
                           onClick={() => handleStartCheckout(prod)}
                           className="bg-navy-900 hover:bg-navy-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5"
                         >
-                          <span>Comprar Ahora</span>
+                          <span>{language === 'en' ? 'Buy Now' : 'Comprar Ahora'}</span>
                           <ArrowRight className="w-3.5 h-3.5" />
                         </button>
                       </div>
