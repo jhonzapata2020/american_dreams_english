@@ -781,20 +781,20 @@ export default function TeacherCampusPage() {
   const audioMaterialsCount = materials.filter(m => m.type === 'audio').length
 
   return (
-    <div className="min-h-screen bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
+    <div className="min-h-screen bg-[#0B1528] sm:bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
       
       {/* ========================================================================= */}
       {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-t-[36px] sm:rounded-[40px] overflow-hidden shadow-2xl border border-slate-700/40 flex flex-col flex-1">
+      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-none sm:rounded-[40px] overflow-hidden shadow-none sm:shadow-2xl border-0 sm:border sm:border-slate-700/40 flex flex-col flex-1">
 
         {/* ======================================================================= */}
         {/* 1. CABECERA SUPERIOR OSCURA (NAVY #0B1528)                            */}
         {/* ======================================================================= */}
-        <header className="w-full bg-[#0B1528] text-white pt-4 sm:pt-6 relative">
+        <header className="w-full bg-[#0B1528] text-white pt-3 sm:pt-6 relative">
           
-          {/* Muesca Superior Elegante (Top App Notch Curve) */}
-          <div className="flex justify-center pb-2">
+          {/* Muesca Superior Elegante (Top App Notch Curve - Solo Desktop/Tablet) */}
+          <div className="hidden sm:flex justify-center pb-2">
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
