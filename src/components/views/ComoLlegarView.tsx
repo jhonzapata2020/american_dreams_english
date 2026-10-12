@@ -138,14 +138,14 @@ export function ComoLlegarView() {
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-[#002B49] selection:text-white pb-16">
       
       {/* ========================================================= */}
-      {/* 1. TOP HEADER                                             */}
+      {/* 1. TOP HEADER (Móvil intacto / Desktop redistribuido)     */}
       {/* ========================================================= */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200/80 shadow-2xs h-16 sm:h-18">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
-          
+        {/* VISTA MÓVIL: Intacta, no modificada */}
+        <div className="md:hidden max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
           <Link 
             href="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-700 hover:text-[#002B49] transition-colors bg-slate-100/80 hover:bg-slate-200/80 px-3.5 py-2 rounded-xl border border-slate-200"
+            className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#002B49] transition-colors bg-slate-100/80 hover:bg-slate-200/80 px-3.5 py-2 rounded-xl border border-slate-200"
           >
             <ArrowLeft className="w-4 h-4 text-red-600" />
             <span>{language === 'en' ? 'Back to Home' : 'Volver al Inicio'}</span>
@@ -157,7 +157,7 @@ export function ComoLlegarView() {
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-11 sm:h-12 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
+                className="h-11 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform"
               />
             </Link>
 
@@ -179,8 +179,88 @@ export function ComoLlegarView() {
               className="inline-flex items-center gap-1.5 text-xs font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 py-2 rounded-xl transition-all shadow-xs"
             >
               <GraduationCap className="w-4 h-4" />
-              <span className="hidden sm:inline">{t.nav.campusVirtual}</span>
-              <span className="sm:hidden">Campus</span>
+              <span>Campus</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* VISTA DESKTOP: Redistribución balanceada y profesional */}
+        <div className="hidden md:flex max-w-7xl mx-auto px-6 lg:px-8 h-full items-center justify-between gap-4">
+          
+          {/* Lado Izquierdo: Logo Institucional + Separador + Volver al Inicio */}
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-3 group focus:outline-none">
+              <img 
+                src="/logo-american-dream.png" 
+                alt="American Dream English" 
+                className="h-12 lg:h-13 w-auto object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
+              />
+              <div className="flex flex-col">
+                <span className="text-sm font-black text-[#002B49] tracking-tight leading-none">
+                  American Dream English
+                </span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-0.5">
+                  {language === 'en' ? 'Official Campus · Urabá' : 'Sede Presencial · Urabá'}
+                </span>
+              </div>
+            </Link>
+
+            <div className="h-6 w-px bg-slate-200 mx-1" />
+
+            <Link 
+              href="/"
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-[#002B49] transition-colors bg-slate-100/90 hover:bg-slate-200/90 px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-2xs group"
+            >
+              <ArrowLeft className="w-4 h-4 text-red-600 group-hover:-translate-x-0.5 transition-transform" />
+              <span>{language === 'en' ? 'Back to Home' : 'Volver al Inicio'}</span>
+            </Link>
+          </div>
+
+          {/* Centro: Badge contextual de Georreferenciación y Vía Nacional */}
+          <div className="hidden lg:flex items-center gap-2 px-3.5 py-1.5 bg-slate-50 border border-slate-200/90 rounded-full text-xs text-slate-600 font-semibold shadow-2xs">
+            <MapPin className="w-3.5 h-3.5 text-red-600 animate-pulse shrink-0" />
+            <span className="font-extrabold text-[#002B49]">
+              {language === 'en' ? 'Campus & Geolocation' : 'Georreferenciación & Sede'}
+            </span>
+            <span className="text-slate-300">|</span>
+            <span className="text-slate-500 font-semibold text-[11px]">
+              {language === 'en' ? 'Turbo - Apartadó Km 1.5' : 'Troncal Turbo - Apartadó Km 1.5'}
+            </span>
+          </div>
+
+          {/* Lado Derecho: Idioma + WhatsApp Asistencia + Campus Virtual */}
+          <div className="flex items-center gap-3">
+            {/* Switch de Idioma */}
+            <div className="flex items-center px-2 py-1 bg-slate-100 rounded-2xl border border-slate-200 shadow-2xs">
+              <SoftSwitch3D
+                checked={language === 'en'}
+                onChange={(isEn) => setLanguage(isEn ? 'en' : 'es')}
+                leftLabel="ES"
+                rightLabel="EN"
+                size="sm"
+                ariaLabel="Toggle language"
+              />
+            </div>
+
+            {/* Asistencia de Rutas WhatsApp (Pantallas grandes) */}
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden xl:inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/80 px-3 py-2 rounded-xl transition-all shadow-2xs active:scale-95"
+              title={language === 'en' ? 'Get route guidance via WhatsApp' : 'Solicitar guía de llegada por WhatsApp'}
+            >
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
+              <span>{language === 'en' ? 'Route Help' : 'WhatsApp Guía'}</span>
+            </a>
+
+            {/* Botón CTA Campus Virtual */}
+            <Link 
+              href="/campus/login"
+              className="inline-flex items-center gap-2 text-xs font-extrabold bg-[#002B49] text-white hover:bg-[#001f35] px-4 py-2.5 rounded-xl transition-all shadow-xs active:scale-95 whitespace-nowrap"
+            >
+              <GraduationCap className="w-4 h-4 text-amber-300" />
+              <span>{t.nav.campusVirtual}</span>
             </Link>
           </div>
 
