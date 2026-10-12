@@ -493,10 +493,10 @@ export default function TeacherCampusPage() {
       return
     }
 
-    // Validar tamaño (máximo 15 MB)
-    const maxBytes = 15 * 1024 * 1024
+    // Validar tamaño (máximo 5 MB para carga directa)
+    const maxBytes = 5 * 1024 * 1024
     if (file.size > maxBytes) {
-      alert(`El archivo pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB. Para guías mayores a 15 MB, por favor usa la opción de Google Drive o OneDrive.`)
+      alert(`El archivo seleccionado pesa ${(file.size / (1024 * 1024)).toFixed(1)} MB. El límite máximo para subir directo desde el computador es de 5 MB.\n\nPara archivos mayores a 5 MB, por favor súbelo a Google Drive o OneDrive y pega el enlace en la pestaña "Enlace Web / Drive".`)
       return
     }
 
@@ -2146,29 +2146,40 @@ export default function TeacherCampusPage() {
                             </span>
                           </div>
                         ) : (
-                          <div>
+                          <div className="space-y-0.5">
                             <span className="text-xs font-black text-slate-800 block">
                               Haz clic para seleccionar el PDF de tu computador
                             </span>
-                            <span className="text-[10px] text-slate-400 font-medium">
-                              Archivos .pdf de hasta 15 MB
+                            <span className="text-[10px] text-slate-500 font-semibold block">
+                              Archivos .pdf de hasta 5 MB
+                            </span>
+                            <span className="text-[9.5px] text-blue-600 font-medium block">
+                              💡 Si pesa más de 5 MB, súbelo a Google Drive / OneDrive y usa la pestaña "Enlace Web / Drive"
                             </span>
                           </div>
                         )}
                       </label>
                     </div>
                   ) : (
-                    <div>
-                      <label className="text-slate-700 block mb-1">
-                        Enlace a la Guía PDF (Google Drive, OneDrive o enlace directo)
-                      </label>
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="text-slate-700 block text-xs font-bold">
+                          Enlace a la Guía PDF (Google Drive, OneDrive o enlace directo)
+                        </label>
+                        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                          Sin límite (Recomendado &gt; 5 MB)
+                        </span>
+                      </div>
                       <input
                         type="url"
                         value={materialForm.downloadUrl}
                         onChange={(e) => setMaterialForm({ ...materialForm, downloadUrl: e.target.value })}
-                        placeholder="https://drive.google.com/... o https://..."
+                        placeholder="https://drive.google.com/... o https://onedrive.live.com/..."
                         className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-xl outline-none font-medium font-mono text-slate-900 text-xs bg-white"
                       />
+                      <p className="text-[10px] text-slate-500">
+                        💡 Sube el archivo a Google Drive o OneDrive con acceso público ("Cualquier persona con el enlace") y pega la URL aquí.
+                      </p>
                     </div>
                   )}
                 </div>
