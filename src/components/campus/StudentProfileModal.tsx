@@ -175,48 +175,63 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
 
       let finalAvatarUrl = avatarUrl
 
-      // Si hay un archivo WebP optimizado listo para subir a Supabase Storage:
+      // Subida de imagen al almacenamiento en la nube (Supabase Storage vía Backend API con Service Role)
       if (pendingAvatarBlob) {
         try {
           const { data: { session } } = await supabase.auth.getSession()
-          const userId = session?.user?.id || student.id || 'student'
-          const fileName = `avatar-${userId}-${Date.now()}.webp`
+          const userId = session?.user?.id || student.id || ''
+          
+          const formData = new FormData()
+          formData.append('file', pendingAvatarBlob, 'avatar.webp')
+          formData.append('userId', userId)
+          formData.append('email', student.email || '')
+          formData.append('fullName', fullName.trim())
+          formData.append('phone', phone.trim())
+          formData.append('docNumber', student.docNumber || '')
 
-          // 1. Intentar subir al bucket 'avatars'
-          const { data: uploadData, error: upErr } = await supabase.storage
-            .from('avatars')
-            .upload(fileName, pendingAvatarBlob, {
-              contentType: 'image/webp',
-              upsert: true
-            })
+          const res = await fetch('/api/campus/profile/avatar', {
+            method: 'POST',
+            body: formData
+          })
 
-          if (!upErr && uploadData?.path) {
-            const { data: pubData } = supabase.storage
-              .from('avatars')
-              .getPublicUrl(uploadData.path)
-            if (pubData?.publicUrl) {
-              finalAvatarUrl = pubData.publicUrl
+          if (res.ok) {
+            const data = await res.json()
+            if (data.success && data.avatarUrl) {
+              finalAvatarUrl = data.avatarUrl
             }
           } else {
-            // 2. Fallback al bucket 'forum-attachments' (que ya tiene políticas públicas)
-            const { data: fbData, error: fbErr } = await supabase.storage
-              .from('forum-attachments')
-              .upload(`avatars/${fileName}`, pendingAvatarBlob, {
-                contentType: 'image/webp',
-                upsert: true
-              })
-            if (!fbErr && fbData?.path) {
-              const { data: fbPub } = supabase.storage
-                .from('forum-attachments')
-                .getPublicUrl(fbData.path)
-              if (fbPub?.publicUrl) {
-                finalAvatarUrl = fbPub.publicUrl
-              }
+            console.warn('API avatar falló, intentando subida directa cliente...')
+            // Fallback cliente directo
+            const fileName = `avatar-${userId || 'user'}-${Date.now()}.webp`
+            const { data: uploadData } = await supabase.storage
+              .from('avatars')
+              .upload(fileName, pendingAvatarBlob, { contentType: 'image/webp', upsert: true })
+            if (uploadData?.path) {
+              const { data: pubData } = supabase.storage.from('avatars').getPublicUrl(uploadData.path)
+              if (pubData?.publicUrl) finalAvatarUrl = pubData.publicUrl
             }
           }
         } catch (storageErr) {
-          console.warn('Nota: Supabase storage fallback a dataURL WebP ultra liviana:', storageErr)
+          console.warn('Nota: Fallback de avatar en storage:', storageErr)
         }
+      } else if (avatarUrl !== student.avatarUrl) {
+        // Si cambió el avatar (ej: eligió un preset o eliminó foto)
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          const userId = session?.user?.id || student.id || ''
+          const formData = new FormData()
+          formData.append('avatarUrl', avatarUrl)
+          formData.append('userId', userId)
+          formData.append('email', student.email || '')
+          formData.append('fullName', fullName.trim())
+          formData.append('phone', phone.trim())
+          formData.append('docNumber', student.docNumber || '')
+
+          await fetch('/api/campus/profile/avatar', {
+            method: 'POST',
+            body: formData
+          })
+        } catch (e) {}
       }
 
       const updatedStudent: StudentProfileData = {

@@ -53,6 +53,7 @@ export interface EnrolledStudent {
   progress: number
   avg: string
   status: 'Activo' | 'Al día' | 'Pendiente'
+  avatarUrl?: string
 }
 
 export const INITIAL_RECORDINGS_BY_LEVEL: Record<string, LevelRecordedSession[]> = {

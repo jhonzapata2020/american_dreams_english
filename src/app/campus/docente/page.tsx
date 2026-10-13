@@ -199,16 +199,32 @@ export default function TeacherCampusPage() {
   const [currentNoteInput, setCurrentNoteInput] = useState('')
   const [savingNote, setSavingNote] = useState(false)
 
-  // Cargar notas privadas de los estudiantes desde caché local
+  // Cargar avatares oficiales desde Supabase para los estudiantes
+  const [studentCloudAvatars, setStudentCloudAvatars] = useState<Record<string, string>>({})
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedNotes = localStorage.getItem('ade_teacher_student_notes')
-      if (savedNotes) {
-        try {
-          setStudentNotes(JSON.parse(savedNotes))
-        } catch (e) {}
-      }
+    async function loadStudentAvatars() {
+      try {
+        const res = await fetch('/api/admin/students')
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.students && Array.isArray(data.students)) {
+            const map: Record<string, string> = {}
+            data.students.forEach((s: any) => {
+              if (s.avatar_url) {
+                if (s.email) map[s.email.toLowerCase()] = s.avatar_url
+                if (s.document_number) {
+                  map[s.document_number] = s.avatar_url
+                  map[s.document_number.replace(/\./g, '')] = s.avatar_url
+                }
+              }
+            })
+            setStudentCloudAvatars(map)
+          }
+        }
+      } catch (e) {}
     }
+    loadStudentAvatars()
   }, [])
 
   const handleOpenStudentDetail = (st: EnrolledStudent) => {
@@ -2563,9 +2579,18 @@ export default function TeacherCampusPage() {
                                 {/* Nombre y Código */}
                                 <td className="py-3 px-4">
                                   <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-xl bg-[#002B49] text-amber-400 font-bold text-[11px] flex items-center justify-center shrink-0">
-                                      {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                                    </div>
+                                    {(() => {
+                                      const avatarSrc = st.avatarUrl || studentCloudAvatars[st.email?.toLowerCase()] || studentCloudAvatars[st.doc] || studentCloudAvatars[st.doc?.replace(/\./g, '')]
+                                      return (
+                                        <div className="w-8 h-8 rounded-xl bg-[#002B49] text-amber-400 font-bold text-[11px] flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-slate-200">
+                                          {avatarSrc ? (
+                                            <img src={avatarSrc} alt={st.name} className="w-full h-full object-cover" />
+                                          ) : (
+                                            st.name.split(' ').map(n => n[0]).slice(0, 2).join('')
+                                          )}
+                                        </div>
+                                      )
+                                    })()}
                                     <div className="min-w-0">
                                       <strong className="text-xs font-black text-slate-900 block truncate group-hover:text-blue-900 transition-colors">
                                         {st.name}
@@ -2690,9 +2715,18 @@ export default function TeacherCampusPage() {
                           <div>
                             <div className="flex items-center justify-between gap-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center shrink-0">
-                                  {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                                </div>
+                                {(() => {
+                                  const avatarSrc = st.avatarUrl || studentCloudAvatars[st.email?.toLowerCase()] || studentCloudAvatars[st.doc] || studentCloudAvatars[st.doc?.replace(/\./g, '')]
+                                  return (
+                                    <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center shrink-0 overflow-hidden ring-1 ring-slate-200">
+                                      {avatarSrc ? (
+                                        <img src={avatarSrc} alt={st.name} className="w-full h-full object-cover" />
+                                      ) : (
+                                        st.name.split(' ').map(n => n[0]).slice(0, 2).join('')
+                                      )}
+                                    </div>
+                                  )
+                                })()}
                                 <div className="overflow-hidden">
                                   <strong className="text-xs font-bold text-slate-900 block truncate">{st.name}</strong>
                                   <span className="text-[10px] font-mono text-slate-400">{st.code}</span>
@@ -3512,9 +3546,18 @@ export default function TeacherCampusPage() {
             {/* Cabecera del Estudiante */}
             <div className="flex items-start justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-[#002B49] text-amber-400 font-black text-sm flex items-center justify-center shadow-sm">
-                  {selectedStudentDetail.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                </div>
+                {(() => {
+                  const modalAvatar = selectedStudentDetail.avatarUrl || studentCloudAvatars[selectedStudentDetail.email?.toLowerCase()] || studentCloudAvatars[selectedStudentDetail.doc] || studentCloudAvatars[selectedStudentDetail.doc?.replace(/\./g, '')]
+                  return (
+                    <div className="w-12 h-12 rounded-2xl bg-[#002B49] text-amber-400 font-black text-sm flex items-center justify-center shadow-sm overflow-hidden ring-1 ring-slate-200">
+                      {modalAvatar ? (
+                        <img src={modalAvatar} alt={selectedStudentDetail.name} className="w-full h-full object-cover" />
+                      ) : (
+                        selectedStudentDetail.name.split(' ').map(n => n[0]).slice(0, 2).join('')
+                      )}
+                    </div>
+                  )
+                })()}
                 <div>
                   <h3 className="text-base font-black text-slate-900 leading-tight">
                     {selectedStudentDetail.name}

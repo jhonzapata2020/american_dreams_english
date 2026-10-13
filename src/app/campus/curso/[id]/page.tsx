@@ -301,6 +301,35 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           }
         }
 
+        // Sincronización en la nube con Supabase (recupera el avatar en cualquier computador)
+        try {
+          const currentStudent = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ade_student_profile') || '{}') : {}
+          const queryDoc = currentStudent?.docNumber || '1040892341'
+          const queryEmail = currentStudent?.email || session?.user?.email || 'valeria.morales@americandream.edu.co'
+          const queryId = session?.user?.id || currentStudent?.id || ''
+
+          const pRes = await fetch(`/api/campus/profile?userId=${encodeURIComponent(queryId)}&email=${encodeURIComponent(queryEmail)}&doc=${encodeURIComponent(queryDoc)}`)
+          if (pRes.ok) {
+            const pData = await pRes.json()
+            if (pData?.success && pData?.profile?.avatarUrl) {
+              setStudent((prev) => {
+                const merged = {
+                  ...prev,
+                  avatarUrl: pData.profile.avatarUrl,
+                  fullName: pData.profile.fullName || prev.fullName,
+                  phone: pData.profile.phone || prev.phone
+                }
+                try {
+                  localStorage.setItem('ade_student_profile', JSON.stringify(merged))
+                } catch (e) {}
+                return merged
+              })
+            }
+          }
+        } catch (syncErr) {
+          console.warn('Sincronización de avatar completada con caché:', syncErr)
+        }
+
         const resolved = getLevelConfig(levelKey)
         setCfg(resolved)
 

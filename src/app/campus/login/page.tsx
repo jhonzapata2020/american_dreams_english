@@ -152,12 +152,31 @@ export default function CampusLoginPage() {
       if (error) {
         if (loginEmail.startsWith('estudiante') || loginEmail.includes('1040892341') || password === '1040892341' || password.toLowerCase().includes('estudiante')) {
           localStorage.setItem('ade_student_level', 'A1')
+
+          let cloudAvatar = ''
+          try {
+            const pRes = await fetch('/api/campus/profile?doc=1040892341&email=valeria.morales@americandream.edu.co')
+            if (pRes.ok) {
+              const pData = await pRes.json()
+              if (pData?.profile?.avatarUrl) {
+                cloudAvatar = pData.profile.avatarUrl
+              }
+            }
+          } catch (e) {}
+
+          if (!cloudAvatar) {
+            try {
+              const prev = JSON.parse(localStorage.getItem('ade_student_profile') || '{}')
+              if (prev.avatarUrl) cloudAvatar = prev.avatarUrl
+            } catch (e) {}
+          }
+
           localStorage.setItem('ade_student_profile', JSON.stringify({
             id: 'stu-valeria-01',
             fullName: 'Valeria Morales Montoya',
             email: 'valeria.morales@americandream.edu.co',
             phone: '+57 300 892 3410',
-            avatarUrl: '',
+            avatarUrl: cloudAvatar,
             docType: 'C.C.',
             docNumber: '1.040.892.341',
             currentLevel: 'A1',
@@ -205,9 +224,25 @@ export default function CampusLoginPage() {
       } else if (data?.user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role, mcer_level')
+          .select('*')
           .eq('id', data.user.id)
           .maybeSingle()
+
+        if (profile) {
+          localStorage.setItem('ade_student_profile', JSON.stringify({
+            id: profile.id,
+            fullName: profile.full_name || profile.name || data.user.user_metadata?.full_name || '',
+            email: profile.email || data.user.email || '',
+            phone: profile.phone || data.user.user_metadata?.phone || '',
+            avatarUrl: profile.avatar_url || data.user.user_metadata?.avatar_url || '',
+            docType: profile.document_type || 'C.C.',
+            docNumber: profile.document_number || '',
+            currentLevel: (profile.mcer_level || 'A1').toUpperCase().slice(0, 2),
+            programName: 'Programa de Inglés Jóvenes y Adultos',
+            studentCode: profile.document_number ? `ADE-2026-${profile.document_number.slice(-4)}` : 'ADE-2026-REG',
+            status: 'Matriculado Regular'
+          }))
+        }
 
         const isTeacherEmail = loginEmail.startsWith('docente') || loginEmail.includes('teacher')
         const role = profile?.role || data.user.user_metadata?.role || (isTeacherEmail ? 'teacher' : 'student')
