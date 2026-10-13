@@ -942,8 +942,8 @@ export default function AdminDashboardPage() {
 
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5 my-auto">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -991,10 +991,11 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: REGISTRAR NUEVO ESTUDIANTE */}
         {isAddStudentOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-3 sm:p-4 md:p-6 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="relative bg-white border border-slate-200/90 rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden my-auto">
               
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              {/* STICKY HEADER */}
+              <div className="shrink-0 flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 bg-white z-10">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-red-50 text-red-600 rounded-2xl border border-red-100">
                     <UserPlus className="w-5 h-5 text-red-600" />
@@ -1007,94 +1008,98 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddStudentOpen(false)}
-                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateStudent} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Nombre Completo <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej: María Alejandra Pérez"
-                    value={newStudentData.fullName}
-                    onChange={(e) => setNewStudentData({ ...newStudentData, fullName: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Correo Institucional / Personal <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="estudiante@americandream.edu.co"
-                    value={newStudentData.email}
-                    onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* FORM CON CUERPO SCROLLABLE Y FOOTER FIJO */}
+              <form onSubmit={handleCreateStudent} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1 overscroll-contain">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Nivel MCER Inicial
+                      Nombre Completo <span className="text-red-600">*</span>
                     </label>
-                    <select
-                      value={newStudentData.mcerLevel}
-                      onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                    >
-                      <option value="A1">A1 - Principiante</option>
-                      <option value="A2">A2 - Elemental</option>
-                      <option value="B1">B1 - Pre-Intermedio</option>
-                      <option value="B2">B2 - Intermedio Alto</option>
-                    </select>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ej: María Alejandra Pérez"
+                      value={newStudentData.fullName}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, fullName: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                    />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Municipio / Sede
+                      Correo Institucional / Personal <span className="text-red-600">*</span>
                     </label>
-                    <select
-                      value={newStudentData.municipality}
-                      onChange={(e) => setNewStudentData({ ...newStudentData, municipality: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                    >
-                      <option value="Turbo">Turbo</option>
-                      <option value="Apartadó">Apartadó</option>
-                      <option value="Carepa">Carepa</option>
-                      <option value="Chigorodó">Chigorodó</option>
-                      <option value="Necoclí">Necoclí</option>
-                      <option value="Arboletes">Arboletes</option>
-                      <option value="Mutatá">Mutatá</option>
-                      <option value="San Pedro de Urabá">San Pedro de Urabá</option>
-                      <option value="Medellín">Medellín</option>
-                      <option value="Otra Sede">Otra Sede</option>
-                    </select>
+                    <input
+                      type="email"
+                      required
+                      placeholder="estudiante@americandream.edu.co"
+                      value={newStudentData.email}
+                      onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Nivel MCER Inicial
+                      </label>
+                      <select
+                        value={newStudentData.mcerLevel}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      >
+                        <option value="A1">A1 - Principiante</option>
+                        <option value="A2">A2 - Elemental</option>
+                        <option value="B1">B1 - Pre-Intermedio</option>
+                        <option value="B2">B2 - Intermedio Alto</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Municipio / Sede
+                      </label>
+                      <select
+                        value={newStudentData.municipality}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, municipality: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      >
+                        <option value="Turbo">Turbo</option>
+                        <option value="Apartadó">Apartadó</option>
+                        <option value="Carepa">Carepa</option>
+                        <option value="Chigorodó">Chigorodó</option>
+                        <option value="Necoclí">Necoclí</option>
+                        <option value="Arboletes">Arboletes</option>
+                        <option value="Mutatá">Mutatá</option>
+                        <option value="San Pedro de Urabá">San Pedro de Urabá</option>
+                        <option value="Medellín">Medellín</option>
+                        <option value="Otra Sede">Otra Sede</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                {/* STICKY FOOTER */}
+                <div className="shrink-0 flex items-center justify-end gap-3 p-4 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-xs z-10 shadow-sm">
                   <button
                     type="button"
                     disabled={isSubmittingStudent}
                     onClick={() => setIsAddStudentOpen(false)}
-                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
+                    className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200 cursor-pointer shadow-2xs"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmittingStudent}
-                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     {isSubmittingStudent ? (
                       <>
@@ -1116,10 +1121,11 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: EDITAR ESTUDIANTE */}
         {studentToEdit && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-xl">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-3 sm:p-4 md:p-6 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="relative bg-white border border-slate-200/90 rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden my-auto">
               
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              {/* STICKY HEADER */}
+              <div className="shrink-0 flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 bg-white z-10">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-slate-100 text-slate-700 rounded-2xl border border-slate-200">
                     <Pencil className="w-5 h-5 text-slate-700" />
@@ -1132,92 +1138,96 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setStudentToEdit(null)}
-                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleUpdateStudent} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Nombre Completo <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={editStudentData.fullName}
-                    onChange={(e) => setEditStudentData({ ...editStudentData, fullName: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Correo Institucional / Personal <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={editStudentData.email}
-                    onChange={(e) => setEditStudentData({ ...editStudentData, email: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* FORM CON CUERPO SCROLLABLE Y FOOTER FIJO */}
+              <form onSubmit={handleUpdateStudent} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1 overscroll-contain">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Nivel MCER
+                      Nombre Completo <span className="text-red-600">*</span>
                     </label>
-                    <select
-                      value={editStudentData.mcerLevel}
-                      onChange={(e) => setEditStudentData({ ...editStudentData, mcerLevel: e.target.value })}
+                    <input
+                      type="text"
+                      required
+                      value={editStudentData.fullName}
+                      onChange={(e) => setEditStudentData({ ...editStudentData, fullName: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                    >
-                      <option value="A1">A1 - Principiante</option>
-                      <option value="A2">A2 - Elemental</option>
-                      <option value="B1">B1 - Pre-Intermedio</option>
-                      <option value="B2">B2 - Intermedio Alto</option>
-                    </select>
+                    />
                   </div>
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Municipio / Sede
+                      Correo Institucional / Personal <span className="text-red-600">*</span>
                     </label>
-                    <select
-                      value={editStudentData.municipality}
-                      onChange={(e) => setEditStudentData({ ...editStudentData, municipality: e.target.value })}
+                    <input
+                      type="email"
+                      required
+                      value={editStudentData.email}
+                      onChange={(e) => setEditStudentData({ ...editStudentData, email: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                    >
-                      <option value="Turbo">Turbo</option>
-                      <option value="Apartadó">Apartadó</option>
-                      <option value="Carepa">Carepa</option>
-                      <option value="Chigorodó">Chigorodó</option>
-                      <option value="Necoclí">Necoclí</option>
-                      <option value="Arboletes">Arboletes</option>
-                      <option value="Mutatá">Mutatá</option>
-                      <option value="San Pedro de Urabá">San Pedro de Urabá</option>
-                      <option value="Medellín">Medellín</option>
-                      <option value="Otra Sede">Otra Sede</option>
-                    </select>
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Nivel MCER
+                      </label>
+                      <select
+                        value={editStudentData.mcerLevel}
+                        onChange={(e) => setEditStudentData({ ...editStudentData, mcerLevel: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      >
+                        <option value="A1">A1 - Principiante</option>
+                        <option value="A2">A2 - Elemental</option>
+                        <option value="B1">B1 - Pre-Intermedio</option>
+                        <option value="B2">B2 - Intermedio Alto</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Municipio / Sede
+                      </label>
+                      <select
+                        value={editStudentData.municipality}
+                        onChange={(e) => setEditStudentData({ ...editStudentData, municipality: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      >
+                        <option value="Turbo">Turbo</option>
+                        <option value="Apartadó">Apartadó</option>
+                        <option value="Carepa">Carepa</option>
+                        <option value="Chigorodó">Chigorodó</option>
+                        <option value="Necoclí">Necoclí</option>
+                        <option value="Arboletes">Arboletes</option>
+                        <option value="Mutatá">Mutatá</option>
+                        <option value="San Pedro de Urabá">San Pedro de Urabá</option>
+                        <option value="Medellín">Medellín</option>
+                        <option value="Otra Sede">Otra Sede</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                {/* STICKY FOOTER */}
+                <div className="shrink-0 flex items-center justify-end gap-3 p-4 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-xs z-10 shadow-sm">
                   <button
                     type="button"
                     disabled={isUpdatingStudent}
                     onClick={() => setStudentToEdit(null)}
-                    className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
+                    className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200 cursor-pointer shadow-2xs"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={isUpdatingStudent}
-                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-medium shadow-sm rounded-xl text-xs transition-all flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     {isUpdatingStudent ? (
                       <>
@@ -1239,8 +1249,8 @@ export default function AdminDashboardPage() {
 
         {/* MODAL CONFIRMACIÓN ELIMINACIÓN DE ESTUDIANTE */}
         {studentToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5 my-auto">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
@@ -1288,158 +1298,163 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: REGISTRAR NUEVO DOCENTE TITULAR */}
         {isAddTeacherOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-lg w-full space-y-5 shadow-2xl">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/70 backdrop-blur-sm p-3 sm:p-4 md:p-6 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="relative bg-white border border-slate-200/90 rounded-3xl max-w-lg w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden my-auto">
               
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              {/* STICKY HEADER */}
+              <div className="shrink-0 flex items-center justify-between border-b border-slate-100 p-4 sm:p-5 bg-white z-10">
                 <div className="flex items-center gap-3">
                   <div className="p-2.5 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100">
                     <GraduationCap className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">Registrar Docente Titular</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">Crear cuenta en Supabase con rol de profesor y acceso a /campus/docente</p>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">Registrar Docente Titular</h3>
+                    <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5">Crear cuenta en Supabase con rol de profesor y acceso inmediato</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddTeacherOpen(false)}
-                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors"
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <form onSubmit={handleCreateTeacher} className="space-y-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Nombre Completo & Título <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="Ej: Lic. Carlos Méndez o Teacher Sarah Miller"
-                    value={newTeacherData.fullName}
-                    onChange={(e) => setNewTeacherData({ ...newTeacherData, fullName: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* FORM CON CUERPO SCROLLABLE Y FOOTER FIJO */}
+              <form onSubmit={handleCreateTeacher} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div className="overflow-y-auto p-4 sm:p-6 space-y-4 flex-1 overscroll-contain">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Correo Docente / Institucional <span className="text-red-600">*</span>
+                      Nombre Completo & Título <span className="text-red-600">*</span>
                     </label>
                     <input
-                      type="email"
+                      type="text"
                       required
-                      placeholder="docente@americandream.edu.co"
-                      value={newTeacherData.email}
-                      onChange={(e) => setNewTeacherData({ ...newTeacherData, email: e.target.value })}
+                      placeholder="Ej: Lic. Carlos Méndez o Teacher Sarah Miller"
+                      value={newTeacherData.fullName}
+                      onChange={(e) => setNewTeacherData({ ...newTeacherData, fullName: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700">
-                      Teléfono / WhatsApp de Contacto
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="Ej: +57 312 458 9210"
-                      value={newTeacherData.phone}
-                      onChange={(e) => setNewTeacherData({ ...newTeacherData, phone: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    />
-                  </div>
-                </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Correo Docente / Institucional <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="docente@americandream.edu.co"
+                        value={newTeacherData.email}
+                        onChange={(e) => setNewTeacherData({ ...newTeacherData, email: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      />
+                    </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700">
-                      Nivel MCER Titular Asignado
-                    </label>
-                    <select
-                      value={newTeacherData.mcerLevel}
-                      onChange={(e) => {
-                        const lvl = e.target.value
-                        let defaultSpec = `Docente Titular Nivel ${lvl}`
-                        if (lvl === 'A1') defaultSpec = 'Docente Titular A1 · Fonética & Gramática'
-                        if (lvl === 'A2') defaultSpec = 'Docente Titular A2 · Inmersión Oral & Storytelling'
-                        if (lvl === 'B1') defaultSpec = 'Docente Titular B1 · Conversación & Negocios'
-                        if (lvl === 'B2') defaultSpec = 'Docente Titular B2 · Fluidez & Certificaciones'
-                        setNewTeacherData({ 
-                          ...newTeacherData, 
-                          mcerLevel: lvl,
-                          specialty: defaultSpec
-                        })
-                      }}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                    >
-                      <option value="A1">Nivel A1 Principiante</option>
-                      <option value="A2">Nivel A2 Elemental</option>
-                      <option value="B1">Nivel B1 Pre-Intermedio</option>
-                      <option value="B2">Nivel B2 Intermedio Alto</option>
-                      <option value="ALL">Todos los Niveles (Coordinador)</option>
-                    </select>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Teléfono / WhatsApp de Contacto
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="Ej: +57 312 458 9210"
+                        value={newTeacherData.phone}
+                        onChange={(e) => setNewTeacherData({ ...newTeacherData, phone: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      />
+                    </div>
                   </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Nivel MCER Titular Asignado
+                      </label>
+                      <select
+                        value={newTeacherData.mcerLevel}
+                        onChange={(e) => {
+                          const lvl = e.target.value
+                          let defaultSpec = `Docente Titular Nivel ${lvl}`
+                          if (lvl === 'A1') defaultSpec = 'Docente Titular A1 · Fonética & Gramática'
+                          if (lvl === 'A2') defaultSpec = 'Docente Titular A2 · Inmersión Oral & Storytelling'
+                          if (lvl === 'B1') defaultSpec = 'Docente Titular B1 · Conversación & Negocios'
+                          if (lvl === 'B2') defaultSpec = 'Docente Titular B2 · Fluidez & Certificaciones'
+                          setNewTeacherData({ 
+                            ...newTeacherData, 
+                            mcerLevel: lvl,
+                            specialty: defaultSpec
+                          })
+                        }}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      >
+                        <option value="A1">Nivel A1 Principiante</option>
+                        <option value="A2">Nivel A2 Elemental</option>
+                        <option value="B1">Nivel B1 Pre-Intermedio</option>
+                        <option value="B2">Nivel B2 Intermedio Alto</option>
+                        <option value="ALL">Todos los Niveles (Coordinador)</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Documento de Identidad (C.C.)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Ej: 1040892301"
+                        value={newTeacherData.documentId}
+                        onChange={(e) => setNewTeacherData({ ...newTeacherData, documentId: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-slate-700">
-                      Documento de Identidad (C.C.)
+                      Especialidad Pedagógica / Cargo
                     </label>
                     <input
                       type="text"
-                      placeholder="Ej: 1040892301"
-                      value={newTeacherData.documentId}
-                      onChange={(e) => setNewTeacherData({ ...newTeacherData, documentId: e.target.value })}
+                      placeholder="Ej: Docente Titular A1 · Fonética & Gramática"
+                      value={newTeacherData.specialty}
+                      onChange={(e) => setNewTeacherData({ ...newTeacherData, specialty: e.target.value })}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Especialidad Pedagógica / Cargo
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Ej: Docente Titular A1 · Fonética & Gramática"
-                    value={newTeacherData.specialty}
-                    onChange={(e) => setNewTeacherData({ ...newTeacherData, specialty: e.target.value })}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-700">
-                    Contraseña Inicial de Acceso
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Docente2026*"
-                      value={newTeacherData.customPassword}
-                      onChange={(e) => setNewTeacherData({ ...newTeacherData, customPassword: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
-                    />
-                    <span className="absolute right-3 top-2.5 text-[10px] text-slate-400 font-medium">Predeterminada</span>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-700">
+                      Contraseña Inicial de Acceso
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Docente2026*"
+                        value={newTeacherData.customPassword}
+                        onChange={(e) => setNewTeacherData({ ...newTeacherData, customPassword: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono"
+                      />
+                      <span className="absolute right-3 top-2.5 text-[10px] text-slate-400 font-medium">Predeterminada</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400">El profesor podrá cambiar su contraseña desde su perfil en el Campus.</p>
                   </div>
-                  <p className="text-[11px] text-slate-400">El profesor podrá cambiar su contraseña desde su perfil en el Campus.</p>
+
+                  <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 flex items-start gap-2.5 text-[11px] text-blue-900 leading-relaxed">
+                    <ShieldCheck className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span>
+                      El docente se creará en <strong>Supabase Auth</strong> con rol <code>teacher</code> pre-confirmado. Al ingresar en <code>/login</code> entrará automáticamente al <strong>Portal Docente Titular</strong> para gestionar Teams, grabaciones y calificaciones.
+                    </span>
+                  </div>
                 </div>
 
-                <div className="p-3 bg-blue-50/60 rounded-2xl border border-blue-100 flex items-start gap-2.5 text-[11px] text-blue-900 leading-relaxed">
-                  <ShieldCheck className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <span>
-                    El docente se creará en <strong>Supabase Auth</strong> con rol <code>teacher</code> pre-confirmado. Al ingresar en <code>/login</code> entrará automáticamente al <strong>Portal Docente Titular</strong> para gestionar Teams, grabaciones y calificaciones.
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                {/* STICKY FOOTER ACTION BAR - SIEMPRE VISIBLE */}
+                <div className="shrink-0 flex items-center justify-end gap-3 p-4 sm:px-6 sm:py-3.5 border-t border-slate-100 bg-slate-50/95 backdrop-blur-xs z-10 shadow-sm">
                   <button
                     type="button"
                     onClick={() => setIsAddTeacherOpen(false)}
-                    className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200"
+                    className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold rounded-xl text-xs transition-colors border border-slate-200 cursor-pointer shadow-2xs"
                   >
                     Cancelar
                   </button>
@@ -1447,7 +1462,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="submit"
                     disabled={isSubmittingTeacher}
-                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-semibold rounded-xl text-xs transition-all shadow-md flex items-center gap-2 cursor-pointer"
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl text-xs transition-all shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
                   >
                     {isSubmittingTeacher ? (
                       <>
@@ -1470,63 +1485,75 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: CREDENCIALES GENERADAS & COMPARTIR POR WHATSAPP */}
         {createdTeacherCredentials && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-3 sm:p-4 md:p-6 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="relative bg-white border border-slate-200/90 rounded-3xl max-w-md w-full shadow-2xl flex flex-col max-h-[92vh] sm:max-h-[88vh] overflow-hidden my-auto">
               
-              <div className="flex items-start gap-3.5">
-                <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-200 flex-shrink-0">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+              <div className="shrink-0 p-4 sm:p-5 border-b border-slate-100 flex items-start justify-between gap-3 bg-white z-10">
+                <div className="flex items-start gap-3">
+                  <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-200 flex-shrink-0">
+                    <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-slate-900">¡Cuenta Docente Activada!</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Las credenciales del profesor están listas para entregar.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">¡Cuenta Docente Activada!</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Las credenciales del profesor están listas para entregar.
-                  </p>
+                <button
+                  type="button"
+                  onClick={() => setCreatedTeacherCredentials(null)}
+                  className="text-slate-400 hover:text-slate-700 p-1.5 rounded-xl hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* CUERPO CON SCROLL */}
+              <div className="overflow-y-auto p-4 sm:p-5 space-y-4 flex-1 overscroll-contain">
+                {/* TARJETA CREDENCIAL INSTITUCIONAL */}
+                <div className="bg-gradient-to-br from-[#0B1B3D] to-[#162a56] text-white rounded-2xl p-4.5 space-y-3 shadow-lg border border-white/10">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
+                    <div className="flex items-center gap-2">
+                      <img src="/logo-american-dream.png" alt="ADE" className="h-6 w-auto object-contain" />
+                      <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Faculty Pass</span>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                      Nivel {createdTeacherCredentials.mcerLevel}
+                    </span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs text-slate-300">Profesor Titular:</p>
+                    <h4 className="text-sm font-bold text-white mt-0.5">{createdTeacherCredentials.fullName}</h4>
+                    <p className="text-[10px] text-slate-300 mt-0.5">{createdTeacherCredentials.specialty}</p>
+                  </div>
+
+                  <div className="bg-white/10 rounded-xl p-2.5 space-y-1.5 font-mono text-[11px]">
+                    <div className="flex items-center justify-between text-slate-200">
+                      <span className="text-slate-400">Usuario / Email:</span>
+                      <span className="font-semibold truncate max-w-[200px]" title={createdTeacherCredentials.email}>{createdTeacherCredentials.email}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-200">
+                      <span className="text-slate-400">Contraseña:</span>
+                      <span className="font-bold text-amber-300">{createdTeacherCredentials.password}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-200">
+                      <span className="text-slate-400">URL Acceso:</span>
+                      <span className="text-[10px] text-slate-300">americandreamenglish.com/login</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* TARJETA CREDENCIAL INSTITUCIONAL */}
-              <div className="bg-gradient-to-br from-[#0B1B3D] to-[#162a56] text-white rounded-2xl p-4.5 space-y-3 shadow-lg border border-white/10">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-                  <div className="flex items-center gap-2">
-                    <img src="/logo-american-dream.png" alt="ADE" className="h-6 w-auto object-contain" />
-                    <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Faculty Pass</span>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Nivel {createdTeacherCredentials.mcerLevel}
-                  </span>
-                </div>
-
-                <div>
-                  <p className="text-xs text-slate-300">Profesor Titular:</p>
-                  <h4 className="text-sm font-bold text-white mt-0.5">{createdTeacherCredentials.fullName}</h4>
-                  <p className="text-[10px] text-slate-300 mt-0.5">{createdTeacherCredentials.specialty}</p>
-                </div>
-
-                <div className="bg-white/10 rounded-xl p-2.5 space-y-1.5 font-mono text-[11px]">
-                  <div className="flex items-center justify-between text-slate-200">
-                    <span className="text-slate-400">Usuario / Email:</span>
-                    <span className="font-semibold">{createdTeacherCredentials.email}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-200">
-                    <span className="text-slate-400">Contraseña:</span>
-                    <span className="font-bold text-amber-300">{createdTeacherCredentials.password}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-slate-200">
-                    <span className="text-slate-400">URL Acceso:</span>
-                    <span className="text-[10px] text-slate-300">americandreamenglish.com/login</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* BOTONES DE ACCIÓN RÁPIDA */}
-              <div className="space-y-2 pt-1">
+              {/* FOOTER FIJO */}
+              <div className="shrink-0 p-4 sm:p-5 border-t border-slate-100 bg-slate-50/95 space-y-2 z-10">
                 {createdTeacherCredentials.phone ? (
                   <a
                     href={`https://wa.me/${createdTeacherCredentials.phone.replace(/\D/g, '')}?text=${createdTeacherCredentials.whatsappMessage}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm cursor-pointer"
                   >
                     <MessageCircle className="w-4 h-4" />
                     <span>Enviar Credenciales por WhatsApp</span>
@@ -1540,7 +1567,7 @@ export default function AdminDashboardPage() {
                       setCopiedCredentials(true)
                       setTimeout(() => setCopiedCredentials(false), 2000)
                     }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors shadow-sm cursor-pointer"
                   >
                     <Copy className="w-4 h-4" />
                     <span>{copiedCredentials ? '¡Texto Copiado!' : 'Copiar Mensaje para WhatsApp'}</span>
@@ -1560,7 +1587,7 @@ export default function AdminDashboardPage() {
                       }
                       handleCopyCredentials(teacherObj, pass)
                     }}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors border border-slate-200"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold transition-colors border border-slate-200 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5 text-slate-600" />
                     <span>{copiedCredentials ? '¡Copiado!' : 'Copiar Solo Accesos'}</span>
@@ -1569,7 +1596,7 @@ export default function AdminDashboardPage() {
                   <button
                     type="button"
                     onClick={() => setCreatedTeacherCredentials(null)}
-                    className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-colors"
+                    className="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
                   >
                     Listo
                   </button>
@@ -1582,8 +1609,8 @@ export default function AdminDashboardPage() {
 
         {/* MODAL FLOTANTE: CONFIRMACIÓN PARA ELIMINAR DOCENTE */}
         {teacherToDelete && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn font-sans">
-            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5">
+          <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm p-4 flex items-center justify-center animate-fadeIn font-sans">
+            <div className="bg-white border border-slate-200/90 shadow-xl rounded-3xl p-6 max-w-md w-full space-y-5 my-auto">
               <div className="flex items-start gap-4">
                 <div className="p-3 bg-red-50 text-red-600 rounded-2xl border border-red-200 flex-shrink-0">
                   <AlertTriangle className="w-6 h-6" />
