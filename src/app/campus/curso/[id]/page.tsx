@@ -250,6 +250,49 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           } else {
             setAssignments((INITIAL_ASSIGNMENTS_BY_LEVEL[levelKey] || INITIAL_ASSIGNMENTS_BY_LEVEL.a1) as Assignment[])
           }
+
+          // 4. Clases grabadas reales desde la base de datos Supabase
+          try {
+            const resClasses = await fetch(`/api/classes?level=${levelKey}`)
+            const dataClasses = await resClasses.json()
+            if (dataClasses?.classes && dataClasses.classes.length > 0) {
+              const dbRecs: RecordedSession[] = dataClasses.classes.map((c: any, idx: number) => ({
+                id: c.id,
+                lessonNumber: dataClasses.classes.length - idx,
+                title: c.title,
+                date: new Date(c.scheduled_at || c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }),
+                duration: '1h 15m',
+                teacher: 'Prof. Anthony Zapata',
+                videoUrl: c.meeting_link,
+                thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
+                topics: ['Sesión en vivo Teams', 'Grabación oficial']
+              }))
+              setRecordedSessions(dbRecs)
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/classes en curso:', e)
+          }
+
+          // 5. Materiales y guías reales desde la base de datos Supabase
+          try {
+            const resMats = await fetch(`/api/materials?level=${levelKey}`)
+            const dataMats = await resMats.json()
+            if (dataMats?.materials && dataMats.materials.length > 0) {
+              const dbMats: StudyMaterial[] = dataMats.materials.map((m: any) => ({
+                id: m.id,
+                title: m.title,
+                type: (m.file_url?.toLowerCase().endsWith('.mp3') || m.file_url?.toLowerCase().includes('audio') ? 'audio' : 'pdf') as 'pdf' | 'audio',
+                size: '2.5 MB',
+                downloadUrl: m.file_url,
+                audioSrc: m.file_url,
+                description: `Material oficial del curso Nivel ${levelKey.toUpperCase()}`,
+                unitTag: `Unidad · Nivel ${levelKey.toUpperCase()}`
+              }))
+              setMaterials(dbMats)
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/materials en curso:', e)
+          }
         }
       } catch (e) {}
     }

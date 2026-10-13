@@ -253,6 +253,54 @@ export default function TeacherCampusPage() {
             setMaterials(fallback)
             localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(fallback))
           }
+
+          // Cargar clases y grabaciones reales desde Supabase vía API
+          try {
+            const resClasses = await fetch(`/api/classes?level=${activeLevel}`)
+            const dataClasses = await resClasses.json()
+            if (dataClasses?.classes && dataClasses.classes.length > 0) {
+              const mappedDbClasses: TeacherRecordedSession[] = dataClasses.classes.map((c: any, idx: number) => ({
+                id: c.id,
+                lessonNumber: dataClasses.classes.length - idx,
+                title: c.title,
+                date: new Date(c.scheduled_at || c.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }),
+                duration: '1h 15m',
+                teacher: teacherName || 'Prof. Anthony Zapata',
+                videoUrl: c.meeting_link,
+                thumbnailUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600',
+                topics: ['Sesión en vivo Teams', 'Grabación oficial'],
+                level: activeLevel.toUpperCase(),
+                status: 'published'
+              }))
+              setRecordings(mappedDbClasses)
+              localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(mappedDbClasses))
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/classes:', e)
+          }
+
+          // Cargar materiales y guías reales desde Supabase vía API
+          try {
+            const resMats = await fetch(`/api/materials?level=${activeLevel}`)
+            const dataMats = await resMats.json()
+            if (dataMats?.materials && dataMats.materials.length > 0) {
+              const mappedDbMats: TeacherStudyMaterial[] = dataMats.materials.map((m: any) => ({
+                id: m.id,
+                title: m.title,
+                type: (m.file_url?.toLowerCase().endsWith('.mp3') || m.file_url?.toLowerCase().includes('audio') ? 'audio' : 'pdf') as 'pdf' | 'audio',
+                size: '2.5 MB',
+                downloadUrl: m.file_url,
+                audioSrc: m.file_url,
+                description: `Material oficial del nivel ${activeLevel.toUpperCase()}`,
+                unitTag: `Unidad · Nivel ${activeLevel.toUpperCase()}`,
+                createdAt: new Date(m.created_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+              }))
+              setMaterials(mappedDbMats)
+              localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(mappedDbMats))
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/materials:', e)
+          }
         }
       } catch (err) {
         console.error('Error loading teacher profile:', err)
@@ -350,25 +398,47 @@ export default function TeacherCampusPage() {
         window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
       }
 
-      // Sincronizar en Supabase si la tabla classes existe
+      // Sincronizar en Supabase vía API Classes
       try {
-        await supabase
-          .from('classes')
-          .update({
+        await fetch('/api/classes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingRecording.id.startsWith('rec-') ? undefined : editingRecording.id,
             title: recordingForm.title,
-            meeting_link: recordingForm.videoUrl,
+            videoUrl: recordingForm.videoUrl,
             status: 'completed'
           })
-          .eq('title', recordingForm.title)
+        })
       } catch (e) {
         console.warn('Nota Supabase classes update:', e)
       }
 
       showNotification(`¡Clase grabada de ${activeLevel.toUpperCase()} actualizada con éxito!`)
     } else {
-      // Crear nueva
+      // Crear nueva en Supabase vía API Classes
+      let savedId = `rec-${activeLevel}-${Date.now()}`
+      try {
+        const res = await fetch('/api/classes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: recordingForm.title,
+            videoUrl: recordingForm.videoUrl,
+            level: activeLevel,
+            status: 'completed'
+          })
+        })
+        const resData = await res.json()
+        if (resData?.class?.id) {
+          savedId = resData.class.id
+        }
+      } catch (e) {
+        console.warn('Nota Supabase classes insert:', e)
+      }
+
       const newRec: TeacherRecordedSession = {
-        id: `rec-${activeLevel}-${Date.now()}`,
+        id: savedId,
         lessonNumber: Number(recordingForm.lessonNumber),
         title: recordingForm.title,
         date: recordingForm.date,
@@ -387,28 +457,13 @@ export default function TeacherCampusPage() {
         window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
       }
 
-      // Insertar en Supabase tabla 'classes'
-      try {
-        await supabase
-          .from('classes')
-          .insert([{
-            title: newRec.title,
-            meeting_link: newRec.videoUrl,
-            status: 'completed',
-            location: 'Microsoft Teams',
-            scheduled_at: new Date().toISOString()
-          }])
-      } catch (e) {
-        console.warn('Nota Supabase classes insert:', e)
-      }
-
       showNotification(`¡Nueva grabación de Teams publicada en el aula de ${activeLevel.toUpperCase()}!`)
     }
 
     setShowRecordingModal(false)
   }
 
-  const handleDeleteRecording = (id: string) => {
+  const handleDeleteRecording = async (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar esta grabación? Los alumnos ya no podrán verla en su aula.')) {
       const updated = recordings.filter(r => r.id !== id)
       setRecordings(updated)
@@ -416,6 +471,16 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
       }
+
+      // Eliminar de Supabase vía API Classes
+      try {
+        if (!id.startsWith('rec-')) {
+          await fetch(`/api/classes?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+        }
+      } catch (e) {
+        console.warn('Error al eliminar clase en Supabase:', e)
+      }
+
       showNotification(`Grabación eliminada del catálogo de ${activeLevel.toUpperCase()}.`)
     }
   }
@@ -484,7 +549,7 @@ export default function TeacherCampusPage() {
     }))
   }
 
-  const handleDeleteMaterial = (id: string) => {
+  const handleDeleteMaterial = async (id: string) => {
     if (confirm('¿Estás seguro de que deseas eliminar este recurso didáctico? Los estudiantes ya no podrán descargarlo ni escucharlo en su aula.')) {
       const updated = materials.filter(m => m.id !== id)
       setMaterials(updated)
@@ -492,6 +557,16 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
       }
+
+      // Eliminar de Supabase vía API Materials
+      try {
+        if (!id.startsWith('mat-')) {
+          await fetch(`/api/materials?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+        }
+      } catch (e) {
+        console.warn('Error al eliminar material en Supabase:', e)
+      }
+
       showNotification('Recurso didáctico eliminado con éxito.')
       if (previewingAudioId === id) {
         if (previewAudioRef.current) previewAudioRef.current.pause()
@@ -512,7 +587,6 @@ export default function TeacherCampusPage() {
       if (pdfSourceMode === 'file' && selectedPdfFile) {
         setPdfUploadLoading(true)
         try {
-          const fileExt = selectedPdfFile.name.split('.').pop() || 'pdf'
           const safeName = selectedPdfFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')
           const storagePath = `guides/${activeLevel}/${Date.now()}-${safeName}`
           
@@ -575,25 +649,45 @@ export default function TeacherCampusPage() {
         window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
       }
 
-      // Sincronizar en Supabase tabla course_materials
+      // Sincronizar en Supabase vía API Materials
       try {
-        await supabase
-          .from('course_materials')
-          .update({
+        await fetch('/api/materials', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingMaterial.id.startsWith('mat-') ? undefined : editingMaterial.id,
             title: materialForm.title.trim(),
-            file_url: finalDownloadUrl,
-            type: materialForm.type,
-            description: materialForm.description.trim()
+            file_url: finalDownloadUrl
           })
-          .eq('title', materialForm.title.trim())
+        })
       } catch (e) {
-        console.warn('Nota Supabase course_materials update:', e)
+        console.warn('Nota Supabase materials update:', e)
       }
 
       showNotification('¡Recurso didáctico actualizado y sincronizado!')
     } else {
+      // Crear nuevo en Supabase vía API Materials
+      let savedId = `mat-${activeLevel}-${Date.now()}`
+      try {
+        const res = await fetch('/api/materials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: materialForm.title.trim(),
+            file_url: finalDownloadUrl,
+            level: activeLevel
+          })
+        })
+        const resData = await res.json()
+        if (resData?.material?.id) {
+          savedId = resData.material.id
+        }
+      } catch (e) {
+        console.warn('Nota Supabase materials insert:', e)
+      }
+
       const newMaterial: TeacherStudyMaterial = {
-        id: `mat-${activeLevel}-${Date.now()}`,
+        id: savedId,
         title: materialForm.title.trim(),
         type: materialForm.type,
         size: materialForm.size.trim() || (materialForm.type === 'pdf' ? '2.5 MB' : '8.5 MB'),
@@ -608,20 +702,6 @@ export default function TeacherCampusPage() {
       if (typeof window !== 'undefined') {
         localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
-      }
-
-      // Insertar en Supabase tabla course_materials
-      try {
-        await supabase
-          .from('course_materials')
-          .insert([{
-            title: newMaterial.title,
-            file_url: finalDownloadUrl,
-            type: newMaterial.type,
-            description: newMaterial.description
-          }])
-      } catch (e) {
-        console.warn('Nota Supabase course_materials insert:', e)
       }
 
       showNotification('¡Nuevo recurso didáctico publicado en el aula de los estudiantes!')

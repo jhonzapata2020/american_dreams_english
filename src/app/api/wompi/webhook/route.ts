@@ -71,7 +71,7 @@ export async function POST(request: Request) {
       const phone = (customer_data?.phone_number || customer_data?.phoneNumber || '').trim()
       const docType = customer_data?.legal_id_type || customer_data?.legalIdType || 'C.C.'
 
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjmpkoezeyhjhrzkw.supabase.co'
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjnmpkoezeyhjhrzkw.supabase.co'
       const serviceRoleKey =
         process.env.SUPABASE_SERVICE_ROLE_KEY ||
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
