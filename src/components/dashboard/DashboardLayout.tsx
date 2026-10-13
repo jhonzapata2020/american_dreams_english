@@ -126,9 +126,10 @@ export function DashboardLayout({
       { id: 'overview', label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard },
       { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo' },
       { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/admin/estudiantes', icon: Users, badge: 'Prioritario' },
+      { id: 'docentes', label: 'Equipo Docente & Tutores', href: '/dashboard/admin', icon: GraduationCap, badge: 'Facultad' },
       { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
       { id: 'liquidaciones', label: 'Liquidaciones CORPLEX', href: '/admin/liquidaciones', icon: Receipt, badge: 'Finanzas' },
-      { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: GraduationCap },
+      { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: Award },
       { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart }
     ],
     teacher: [
