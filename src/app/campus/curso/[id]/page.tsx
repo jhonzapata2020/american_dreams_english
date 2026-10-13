@@ -58,6 +58,86 @@ interface CourseDetailProps {
 export type RecordedSession = LevelRecordedSession
 export type Assignment = LevelAssignment
 
+// Tipos de Clase Sincrónica en Vivo (Supabase live_classes)
+export interface StudentLiveClass {
+  id: string
+  level_code: string
+  title: string
+  teams_meeting_url: string
+  scheduled_at: string
+  duration_minutes: number
+  is_active: boolean
+}
+
+// Generador de sesiones de respaldo para la semana en curso
+function getDefaultLiveClasses(levelCode: string): StudentLiveClass[] {
+  const lvl = levelCode.toUpperCase()
+  const now = new Date()
+  const currentDayOfWeek = now.getDay()
+  const distanceToMonday = currentDayOfWeek === 0 ? -6 : 1 - currentDayOfWeek
+  const monday = new Date(now)
+  monday.setDate(now.getDate() + distanceToMonday)
+  monday.setHours(19, 0, 0, 0)
+
+  const topics = [
+    `Grammar Foundations & Sentence Structure (${lvl})`,
+    `Listening Lab & Phonetics - Accent Polish (${lvl})`,
+    `Conversational Workshop & Interactive Drills (${lvl})`,
+    `Speaking Real-Life Interaction & Evaluation (${lvl})`
+  ]
+
+  return topics.map((topic, idx) => {
+    const sDate = new Date(monday)
+    sDate.setDate(monday.getDate() + idx)
+    return {
+      id: `default-${lvl.toLowerCase()}-${idx + 1}`,
+      level_code: lvl,
+      title: topic,
+      teams_meeting_url: 'https://teams.microsoft.com/l/meetup-join/american-dream-class',
+      scheduled_at: sDate.toISOString(),
+      duration_minutes: 90,
+      is_active: idx === 2
+    }
+  })
+}
+
+// Formateador elegante de fecha en español (ej: "Hoy Miércoles, 14 Oct")
+function formatClassDateLabel(isoString: string) {
+  const dt = new Date(isoString)
+  if (isNaN(dt.getTime())) return 'Fecha programada'
+  
+  const today = new Date()
+  const isTodayDate = dt.toDateString() === today.toDateString()
+  
+  const tomorrow = new Date(today)
+  tomorrow.setDate(today.getDate() + 1)
+  const isTomorrowDate = dt.toDateString() === tomorrow.toDateString()
+
+  const weekday = dt.toLocaleDateString('es-CO', { weekday: 'long' })
+  const capitalizedWeekday = weekday.charAt(0).toUpperCase() + weekday.slice(1)
+  const dayNum = dt.getDate()
+  const monthName = dt.toLocaleDateString('es-CO', { month: 'short' })
+
+  if (isTodayDate) {
+    return `Hoy ${capitalizedWeekday} (${dayNum} ${monthName})`
+  }
+  if (isTomorrowDate) {
+    return `Mañana ${capitalizedWeekday} (${dayNum} ${monthName})`
+  }
+  return `${capitalizedWeekday}, ${dayNum} ${monthName}`
+}
+
+// Formateador de rango de horas (ej: "7:00 PM a 8:30 PM (COT)")
+function formatClassTimeRange(isoString: string, durationMinutes = 90) {
+  const dt = new Date(isoString)
+  if (isNaN(dt.getTime())) return '7:00 PM - 8:30 PM (COT)'
+  
+  const endDt = new Date(dt.getTime() + durationMinutes * 60 * 1000)
+  const startStr = dt.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true })
+  const endStr = endDt.toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${startStr} a ${endStr} (COT)`
+}
+
 export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const courseId = (params?.id || 'a1').toLowerCase().trim()
   const supabase = createClient()
@@ -120,13 +200,22 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitSuccess, setSubmitSuccess] = useState(false)
 
-  // Cronograma semanal de 4 clases
-  const weeklySchedule = [
-    { day: 'Lunes', time: '7:00 PM - 8:30 PM', topic: 'Grammar Foundations & Sentence Structure', status: 'completed' },
-    { day: 'Martes', time: '7:00 PM - 8:30 PM', topic: 'Listening Lab & Phonetics (Schwa & Reductions)', status: 'completed' },
-    { day: 'Miércoles (HOY)', time: '7:00 PM - 8:30 PM', topic: cfg.liveClassTopic, status: 'active' },
-    { day: 'Jueves', time: '7:00 PM - 8:30 PM', topic: 'Speaking Workshop & Real-Life Interaction', status: 'upcoming' }
-  ]
+  // =========================================================================
+  // CLASES SINCRÓNICAS EN VIVO & CRONOGRAMA DINÁMICO (SUPABASE + RELOJ DE SISTEMA)
+  // =========================================================================
+  const [liveClasses, setLiveClasses] = useState<StudentLiveClass[]>(() => {
+    return getDefaultLiveClasses(courseId)
+  })
+  const [generalTeamsUrl, setGeneralTeamsUrl] = useState('https://teams.microsoft.com/l/meetup-join/american-dream-class')
+  const [currentTime, setCurrentTime] = useState<Date>(new Date())
+
+  // Reloj de alta precisión (Ticker reactivo de 1 segundo para cuenta regresiva)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
 
   // Clases Grabadas On-Demand específicas del nivel
   const [recordedSessions, setRecordedSessions] = useState<RecordedSession[]>(() => {
@@ -293,13 +382,43 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
           } catch (e) {
             console.warn('Nota fetch /api/materials en curso:', e)
           }
+
+          // 6. Clases sincrónicas en vivo desde la base de datos Supabase vía API
+          try {
+            const savedLive = localStorage.getItem(`ade_live_classes_${levelKey}`)
+            if (savedLive) {
+              try {
+                const parsed = JSON.parse(savedLive)
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  setLiveClasses(parsed)
+                }
+              } catch (e) {}
+            }
+            const savedTeamsUrl = localStorage.getItem(`ade_teams_url_${levelKey}`)
+            if (savedTeamsUrl) {
+              setGeneralTeamsUrl(savedTeamsUrl)
+            }
+
+            const resLive = await fetch(`/api/live-classes?level=${levelKey}`)
+            const dataLive = await resLive.json()
+            if (dataLive?.classes && Array.isArray(dataLive.classes) && dataLive.classes.length > 0) {
+              setLiveClasses(dataLive.classes)
+              localStorage.setItem(`ade_live_classes_${levelKey}`, JSON.stringify(dataLive.classes))
+              const activeC = dataLive.classes.find((c: any) => c.is_active) || dataLive.classes[0]
+              if (activeC?.teams_meeting_url) {
+                setGeneralTeamsUrl(activeC.teams_meeting_url)
+              }
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/live-classes en curso:', e)
+          }
         }
       } catch (e) {}
     }
     loadLevel()
   }, [courseId])
 
-  // Sincronización en tiempo real de recursos y grabaciones del docente
+  // Sincronización en tiempo real de recursos, grabaciones y clases en vivo
   useEffect(() => {
     const handleSync = () => {
       if (typeof window !== 'undefined') {
@@ -324,16 +443,33 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             }
           } catch (e) {}
         }
+
+        const savedLive = localStorage.getItem(`ade_live_classes_${levelKey}`)
+        if (savedLive) {
+          try {
+            const parsed = JSON.parse(savedLive)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setLiveClasses(parsed)
+            }
+          } catch (e) {}
+        }
+
+        const savedTeamsUrl = localStorage.getItem(`ade_teams_url_${levelKey}`)
+        if (savedTeamsUrl) {
+          setGeneralTeamsUrl(savedTeamsUrl)
+        }
       }
     }
 
     window.addEventListener('storage', handleSync)
     window.addEventListener('ade_materials_updated', handleSync)
     window.addEventListener('ade_recordings_updated', handleSync)
+    window.addEventListener('ade_live_classes_updated', handleSync)
     return () => {
       window.removeEventListener('storage', handleSync)
       window.removeEventListener('ade_materials_updated', handleSync)
       window.removeEventListener('ade_recordings_updated', handleSync)
+      window.removeEventListener('ade_live_classes_updated', handleSync)
     }
   }, [courseId])
 
@@ -395,6 +531,76 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
       }
     }, 800)
   }
+
+  // =========================================================================
+  // ALGORITMO DINÁMICO: CÁLCULO DE CLASES SINCRÓNICAS & CUENTA REGRESIVA
+  // =========================================================================
+  const sortedLiveClasses = [...liveClasses].sort((a, b) => {
+    return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime()
+  })
+
+  const nowMs = currentTime.getTime()
+
+  // 1. Sesión que se está transmitiendo en vivo en este preciso instante
+  const activeLiveClass = sortedLiveClasses.find(c => {
+    const st = new Date(c.scheduled_at).getTime()
+    const en = st + (c.duration_minutes || 90) * 60 * 1000
+    return nowMs >= st && nowMs <= en
+  })
+
+  // 2. Próxima sesión futura más cercana a realizarse
+  const nextUpcomingClass = sortedLiveClasses
+    .filter(c => new Date(c.scheduled_at).getTime() > nowMs)
+    .sort((a, b) => new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime())[0]
+
+  // 3. Sesión objetivo para la tarjeta destacada y el botón 3D flotante
+  // (Prioridad: En vivo ahora > Próxima más cercana > Marcada como activa > Primera disponible)
+  const targetClass: StudentLiveClass | null = 
+    activeLiveClass || 
+    nextUpcomingClass || 
+    sortedLiveClasses.find(c => c.is_active) || 
+    sortedLiveClasses[0] || 
+    null
+
+  // 4. Formateo y cuenta regresiva de alta precisión (estilo digital suizo/Apple)
+  let countdownState: 'live' | 'upcoming' | 'completed' = 'upcoming'
+  let countdownText = ''
+  let countdownLabel = 'Inicia en:'
+
+  if (activeLiveClass) {
+    countdownState = 'live'
+    const diffMs = (new Date(activeLiveClass.scheduled_at).getTime() + (activeLiveClass.duration_minutes || 90) * 60 * 1000) - nowMs
+    const totalSecs = Math.max(0, Math.floor(diffMs / 1000))
+    const hrs = Math.floor(totalSecs / 3600)
+    const mins = Math.floor((totalSecs % 3600) / 60)
+    const secs = totalSecs % 60
+    countdownLabel = 'Tiempo restante:'
+    countdownText = `${hrs > 0 ? `${hrs}h ` : ''}${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`
+  } else if (nextUpcomingClass) {
+    countdownState = 'upcoming'
+    const diffMs = new Date(nextUpcomingClass.scheduled_at).getTime() - nowMs
+    const totalSecs = Math.max(0, Math.floor(diffMs / 1000))
+    const days = Math.floor(totalSecs / 86400)
+    const hrs = Math.floor((totalSecs % 86400) / 3600)
+    const mins = Math.floor((totalSecs % 3600) / 60)
+    const secs = totalSecs % 60
+
+    if (days > 0) {
+      countdownText = `${days}d ${hrs.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`
+    } else {
+      countdownText = `${hrs.toString().padStart(2, '0')}h ${mins.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`
+    }
+  } else {
+    countdownState = 'completed'
+    countdownLabel = 'Estado:'
+    countdownText = 'Ciclo semanal finalizado'
+  }
+
+  // 5. Enlace inteligente de Microsoft Teams: siempre apunta a la clase activa o más cercana
+  const targetTeamsMeetingUrl = 
+    targetClass?.teams_meeting_url?.trim() || 
+    generalTeamsUrl?.trim() || 
+    'https://teams.microsoft.com/l/meetup-join/american-dream-class'
 
   return (
     <div className="min-h-screen bg-[#0B1528] sm:bg-[#F0F3F7] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
@@ -731,93 +937,203 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             {activeTab === 'cronograma' && (
               <div className="space-y-6">
                 
-                {/* TARJETA DESTACADA DE CLASE EN VIVO */}
-                <div className="bg-gradient-to-br from-slate-50 to-emerald-50/40 rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-200/80 flex flex-col md:flex-row md:items-center justify-between gap-5 relative overflow-hidden">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                      <span className="text-xs font-black text-emerald-800 uppercase tracking-wider">
-                        Sala Sincrónica Activa
-                      </span>
+                {/* TARJETA DESTACADA DE CLASE EN VIVO CON RELOJ DIGITAL Y ENLACE INTELIGENTE */}
+                <div className="bg-gradient-to-br from-slate-50 via-white to-emerald-50/50 rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-200/90 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                  
+                  {/* Destellos sutiles de fondo */}
+                  <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
+
+                  <div className="space-y-3 z-10 max-w-xl">
+                    
+                    {/* Insignias de Estado y Reloj de Cuenta Regresiva de Precisión */}
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {countdownState === 'live' ? (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-black uppercase tracking-wider shadow-sm animate-pulse">
+                          <span className="w-2 h-2 rounded-full bg-white" />
+                          Sala Sincrónica en Vivo Ahora
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 text-[11px] font-black uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
+                          Próxima Clase Sincrónica
+                        </span>
+                      )}
+
+                      {/* Contador Digital Moderno (Sleek Modern Digital Clock) */}
+                      <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-900 text-white text-xs font-mono tracking-tight font-extrabold shadow-sm border border-slate-800">
+                        <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span className="text-slate-300 font-sans text-[11px] font-bold">
+                          {countdownLabel}
+                        </span>
+                        <span className="text-emerald-300 tabular-nums font-black tracking-normal">
+                          {countdownText}
+                        </span>
+                      </div>
                     </div>
+
+                    {/* Título de la Clase más cercana o activa */}
                     <h2 className="text-base sm:text-xl font-black text-slate-900 leading-snug">
-                      {cfg.liveClassTopic}
+                      {targetClass?.title || cfg.liveClassTopic}
                     </h2>
-                    <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                      <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <span>{cfg.nextLiveClass} • 7:00 PM a 8:30 PM (UTC-5)</span>
+
+                    {/* Metadatos en tiempo real */}
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 font-medium">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="font-bold text-slate-800 capitalize">
+                          {targetClass ? formatClassDateLabel(targetClass.scheduled_at) : cfg.nextLiveClass}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="font-mono text-slate-700">
+                          {targetClass ? formatClassTimeRange(targetClass.scheduled_at, targetClass.duration_minutes) : '7:00 PM a 8:30 PM (COT)'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1 text-slate-400">
+                        <span>•</span>
+                        <span>Docente: <strong className="text-slate-700">{cfg.teacherName}</strong></span>
+                      </div>
                     </div>
                   </div>
 
+                  {/* EL BOTÓN 3D VERDE QUE SIEMPRE APUNTA A LA CLASE MÁS CERCANA */}
                   <a
-                    href="https://teams.microsoft.com/l/meetup-join/american-dream-class"
+                    href={targetTeamsMeetingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center justify-center gap-3 px-8 sm:px-9 py-3.5 sm:py-4 rounded-full bg-gradient-to-b from-[#22C55E] via-[#16A34A] to-[#15803D] text-white font-extrabold text-xs sm:text-sm tracking-wide border-t border-emerald-300/50 border-b border-emerald-950/30 shadow-[0_14px_28px_-4px_rgba(21,128,61,0.50),_0_6px_12px_-2px_rgba(21,128,61,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_18px_36px_-4px_rgba(21,128,61,0.65),_0_8px_16px_-2px_rgba(21,128,61,0.45),_inset_0_1px_1px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_10px_-2px_rgba(21,128,61,0.5),_inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all shrink-0 cursor-pointer select-none"
+                    className={`group relative inline-flex items-center justify-center gap-3 px-8 sm:px-9 py-3.5 sm:py-4 rounded-full bg-gradient-to-b from-[#22C55E] via-[#16A34A] to-[#15803D] text-white font-extrabold text-xs sm:text-sm tracking-wide border-t border-emerald-300/50 border-b border-emerald-950/30 shadow-[0_14px_28px_-4px_rgba(21,128,61,0.50),_0_6px_12px_-2px_rgba(21,128,61,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_18px_36px_-4px_rgba(21,128,61,0.65),_0_8px_16px_-2px_rgba(21,128,61,0.45),_inset_0_1px_1px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_10px_-2px_rgba(21,128,61,0.5),_inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all shrink-0 cursor-pointer select-none z-10 ${
+                      countdownState === 'live' ? 'ring-4 ring-emerald-400/50 animate-pulse' : ''
+                    }`}
                   >
                     <Video className="w-5 h-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)] group-hover:scale-110 transition-transform" />
-                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]">Entrar a Clase en Teams</span>
-                    <ExternalLink className="w-4 h-4 text-emerald-100/90 group-hover:text-white transition-colors" />
+                    <div className="flex flex-col text-left leading-tight">
+                      <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
+                        {countdownState === 'live' ? 'Entrar a Clase (SALA EN VIVO ABIERTA)' : 'Entrar a Clase en Teams'}
+                      </span>
+                      {targetClass && (
+                        <span className="text-[10px] text-emerald-100 font-semibold opacity-95">
+                          {countdownState === 'live' ? '● Transmitiendo en este momento' : `Directo a: ${targetClass.title.substring(0, 26)}...`}
+                        </span>
+                      )}
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-emerald-100/90 group-hover:text-white transition-colors ml-1" />
                   </a>
+
                 </div>
 
-                {/* CRONOGRAMA SEMANAL (4 DÍAS) */}
+                {/* CRONOGRAMA SEMANAL DINÁMICO (CALCULADO CON LA FECHA DEL SISTEMA) */}
                 <div className="bg-slate-50/60 rounded-3xl p-5 sm:p-7 border border-slate-200/80 space-y-4">
-                  <div className="flex items-center justify-between border-b border-slate-200/80 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/80 pb-3">
                     <div>
-                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider">
-                        Cronograma de la Semana
+                      <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-emerald-600" />
+                        <span>Cronograma Oficial de Clases Sincrónicas</span>
                       </h3>
-                      <p className="text-xs text-slate-500">
-                        4 sesiones sincrónicas en vivo por Microsoft Teams.
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">
+                        Sesiones programadas en vivo con tu docente en Microsoft Teams. Los estados se actualizan automáticamente según la fecha del sistema.
                       </p>
                     </div>
-                    <span className="text-xs font-bold text-[#0B1528] bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs">
-                      Lunes a Jueves
+                    <span className="text-xs font-bold text-[#0B1528] bg-white border border-slate-200 px-3 py-1 rounded-full shadow-2xs self-start sm:self-center">
+                      Nivel {cfg.shortLevel} · Periodo Activo
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    {weeklySchedule.map((item, idx) => (
-                      <div
-                        key={idx}
-                        className={`p-4 rounded-2xl border transition-all ${
-                          item.status === 'active'
-                            ? 'bg-white border-emerald-400 shadow-sm'
-                            : item.status === 'completed'
-                            ? 'bg-slate-100/80 border-slate-200 opacity-75'
-                            : 'bg-white border-slate-200 shadow-2xs'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <strong className="text-xs font-black text-slate-900">{item.day}</strong>
-                              <span className="text-[11px] text-slate-500 font-mono">({item.time})</span>
-                            </div>
-                            <p className="text-xs font-semibold text-slate-700 leading-snug">{item.topic}</p>
-                          </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+                    {sortedLiveClasses.length > 0 ? (
+                      sortedLiveClasses.map((item, idx) => {
+                        const startMs = new Date(item.scheduled_at).getTime()
+                        const endMs = startMs + (item.duration_minutes || 90) * 60 * 1000
+                        const isLive = nowMs >= startMs && nowMs <= endMs
+                        const isPast = nowMs > endMs
+                        const isUpcoming = nowMs < startMs
+                        const isNext = targetClass?.id === item.id && !isLive && isUpcoming
 
-                          <div className="shrink-0">
-                            {item.status === 'active' && (
-                              <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300">
-                                Hoy
-                              </span>
-                            )}
-                            {item.status === 'completed' && (
-                              <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-0.5 rounded-full">
-                                Dictada
-                              </span>
-                            )}
-                            {item.status === 'upcoming' && (
-                              <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
-                                Próxima
-                              </span>
-                            )}
+                        return (
+                          <div
+                            key={item.id || idx}
+                            className={`p-4 sm:p-5 rounded-2xl border transition-all relative ${
+                              isLive
+                                ? 'bg-gradient-to-r from-emerald-50 via-white to-emerald-50/50 border-emerald-500 shadow-md ring-2 ring-emerald-400/30'
+                                : isNext
+                                ? 'bg-white border-blue-400 shadow-sm ring-1 ring-blue-300/40'
+                                : isPast
+                                ? 'bg-slate-100/70 border-slate-200 opacity-75'
+                                : 'bg-white border-slate-200 shadow-2xs'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-2">
+                                  <strong className="text-xs sm:text-sm font-black text-slate-900 capitalize">
+                                    {formatClassDateLabel(item.scheduled_at)}
+                                  </strong>
+                                  <span className="text-[11px] text-slate-500 font-mono">
+                                    ({formatClassTimeRange(item.scheduled_at, item.duration_minutes)})
+                                  </span>
+                                </div>
+                                <p className="text-xs font-semibold text-slate-800 leading-snug">
+                                  {item.title}
+                                </p>
+                                {isNext && (
+                                  <div className="text-[11px] font-mono font-bold text-blue-700 flex items-center gap-1.5 pt-0.5">
+                                    <Clock className="w-3.5 h-3.5 text-blue-600" />
+                                    <span>Inicia en: {countdownText}</span>
+                                  </div>
+                                )}
+                                {isLive && (
+                                  <div className="text-[11px] font-mono font-bold text-emerald-700 flex items-center gap-1.5 pt-0.5">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                                    <span>Finaliza en: {countdownText}</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="shrink-0 flex flex-col items-end gap-2">
+                                {isLive ? (
+                                  <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 animate-pulse">
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                                    En Vivo
+                                  </span>
+                                ) : isNext ? (
+                                  <span className="text-[10px] font-black uppercase px-2.5 py-1 rounded-full bg-blue-100 text-blue-900 border border-blue-300">
+                                    Próxima
+                                  </span>
+                                ) : isPast ? (
+                                  <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2.5 py-1 rounded-full">
+                                    Dictada
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                                    Programada
+                                  </span>
+                                )}
+
+                                <a
+                                  href={item.teams_meeting_url || targetTeamsMeetingUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={`text-[11px] font-bold inline-flex items-center gap-1 pt-0.5 ${
+                                    isLive
+                                      ? 'text-emerald-700 font-black hover:text-emerald-900 underline'
+                                      : isPast
+                                      ? 'text-slate-400 hover:text-slate-600'
+                                      : 'text-slate-600 hover:text-blue-700'
+                                  }`}
+                                >
+                                  <span>{isLive ? 'Unirse a sala' : 'Ver enlace'}</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )
+                      })
+                    ) : (
+                      <div className="col-span-2 text-center py-8 text-xs text-slate-400 font-medium">
+                        Cargando sesiones programadas de la semana...
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 

@@ -70,6 +70,17 @@ export interface TeacherRecordedSession {
   teacher?: string
 }
 
+// Tipos de Clase Sincrónica en Vivo (Microsoft Teams)
+export interface TeacherLiveClass {
+  id: string
+  level_code: string
+  title: string
+  teams_meeting_url: string
+  scheduled_at: string
+  duration_minutes: number
+  is_active: boolean
+}
+
 // Tipos de Tarea Entregada
 export interface StudentSubmission {
   id: string
@@ -103,7 +114,22 @@ export default function TeacherCampusPage() {
   const [teacherName, setTeacherName] = useState('Lic. Carlos Méndez')
   const [teacherEmail, setTeacherEmail] = useState('carlos.mendez@americandream.edu.co')
   const [activeLevel, setActiveLevel] = useState<'a1' | 'a2' | 'b1' | 'b2'>('a1')
-  const [activeTab, setActiveTab] = useState<'recordings' | 'materials' | 'grading' | 'forum' | 'students'>('recordings')
+  const [activeTab, setActiveTab] = useState<'live' | 'recordings' | 'materials' | 'grading' | 'forum' | 'students'>('live')
+
+  // Módulo 0: Sala Teams & Cronograma en Vivo
+  const [liveClasses, setLiveClasses] = useState<TeacherLiveClass[]>([])
+  const [generalTeamsUrl, setGeneralTeamsUrl] = useState('https://teams.microsoft.com/l/meetup-join/american-dream-class')
+  const [savingTeamsUrl, setSavingTeamsUrl] = useState(false)
+  const [showLiveClassModal, setShowLiveClassModal] = useState(false)
+  const [editingLiveClass, setEditingLiveClass] = useState<TeacherLiveClass | null>(null)
+  const [liveClassForm, setLiveClassForm] = useState({
+    title: '',
+    teamsMeetingUrl: '',
+    scheduledDate: new Date().toISOString().split('T')[0],
+    scheduledTime: '19:00',
+    durationMinutes: 90,
+    isActive: true
+  })
 
   // Módulo 1: Grabaciones
   const [recordings, setRecordings] = useState<TeacherRecordedSession[]>(INITIAL_RECORDINGS)
@@ -301,6 +327,22 @@ export default function TeacherCampusPage() {
           } catch (e) {
             console.warn('Nota fetch /api/materials:', e)
           }
+
+          // Cargar clases en vivo y enlace de Teams desde Supabase vía API
+          try {
+            const resLive = await fetch(`/api/live-classes?level=${activeLevel}`)
+            const dataLive = await resLive.json()
+            if (dataLive?.classes && dataLive.classes.length > 0) {
+              setLiveClasses(dataLive.classes)
+              const activeC = dataLive.classes.find((c: any) => c.is_active) || dataLive.classes[0]
+              if (activeC?.teams_meeting_url) {
+                setGeneralTeamsUrl(activeC.teams_meeting_url)
+              }
+              localStorage.setItem(`ade_live_classes_${activeLevel}`, JSON.stringify(dataLive.classes))
+            }
+          } catch (e) {
+            console.warn('Nota fetch /api/live-classes:', e)
+          }
         }
       } catch (err) {
         console.error('Error loading teacher profile:', err)
@@ -334,6 +376,179 @@ export default function TeacherCampusPage() {
       loadForumQuestions()
     }
   }, [activeTab, activeLevel])
+
+  // =========================================================================
+  // HANDLERS: GESTIÓN DE SALA TEAMS Y CLASES EN VIVO (CRONOGRAMA)
+  // =========================================================================
+  const handleSaveGeneralTeamsUrl = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!generalTeamsUrl.trim()) return
+    setSavingTeamsUrl(true)
+    try {
+      await fetch('/api/live-classes', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          level_code: activeLevel,
+          teams_meeting_url: generalTeamsUrl.trim(),
+          updateAllUrlsForLevel: true
+        })
+      })
+
+      const updated = liveClasses.map(c => ({ ...c, teams_meeting_url: generalTeamsUrl.trim() }))
+      setLiveClasses(updated)
+      localStorage.setItem(`ade_live_classes_${activeLevel}`, JSON.stringify(updated))
+      localStorage.setItem(`ade_teams_url_${activeLevel}`, generalTeamsUrl.trim())
+      window.dispatchEvent(new CustomEvent('ade_live_classes_updated', { detail: { level: activeLevel } }))
+      showNotification(`¡Enlace oficial de Teams guardado y sincronizado para ${activeLevel.toUpperCase()}!`)
+    } catch (e) {
+      console.warn('Nota guardado teams URL:', e)
+      showNotification('Enlace guardado en caché local.')
+    } finally {
+      setSavingTeamsUrl(false)
+    }
+  }
+
+  const handleOpenNewLiveClassModal = () => {
+    setEditingLiveClass(null)
+    const today = new Date().toISOString().split('T')[0]
+    setLiveClassForm({
+      title: '',
+      teamsMeetingUrl: generalTeamsUrl || 'https://teams.microsoft.com',
+      scheduledDate: today,
+      scheduledTime: '19:00',
+      durationMinutes: 90,
+      isActive: true
+    })
+    setShowLiveClassModal(true)
+  }
+
+  const handleEditLiveClass = (item: TeacherLiveClass) => {
+    setEditingLiveClass(item)
+    const dt = new Date(item.scheduled_at)
+    const dateStr = !isNaN(dt.getTime()) ? dt.toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+    const timeStr = !isNaN(dt.getTime()) ? dt.toTimeString().substring(0, 5) : '19:00'
+
+    setLiveClassForm({
+      title: item.title,
+      teamsMeetingUrl: item.teams_meeting_url || generalTeamsUrl,
+      scheduledDate: dateStr,
+      scheduledTime: timeStr,
+      durationMinutes: item.duration_minutes || 90,
+      isActive: item.is_active
+    })
+    setShowLiveClassModal(true)
+  }
+
+  const handleSaveLiveClass = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!liveClassForm.title.trim()) return
+
+    const combinedDateTime = new Date(`${liveClassForm.scheduledDate}T${liveClassForm.scheduledTime}:00`).toISOString()
+    const meetingUrl = liveClassForm.teamsMeetingUrl.trim() || generalTeamsUrl.trim() || 'https://teams.microsoft.com'
+
+    if (editingLiveClass) {
+      try {
+        await fetch('/api/live-classes', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingLiveClass.id.startsWith('default-') ? undefined : editingLiveClass.id,
+            level_code: activeLevel,
+            title: liveClassForm.title.trim(),
+            teams_meeting_url: meetingUrl,
+            scheduled_at: combinedDateTime,
+            duration_minutes: liveClassForm.durationMinutes,
+            is_active: liveClassForm.isActive
+          })
+        })
+      } catch (err) {
+        console.warn('Nota update live class:', err)
+      }
+
+      const updated = liveClasses.map(c => {
+        if (c.id === editingLiveClass.id) {
+          return {
+            ...c,
+            title: liveClassForm.title.trim(),
+            teams_meeting_url: meetingUrl,
+            scheduled_at: combinedDateTime,
+            duration_minutes: liveClassForm.durationMinutes,
+            is_active: liveClassForm.isActive
+          }
+        }
+        if (liveClassForm.isActive) {
+          return { ...c, is_active: false }
+        }
+        return c
+      })
+      setLiveClasses(updated)
+      localStorage.setItem(`ade_live_classes_${activeLevel}`, JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('ade_live_classes_updated', { detail: { level: activeLevel } }))
+      showNotification(`¡Sesión sincrónica de ${activeLevel.toUpperCase()} actualizada!`)
+    } else {
+      let savedId = `live-${activeLevel}-${Date.now()}`
+      try {
+        const res = await fetch('/api/live-classes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            level_code: activeLevel,
+            title: liveClassForm.title.trim(),
+            teams_meeting_url: meetingUrl,
+            scheduled_at: combinedDateTime,
+            duration_minutes: liveClassForm.durationMinutes,
+            is_active: liveClassForm.isActive
+          })
+        })
+        const data = await res.json()
+        if (data?.liveClass?.id) {
+          savedId = data.liveClass.id
+        }
+      } catch (err) {
+        console.warn('Nota insert live class:', err)
+      }
+
+      const newSession: TeacherLiveClass = {
+        id: savedId,
+        level_code: activeLevel.toUpperCase(),
+        title: liveClassForm.title.trim(),
+        teams_meeting_url: meetingUrl,
+        scheduled_at: combinedDateTime,
+        duration_minutes: liveClassForm.durationMinutes,
+        is_active: liveClassForm.isActive
+      }
+
+      const updated = liveClassForm.isActive
+        ? [newSession, ...liveClasses.map(c => ({ ...c, is_active: false }))]
+        : [...liveClasses, newSession]
+
+      setLiveClasses(updated)
+      localStorage.setItem(`ade_live_classes_${activeLevel}`, JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('ade_live_classes_updated', { detail: { level: activeLevel } }))
+      showNotification(`¡Nueva sesión en vivo programada para ${activeLevel.toUpperCase()}!`)
+    }
+
+    setShowLiveClassModal(false)
+  }
+
+  const handleDeleteLiveClass = async (id: string) => {
+    if (confirm('¿Deseas eliminar esta sesión en vivo del cronograma?')) {
+      const updated = liveClasses.filter(c => c.id !== id)
+      setLiveClasses(updated)
+      localStorage.setItem(`ade_live_classes_${activeLevel}`, JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('ade_live_classes_updated', { detail: { level: activeLevel } }))
+
+      try {
+        if (!id.startsWith('default-') && !id.startsWith('live-')) {
+          await fetch(`/api/live-classes?id=${encodeURIComponent(id)}`, { method: 'DELETE' })
+        }
+      } catch (err) {
+        console.warn('Nota delete live class:', err)
+      }
+      showNotification('Sesión eliminada del cronograma.')
+    }
+  }
 
   // =========================================================================
   // HANDLERS: GESTIÓN DE GRABACIONES
@@ -1024,6 +1239,25 @@ export default function TeacherCampusPage() {
           {/* =================================================================== */}
           <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pb-4 border-b border-slate-200">
             
+            {/* Tab 0: Sala Teams & En Vivo */}
+            <button
+              onClick={() => setActiveTab('live')}
+              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+                activeTab === 'live'
+                  ? 'bg-emerald-700 text-white shadow-md scale-102'
+                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <Video className="w-4 h-4 text-emerald-400" />
+              <span>Sala Teams & Clases en Vivo</span>
+              <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
+                activeTab === 'live' ? 'bg-white/20 text-white' : 'bg-emerald-200/80 text-emerald-900'
+              }`}>
+                {liveClasses.length}
+              </span>
+            </button>
+
             {/* Tab 1: Clases Grabadas */}
             <button
               onClick={() => setActiveTab('recordings')}
@@ -1110,6 +1344,191 @@ export default function TeacherCampusPage() {
             </button>
 
           </div>
+
+          {/* =================================================================== */}
+          {/* SECCIÓN 0: SALA TEAMS & CRONOGRAMA EN VIVO                          */}
+          {/* =================================================================== */}
+          {activeTab === 'live' && (
+            <div className="space-y-6 animate-fadeIn">
+              
+              {/* Tarjeta Destacada: Configuración Enlace de Teams */}
+              <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-900 text-white p-5 sm:p-7 rounded-3xl border border-emerald-500/30 shadow-xl space-y-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="text-[11px] font-black uppercase tracking-wider text-emerald-300">
+                        Sala Sincrónica Oficial · {activeLevel.toUpperCase()}
+                      </span>
+                    </div>
+                    <h2 className="text-xl sm:text-2xl font-black text-white">
+                      Enlace Principal de Microsoft Teams ({activeLevel.toUpperCase()})
+                    </h2>
+                    <p className="text-xs text-emerald-100/80 font-medium max-w-2xl">
+                      El botón flotante verde 3D de Teams en el aula del estudiante redirigirá automáticamente a esta reunión para todas las sesiones sincrónicas programadas.
+                    </p>
+                  </div>
+
+                  <a
+                    href={generalTeamsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-emerald-200 border border-white/20 text-xs font-bold transition-all shadow-sm shrink-0 self-start md:self-center"
+                  >
+                    <ExternalLink className="w-4 h-4 text-emerald-300" />
+                    <span>Probar Sala en Teams</span>
+                  </a>
+                </div>
+
+                {/* Formulario de guardado rápido de URL de Teams */}
+                <form onSubmit={handleSaveGeneralTeamsUrl} className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-300">
+                      <Video className="w-4 h-4" />
+                    </div>
+                    <input
+                      type="url"
+                      required
+                      value={generalTeamsUrl}
+                      onChange={(e) => setGeneralTeamsUrl(e.target.value)}
+                      placeholder="https://teams.microsoft.com/l/meetup-join/..."
+                      className="w-full bg-white/10 border border-emerald-400/40 focus:border-emerald-300 focus:bg-white/15 text-white placeholder-emerald-300/50 rounded-2xl pl-10 pr-4 py-3 text-xs sm:text-sm font-mono outline-none transition-all"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={savingTeamsUrl}
+                    className="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shrink-0 cursor-pointer disabled:opacity-70"
+                  >
+                    {savingTeamsUrl ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4 text-slate-950" />
+                    )}
+                    <span>Guardar y Publicar en Aula</span>
+                  </button>
+                </form>
+              </div>
+
+              {/* Barra de Acciones del Cronograma */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 sm:p-5 rounded-3xl border border-slate-200">
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                    Cronograma de Clases en Vivo de la Semana ({activeLevel.toUpperCase()})
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Programa los temas, fechas y horarios de las sesiones sincrónicas que verán los estudiantes.
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleOpenNewLiveClassModal}
+                  className="bg-[#002B49] hover:bg-[#001f35] active:scale-95 text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
+                >
+                  <Plus className="w-4 h-4 text-amber-400" />
+                  <span>Programar Nueva Clase en Vivo</span>
+                </button>
+              </div>
+
+              {/* Lista de Sesiones Programadas */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                {liveClasses.map((item) => {
+                  const dt = new Date(item.scheduled_at)
+                  const isValidDate = !isNaN(dt.getTime())
+                  const dayName = isValidDate ? dt.toLocaleDateString('es-ES', { weekday: 'long' }) : 'Día'
+                  const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1)
+                  const dateFormatted = isValidDate ? dt.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : ''
+                  const timeFormatted = isValidDate ? dt.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''
+
+                  const now = new Date()
+                  const isPast = isValidDate && dt.getTime() + (item.duration_minutes || 90) * 60000 < now.getTime()
+                  const isToday = isValidDate && dt.toDateString() === now.toDateString()
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={`bg-white rounded-3xl p-5 border transition-all shadow-sm hover:shadow-md flex flex-col justify-between space-y-4 ${
+                        item.is_active || isToday
+                          ? 'border-emerald-400 ring-2 ring-emerald-100'
+                          : 'border-slate-200'
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-extrabold text-xs text-[#002B49] bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
+                              {capitalizedDay} {dateFormatted}
+                            </span>
+                            <span className="text-xs text-slate-500 font-mono font-bold">
+                              {timeFormatted} ({item.duration_minutes || 90}m)
+                            </span>
+                          </div>
+
+                          <div>
+                            {item.is_active ? (
+                              <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                Sala Activa
+                              </span>
+                            ) : isPast ? (
+                              <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                                Dictada
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+                                Programada
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <h4 className="text-sm sm:text-base font-black text-slate-900 leading-snug">
+                          {item.title}
+                        </h4>
+
+                        <div className="flex items-center gap-2 text-xs text-slate-500 font-mono truncate">
+                          <Video className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span className="truncate">{item.teams_meeting_url || generalTeamsUrl}</span>
+                        </div>
+                      </div>
+
+                      {/* Botones de acción */}
+                      <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-xs">
+                        <a
+                          href={item.teams_meeting_url || generalTeamsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1 hover:underline"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Entrar a Teams</span>
+                        </a>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleEditLiveClass(item)}
+                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
+                            title="Editar sesión"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLiveClass(item.id)}
+                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
+                            title="Eliminar sesión"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+            </div>
+          )}
 
           {/* =================================================================== */}
           {/* SECCIÓN 1: GESTIÓN DE CLASES GRABADAS (TEAMS / ONEDRIVE)            */}
@@ -2384,6 +2803,161 @@ export default function TeacherCampusPage() {
                 >
                   <Check className="w-4 h-4 text-amber-400" />
                   <span>{pdfUploadLoading ? 'Subiendo archivo...' : editingMaterial ? 'Guardar Cambios' : 'Publicar Recurso'}</span>
+                </button>
+              </div>
+
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: PROGRAMAR / EDITAR CLASE EN VIVO (MICROSOFT TEAMS)           */}
+      {/* =================================================================== */}
+      {showLiveClassModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-7 space-y-5 animate-scaleUp">
+            
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
+                  <Video className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-slate-900">
+                    {editingLiveClass ? 'Editar Clase Sincrónica' : 'Programar Nueva Clase Sincrónica'}
+                  </h3>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Nivel {activeLevel.toUpperCase()} · Microsoft Teams en Vivo
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowLiveClassModal(false)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-sm font-bold transition-all"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveLiveClass} className="space-y-4 text-xs font-bold text-slate-700">
+              
+              {/* Título de la clase */}
+              <div>
+                <label className="text-slate-700 block mb-1">
+                  Título de la Clase / Sesión <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={liveClassForm.title}
+                  onChange={(e) => setLiveClassForm({ ...liveClassForm, title: e.target.value })}
+                  placeholder="Ej: Masterclass: Fluidez Conversacional & Phrasal Verbs"
+                  className="w-full p-3 border border-slate-300 focus:border-emerald-600 rounded-xl outline-none font-medium text-slate-900 bg-white"
+                />
+              </div>
+
+              {/* Fecha y Hora */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-slate-700 block mb-1">
+                    Fecha de la Clase <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      required
+                      value={liveClassForm.scheduledDate}
+                      onChange={(e) => setLiveClassForm({ ...liveClassForm, scheduledDate: e.target.value })}
+                      className="w-full p-3 border border-slate-300 focus:border-emerald-600 rounded-xl outline-none font-medium text-slate-900 bg-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-slate-700 block mb-1">
+                    Hora de Inicio (Hora Colombia / COT) <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="time"
+                      required
+                      value={liveClassForm.scheduledTime}
+                      onChange={(e) => setLiveClassForm({ ...liveClassForm, scheduledTime: e.target.value })}
+                      className="w-full p-3 border border-slate-300 focus:border-emerald-600 rounded-xl outline-none font-medium text-slate-900 bg-white"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Duración */}
+              <div>
+                <label className="text-slate-700 block mb-1">
+                  Duración Estimada
+                </label>
+                <select
+                  value={liveClassForm.durationMinutes}
+                  onChange={(e) => setLiveClassForm({ ...liveClassForm, durationMinutes: Number(e.target.value) })}
+                  className="w-full p-3 border border-slate-300 focus:border-emerald-600 rounded-xl outline-none font-medium text-slate-900 bg-white"
+                >
+                  <option value={45}>45 minutos</option>
+                  <option value={60}>1 hora (60 minutos)</option>
+                  <option value={90}>1 hora y 30 minutos (90 minutos)</option>
+                  <option value={120}>2 horas (120 minutos)</option>
+                </select>
+              </div>
+
+              {/* Enlace de Microsoft Teams */}
+              <div>
+                <label className="text-slate-700 block mb-1">
+                  Enlace de Reunión Microsoft Teams
+                </label>
+                <input
+                  type="url"
+                  value={liveClassForm.teamsMeetingUrl}
+                  onChange={(e) => setLiveClassForm({ ...liveClassForm, teamsMeetingUrl: e.target.value })}
+                  placeholder="https://teams.microsoft.com/l/meetup-join/..."
+                  className="w-full p-3 border border-slate-300 focus:border-emerald-600 rounded-xl outline-none font-medium font-mono text-slate-900 text-xs bg-white"
+                />
+                <p className="text-[10px] text-slate-500 mt-1">
+                  💡 Si se deja igual a la sala general, todos los estudiantes accederán a la misma sala recurrente del nivel.
+                </p>
+              </div>
+
+              {/* Estado Activo */}
+              <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <div>
+                    <span className="text-xs font-bold text-emerald-950 block">Sesión Activa en el Aula</span>
+                    <span className="text-[10px] text-emerald-700 font-medium">Visible de inmediato en el cronograma semanal del estudiante</span>
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={liveClassForm.isActive}
+                  onChange={(e) => setLiveClassForm({ ...liveClassForm, isActive: e.target.checked })}
+                  className="w-4 h-4 accent-emerald-600 rounded cursor-pointer"
+                />
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowLiveClassModal(false)}
+                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-xs font-bold transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black shadow-md flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                >
+                  <Check className="w-4 h-4 text-emerald-200" />
+                  <span>{editingLiveClass ? 'Guardar Cambios' : 'Agendar Clase en Vivo'}</span>
                 </button>
               </div>
 
