@@ -136,23 +136,62 @@ export async function POST(req: Request) {
           .or(`document_number.eq.${docNumber},document_number.eq.${cleanDoc}`)
       }
 
-      // Si es el usuario demo oficial de Valeria Morales, asegurar upsert con UUID reservado
-      if (docNumber.includes('1040892341') || email.includes('valeria.morales') || email.includes('estudiante@americandream')) {
-        await supabaseAdmin
+      // Si es cuenta de estudiante o demo sin UUID en sesión, garantizar integridad con auth.users (profiles_id_fkey)
+      const targetEmail = email || (docNumber.includes('1040892341') ? 'valeria.morales@americandream.edu.co' : '')
+      if (targetEmail) {
+        // Verificar si ya existe en profiles
+        const { data: matchedProfile } = await supabaseAdmin
           .from('profiles')
-          .upsert({
-            id: 'a1111111-1111-1111-1111-111111111111',
-            role: 'student',
-            full_name: fullName.trim() || 'Valeria Morales Montoya',
-            document_type: 'C.C.',
-            document_number: '1.040.892.341',
-            phone: phone.trim() || '+57 300 892 3410',
-            email: 'valeria.morales@americandream.edu.co',
-            mcer_level: 'A1 Principiante',
-            avatar_url: resolvedAvatarUrl,
-            origin_location: 'Turbo, Antioquia',
-            updated_at: new Date().toISOString()
-          }, { onConflict: 'id' })
+          .select('id')
+          .or(`email.eq.${targetEmail},document_number.eq.${docNumber || '1.040.892.341'}`)
+          .maybeSingle()
+
+        if (matchedProfile?.id) {
+          await supabaseAdmin
+            .from('profiles')
+            .update(updateData)
+            .eq('id', matchedProfile.id)
+        } else {
+          // Si no existe en profiles, asegurar usuario en auth.users antes del upsert para respetar FK profiles_id_fkey
+          try {
+            const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
+            let existingAuthUser: any = listData?.users?.find(u => u.email?.toLowerCase() === targetEmail.toLowerCase())
+
+            if (!existingAuthUser) {
+              const { data: createdAuth } = await supabaseAdmin.auth.admin.createUser({
+                email: targetEmail,
+                password: docNumber || '1040892341',
+                email_confirm: true,
+                user_metadata: {
+                  role: 'student',
+                  full_name: fullName.trim() || 'Valeria Morales Montoya',
+                  avatar_url: resolvedAvatarUrl
+                }
+              })
+              existingAuthUser = createdAuth?.user
+            }
+
+            if (existingAuthUser?.id) {
+              await supabaseAdmin
+                .from('profiles')
+                .upsert({
+                  id: existingAuthUser.id,
+                  role: 'student',
+                  full_name: fullName.trim() || 'Valeria Morales Montoya',
+                  document_type: 'C.C.',
+                  document_number: docNumber || '1.040.892.341',
+                  phone: phone.trim() || '+57 300 892 3410',
+                  email: targetEmail,
+                  mcer_level: 'A1 Principiante',
+                  avatar_url: resolvedAvatarUrl,
+                  origin_location: 'Turbo, Antioquia',
+                  updated_at: new Date().toISOString()
+                }, { onConflict: 'id' })
+            }
+          } catch (authCreateErr) {
+            console.warn('Aviso verificando usuario en auth.users:', authCreateErr)
+          }
+        }
       }
     } catch (dbErr: any) {
       console.warn('Aviso actualizando profiles con avatar_url:', dbErr?.message)

@@ -1,13 +1,19 @@
 -- =========================================================================
 -- AMERICAN DREAM ENGLISH & CORPLEX SOLUTIONS
 -- ESQUEMA COMPLETO DE ALMACENAMIENTO Y PERFILES PARA AVATARES (SUPABASE)
--- Permite sincronización multiplataforma y entre dispositivos de fotos de perfil
+-- Sincronización multidispositivo de fotos de perfil (bucket avatars & profiles)
 -- =========================================================================
 
--- 1. ASEGURAR COLUMNAS EN TABLA public.profiles
-ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+-- 1. ASEGURAR COLUMNAS EN TABLA public.profiles (Resuelve error 42703)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS role user_role DEFAULT 'student';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS full_name TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS document_type TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS document_number TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS phone TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS mcer_level TEXT;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS origin_location TEXT DEFAULT 'Turbo, Antioquia';
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 2. HABILITAR ROW LEVEL SECURITY (RLS) EN PROFILES
@@ -24,14 +30,14 @@ CREATE POLICY "Public can view profiles" ON public.profiles
   FOR SELECT TO anon
   USING (true);
 
--- Edición de perfil propio
+-- Edición de perfil propio (USING + WITH CHECK)
 DROP POLICY IF EXISTS "Users can update own profile" ON public.profiles;
 CREATE POLICY "Users can update own profile" ON public.profiles
   FOR UPDATE TO authenticated
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
--- Inserción de perfil propio
+-- Inserción de perfil propio (Sintaxis estricta PostgreSQL: solo WITH CHECK para INSERT)
 DROP POLICY IF EXISTS "Users can insert own profile" ON public.profiles;
 CREATE POLICY "Users can insert own profile" ON public.profiles
   FOR INSERT TO authenticated
@@ -52,54 +58,26 @@ ON CONFLICT (id) DO UPDATE SET
   allowed_mime_types = ARRAY['image/webp', 'image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
 
 -- 4. POLÍTICAS DE ACCESO PARA SUPABASE STORAGE (storage.objects)
--- 4.1 Lectura pública de avatares (permite que cualquier compañero en otra PC vea la foto)
+-- 4.1 Lectura pública de avatares (permite que compañeros y profesores vean fotos desde cualquier dispositivo)
 DROP POLICY IF EXISTS "Public can view avatars" ON storage.objects;
 CREATE POLICY "Public can view avatars" ON storage.objects
   FOR SELECT
   USING (bucket_id = 'avatars');
 
--- 4.2 Subida de avatares
+-- 4.2 Subida de avatares (INSERT usa WITH CHECK)
 DROP POLICY IF EXISTS "Allow avatar uploads" ON storage.objects;
 CREATE POLICY "Allow avatar uploads" ON storage.objects
   FOR INSERT
   WITH CHECK (bucket_id = 'avatars');
 
--- 4.3 Actualización de avatares existentes
+-- 4.3 Actualización de avatares (UPDATE usa USING)
 DROP POLICY IF EXISTS "Allow avatar updates" ON storage.objects;
 CREATE POLICY "Allow avatar updates" ON storage.objects
   FOR UPDATE
   USING (bucket_id = 'avatars');
 
--- 4.4 Eliminación de avatares
+-- 4.4 Eliminación de avatares (DELETE usa USING)
 DROP POLICY IF EXISTS "Allow avatar deletes" ON storage.objects;
 CREATE POLICY "Allow avatar deletes" ON storage.objects
   FOR DELETE
   USING (bucket_id = 'avatars');
-
--- 5. REGISTRAR O ACTUALIZAR PERFIL DEMO OFICIAL DE VALERIA MORALES
-INSERT INTO public.profiles (
-  id,
-  role,
-  full_name,
-  document_type,
-  document_number,
-  phone,
-  email,
-  mcer_level,
-  origin_location
-)
-VALUES (
-  'a1111111-1111-1111-1111-111111111111',
-  'student',
-  'Valeria Morales Montoya',
-  'C.C.',
-  '1.040.892.341',
-  '+57 300 892 3410',
-  'valeria.morales@americandream.edu.co',
-  'A1 Principiante',
-  'Turbo, Antioquia'
-)
-ON CONFLICT (id) DO UPDATE SET
-  full_name = 'Valeria Morales Montoya',
-  document_number = '1.040.892.341',
-  email = 'valeria.morales@americandream.edu.co';
