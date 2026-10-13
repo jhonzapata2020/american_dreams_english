@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   ArrowLeft, 
   Video, 
@@ -1028,11 +1029,11 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             {activeTab === 'cronograma' && (
               <div className="space-y-6">
                 
-                {/* TARJETA DESTACADA DE CLASE EN VIVO CON RELOJ DIGITAL Y ENLACE INTELIGENTE */}
-                <div className="bg-gradient-to-br from-slate-50 via-white to-emerald-50/50 rounded-3xl p-5 sm:p-7 shadow-sm border border-emerald-200/90 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+                {/* TARJETA DESTACADA DE CLASE EN VIVO CON RELOJ DIGITAL Y ENLACE INTELIGENTE DE TEAMS */}
+                <div className="bg-gradient-to-br from-white via-slate-50 to-indigo-50/40 rounded-3xl p-5 sm:p-7 shadow-[0_14px_35px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.03)] border border-slate-200/90 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
                   
-                  {/* Destellos sutiles de fondo */}
-                  <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-emerald-400/10 rounded-full blur-2xl pointer-events-none" />
+                  {/* Destellos sutiles de fondo Microsoft Teams */}
+                  <div className="absolute -right-8 -bottom-8 w-48 h-48 bg-[#5B5FC7]/10 rounded-full blur-2xl pointer-events-none" />
 
                   <div className="space-y-3 z-10 max-w-xl">
                     
@@ -1044,9 +1045,9 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                           Sala Sincrónica en Vivo Ahora
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-300 text-[11px] font-black uppercase tracking-wider">
-                          <span className="w-2 h-2 rounded-full bg-emerald-600 animate-ping" />
-                          Próxima Clase Sincrónica
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-900 border border-indigo-200/80 text-[11px] font-black uppercase tracking-wider">
+                          <span className="w-2 h-2 rounded-full bg-[#5B5FC7] animate-ping" />
+                          Próxima Clase Sincrónica (Teams)
                         </span>
                       )}
 
@@ -1070,13 +1071,13 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                     {/* Metadatos en tiempo real */}
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600 font-medium">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <Calendar className="w-4 h-4 text-[#5B5FC7] shrink-0" />
                         <span className="font-bold text-slate-800 capitalize">
                           {targetClass ? formatClassDateLabel(targetClass.scheduled_at) : cfg.nextLiveClass}
                         </span>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <Clock className="w-4 h-4 text-[#5B5FC7] shrink-0" />
                         <span className="font-mono text-slate-700">
                           {targetClass ? formatClassTimeRange(targetClass.scheduled_at, targetClass.duration_minutes) : '7:00 PM a 8:30 PM (COT)'}
                         </span>
@@ -1088,27 +1089,38 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                     </div>
                   </div>
 
-                  {/* EL BOTÓN 3D VERDE QUE SIEMPRE APUNTA A LA CLASE MÁS CERCANA */}
+                  {/* EL BOTÓN 3D DE TEAMS QUE SIEMPRE APUNTA A LA CLASE MÁS CERCANA */}
                   <a
                     href={targetTeamsMeetingUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`group relative inline-flex items-center justify-center gap-3 px-8 sm:px-9 py-3.5 sm:py-4 rounded-full bg-gradient-to-b from-[#22C55E] via-[#16A34A] to-[#15803D] text-white font-extrabold text-xs sm:text-sm tracking-wide border-t border-emerald-300/50 border-b border-emerald-950/30 shadow-[0_14px_28px_-4px_rgba(21,128,61,0.50),_0_6px_12px_-2px_rgba(21,128,61,0.35),_inset_0_1px_1px_rgba(255,255,255,0.4)] hover:shadow-[0_18px_36px_-4px_rgba(21,128,61,0.65),_0_8px_16px_-2px_rgba(21,128,61,0.45),_inset_0_1px_1px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 active:translate-y-1 active:shadow-[0_4px_10px_-2px_rgba(21,128,61,0.5),_inset_0_2px_4px_rgba(0,0,0,0.2)] transition-all shrink-0 cursor-pointer select-none z-10 ${
-                      countdownState === 'live' ? 'ring-4 ring-emerald-400/50 animate-pulse' : ''
+                    className={`group relative inline-flex items-center justify-center gap-3.5 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full text-white font-extrabold text-xs sm:text-sm tracking-wide border-t border-white/40 border-b border-indigo-950/60 shadow-[0_14px_28px_-4px_rgba(79,70,229,0.45),_0_6px_12px_-2px_rgba(79,70,229,0.3),_inset_0_1.5px_1px_rgba(255,255,255,0.4),_inset_0_-3px_0_rgba(30,35,80,0.4)] hover:shadow-[0_18px_36px_-4px_rgba(91,95,199,0.65),_0_8px_16px_-2px_rgba(91,95,199,0.45)] hover:-translate-y-0.5 active:translate-y-1 transition-all shrink-0 cursor-pointer select-none z-10 ${
+                      countdownState === 'live' 
+                        ? 'bg-gradient-to-b from-[#10B981] via-[#059669] to-[#047857] ring-4 ring-emerald-400/50 animate-pulse' 
+                        : 'bg-gradient-to-b from-[#5B5FC7] via-[#4F52B2] to-[#3B429F] hover:from-[#6A6ED6] hover:via-[#595CBF] hover:to-[#4549A8]'
                     }`}
                   >
-                    <Video className="w-5 h-5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)] group-hover:scale-110 transition-transform" />
+                    {/* Contenedor del Logo Oficial 3D de Microsoft Teams */}
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-white/20 p-1 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                      <Image 
+                        src="/images/microsoft-teams.svg" 
+                        alt="Microsoft Teams" 
+                        width={24} 
+                        height={24} 
+                        className="w-full h-full object-contain drop-shadow" 
+                      />
+                    </div>
                     <div className="flex flex-col text-left leading-tight">
                       <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
                         {countdownState === 'live' ? 'Entrar a Clase (SALA EN VIVO ABIERTA)' : 'Entrar a Clase en Teams'}
                       </span>
                       {targetClass && (
-                        <span className="text-[10px] text-emerald-100 font-semibold opacity-95">
+                        <span className="text-[10px] text-indigo-100 font-semibold opacity-95">
                           {countdownState === 'live' ? '● Transmitiendo en este momento' : `Directo a: ${targetClass.title.substring(0, 26)}...`}
                         </span>
                       )}
                     </div>
-                    <ExternalLink className="w-4 h-4 text-emerald-100/90 group-hover:text-white transition-colors ml-1" />
+                    <ExternalLink className="w-4 h-4 text-indigo-100/90 group-hover:text-white transition-colors ml-1" />
                   </a>
 
                 </div>

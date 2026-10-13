@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   GraduationCap, 
   BookOpen, 
@@ -441,8 +442,12 @@ export default function CampusVirtualPage() {
 
                     {/* Footer de la tarjeta con Botón de Acceso */}
                     <div className="bg-slate-50 px-5 sm:px-6 py-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-                      <div className="text-xs text-slate-500 font-medium text-center sm:text-left">
-                        Incluye: Clases Teams, Guías PDF, Audios y Zona de Tareas.
+                      <div className="text-xs text-slate-500 font-medium text-center sm:text-left flex items-center gap-1.5 flex-wrap justify-center sm:justify-start">
+                        <span className="inline-flex items-center gap-1.5 text-[#5B5FC7] font-bold bg-[#5B5FC7]/10 px-2 py-0.5 rounded-md border border-[#5B5FC7]/20">
+                          <Image src="/images/microsoft-teams.svg" alt="Teams" width={14} height={14} className="w-3.5 h-3.5 object-contain" />
+                          <span>Clases Teams</span>
+                        </span>
+                        <span>• Guías PDF • Audios • Tareas</span>
                       </div>
 
                       <Link
