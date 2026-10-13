@@ -1129,7 +1129,7 @@ export default function TeacherCampusPage() {
   const teacherTabs = [
     {
       id: 'live',
-      label: 'Sala Teams & En Vivo',
+      label: 'Sala Teams',
       icon: Video,
       neonColor: '#10B981', // Emerald / Menta Neón
       glowColor: 'rgba(16, 185, 129, 0.95)',
@@ -1164,7 +1164,7 @@ export default function TeacherCampusPage() {
       neonColor: '#3B82F6', // Azul Cobalto Eléctrico
       glowColor: 'rgba(59, 130, 246, 0.95)',
       lightPoolColor: 'rgba(59, 130, 246, 0.45)',
-      badge: pendingGradingCount > 0 ? `${pendingGradingCount} pend.` : undefined,
+      badge: pendingGradingCount > 0 ? pendingGradingCount : undefined,
       badgePulse: pendingGradingCount > 0,
       isLive: false,
     },
@@ -1347,41 +1347,44 @@ export default function TeacherCampusPage() {
           {/* =================================================================== */}
           {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
           {/* =================================================================== */}
-          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-3xl p-3 sm:p-5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
-            <div className="w-full flex items-center justify-start lg:justify-center overflow-x-auto no-scrollbar scroll-smooth pt-3 pb-8 px-2">
-              <div className="flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
+          {/* =================================================================== */}
+          {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
+          {/* =================================================================== */}
+          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
+            <div className="w-full flex items-center justify-center pt-1.5 pb-5 px-1">
+              <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1.5 sm:gap-2 lg:gap-2.5 w-full max-w-full">
                 {teacherTabs.map((tab) => {
                   const isActive = activeTab === tab.id
                   const IconComp = tab.icon
 
                   return (
-                    <div key={tab.id} className="relative group shrink-0">
+                    <div key={tab.id} className="relative group shrink-0 sm:shrink">
                       {/* 1. LUZ PROYECTADA ABAJO (OPTICAL UNDERGLOW LIGHT BEAM) */}
                       {/* Proyección difusa de luz sobre el suelo blanco */}
                       <div 
-                        className={`absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-4/5 h-4 rounded-full blur-md pointer-events-none transition-all duration-300 ${
+                        className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3/4 h-3 rounded-full blur-md pointer-events-none transition-all duration-300 ${
                           isActive ? 'opacity-95 scale-105' : 'opacity-25 group-hover:opacity-85 group-hover:scale-100'
                         }`}
                         style={{
                           backgroundColor: tab.neonColor,
-                          boxShadow: `0 8px 22px 6px ${tab.glowColor}`,
+                          boxShadow: `0 6px 18px 4px ${tab.glowColor}`,
                         }}
                       />
 
                       {/* Núcleo LED incandescente en la rendija inferior de la cápsula */}
                       <div 
-                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-14 sm:w-16 h-1.5 rounded-full blur-[1px] pointer-events-none transition-all duration-300 ${
+                        className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 h-1 rounded-full blur-[0.8px] pointer-events-none transition-all duration-300 ${
                           isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-90'
                         }`}
                         style={{
                           backgroundColor: '#FFFFFF',
-                          boxShadow: `0 0 10px 2.5px ${tab.neonColor}`,
+                          boxShadow: `0 0 8px 2px ${tab.neonColor}`,
                         }}
                       />
 
                       {/* Difusión ambiental suave */}
                       <div 
-                        className={`absolute -bottom-5 left-1/2 -translate-x-1/2 w-full h-6 rounded-full blur-xl pointer-events-none transition-all duration-300 ${
+                        className={`absolute -bottom-4 left-1/2 -translate-x-1/2 w-full h-4 rounded-full blur-lg pointer-events-none transition-all duration-300 ${
                           isActive ? 'opacity-70' : 'opacity-10 group-hover:opacity-40'
                         }`}
                         style={{
@@ -1393,21 +1396,21 @@ export default function TeacherCampusPage() {
                       <button
                         type="button"
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`relative z-10 flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
+                        className={`relative z-10 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
                           isActive
-                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-1 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_12px_24px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
-                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-300 hover:text-white hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.7),0_8px_16px_-4px_rgba(0,0,0,0.4)] border-t border-white/10'
+                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-1 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
+                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-300 hover:text-white hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.7),0_6px_12px_-4px_rgba(0,0,0,0.4)] border-t border-white/10'
                         }`}
                       >
                         {/* Indicador pulsante en vivo para Sala Teams */}
                         {tab.isLive && (
-                          <span className="relative flex h-2 w-2 shrink-0">
+                          <span className="relative flex h-1.5 w-1.5 shrink-0">
                             <span 
                               className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
                               style={{ backgroundColor: tab.neonColor }}
                             />
                             <span 
-                              className="relative inline-flex rounded-full h-2 w-2"
+                              className="relative inline-flex rounded-full h-1.5 w-1.5"
                               style={{ backgroundColor: tab.neonColor }}
                             />
                           </span>
@@ -1415,27 +1418,27 @@ export default function TeacherCampusPage() {
 
                         {/* Icono con resplandor neón */}
                         <IconComp 
-                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-all duration-300"
+                          className="w-3.5 h-3.5 shrink-0 transition-all duration-300"
                           style={{
                             color: isActive ? tab.neonColor : undefined,
-                            filter: isActive ? `drop-shadow(0 0 6px ${tab.neonColor})` : undefined
+                            filter: isActive ? `drop-shadow(0 0 5px ${tab.neonColor})` : undefined
                           }}
                         />
 
                         {/* Nombre de la pestaña */}
-                        <span className="tracking-tight font-extrabold">{tab.label}</span>
+                        <span className="tracking-tight">{tab.label}</span>
 
                         {/* Badge numérico integrado */}
                         {tab.badge !== undefined && (
                           <span 
-                            className={`text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-full font-mono font-black transition-all ${
+                            className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold transition-all ${
                               tab.badgePulse ? 'animate-pulse' : ''
                             }`}
                             style={{
                               backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
                               color: isActive ? '#FFFFFF' : '#94A3B8',
                               border: isActive ? `1px solid ${tab.neonColor}60` : '1px solid rgba(255,255,255,0.08)',
-                              boxShadow: isActive ? `0 0 8px ${tab.neonColor}40` : undefined
+                              boxShadow: isActive ? `0 0 6px ${tab.neonColor}40` : undefined
                             }}
                           >
                             {tab.badge}
