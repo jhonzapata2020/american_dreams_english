@@ -107,12 +107,24 @@ export async function optimizeAndConvertToWebP(
               return
             }
 
-            const optimizedSizeKB = Math.round((blob.size / 1024) * 10) / 10
-            const savings = Math.max(0, Math.round((1 - blob.size / sourceFile.size) * 100))
-            const file = new File([blob], 'avatar.webp', { type: 'image/webp' })
+            // Garantizar que el Blob resultante sea auténticamente image/webp
+            let finalBlob = blob
+            if (blob.type !== 'image/webp' && dataUrl.startsWith('data:image/webp')) {
+              const binStr = atob(dataUrl.split(',')[1])
+              const len = binStr.length
+              const arr = new Uint8Array(len)
+              for (let i = 0; i < len; i++) {
+                arr[i] = binStr.charCodeAt(i)
+              }
+              finalBlob = new Blob([arr], { type: 'image/webp' })
+            }
+
+            const optimizedSizeKB = Math.round((finalBlob.size / 1024) * 10) / 10
+            const savings = Math.max(0, Math.round((1 - finalBlob.size / sourceFile.size) * 100))
+            const file = new File([finalBlob], 'avatar.webp', { type: 'image/webp' })
 
             resolve({
-              blob,
+              blob: finalBlob,
               file,
               dataUrl,
               width: targetSize,

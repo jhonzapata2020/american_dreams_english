@@ -31,6 +31,8 @@ export async function POST(req: Request) {
 
     const supabaseAdmin = getSupabaseAdmin()
     let resolvedAvatarUrl = existingAvatarUrl || ''
+    let isWebPBinary = false
+    let fileSizeKB = 0
 
     // 1. Si se envía un archivo de imagen (WebP optimizado u otro formato)
     if (file && file.size > 0) {
@@ -50,14 +52,20 @@ export async function POST(req: Request) {
 
       // B. Preparar buffer y nombre único para el archivo
       const buffer = Buffer.from(await file.arrayBuffer())
+      fileSizeKB = Math.round((buffer.length / 1024) * 10) / 10
       const safeId = (userId || email || docNumber || 'user').replace(/[^a-zA-Z0-9_-]/g, '_')
       const fileName = `avatar-${safeId}-${Date.now()}.webp`
 
-      // C. Subir a Supabase Storage con Service Role (bypass total de RLS)
+      // Validar si el archivo es binariamente WebP (cabecera RIFF....WEBP)
+      isWebPBinary = buffer.length >= 12 &&
+        buffer.toString('ascii', 0, 4) === 'RIFF' &&
+        buffer.toString('ascii', 8, 12) === 'WEBP'
+
+      // C. Subir a Supabase Storage con Service Role (MIME type forzado a image/webp)
       const { data: uploadData, error: uploadErr } = await supabaseAdmin.storage
         .from('avatars')
         .upload(fileName, buffer, {
-          contentType: file.type || 'image/webp',
+          contentType: 'image/webp',
           upsert: true
         })
 
@@ -67,7 +75,7 @@ export async function POST(req: Request) {
         const { data: fbData, error: fbErr } = await supabaseAdmin.storage
           .from('forum-attachments')
           .upload(`avatars/${fileName}`, buffer, {
-            contentType: file.type || 'image/webp',
+            contentType: 'image/webp',
             upsert: true
           })
 
@@ -199,7 +207,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      avatarUrl: resolvedAvatarUrl
+      avatarUrl: resolvedAvatarUrl,
+      format: 'webp',
+      isWebPBinary,
+      fileSizeKB
     })
 
   } catch (err: any) {
