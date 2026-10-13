@@ -1208,10 +1208,10 @@ export default function TeacherCampusPage() {
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
-          <div className="px-4 sm:px-8 space-y-3 sm:space-y-5">
+          <div className="px-4 sm:px-8 space-y-3 sm:space-y-4">
           
-          {/* Fila 1: Logo Institucional + Saludo Docente + Acciones Rápidas */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          {/* Fila 1: Logo Institucional + Saludo Docente + Selector de Nivel Evolucionado + Acciones */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             
             {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
             <div className="flex items-center justify-between sm:justify-start gap-3">
@@ -1224,12 +1224,15 @@ export default function TeacherCampusPage() {
                   />
                 </Link>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="hidden sm:inline-flex font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
-                      Portal Exclusivo Docente
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
+                      Portal Docente
+                    </span>
+                    <span className="hidden sm:inline-flex font-mono text-[10px] font-bold uppercase bg-blue-500/20 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">
+                      Periodo 2026-I
                     </span>
                     <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="text-[10px] font-bold text-emerald-300 sm:hidden uppercase tracking-wider">Docente Online</span>
+                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Online</span>
                   </div>
                   <h1 className="text-base sm:text-2xl font-black text-white tracking-tight truncate">
                     {teacherName}
@@ -1251,31 +1254,36 @@ export default function TeacherCampusPage() {
               </button>
             </div>
 
-            {/* Bloque Derecho: Selector de Nivel + Enlace al Aula Estudiante + Salir Desktop */}
-            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5">
+            {/* Bloque Derecho: Selector de Nivel Evolucionado (Dark Glass Capsule) + Ver Aula + Salir */}
+            <div className="flex items-center justify-between lg:justify-end gap-2 sm:gap-3 flex-wrap">
               <span className="text-[11px] font-bold text-slate-400 sm:hidden">Nivel del Aula:</span>
               
-              {/* Selector de Nivel Activo */}
-              <div className="flex items-center bg-white/10 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-white/15 backdrop-blur-md">
-                {(['a1', 'a2', 'b1', 'b2'] as const).map((lvl) => (
-                  <button
-                    key={lvl}
-                    onClick={() => setActiveLevel(lvl)}
-                    className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black uppercase transition-all ${
-                      activeLevel === lvl
-                        ? 'bg-amber-400 text-slate-950 shadow-sm'
-                        : 'text-slate-300 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {lvl.toUpperCase()}
-                  </button>
-                ))}
+              {/* Selector de Nivel Evolucionado (Dark Glass Segmented Capsule) */}
+              <div className="flex items-center bg-slate-900/70 p-1 rounded-2xl border border-white/15 backdrop-blur-md shadow-inner gap-1">
+                {(['a1', 'a2', 'b1', 'b2'] as const).map((lvl) => {
+                  const isActive = activeLevel === lvl
+                  return (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() => setActiveLevel(lvl)}
+                      className={`relative px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-black uppercase transition-all duration-200 cursor-pointer select-none ${
+                        isActive
+                          ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 shadow-[0_2px_12px_rgba(251,191,36,0.4)] scale-102 ring-1 ring-amber-300/70'
+                          : 'text-slate-300 hover:text-white hover:bg-white/10 active:scale-95'
+                      }`}
+                      title={`Cambiar a Nivel ${lvl.toUpperCase()}`}
+                    >
+                      {lvl.toUpperCase()}
+                    </button>
+                  )
+                })}
               </div>
 
               {/* Botón Ver Aula Estudiante (Oculto en móvil) */}
               <Link
                 href={`/campus/curso/${activeLevel}`}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 hover:border-amber-400/40 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                 title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
               >
                 <Eye className="w-3.5 h-3.5 text-amber-400" />
@@ -1295,40 +1303,6 @@ export default function TeacherCampusPage() {
 
             </div>
 
-          </div>
-
-          {/* Fila 2: Indicador del Grupo Activo & Métricas Rápidas (Oculto en móvil para depurar espacio vertical) */}
-          <div className="hidden md:flex bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-300 flex items-center justify-center font-bold">
-                <BookOpen className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-slate-400 font-medium">Grupo Activo:</span>
-                <strong className="text-white ml-1.5 font-extrabold uppercase">
-                  {LEVEL_CONFIGURATIONS[activeLevel]?.title || `English Level ${activeLevel.toUpperCase()}`} ({activeLevel.toUpperCase()}) - Periodo 2026-I
-                </strong>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-4 text-slate-300">
-              <div className="flex items-center gap-1.5">
-                <Video className="w-3.5 h-3.5 text-amber-400" />
-                <span><strong>{recordings.length}</strong> Clases Subidas</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Headphones className="w-3.5 h-3.5 text-purple-400" />
-                <span><strong>{materials.length}</strong> Recursos Didácticos</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5 text-blue-400" />
-                <span><strong className={pendingGradingCount > 0 ? 'text-amber-400' : 'text-slate-300'}>{pendingGradingCount}</strong> Tareas Pendientes</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
-                <span><strong>{unansweredForumCount}</strong> Consultas Foro</span>
-              </div>
-            </div>
           </div>
 
           {/* Banner de Notificación Toast */}
@@ -1541,11 +1515,14 @@ export default function TeacherCampusPage() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleOpenNewLiveClassModal}
-                  className="bg-[#002B49] hover:bg-[#001f35] active:scale-95 text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
+                  className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black text-white bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.45)] ring-1 ring-white/20 hover:ring-emerald-400/50 hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.6),0_12px_24px_-4px_rgba(16,185,129,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300 cursor-pointer shrink-0 group select-none"
                 >
-                  <Plus className="w-4 h-4 text-amber-400" />
-                  <span>Programar Nueva Clase en Vivo</span>
+                  <div className="w-5 h-5 rounded-full bg-emerald-400/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 group-hover:scale-110 group-hover:bg-emerald-400 group-hover:text-slate-950 transition-all duration-300 shadow-[0_0_8px_rgba(16,185,129,0.3)]">
+                    <Plus className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="tracking-tight font-extrabold">Programar Nueva Clase en Vivo</span>
                 </button>
               </div>
 
@@ -1666,11 +1643,14 @@ export default function TeacherCampusPage() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleOpenNewRecordingModal}
-                  className="bg-[#002B49] hover:bg-[#001f35] active:scale-95 text-white font-black px-5 py-2.5 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-md shrink-0"
+                  className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black text-white bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.45)] ring-1 ring-white/20 hover:ring-amber-400/50 hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.6),0_12px_24px_-4px_rgba(245,158,11,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300 cursor-pointer shrink-0 group select-none"
                 >
-                  <Plus className="w-4 h-4 text-amber-400" />
-                  <span>Cargar Nueva Grabación</span>
+                  <div className="w-5 h-5 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 group-hover:scale-110 group-hover:bg-amber-400 group-hover:text-slate-950 transition-all duration-300 shadow-[0_0_8px_rgba(251,191,36,0.3)]">
+                    <Plus className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="tracking-tight font-extrabold">Cargar Nueva Grabación</span>
                 </button>
               </div>
 
@@ -1779,11 +1759,14 @@ export default function TeacherCampusPage() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={handleOpenNewMaterialModal}
-                  className="inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#002B49] hover:bg-[#001f35] text-white rounded-2xl text-xs sm:text-sm font-black shadow-md hover:shadow-lg transition-all active:scale-95 shrink-0"
+                  className="relative inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-full text-xs sm:text-sm font-black text-white bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.45)] ring-1 ring-white/20 hover:ring-purple-400/50 hover:shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.6),0_12px_24px_-4px_rgba(168,85,247,0.35)] hover:-translate-y-0.5 active:translate-y-0 active:scale-95 transition-all duration-300 cursor-pointer shrink-0 group select-none"
                 >
-                  <Plus className="w-4 h-4 text-amber-400" />
-                  <span>Subir Nuevo Recurso</span>
+                  <div className="w-5 h-5 rounded-full bg-purple-400/20 border border-purple-400/40 flex items-center justify-center text-purple-300 group-hover:scale-110 group-hover:bg-purple-400 group-hover:text-slate-950 transition-all duration-300 shadow-[0_0_8px_rgba(168,85,247,0.3)]">
+                    <Plus className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="tracking-tight font-extrabold">Subir Nuevo Recurso</span>
                 </button>
               </div>
 
