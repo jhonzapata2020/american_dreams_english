@@ -46,12 +46,6 @@ interface StudentProfileModalProps {
   initialTab?: 'info' | 'security'
 }
 
-const PRESET_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
-]
 
 export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
   isOpen,
@@ -440,7 +434,7 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                       disabled={isOptimizing}
                       className="px-3 py-1 bg-white border border-slate-300 hover:border-[#002B49] text-slate-700 hover:text-[#002B49] text-xs font-bold rounded-lg shadow-2xs transition-colors disabled:opacity-50"
                     >
-                      {isOptimizing ? 'Procesando...' : 'Subir Foto'}
+                      {isOptimizing ? 'Procesando...' : (avatarUrl ? 'Cambiar Foto' : 'Subir Foto')}
                     </button>
                     {avatarUrl && (
                       <button
@@ -453,32 +447,6 @@ export const StudentProfileModal: React.FC<StudentProfileModalProps> = ({
                       </button>
                     )}
                   </div>
-                </div>
-              </div>
-
-              {/* Sugerencias de Avatares Rápidos */}
-              <div>
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
-                  O elige un avatar rápido:
-                </span>
-                <div className="flex items-center gap-2.5">
-                  {PRESET_AVATARS.map((url, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => {
-                        setAvatarUrl(url)
-                        setPendingAvatarBlob(null)
-                        setOptimizationStats(null)
-                        setMessage({ type: 'success', text: 'Avatar seleccionado. Recuerda guardar los cambios.' })
-                      }}
-                      className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition-all ${
-                        avatarUrl === url ? 'border-[#002B49] scale-105 shadow-md ring-2 ring-amber-400' : 'border-slate-200 hover:border-slate-400 opacity-80 hover:opacity-100'
-                      }`}
-                    >
-                      <img src={url} alt={`Preset ${i}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
                 </div>
               </div>
 
