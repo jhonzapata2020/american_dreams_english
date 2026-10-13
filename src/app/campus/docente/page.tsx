@@ -1208,46 +1208,60 @@ export default function TeacherCampusPage() {
             <div className="w-12 h-1.5 bg-white/20 rounded-full" />
           </div>
 
-          <div className="px-4 sm:px-8 space-y-5">
+          <div className="px-4 sm:px-8 space-y-3 sm:space-y-5">
           
           {/* Fila 1: Logo Institucional + Saludo Docente + Acciones Rápidas */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
             
             {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
-            <div className="flex items-center gap-3.5">
-              <Link href="/" className="shrink-0 group flex items-center">
-                <img 
-                  src="/logo-american-dream.png" 
-                  alt="American Dream English" 
-                  className="h-12 sm:h-14 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
-                />
-              </Link>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
-                    Portal Exclusivo Docente
-                  </span>
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <div className="flex items-center justify-between sm:justify-start gap-3">
+              <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                <Link href="/" className="shrink-0 group flex items-center">
+                  <img 
+                    src="/logo-american-dream.png" 
+                    alt="American Dream English" 
+                    className="h-9 sm:h-14 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
+                  />
+                </Link>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="hidden sm:inline-flex font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
+                      Portal Exclusivo Docente
+                    </span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                    <span className="text-[10px] font-bold text-emerald-300 sm:hidden uppercase tracking-wider">Docente Online</span>
+                  </div>
+                  <h1 className="text-base sm:text-2xl font-black text-white tracking-tight truncate">
+                    {teacherName}
+                  </h1>
+                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate hidden sm:block">
+                    {teacherEmail} · Docente Titular American Dream English
+                  </p>
                 </div>
-                <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  {teacherName}
-                </h1>
-                <p className="text-xs text-slate-400 font-medium">
-                  {teacherEmail} · Docente Titular American Dream English
-                </p>
               </div>
+
+              {/* Botón Salir Móvil (visible solo en pantallas pequeñas arriba a la derecha) */}
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="sm:hidden inline-flex items-center justify-center p-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                title="Cerrar Sesión Segura"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
             </div>
 
-            {/* Bloque Derecho: Selector de Nivel + Enlace al Aula Estudiante + Salir */}
-            <div className="flex flex-wrap items-center gap-2.5">
+            {/* Bloque Derecho: Selector de Nivel + Enlace al Aula Estudiante + Salir Desktop */}
+            <div className="flex items-center justify-between sm:justify-end gap-2 sm:gap-2.5">
+              <span className="text-[11px] font-bold text-slate-400 sm:hidden">Nivel del Aula:</span>
               
               {/* Selector de Nivel Activo */}
-              <div className="flex items-center bg-white/10 p-1 rounded-2xl border border-white/15 backdrop-blur-md">
+              <div className="flex items-center bg-white/10 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border border-white/15 backdrop-blur-md">
                 {(['a1', 'a2', 'b1', 'b2'] as const).map((lvl) => (
                   <button
                     key={lvl}
                     onClick={() => setActiveLevel(lvl)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-black uppercase transition-all ${
+                    className={`px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black uppercase transition-all ${
                       activeLevel === lvl
                         ? 'bg-amber-400 text-slate-950 shadow-sm'
                         : 'text-slate-300 hover:text-white hover:bg-white/5'
@@ -1258,33 +1272,33 @@ export default function TeacherCampusPage() {
                 ))}
               </div>
 
-              {/* Botón Ver Aula Estudiante */}
+              {/* Botón Ver Aula Estudiante (Oculto en móvil) */}
               <Link
                 href={`/campus/curso/${activeLevel}`}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-colors"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-colors"
                 title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
               >
                 <Eye className="w-3.5 h-3.5 text-amber-400" />
                 <span>Ver Aula {activeLevel.toUpperCase()}</span>
               </Link>
 
-              {/* Salir */}
+              {/* Salir Desktop */}
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
                 title="Cerrar Sesión Segura"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Cerrar Sesión</span>
+                <span>Cerrar Sesión</span>
               </button>
 
             </div>
 
           </div>
 
-          {/* Fila 2: Indicador del Grupo Activo & Métricas Rápidas */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 text-xs">
+          {/* Fila 2: Indicador del Grupo Activo & Métricas Rápidas (Oculto en móvil para depurar espacio vertical) */}
+          <div className="hidden md:flex bg-white/5 border border-white/10 rounded-2xl p-4 backdrop-blur-md flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 text-blue-300 flex items-center justify-center font-bold">
                 <BookOpen className="w-4 h-4" />
@@ -1332,7 +1346,7 @@ export default function TeacherCampusPage() {
             <svg 
               viewBox="0 0 1440 100" 
               preserveAspectRatio="none" 
-              className="w-full h-10 sm:h-14 text-white fill-current block"
+              className="w-full h-6 sm:h-14 text-white fill-current block"
             >
               <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
             </svg>
@@ -1342,23 +1356,20 @@ export default function TeacherCampusPage() {
         {/* ======================================================================= */}
         {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA (BG-WHITE)                      */}
         {/* ======================================================================= */}
-        <main className="w-full bg-white text-slate-800 flex-1 p-5 sm:p-7 md:p-8 space-y-6">
+        <main className="w-full bg-white text-slate-800 flex-1 p-3.5 sm:p-7 md:p-8 space-y-4 sm:space-y-6">
           
           {/* =================================================================== */}
           {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
           {/* =================================================================== */}
-          {/* =================================================================== */}
-          {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
-          {/* =================================================================== */}
-          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-3xl p-2.5 sm:p-3.5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
-            <div className="w-full flex items-center justify-center pt-1.5 pb-5 px-1">
-              <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-1.5 sm:gap-2 lg:gap-2.5 w-full max-w-full">
+          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-2xl sm:rounded-3xl p-2 sm:p-3.5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
+            <div className="w-full flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar scroll-smooth pt-1.5 pb-5 px-1">
+              <div className="flex items-center justify-start md:justify-center gap-2 sm:gap-2.5 shrink-0">
                 {teacherTabs.map((tab) => {
                   const isActive = activeTab === tab.id
                   const IconComp = tab.icon
 
                   return (
-                    <div key={tab.id} className="relative group shrink-0 sm:shrink">
+                    <div key={tab.id} className="relative group shrink-0">
                       {/* 1. LUZ PROYECTADA ABAJO (OPTICAL UNDERGLOW LIGHT BEAM) */}
                       {/* Proyección difusa de luz sobre el suelo blanco */}
                       <div 
@@ -1396,9 +1407,9 @@ export default function TeacherCampusPage() {
                       <button
                         type="button"
                         onClick={() => setActiveTab(tab.id as any)}
-                        className={`relative z-10 flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
+                        className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
                           isActive
-                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-1 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
+                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-0.5 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
                             : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-300 hover:text-white hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.7),0_6px_12px_-4px_rgba(0,0,0,0.4)] border-t border-white/10'
                         }`}
                       >
