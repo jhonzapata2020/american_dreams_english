@@ -1232,12 +1232,15 @@ export default function TeacherCampusPage() {
             {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
             <div className="flex items-center justify-between sm:justify-start gap-3">
               <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-                <Link href="/" className="shrink-0 group flex items-center">
+                <Link href="/" className="shrink-0 group flex flex-col items-center relative py-1 cursor-pointer" title="Ir al Inicio">
+                  {/* Logo Institucional con Levitación y Resplandor 3D */}
                   <img 
                     src="/logo-american-dream.png" 
                     alt="American Dream English" 
-                    className="h-9 sm:h-14 w-auto object-contain filter drop-shadow-md group-hover:scale-105 transition-transform" 
+                    className="h-9 sm:h-14 w-auto object-contain filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)] group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:drop-shadow-[0_16px_25px_rgba(245,158,11,0.35)] transition-all duration-300 ease-out" 
                   />
+                  {/* Sombra de piso elíptica que responde dinámicamente a la flotación */}
+                  <div className="w-4/5 h-1.5 sm:h-2 bg-black/60 rounded-full blur-[3px] sm:blur-[4px] mt-0.5 group-hover:scale-75 group-hover:opacity-40 group-hover:blur-[6px] transition-all duration-300 pointer-events-none" />
                 </Link>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5 flex-wrap">
