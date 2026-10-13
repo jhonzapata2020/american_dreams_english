@@ -1237,22 +1237,23 @@ export default function TeacherCampusPage() {
           {/* =================================================================== */}
           {/* PESTAÑAS TIPO PÍLDORA FLOTANTE (TEACHER PILL TABS)                  */}
           {/* =================================================================== */}
-          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pb-4 border-b border-slate-200">
+          {/* BARRA DE NAVEGACIÓN POR PESTAÑAS (TABS) - UNA SOLA FILA LIMPIA Y MODERNA */}
+          <div className="flex items-center gap-1.5 sm:gap-2 pb-3.5 border-b border-slate-200 overflow-x-auto no-scrollbar scroll-smooth">
             
             {/* Tab 0: Sala Teams & En Vivo */}
             <button
               onClick={() => setActiveTab('live')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'live'
-                  ? 'bg-emerald-700 text-white shadow-md scale-102'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                  ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-500'
+                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80'
               }`}
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <Video className="w-4 h-4 text-emerald-400" />
-              <span>Sala Teams & Clases en Vivo</span>
-              <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
-                activeTab === 'live' ? 'bg-white/20 text-white' : 'bg-emerald-200/80 text-emerald-900'
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <Video className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
+              <span>Sala Teams & En Vivo</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
+                activeTab === 'live' ? 'bg-white/20 text-white' : 'bg-emerald-200/70 text-emerald-900'
               }`}>
                 {liveClasses.length}
               </span>
@@ -1261,15 +1262,15 @@ export default function TeacherCampusPage() {
             {/* Tab 1: Clases Grabadas */}
             <button
               onClick={() => setActiveTab('recordings')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'recordings'
-                  ? 'bg-[#002B49] text-white shadow-md'
+                  ? 'bg-[#002B49] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <Video className="w-4 h-4 text-amber-400" />
-              <span>Gestión Clases Grabadas</span>
-              <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
+              <Video className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Clases Grabadas</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
                 activeTab === 'recordings' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
               }`}>
                 {recordings.length}
@@ -1279,68 +1280,68 @@ export default function TeacherCampusPage() {
             {/* Tab 2: Recursos & Guías Didácticas */}
             <button
               onClick={() => setActiveTab('materials')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'materials'
-                  ? 'bg-[#002B49] text-white shadow-md'
+                  ? 'bg-[#002B49] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <Headphones className="w-4 h-4 text-purple-400" />
-              <span>Recursos & Guías Didácticas</span>
-              <span className={`text-[10px] px-2 py-0.2 rounded-full font-black ${
+              <Headphones className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <span>Recursos & Guías</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
                 activeTab === 'materials' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
               }`}>
                 {materials.length}
               </span>
             </button>
 
-            {/* Tab 2: Calificaciones & Tareas */}
+            {/* Tab 3: Calificaciones & Tareas */}
             <button
               onClick={() => setActiveTab('grading')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'grading'
-                  ? 'bg-[#002B49] text-white shadow-md'
+                  ? 'bg-[#002B49] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <FileText className="w-4 h-4 text-blue-400" />
+              <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
               <span>Calificar Tareas</span>
               {pendingGradingCount > 0 && (
-                <span className="text-[10px] px-2 py-0.2 rounded-full font-black bg-amber-400 text-slate-950 animate-pulse">
-                  {pendingGradingCount} por calificar
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-amber-400 text-slate-950 animate-pulse">
+                  {pendingGradingCount} pend.
                 </span>
               )}
             </button>
 
-            {/* Tab 3: Dudas en Foro */}
+            {/* Tab 4: Dudas en Foro */}
             <button
               onClick={() => setActiveTab('forum')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'forum'
-                  ? 'bg-[#002B49] text-white shadow-md'
+                  ? 'bg-[#002B49] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <MessageSquare className="w-4 h-4 text-emerald-400" />
-              <span>Atención de Foro</span>
+              <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+              <span>Foro</span>
               {unansweredForumCount > 0 && (
-                <span className="text-[10px] px-2 py-0.2 rounded-full font-black bg-emerald-500 text-white">
-                  {unansweredForumCount} sin responder
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-emerald-500 text-white">
+                  {unansweredForumCount}
                 </span>
               )}
             </button>
 
-            {/* Tab 4: Estudiantes Matriculados */}
+            {/* Tab 5: Estudiantes Matriculados */}
             <button
               onClick={() => setActiveTab('students')}
-              className={`flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-extrabold transition-all ${
+              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
                 activeTab === 'students'
-                  ? 'bg-[#002B49] text-white shadow-md'
+                  ? 'bg-[#002B49] text-white shadow-sm'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
               }`}
             >
-              <Users className="w-4 h-4 text-purple-400" />
-              <span>Estudiantes Matriculados</span>
+              <Users className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <span>Estudiantes</span>
             </button>
 
           </div>

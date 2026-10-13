@@ -14,7 +14,7 @@ function getSupabaseAdmin() {
 }
 
 // Generador de sesiones dinámicas de la semana actual si la base de datos está vacía
-export function generateDefaultWeekSchedule(levelCode: string) {
+function generateDefaultWeekSchedule(levelCode: string) {
   const lvl = levelCode.toUpperCase()
   const now = new Date()
   
