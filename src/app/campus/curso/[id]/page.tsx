@@ -34,7 +34,8 @@ import {
   KeyRound,
   LogOut,
   MessageCircle,
-  Home
+  Home,
+  Eye
 } from 'lucide-react'
 import { createClient } from '../../../../utils/supabase/client'
 import { getWhatsAppUrl } from '../../../../config/contact'
@@ -231,6 +232,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   const [profileInitialTab, setProfileInitialTab] = useState<'info' | 'security'>('info')
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false)
   const [showCertModal, setShowCertModal] = useState(false)
+  const [isTeacherPreview, setIsTeacherPreview] = useState(false)
   const [student, setStudent] = useState<StudentProfileData>({
     id: 'stu-valeria-01',
     fullName: 'Valeria Morales Montoya',
@@ -242,7 +244,8 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
     currentLevel: 'A1',
     programName: 'Programa de Inglés Jóvenes y Adultos',
     studentCode: 'ADE-2026-0894',
-    status: 'Matriculado Regular'
+    status: 'Matriculado Regular',
+    role: 'student'
   })
 
   // Carga reactiva de datos según el nivel del curso
@@ -251,6 +254,14 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
       try {
         const levelKey = (courseId || 'a1').toLowerCase().trim()
         if (typeof window !== 'undefined') {
+          // Detectar si el usuario viene de la interfaz de docente o tiene rol de profesor
+          const urlParams = new URLSearchParams(window.location.search)
+          const fromDocente = urlParams.get('from') === 'docente' || urlParams.get('preview') === 'teacher' || document.referrer.includes('/campus/docente')
+          const isRoleTeacher = localStorage.getItem('ade_active_role') === 'teacher'
+          if (fromDocente || isRoleTeacher) {
+            setIsTeacherPreview(true)
+          }
+
           const savedProfile = localStorage.getItem('ade_student_profile')
           if (savedProfile) {
             try {
@@ -271,6 +282,10 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
             .maybeSingle()
 
           if (profile) {
+            const isTeacher = profile.role === 'teacher' || profile.role === 'admin' || profile.email?.toLowerCase().includes('docente') || profile.full_name?.toLowerCase().includes('profesor')
+            if (isTeacher) {
+              setIsTeacherPreview(true)
+            }
             setStudent((prev) => ({
               ...prev,
               id: profile.id,
@@ -280,7 +295,8 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
               avatarUrl: profile.avatar_url || session.user?.user_metadata?.avatar_url || prev.avatarUrl,
               docType: profile.document_type || prev.docType,
               docNumber: profile.document_number || prev.docNumber,
-              currentLevel: profile.mcer_level || prev.currentLevel
+              currentLevel: profile.mcer_level || prev.currentLevel,
+              role: profile.role || (isTeacher ? 'teacher' : 'student')
             }))
           }
         }
@@ -605,6 +621,40 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
   return (
     <div className="min-h-screen bg-[#0B1528] sm:bg-[#F0F3F7] text-slate-900 font-sans antialiased selection:bg-[#0B1528] selection:text-white sm:py-6 sm:px-4 flex flex-col items-center justify-start">
       
+      {/* BARRA SUPERIOR FLOTANTE: MODO VISTA PREVIA DOCENTE */}
+      {isTeacherPreview && (
+        <div className="w-full max-w-6xl mx-auto mb-2 sm:mb-3 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 text-slate-950 px-3.5 sm:px-6 py-2.5 rounded-none sm:rounded-2xl shadow-lg flex items-center justify-between gap-3 animate-fadeIn border border-amber-300 z-50">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="p-1.5 rounded-xl bg-slate-950 text-amber-400 shrink-0 shadow-sm">
+              <Eye className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950 text-amber-300 px-2 py-0.5 rounded-full font-mono shrink-0">
+                  Vista Previa Alumno
+                </span>
+                <span className="text-xs font-black truncate text-slate-950">
+                  {cfg.code.split('-')[1] || cfg.levelBadge} · {cfg.title}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-900/90 font-medium hidden sm:block truncate mt-0.5">
+                Estás visualizando el aula exactamente como la ven tus alumnos matriculados.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/campus/docente"
+            className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-2 bg-slate-950 hover:bg-slate-900 active:scale-95 text-white rounded-xl text-xs font-black shadow-md transition-all hover:scale-102 shrink-0 cursor-pointer"
+            title="Volver al panel administrativo de gestión docente"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Volver a Mi Portal Docente</span>
+            <span className="sm:hidden">Salir Vista Previa</span>
+          </Link>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
       {/* ========================================================================= */}
@@ -647,16 +697,27 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                 </div>
               </div>
 
-              {/* Bloque derecho: Mis Cursos + Docente + Estudiante */}
+              {/* Bloque derecho: Mis Cursos / Panel Docente + Docente + Estudiante */}
               <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3 sm:gap-4 w-full lg:w-auto">
-                <Link 
-                  href="/campus" 
-                  className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all shrink-0 backdrop-blur-md border border-white/15 shadow-sm text-xs font-bold"
-                  title="Ver catálogo y listado de Mis Cursos"
-                >
-                  <BookOpen className="w-4 h-4 text-amber-400" />
-                  <span>Mis Cursos</span>
-                </Link>
+                {isTeacherPreview ? (
+                  <Link 
+                    href="/campus/docente" 
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-amber-400 hover:bg-amber-500 active:scale-95 text-slate-950 transition-all shrink-0 shadow-md text-xs font-black cursor-pointer"
+                    title="Regresar a mi panel de gestión docente"
+                  >
+                    <GraduationCap className="w-4 h-4 text-slate-950" />
+                    <span>Panel Docente</span>
+                  </Link>
+                ) : (
+                  <Link 
+                    href="/campus" 
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all shrink-0 backdrop-blur-md border border-white/15 shadow-sm text-xs font-bold"
+                    title="Ver catálogo y listado de Mis Cursos"
+                  >
+                    <BookOpen className="w-4 h-4 text-amber-400" />
+                    <span>Mis Cursos</span>
+                  </Link>
+                )}
 
                 <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -665,6 +726,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
                 <StudentAvatarMenu
                   student={student}
+                  isTeacher={isTeacherPreview}
                   onOpenEditProfile={(tab) => {
                     setProfileInitialTab(tab || 'info')
                     setShowProfileModal(true)
@@ -1721,6 +1783,30 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
               <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
                 Navegación & Servicios
               </span>
+
+              {/* Opción Docente Exclusiva para Volver a su Portal */}
+              {isTeacherPreview && (
+                <Link
+                  href="/campus/docente"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-amber-400/20 hover:bg-amber-400/30 active:scale-98 transition-all border border-amber-400/40 group text-left shadow-xs"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black">
+                      <GraduationCap className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-black text-amber-300">
+                        Volver a Mi Portal Docente
+                      </span>
+                      <span className="block text-[10px] text-amber-200/80">
+                        Panel de tutor y gestión de notas
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-amber-300" />
+                </Link>
+              )}
 
               {/* Mis Cursos */}
               <Link

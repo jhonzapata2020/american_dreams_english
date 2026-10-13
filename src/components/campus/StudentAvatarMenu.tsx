@@ -22,6 +22,7 @@ interface StudentAvatarMenuProps {
   onLogout: () => void
   onOpenCert?: () => void
   variant?: 'header' | 'card'
+  isTeacher?: boolean
 }
 
 export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
@@ -29,10 +30,18 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
   onOpenEditProfile,
   onLogout,
   onOpenCert,
-  variant = 'header'
+  variant = 'header',
+  isTeacher
 }) => {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const effectiveIsTeacher = Boolean(
+    isTeacher || 
+    student.role === 'teacher' || 
+    student.email?.toLowerCase().includes('docente') || 
+    student.fullName?.toLowerCase().includes('profesor')
+  )
 
   // Cerrar al hacer clic afuera
   useEffect(() => {
@@ -142,7 +151,9 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
               {student.currentLevel}
             </span>
           </div>
-          <span className="text-[10px] text-slate-300 font-medium block">Estudiante</span>
+          <span className={`text-[10px] block ${effectiveIsTeacher ? 'text-amber-300 font-bold' : 'text-slate-300 font-medium'}`}>
+            {effectiveIsTeacher ? 'Docente Titular' : 'Estudiante'}
+          </span>
         </div>
 
         <ChevronDown className={`w-3.5 h-3.5 text-slate-300 group-hover:text-white transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -175,8 +186,12 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
                   {student.email}
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-400/30">
-                    Nivel {student.currentLevel}
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                    effectiveIsTeacher 
+                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/30' 
+                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                  }`}>
+                    {effectiveIsTeacher ? 'Docente Titular' : `Nivel ${student.currentLevel}`}
                   </span>
                   <span className="text-[10px] text-amber-300 font-mono">
                     {student.studentCode}
@@ -188,6 +203,23 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
 
           {/* Opciones del Menú */}
           <div className="p-2 text-xs divide-y divide-slate-100">
+            
+            {/* Acceso Rápido al Portal Docente para Profesores */}
+            {effectiveIsTeacher && (
+              <div className="pb-1.5">
+                <Link
+                  href="/campus/docente"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl transition-all font-bold text-left border border-amber-200/80 shadow-2xs group"
+                >
+                  <GraduationCap className="w-4 h-4 text-amber-600 shrink-0 group-hover:scale-110 transition-transform" />
+                  <div className="flex-1">
+                    <strong className="block leading-tight text-amber-950 font-black">🎓 Ir a Mi Portal Docente</strong>
+                    <span className="text-[10px] text-amber-800/80 font-normal">Volver a tu panel de gestión de clases</span>
+                  </div>
+                </Link>
+              </div>
+            )}
             
             <div className="py-1 space-y-1">
               <button

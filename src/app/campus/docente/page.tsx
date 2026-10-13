@@ -1282,7 +1282,7 @@ export default function TeacherCampusPage() {
 
               {/* Botón Ver Aula Estudiante (Oculto en móvil) */}
               <Link
-                href={`/campus/curso/${activeLevel}`}
+                href={`/campus/curso/${activeLevel}?from=docente`}
                 className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 hover:border-amber-400/40 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm"
                 title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
               >

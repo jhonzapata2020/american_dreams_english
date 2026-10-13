@@ -35,6 +35,7 @@ export interface StudentProfileData {
   programName?: string
   studentCode?: string
   status?: string
+  role?: string
 }
 
 interface StudentProfileModalProps {
