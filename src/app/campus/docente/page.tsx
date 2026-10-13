@@ -40,7 +40,12 @@ import {
   Pause,
   Music,
   FolderPlus,
-  UploadCloud
+  UploadCloud,
+  LayoutGrid,
+  List,
+  ArrowUpDown,
+  MessageCircle,
+  Mail
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
@@ -183,6 +188,46 @@ export default function TeacherCampusPage() {
   const [replyingToPostId, setReplyingToPostId] = useState<string | null>(null)
   const [teacherReplyText, setTeacherReplyText] = useState('')
   const [isSubmittingForumReply, setIsSubmittingForumReply] = useState(false)
+
+  // Módulo 4: Gestión de Estudiantes Matriculados & Seguimiento Pedagógico
+  const [studentViewMode, setStudentViewMode] = useState<'list' | 'grid'>('list')
+  const [studentSearch, setStudentSearch] = useState('')
+  const [studentSort, setStudentSort] = useState<'alpha-asc' | 'alpha-desc' | 'progress-desc' | 'progress-asc' | 'grade-desc'>('alpha-asc')
+  const [studentStatusFilter, setStudentStatusFilter] = useState<'all' | 'Activo' | 'Al día' | 'Pendiente'>('all')
+  const [selectedStudentDetail, setSelectedStudentDetail] = useState<EnrolledStudent | null>(null)
+  const [studentNotes, setStudentNotes] = useState<Record<string, string>>({})
+  const [currentNoteInput, setCurrentNoteInput] = useState('')
+  const [savingNote, setSavingNote] = useState(false)
+
+  // Cargar notas privadas de los estudiantes desde caché local
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedNotes = localStorage.getItem('ade_teacher_student_notes')
+      if (savedNotes) {
+        try {
+          setStudentNotes(JSON.parse(savedNotes))
+        } catch (e) {}
+      }
+    }
+  }, [])
+
+  const handleOpenStudentDetail = (st: EnrolledStudent) => {
+    setSelectedStudentDetail(st)
+    setCurrentNoteInput(studentNotes[st.code] || '')
+  }
+
+  const handleSaveStudentNote = (studentCode: string) => {
+    setSavingNote(true)
+    const updated = { ...studentNotes, [studentCode]: currentNoteInput.trim() }
+    setStudentNotes(updated)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ade_teacher_student_notes', JSON.stringify(updated))
+    }
+    setTimeout(() => {
+      setSavingNote(false)
+      showNotification('¡Observación pedagógica guardada con éxito!')
+    }, 300)
+  }
 
   // Notificaciones y alertas
   const [bannerNotice, setBannerNotice] = useState<string | null>(null)
@@ -2196,68 +2241,502 @@ export default function TeacherCampusPage() {
           {/* =================================================================== */}
           {/* SECCIÓN 4: ESTUDIANTES MATRICULADOS                                 */}
           {/* =================================================================== */}
-          {activeTab === 'students' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="bg-slate-50 p-4 sm:p-5 rounded-3xl border border-slate-200">
-                <h2 className="text-base sm:text-lg font-black text-slate-900">
-                  Estudiantes Matriculados en {LEVEL_CONFIGURATIONS[activeLevel]?.title || activeLevel.toUpperCase()} (Periodo 2026-I)
-                </h2>
-                <p className="text-xs text-slate-500 font-medium">
-                  Seguimiento individual de avance y estado de actividades para {activeLevel.toUpperCase()}.
-                </p>
-              </div>
+          {/* =================================================================== */}
+          {/* SECCIÓN 4: ESTUDIANTES MATRICULADOS & CONTROL DE ASISTENCIA         */}
+          {/* =================================================================== */}
+          {activeTab === 'students' && (() => {
+            const baseStudents: EnrolledStudent[] = INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1
+            const processedStudents = baseStudents
+              .filter(st => {
+                if (studentSearch.trim()) {
+                  const query = studentSearch.toLowerCase().trim()
+                  const matchesName = st.name.toLowerCase().includes(query)
+                  const matchesDoc = st.doc.toLowerCase().includes(query)
+                  const matchesCode = st.code.toLowerCase().includes(query)
+                  const matchesEmail = st.email.toLowerCase().includes(query)
+                  if (!matchesName && !matchesDoc && !matchesCode && !matchesEmail) return false
+                }
+                if (studentStatusFilter !== 'all') {
+                  if (st.status !== studentStatusFilter) return false
+                }
+                return true
+              })
+              .sort((a, b) => {
+                if (studentSort === 'alpha-asc') {
+                  return a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })
+                }
+                if (studentSort === 'alpha-desc') {
+                  return b.name.localeCompare(a.name, 'es', { sensitivity: 'base' })
+                }
+                if (studentSort === 'progress-desc') {
+                  return b.progress - a.progress
+                }
+                if (studentSort === 'progress-asc') {
+                  return a.progress - b.progress
+                }
+                if (studentSort === 'grade-desc') {
+                  const gradeA = parseFloat(a.avg) || 0
+                  const gradeB = parseFloat(b.avg) || 0
+                  return gradeB - gradeA
+                }
+                return 0
+              })
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {(INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1).map((st, i) => (
-                  <div key={i} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center">
-                          {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-                        </div>
-                        <div className="overflow-hidden">
-                          <strong className="text-xs font-bold text-slate-900 block truncate">{st.name}</strong>
-                          <span className="text-[10px] font-mono text-slate-400">{st.code}</span>
-                        </div>
-                      </div>
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        st.status === 'Activo' ? 'bg-emerald-100 text-emerald-800' :
-                        st.status === 'Al día' ? 'bg-blue-100 text-blue-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                        {st.status}
-                      </span>
+            const countActivos = baseStudents.filter(s => s.status === 'Activo').length
+            const countAlDia = baseStudents.filter(s => s.status === 'Al día').length
+            const countPendientes = baseStudents.filter(s => s.status === 'Pendiente').length
+
+            const handleExportAttendance = () => {
+              const headers = ['N°', 'Nombre Completo', 'Código', 'Documento', 'Correo', 'Teléfono', 'Progreso', 'Promedio', 'Estado']
+              const rows = processedStudents.map((s, idx) => [
+                idx + 1,
+                `"${s.name}"`,
+                `"${s.code}"`,
+                `"${s.doc}"`,
+                `"${s.email}"`,
+                `"${s.phone || 'N/A'}"`,
+                `"${s.progress}%"`,
+                `"${s.avg}"`,
+                `"${s.status}"`
+              ])
+              const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + 
+                [headers.join(','), ...rows.map(e => e.join(','))].join('\n')
+              const encodedUri = encodeURI(csvContent)
+              const link = document.createElement('a')
+              link.setAttribute('href', encodedUri)
+              link.setAttribute('download', `Planilla_Estudiantes_${activeLevel.toUpperCase()}_2026.csv`)
+              document.body.appendChild(link)
+              link.click()
+              document.body.removeChild(link)
+              showNotification('¡Planilla de asistencia descargada en formato Excel/CSV!')
+            }
+
+            return (
+              <div className="space-y-5 animate-fadeIn">
+                
+                {/* 1. Tarjeta de Cabecera y Resumen de Matrícula */}
+                <div className="bg-gradient-to-r from-slate-50 via-white to-slate-50 p-5 rounded-3xl border border-slate-200/90 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                      <h2 className="text-base sm:text-lg font-black text-slate-900">
+                        Estudiantes Matriculados en {LEVEL_CONFIGURATIONS[activeLevel]?.title || activeLevel.toUpperCase()}
+                      </h2>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium">
+                      Periodo 2026-I · Lista indexada para seguimiento pedagógico, calificaciones y pase de asistencia.
+                    </p>
+                  </div>
+
+                  {/* Botón de Exportar Planilla para el Profesor */}
+                  <div className="flex items-center gap-2 self-start md:self-center">
+                    <button
+                      type="button"
+                      onClick={handleExportAttendance}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                      title="Descargar lista oficial de estudiantes en Excel/CSV"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Planilla de Asistencia (Excel)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* 2. Barra de Herramientas: Buscador, Orden Alfabético, Filtros y Selector de Vista (Dual Toggle) */}
+                <div className="bg-white p-3.5 sm:p-4 rounded-3xl border border-slate-200/90 shadow-2xs space-y-3">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                    
+                    {/* Buscador Rápido por Nombre, Doc, Código o Correo */}
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        placeholder="Buscar por nombre, documento o código ADE..."
+                        className="w-full pl-9 pr-8 py-2 border border-slate-200 focus:border-[#002B49] rounded-xl text-xs font-medium text-slate-900 outline-none bg-slate-50/50 focus:bg-white transition-all"
+                      />
+                      {studentSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setStudentSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center cursor-pointer"
+                        >
+                          ✕
+                        </button>
+                      )}
                     </div>
 
-                    <div className="text-[11px] text-slate-500 font-medium space-y-1">
-                      <div className="flex justify-between">
-                        <span>Documento:</span>
-                        <strong className="text-slate-700">{st.doc}</strong>
+                    {/* Selector de Orden Alfabético y Métricas */}
+                    <div className="flex flex-wrap items-center gap-2 self-start lg:self-center">
+                      <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-xl">
+                        <ArrowUpDown className="w-3.5 h-3.5 text-slate-500" />
+                        <span className="text-[11px] font-bold text-slate-500 hidden sm:inline">Ordenar:</span>
+                        <select
+                          value={studentSort}
+                          onChange={(e: any) => setStudentSort(e.target.value)}
+                          className="text-xs font-bold text-slate-800 bg-transparent outline-none cursor-pointer"
+                        >
+                          <option value="alpha-asc">🔤 Nombre (A - Z)</option>
+                          <option value="alpha-desc">🔤 Nombre (Z - A)</option>
+                          <option value="progress-desc">📈 Mayor Progreso (%)</option>
+                          <option value="progress-asc">⚠️ Menor Progreso (Riesgo)</option>
+                          <option value="grade-desc">⭐ Mejor Promedio</option>
+                        </select>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Correo:</span>
-                        <span className="text-slate-600 truncate max-w-[170px]" title={st.email}>{st.email}</span>
+
+                      {/* CONMUTADOR DUAL DE VISTA: BOTÓN 4 CUADRITOS (GRID) Y BOTÓN RAYITAS (LIST) */}
+                      <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        {/* Botón 4 Cuadritos (Cards Grid) */}
+                        <button
+                          type="button"
+                          onClick={() => setStudentViewMode('grid')}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            studentViewMode === 'grid'
+                              ? 'bg-[#002B49] text-amber-400 shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Vista en Tarjetas"
+                        >
+                          <LayoutGrid className="w-3.5 h-3.5" />
+                          <span className="text-[11px] hidden sm:inline">Tarjetas</span>
+                        </button>
+
+                        {/* Botón Rayitas (Lista / Tabla) */}
+                        <button
+                          type="button"
+                          onClick={() => setStudentViewMode('list')}
+                          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            studentViewMode === 'list'
+                              ? 'bg-[#002B49] text-amber-400 shadow-xs'
+                              : 'text-slate-600 hover:text-slate-900'
+                          }`}
+                          title="Vista en Lista / Planilla"
+                        >
+                          <List className="w-3.5 h-3.5" />
+                          <span className="text-[11px] hidden sm:inline">Lista</span>
+                        </button>
                       </div>
                     </div>
 
-                    <div className="space-y-1.5 pt-2 border-t border-slate-100 text-xs">
-                      <div className="flex justify-between text-[11px] text-slate-500 font-medium">
-                        <span>Progreso Curso:</span>
-                        <strong className="text-slate-800 font-bold">{st.progress}%</strong>
-                      </div>
-                      <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div className="bg-amber-400 h-full rounded-full" style={{ width: `${st.progress}%` }} />
-                      </div>
-                      <div className="flex justify-between text-[11px] text-slate-500 font-medium pt-1">
-                        <span>Promedio Acumulado:</span>
-                        <strong className="text-emerald-700 font-bold">{st.avg}</strong>
-                      </div>
+                  </div>
+
+                  {/* Píldoras de Filtro Rápido por Estado */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-100 text-xs">
+                    <span className="text-[11px] font-bold text-slate-400 mr-1">Filtrar:</span>
+                    
+                    <button
+                      type="button"
+                      onClick={() => setStudentStatusFilter('all')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        studentStatusFilter === 'all'
+                          ? 'bg-[#002B49] text-white shadow-2xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      Todos ({baseStudents.length})
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setStudentStatusFilter('Activo')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        studentStatusFilter === 'Activo'
+                          ? 'bg-emerald-600 text-white shadow-2xs'
+                          : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/60'
+                      }`}
+                    >
+                      ● Activos ({countActivos})
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setStudentStatusFilter('Al día')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        studentStatusFilter === 'Al día'
+                          ? 'bg-blue-600 text-white shadow-2xs'
+                          : 'bg-blue-50 text-blue-800 hover:bg-blue-100 border border-blue-200/60'
+                      }`}
+                    >
+                      ● Al día ({countAlDia})
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setStudentStatusFilter('Pendiente')}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                        studentStatusFilter === 'Pendiente'
+                          ? 'bg-amber-500 text-slate-950 shadow-2xs'
+                          : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200/60'
+                      }`}
+                    >
+                      ● Pendientes ({countPendientes})
+                    </button>
+                  </div>
+
+                </div>
+
+                {/* 3. VISTA EN LISTA / TABLA ACADÉMICA (IDEAL PARA 30-40+ ALUMNOS EN PANTALLA) */}
+                {studentViewMode === 'list' && (
+                  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs text-slate-700">
+                        <thead className="bg-slate-50 border-b border-slate-200 text-[11px] font-black uppercase tracking-wider text-slate-500">
+                          <tr>
+                            <th className="py-3 px-3 w-10 text-center font-mono">#</th>
+                            <th className="py-3 px-4">Estudiante</th>
+                            <th className="py-3 px-4">Identificación</th>
+                            <th className="py-3 px-4">Correo Institucional</th>
+                            <th className="py-3 px-4 text-center">Progreso</th>
+                            <th className="py-3 px-4 text-center">Promedio</th>
+                            <th className="py-3 px-4 text-center">Estado</th>
+                            <th className="py-3 px-4 text-right">Acciones</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {processedStudents.length > 0 ? (
+                            processedStudents.map((st, idx) => (
+                              <tr 
+                                key={st.code || idx}
+                                className="hover:bg-slate-50/80 transition-colors group"
+                              >
+                                {/* Número de orden alfabético */}
+                                <td className="py-3 px-3 text-center font-mono font-bold text-slate-400 text-[11px]">
+                                  {idx + 1}
+                                </td>
+
+                                {/* Nombre y Código */}
+                                <td className="py-3 px-4">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-[#002B49] text-amber-400 font-bold text-[11px] flex items-center justify-center shrink-0">
+                                      {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                                    </div>
+                                    <div className="min-w-0">
+                                      <strong className="text-xs font-black text-slate-900 block truncate group-hover:text-blue-900 transition-colors">
+                                        {st.name}
+                                      </strong>
+                                      <span className="text-[10px] font-mono text-slate-400 block">
+                                        {st.code}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {/* Documento */}
+                                <td className="py-3 px-4 text-slate-700 font-medium whitespace-nowrap">
+                                  {st.doc}
+                                </td>
+
+                                {/* Correo */}
+                                <td className="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                                  <a 
+                                    href={`mailto:${st.email}`}
+                                    className="hover:text-blue-700 hover:underline truncate block max-w-[190px]"
+                                    title={st.email}
+                                  >
+                                    {st.email}
+                                  </a>
+                                </td>
+
+                                {/* Progreso */}
+                                <td className="py-3 px-4 text-center">
+                                  <div className="inline-flex flex-col items-center gap-1 w-24">
+                                    <span className="text-[11px] font-bold text-slate-800">{st.progress}%</span>
+                                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full rounded-full ${
+                                          st.progress >= 75 ? 'bg-emerald-500' :
+                                          st.progress >= 50 ? 'bg-amber-400' :
+                                          'bg-rose-500'
+                                        }`} 
+                                        style={{ width: `${st.progress}%` }} 
+                                      />
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {/* Promedio */}
+                                <td className="py-3 px-4 text-center">
+                                  <span className="inline-block px-2 py-0.5 rounded-md text-[11px] font-bold font-mono bg-slate-100 text-slate-800">
+                                    {st.avg}
+                                  </span>
+                                </td>
+
+                                {/* Estado */}
+                                <td className="py-3 px-4 text-center">
+                                  <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap ${
+                                    st.status === 'Activo' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                    st.status === 'Al día' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                                    'bg-amber-100 text-amber-800 border border-amber-200'
+                                  }`}>
+                                    {st.status}
+                                  </span>
+                                </td>
+
+                                {/* Acciones del Docente */}
+                                <td className="py-3 px-4 text-right whitespace-nowrap">
+                                  <div className="inline-flex items-center gap-1">
+                                    {/* Contacto WhatsApp */}
+                                    <a
+                                      href={`https://wa.me/${(st.phone || '573000000000').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${st.name}, te escribe tu docente de American Dream English para hacer seguimiento a tu avance en el nivel ${activeLevel.toUpperCase()}.`)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-1.5 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                                      title="Escribir por WhatsApp"
+                                    >
+                                      <MessageCircle className="w-3.5 h-3.5" />
+                                    </a>
+
+                                    {/* Contacto Correo */}
+                                    <a
+                                      href={`mailto:${st.email}?subject=${encodeURIComponent(`Seguimiento Académico ADE Nivel ${activeLevel.toUpperCase()}`)}`}
+                                      className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                      title="Enviar correo"
+                                    >
+                                      <Mail className="w-3.5 h-3.5" />
+                                    </a>
+
+                                    {/* Ver Ficha Pedagógica */}
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenStudentDetail(st)}
+                                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#002B49] hover:bg-[#001f35] text-amber-400 rounded-lg text-[11px] font-bold shadow-2xs transition-all ml-1 cursor-pointer"
+                                      title="Ver ficha académica y observaciones pedagógicas"
+                                    >
+                                      <Eye className="w-3 h-3" />
+                                      <span>Ficha</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-xs text-slate-400 font-medium">
+                                No se encontraron estudiantes que coincidan con la búsqueda.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                ))}
+                )}
+
+                {/* 4. VISTA EN TARJETAS (CARDS GRID) */}
+                {studentViewMode === 'grid' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-fadeIn">
+                    {processedStudents.length > 0 ? (
+                      processedStudents.map((st, i) => (
+                        <div 
+                          key={st.code || i} 
+                          className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3 flex flex-col justify-between hover:border-slate-300 transition-all"
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-[#002B49] text-amber-400 font-bold text-xs flex items-center justify-center shrink-0">
+                                  {st.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                                </div>
+                                <div className="overflow-hidden">
+                                  <strong className="text-xs font-bold text-slate-900 block truncate">{st.name}</strong>
+                                  <span className="text-[10px] font-mono text-slate-400">{st.code}</span>
+                                </div>
+                              </div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                st.status === 'Activo' ? 'bg-emerald-100 text-emerald-800' :
+                                st.status === 'Al día' ? 'bg-blue-100 text-blue-800' :
+                                'bg-amber-100 text-amber-800'
+                              }`}>
+                                {st.status}
+                              </span>
+                            </div>
+
+                            <div className="text-[11px] text-slate-500 font-medium space-y-1 mt-3">
+                              <div className="flex justify-between">
+                                <span>Documento:</span>
+                                <strong className="text-slate-700">{st.doc}</strong>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Correo:</span>
+                                <span className="text-slate-600 truncate max-w-[170px]" title={st.email}>{st.email}</span>
+                              </div>
+                              {st.phone && (
+                                <div className="flex justify-between">
+                                  <span>Teléfono:</span>
+                                  <span className="text-slate-600 font-mono text-[10px]">{st.phone}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="space-y-1.5 pt-2.5 mt-2.5 border-t border-slate-100 text-xs">
+                              <div className="flex justify-between text-[11px] text-slate-500 font-medium">
+                                <span>Progreso Curso:</span>
+                                <strong className="text-slate-800 font-bold">{st.progress}%</strong>
+                              </div>
+                              <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                                <div 
+                                  className={`h-full rounded-full ${
+                                    st.progress >= 75 ? 'bg-emerald-500' :
+                                    st.progress >= 50 ? 'bg-amber-400' :
+                                    'bg-rose-500'
+                                  }`} 
+                                  style={{ width: `${st.progress}%` }} 
+                                />
+                              </div>
+                              <div className="flex justify-between text-[11px] text-slate-500 font-medium pt-1">
+                                <span>Promedio Acumulado:</span>
+                                <strong className="text-emerald-700 font-bold">{st.avg}</strong>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Acciones al pie de la tarjeta */}
+                          <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1">
+                              <a
+                                href={`https://wa.me/${(st.phone || '573000000000').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${st.name}, te escribe tu docente de American Dream English respecto a tu proceso en el nivel ${activeLevel.toUpperCase()}.`)}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[11px] font-bold border border-emerald-200/60 transition-all"
+                                title="Enviar mensaje de WhatsApp"
+                              >
+                                <MessageCircle className="w-3 h-3 text-emerald-600" />
+                                <span>WhatsApp</span>
+                              </a>
+
+                              <a
+                                href={`mailto:${st.email}`}
+                                className="p-1.5 rounded-xl bg-slate-50 text-slate-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-200 transition-all"
+                                title="Enviar correo institucional"
+                              >
+                                <Mail className="w-3.5 h-3.5" />
+                              </a>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleOpenStudentDetail(st)}
+                              className="inline-flex items-center gap-1 px-3 py-1 bg-[#002B49] hover:bg-[#001f35] text-amber-400 rounded-xl text-[11px] font-bold shadow-2xs transition-all cursor-pointer"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>Ver Ficha</span>
+                            </button>
+                          </div>
+
+                        </div>
+                      ))
+                    ) : (
+                      <div className="col-span-full py-12 text-center text-xs text-slate-400 font-medium bg-white rounded-3xl border border-slate-200">
+                        No se encontraron estudiantes que coincidan con los criterios de búsqueda.
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </div>
-            </div>
-          )}
+            )
+          })()}
 
       </main>
 
@@ -2963,6 +3442,133 @@ export default function TeacherCampusPage() {
               </div>
 
             </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* =================================================================== */}
+      {/* MODAL: FICHA PEDAGÓGICA Y OBSERVACIONES DEL DOCENTE                  */}
+      {/* =================================================================== */}
+      {selectedStudentDetail && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full p-6 sm:p-7 space-y-5 animate-scaleUp text-slate-800">
+            
+            {/* Cabecera del Estudiante */}
+            <div className="flex items-start justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#002B49] text-amber-400 font-black text-sm flex items-center justify-center shadow-sm">
+                  {selectedStudentDetail.name.split(' ').map(n => n[0]).slice(0, 2).join('')}
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 leading-tight">
+                    {selectedStudentDetail.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {selectedStudentDetail.code}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-600">
+                      Nivel {activeLevel.toUpperCase()}
+                    </span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      selectedStudentDetail.status === 'Activo' ? 'bg-emerald-100 text-emerald-800' :
+                      selectedStudentDetail.status === 'Al día' ? 'bg-blue-100 text-blue-800' :
+                      'bg-amber-100 text-amber-800'
+                    }`}>
+                      {selectedStudentDetail.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedStudentDetail(null)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Datos Personales y Académicos */}
+            <div className="grid grid-cols-2 gap-3 text-xs">
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Documento</span>
+                <strong className="text-slate-800 block">{selectedStudentDetail.doc}</strong>
+                <span className="text-[10px] text-slate-400 block">{selectedStudentDetail.phone || '+57 300 000 0000'}</span>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 block uppercase">Rendimiento</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Progreso:</span>
+                  <strong className="text-slate-900 font-bold">{selectedStudentDetail.progress}%</strong>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500">Promedio:</span>
+                  <strong className="text-emerald-700 font-bold">{selectedStudentDetail.avg}</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Observación Pedagógica Privada del Tutor */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Bitácora Pedagógica Privada (Notas del Docente)
+                </label>
+                <span className="text-[10px] text-slate-400 font-medium">Visible sólo para ti</span>
+              </div>
+              <textarea
+                rows={3}
+                value={currentNoteInput}
+                onChange={(e) => setCurrentNoteInput(e.target.value)}
+                placeholder="Anota observaciones de pronunciación, participación en sala Teams o áreas a reforzar para este alumno..."
+                className="w-full p-3 border border-slate-300 focus:border-[#002B49] rounded-2xl outline-none font-medium text-slate-900 text-xs bg-slate-50/50 leading-relaxed"
+              />
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  disabled={savingNote}
+                  onClick={() => handleSaveStudentNote(selectedStudentDetail.code)}
+                  className="px-3.5 py-1.5 bg-[#002B49] hover:bg-[#001f35] text-amber-400 text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{savingNote ? 'Guardando...' : 'Guardar Observación'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Canales de Contacto Directo */}
+            <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://wa.me/${(selectedStudentDetail.phone || '573000000000').replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${selectedStudentDetail.name}, te escribe tu docente de American Dream English para hacer seguimiento a tus actividades en el nivel ${activeLevel.toUpperCase()}.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all cursor-pointer"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span>WhatsApp</span>
+                </a>
+
+                <a
+                  href={`mailto:${selectedStudentDetail.email}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all cursor-pointer"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Correo</span>
+                </a>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setSelectedStudentDetail(null)}
+                className="px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
 
           </div>
         </div>

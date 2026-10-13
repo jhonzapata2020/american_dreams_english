@@ -49,6 +49,7 @@ export interface EnrolledStudent {
   code: string
   doc: string
   email: string
+  phone?: string
   progress: number
   avg: string
   status: 'Activo' | 'Al día' | 'Pendiente'
@@ -519,28 +520,44 @@ export const INITIAL_SUBMISSIONS_BY_LEVEL: Record<string, LevelStudentSubmission
 
 export const INITIAL_STUDENTS_BY_LEVEL: Record<string, EnrolledStudent[]> = {
   a1: [
-    { name: 'Valeria Morales Montoya', code: 'ADE-2026-0894', doc: 'C.C. 1.040.892.341', email: 'estudiante@americandream.edu.co', progress: 68, avg: '4.8 / 5.0', status: 'Activo' },
-    { name: 'Mateo Restrepo Gómez', code: 'ADE-2026-0912', doc: 'C.C. 1.035.712.940', email: 'mateo.restrepo@americandream.edu.co', progress: 55, avg: '4.5 / 5.0', status: 'Al día' },
-    { name: 'Camila Andrea Torres', code: 'ADE-2026-0781', doc: 'C.C. 1.152.441.802', email: 'camila.torres@americandream.edu.co', progress: 82, avg: '4.9 / 5.0', status: 'Activo' },
-    { name: 'Daniel Felipe Castro', code: 'ADE-2026-0845', doc: 'C.C. 1.020.914.331', email: 'daniel.castro@americandream.edu.co', progress: 40, avg: '4.2 / 5.0', status: 'Pendiente' },
-    { name: 'Sara Sofía Henao', code: 'ADE-2026-0901', doc: 'C.C. 1.017.653.229', email: 'sara.henao@americandream.edu.co', progress: 75, avg: '4.7 / 5.0', status: 'Al día' }
+    { name: 'Valeria Morales Montoya', code: 'ADE-2026-0894', doc: 'C.C. 1.040.892.341', email: 'estudiante@americandream.edu.co', phone: '+57 300 892 3410', progress: 68, avg: '4.8 / 5.0', status: 'Activo' },
+    { name: 'Mateo Restrepo Gómez', code: 'ADE-2026-0912', doc: 'C.C. 1.035.712.940', email: 'mateo.restrepo@americandream.edu.co', phone: '+57 312 712 9400', progress: 55, avg: '4.5 / 5.0', status: 'Al día' },
+    { name: 'Camila Andrea Torres', code: 'ADE-2026-0781', doc: 'C.C. 1.152.441.802', email: 'camila.torres@americandream.edu.co', phone: '+57 310 441 8021', progress: 82, avg: '4.9 / 5.0', status: 'Activo' },
+    { name: 'Daniel Felipe Castro', code: 'ADE-2026-0845', doc: 'C.C. 1.020.914.331', email: 'daniel.castro@americandream.edu.co', phone: '+57 320 914 3315', progress: 40, avg: '4.2 / 5.0', status: 'Pendiente' },
+    { name: 'Sara Sofía Henao', code: 'ADE-2026-0901', doc: 'C.C. 1.017.653.229', email: 'sara.henao@americandream.edu.co', phone: '+57 315 653 2294', progress: 75, avg: '4.7 / 5.0', status: 'Al día' },
+    { name: 'Alejandro Vargas Palacio', code: 'ADE-2026-0810', doc: 'C.C. 1.036.782.110', email: 'alejandro.vargas@americandream.edu.co', phone: '+57 318 782 1102', progress: 90, avg: '4.9 / 5.0', status: 'Activo' },
+    { name: 'Diana Marcela Cárdenas', code: 'ADE-2026-0822', doc: 'C.C. 1.028.910.455', email: 'diana.cardenas@americandream.edu.co', phone: '+57 301 910 4553', progress: 62, avg: '4.6 / 5.0', status: 'Al día' },
+    { name: 'Felipe Jaramillo Ospina', code: 'ADE-2026-0839', doc: 'C.C. 1.045.120.789', email: 'felipe.jaramillo@americandream.edu.co', phone: '+57 314 120 7891', progress: 35, avg: '3.9 / 5.0', status: 'Pendiente' },
+    { name: 'Isabella Quintero Ruiz', code: 'ADE-2026-0856', doc: 'C.C. 1.152.903.670', email: 'isabella.quintero@americandream.edu.co', phone: '+57 317 903 6708', progress: 88, avg: '5.0 / 5.0', status: 'Activo' },
+    { name: 'Lucas Benítez Arboleda', code: 'ADE-2026-0873', doc: 'C.C. 1.019.450.321', email: 'lucas.benitez@americandream.edu.co', phone: '+57 322 450 3217', progress: 70, avg: '4.7 / 5.0', status: 'Al día' },
+    { name: 'Mariana Salazar Echeverri', code: 'ADE-2026-0888', doc: 'C.C. 1.037.660.199', email: 'mariana.salazar@americandream.edu.co', phone: '+57 305 660 1993', progress: 48, avg: '4.3 / 5.0', status: 'Pendiente' },
+    { name: 'Nicolás Gómez Agudelo', code: 'ADE-2026-0925', doc: 'C.C. 1.025.889.340', email: 'nicolas.gomez@americandream.edu.co', phone: '+57 311 889 3405', progress: 95, avg: '4.9 / 5.0', status: 'Activo' }
   ],
   a2: [
-    { name: 'Juan David Higuita', code: 'ADE-2026-1023', doc: 'C.C. 1.038.452.190', email: 'juan.higuita@americandream.edu.co', progress: 60, avg: '4.6 / 5.0', status: 'Activo' },
-    { name: 'Laura Sofía Gómez', code: 'ADE-2026-1045', doc: 'C.C. 1.045.671.344', email: 'laura.gomez@americandream.edu.co', progress: 78, avg: '4.9 / 5.0', status: 'Al día' },
-    { name: 'Carlos Andrés Pineda', code: 'ADE-2026-1088', doc: 'C.C. 1.128.903.211', email: 'carlos.pineda@americandream.edu.co', progress: 50, avg: '4.3 / 5.0', status: 'Pendiente' },
-    { name: 'Mariana Roldán Vélez', code: 'ADE-2026-1102', doc: 'C.C. 1.026.890.155', email: 'mariana.roldan@americandream.edu.co', progress: 85, avg: '5.0 / 5.0', status: 'Activo' }
+    { name: 'Juan David Higuita', code: 'ADE-2026-1023', doc: 'C.C. 1.038.452.190', email: 'juan.higuita@americandream.edu.co', phone: '+57 300 452 1901', progress: 60, avg: '4.6 / 5.0', status: 'Activo' },
+    { name: 'Laura Sofía Gómez', code: 'ADE-2026-1045', doc: 'C.C. 1.045.671.344', email: 'laura.gomez@americandream.edu.co', phone: '+57 312 671 3442', progress: 78, avg: '4.9 / 5.0', status: 'Al día' },
+    { name: 'Carlos Andrés Pineda', code: 'ADE-2026-1088', doc: 'C.C. 1.128.903.211', email: 'carlos.pineda@americandream.edu.co', phone: '+57 314 903 2110', progress: 50, avg: '4.3 / 5.0', status: 'Pendiente' },
+    { name: 'Mariana Roldán Vélez', code: 'ADE-2026-1102', doc: 'C.C. 1.026.890.155', email: 'mariana.roldan@americandream.edu.co', phone: '+57 316 890 1559', progress: 85, avg: '5.0 / 5.0', status: 'Activo' },
+    { name: 'Esteban Morales Gil', code: 'ADE-2026-1115', doc: 'C.C. 1.039.221.450', email: 'esteban.morales@americandream.edu.co', phone: '+57 319 221 4503', progress: 72, avg: '4.7 / 5.0', status: 'Al día' },
+    { name: 'Gabriela Zapata Duque', code: 'ADE-2026-1130', doc: 'C.C. 1.018.665.890', email: 'gabriela.zapata@americandream.edu.co', phone: '+57 302 665 8904', progress: 91, avg: '4.9 / 5.0', status: 'Activo' },
+    { name: 'Sebastián Cano Luján', code: 'ADE-2026-1142', doc: 'C.C. 1.041.890.233', email: 'sebastian.cano@americandream.edu.co', phone: '+57 310 890 2337', progress: 42, avg: '4.1 / 5.0', status: 'Pendiente' },
+    { name: 'Valeria Cardona Ríos', code: 'ADE-2026-1158', doc: 'C.C. 1.037.441.980', email: 'valeria.cardona@americandream.edu.co', phone: '+57 315 441 9802', progress: 68, avg: '4.5 / 5.0', status: 'Al día' }
   ],
   b1: [
-    { name: 'Andrés Felipe Morales', code: 'ADE-2026-2011', doc: 'C.C. 1.042.339.812', email: 'andres.morales@americandream.edu.co', progress: 70, avg: '4.7 / 5.0', status: 'Activo' },
-    { name: 'Valentina Ríos Echeverry', code: 'ADE-2026-2034', doc: 'C.C. 1.152.880.443', email: 'valentina.rios@americandream.edu.co', progress: 90, avg: '4.9 / 5.0', status: 'Al día' },
-    { name: 'Alejandro Correa Muñoz', code: 'ADE-2026-2059', doc: 'C.C. 1.037.210.984', email: 'alejandro.correa@americandream.edu.co', progress: 65, avg: '4.4 / 5.0', status: 'Al día' },
-    { name: 'Tatiana Marín Soto', code: 'ADE-2026-2077', doc: 'C.C. 1.020.450.711', email: 'tatiana.marin@americandream.edu.co', progress: 80, avg: '4.8 / 5.0', status: 'Activo' }
+    { name: 'Andrés Felipe Morales', code: 'ADE-2026-2011', doc: 'C.C. 1.042.339.812', email: 'andres.morales@americandream.edu.co', phone: '+57 318 339 8121', progress: 70, avg: '4.7 / 5.0', status: 'Activo' },
+    { name: 'Valentina Ríos Echeverry', code: 'ADE-2026-2034', doc: 'C.C. 1.152.880.443', email: 'valentina.rios@americandream.edu.co', phone: '+57 300 880 4435', progress: 90, avg: '4.9 / 5.0', status: 'Al día' },
+    { name: 'Alejandro Correa Muñoz', code: 'ADE-2026-2059', doc: 'C.C. 1.037.210.984', email: 'alejandro.correa@americandream.edu.co', phone: '+57 311 210 9840', progress: 65, avg: '4.4 / 5.0', status: 'Al día' },
+    { name: 'Tatiana Marín Soto', code: 'ADE-2026-2077', doc: 'C.C. 1.020.450.711', email: 'tatiana.marin@americandream.edu.co', phone: '+57 321 450 7119', progress: 80, avg: '4.8 / 5.0', status: 'Activo' },
+    { name: 'Camilo Ochoa Restrepo', code: 'ADE-2026-2089', doc: 'C.C. 1.035.991.220', email: 'camilo.ochoa@americandream.edu.co', phone: '+57 313 991 2206', progress: 58, avg: '4.3 / 5.0', status: 'Pendiente' },
+    { name: 'Daniela Arango Posada', code: 'ADE-2026-2104', doc: 'C.C. 1.044.770.890', email: 'daniela.arango@americandream.edu.co', phone: '+57 304 770 8908', progress: 85, avg: '4.9 / 5.0', status: 'Activo' },
+    { name: 'Julián David Varela', code: 'ADE-2026-2118', doc: 'C.C. 1.019.332.114', email: 'julian.varela@americandream.edu.co', phone: '+57 317 332 1145', progress: 74, avg: '4.6 / 5.0', status: 'Al día' }
   ],
   b2: [
-    { name: 'Dr. Ricardo Montoya', code: 'ADE-2026-3015', doc: 'C.C. 71.345.890', email: 'ricardo.montoya@americandream.edu.co', progress: 92, avg: '5.0 / 5.0', status: 'Activo' },
-    { name: 'Ing. Claudia Vélez', code: 'ADE-2026-3042', doc: 'C.C. 43.890.123', email: 'claudia.velez@americandream.edu.co', progress: 88, avg: '4.9 / 5.0', status: 'Al día' },
-    { name: 'Santiago Uribe Londoño', code: 'ADE-2026-3066', doc: 'C.C. 1.035.882.119', email: 'santiago.uribe@americandream.edu.co', progress: 75, avg: '4.6 / 5.0', status: 'Al día' },
-    { name: 'Manuela Zapata Arango', code: 'ADE-2026-3091', doc: 'C.C. 1.040.667.234', email: 'manuela.zapata@americandream.edu.co', progress: 84, avg: '4.8 / 5.0', status: 'Activo' }
+    { name: 'Dr. Ricardo Montoya', code: 'ADE-2026-3015', doc: 'C.C. 71.345.890', email: 'ricardo.montoya@americandream.edu.co', phone: '+57 310 345 8901', progress: 92, avg: '5.0 / 5.0', status: 'Activo' },
+    { name: 'Ing. Claudia Vélez', code: 'ADE-2026-3042', doc: 'C.C. 43.890.123', email: 'claudia.velez@americandream.edu.co', phone: '+57 315 890 1234', progress: 88, avg: '4.9 / 5.0', status: 'Al día' },
+    { name: 'Santiago Uribe Londoño', code: 'ADE-2026-3066', doc: 'C.C. 1.035.882.119', email: 'santiago.uribe@americandream.edu.co', phone: '+57 301 882 1198', progress: 75, avg: '4.6 / 5.0', status: 'Al día' },
+    { name: 'Manuela Zapata Arango', code: 'ADE-2026-3091', doc: 'C.C. 1.040.667.234', email: 'manuela.zapata@americandream.edu.co', phone: '+57 312 667 2341', progress: 84, avg: '4.8 / 5.0', status: 'Activo' },
+    { name: 'Bernardo Henao Restrepo', code: 'ADE-2026-3105', doc: 'C.C. 98.765.432', email: 'bernardo.henao@americandream.edu.co', phone: '+57 318 765 4320', progress: 69, avg: '4.5 / 5.0', status: 'Pendiente' },
+    { name: 'Carolina Trujillo Vélez', code: 'ADE-2026-3120', doc: 'C.C. 1.028.449.001', email: 'carolina.trujillo@americandream.edu.co', phone: '+57 320 449 0012', progress: 94, avg: '5.0 / 5.0', status: 'Activo' }
   ]
 }
