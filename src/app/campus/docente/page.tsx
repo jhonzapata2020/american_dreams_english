@@ -1125,6 +1125,71 @@ export default function TeacherCampusPage() {
   const pdfMaterialsCount = materials.filter(m => m.type === 'pdf').length
   const audioMaterialsCount = materials.filter(m => m.type === 'audio').length
 
+  // Configuración de las pestañas 3D con luces neón inferiores proyectadas
+  const teacherTabs = [
+    {
+      id: 'live',
+      label: 'Sala Teams & En Vivo',
+      icon: Video,
+      neonColor: '#10B981', // Emerald / Menta Neón
+      glowColor: 'rgba(16, 185, 129, 0.95)',
+      lightPoolColor: 'rgba(16, 185, 129, 0.45)',
+      badge: liveClasses.length > 0 ? liveClasses.length : undefined,
+      isLive: true,
+    },
+    {
+      id: 'recordings',
+      label: 'Clases Grabadas',
+      icon: Video,
+      neonColor: '#F59E0B', // Ámbar / Oro Cálido
+      glowColor: 'rgba(245, 158, 11, 0.95)',
+      lightPoolColor: 'rgba(245, 158, 11, 0.45)',
+      badge: recordings.length > 0 ? recordings.length : undefined,
+      isLive: false,
+    },
+    {
+      id: 'materials',
+      label: 'Recursos & Guías',
+      icon: Headphones,
+      neonColor: '#A855F7', // Violeta / Púrpura Real
+      glowColor: 'rgba(168, 85, 247, 0.95)',
+      lightPoolColor: 'rgba(168, 85, 247, 0.45)',
+      badge: materials.length > 0 ? materials.length : undefined,
+      isLive: false,
+    },
+    {
+      id: 'grading',
+      label: 'Calificar Tareas',
+      icon: FileText,
+      neonColor: '#3B82F6', // Azul Cobalto Eléctrico
+      glowColor: 'rgba(59, 130, 246, 0.95)',
+      lightPoolColor: 'rgba(59, 130, 246, 0.45)',
+      badge: pendingGradingCount > 0 ? `${pendingGradingCount} pend.` : undefined,
+      badgePulse: pendingGradingCount > 0,
+      isLive: false,
+    },
+    {
+      id: 'forum',
+      label: 'Foro de Dudas',
+      icon: MessageSquare,
+      neonColor: '#06B6D4', // Cian Neón / Turquesa
+      glowColor: 'rgba(6, 182, 212, 0.95)',
+      lightPoolColor: 'rgba(6, 182, 212, 0.45)',
+      badge: unansweredForumCount > 0 ? unansweredForumCount : undefined,
+      isLive: false,
+    },
+    {
+      id: 'students',
+      label: 'Estudiantes',
+      icon: Users,
+      neonColor: '#F43F5E', // Coral Neón / Rosa
+      glowColor: 'rgba(244, 63, 94, 0.95)',
+      lightPoolColor: 'rgba(244, 63, 94, 0.45)',
+      badge: (INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1).length,
+      isLive: false,
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-[#0B1528] sm:bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
       
@@ -1280,115 +1345,108 @@ export default function TeacherCampusPage() {
         <main className="w-full bg-white text-slate-800 flex-1 p-5 sm:p-7 md:p-8 space-y-6">
           
           {/* =================================================================== */}
-          {/* PESTAÑAS TIPO PÍLDORA FLOTANTE (TEACHER PILL TABS)                  */}
+          {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
           {/* =================================================================== */}
-          {/* BARRA DE NAVEGACIÓN POR PESTAÑAS (TABS) - UNA SOLA FILA LIMPIA Y MODERNA */}
-          <div className="flex items-center gap-1.5 sm:gap-2 pb-3.5 border-b border-slate-200 overflow-x-auto no-scrollbar scroll-smooth">
-            
-            {/* Tab 0: Sala Teams & En Vivo */}
-            <button
-              onClick={() => setActiveTab('live')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'live'
-                  ? 'bg-emerald-600 text-white shadow-sm ring-1 ring-emerald-500'
-                  : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200/80'
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-              <Video className="w-3.5 h-3.5 text-emerald-300 shrink-0" />
-              <span>Sala Teams & En Vivo</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
-                activeTab === 'live' ? 'bg-white/20 text-white' : 'bg-emerald-200/70 text-emerald-900'
-              }`}>
-                {liveClasses.length}
-              </span>
-            </button>
+          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-3xl p-3 sm:p-5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
+            <div className="w-full flex items-center justify-start lg:justify-center overflow-x-auto no-scrollbar scroll-smooth pt-3 pb-8 px-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
+                {teacherTabs.map((tab) => {
+                  const isActive = activeTab === tab.id
+                  const IconComp = tab.icon
 
-            {/* Tab 1: Clases Grabadas */}
-            <button
-              onClick={() => setActiveTab('recordings')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'recordings'
-                  ? 'bg-[#002B49] text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              <Video className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-              <span>Clases Grabadas</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
-                activeTab === 'recordings' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {recordings.length}
-              </span>
-            </button>
+                  return (
+                    <div key={tab.id} className="relative group shrink-0">
+                      {/* 1. LUZ PROYECTADA ABAJO (OPTICAL UNDERGLOW LIGHT BEAM) */}
+                      {/* Proyección difusa de luz sobre el suelo blanco */}
+                      <div 
+                        className={`absolute -bottom-3.5 left-1/2 -translate-x-1/2 w-4/5 h-4 rounded-full blur-md pointer-events-none transition-all duration-300 ${
+                          isActive ? 'opacity-95 scale-105' : 'opacity-25 group-hover:opacity-85 group-hover:scale-100'
+                        }`}
+                        style={{
+                          backgroundColor: tab.neonColor,
+                          boxShadow: `0 8px 22px 6px ${tab.glowColor}`,
+                        }}
+                      />
 
-            {/* Tab 2: Recursos & Guías Didácticas */}
-            <button
-              onClick={() => setActiveTab('materials')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'materials'
-                  ? 'bg-[#002B49] text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              <Headphones className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-              <span>Recursos & Guías</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-black ${
-                activeTab === 'materials' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'
-              }`}>
-                {materials.length}
-              </span>
-            </button>
+                      {/* Núcleo LED incandescente en la rendija inferior de la cápsula */}
+                      <div 
+                        className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-14 sm:w-16 h-1.5 rounded-full blur-[1px] pointer-events-none transition-all duration-300 ${
+                          isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-90'
+                        }`}
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          boxShadow: `0 0 10px 2.5px ${tab.neonColor}`,
+                        }}
+                      />
 
-            {/* Tab 3: Calificaciones & Tareas */}
-            <button
-              onClick={() => setActiveTab('grading')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'grading'
-                  ? 'bg-[#002B49] text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-              <span>Calificar Tareas</span>
-              {pendingGradingCount > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-amber-400 text-slate-950 animate-pulse">
-                  {pendingGradingCount} pend.
-                </span>
-              )}
-            </button>
+                      {/* Difusión ambiental suave */}
+                      <div 
+                        className={`absolute -bottom-5 left-1/2 -translate-x-1/2 w-full h-6 rounded-full blur-xl pointer-events-none transition-all duration-300 ${
+                          isActive ? 'opacity-70' : 'opacity-10 group-hover:opacity-40'
+                        }`}
+                        style={{
+                          backgroundColor: tab.lightPoolColor,
+                        }}
+                      />
 
-            {/* Tab 4: Dudas en Foro */}
-            <button
-              onClick={() => setActiveTab('forum')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'forum'
-                  ? 'bg-[#002B49] text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              <MessageSquare className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span>Foro</span>
-              {unansweredForumCount > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-md font-bold bg-emerald-500 text-white">
-                  {unansweredForumCount}
-                </span>
-              )}
-            </button>
+                      {/* 2. CÁPSULA PÍLDORA 3D FLOTANTE (OBSIDIAN FLOATING PILL) */}
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`relative z-10 flex items-center gap-2 sm:gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
+                          isActive
+                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-1 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_12px_24px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
+                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-300 hover:text-white hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.7),0_8px_16px_-4px_rgba(0,0,0,0.4)] border-t border-white/10'
+                        }`}
+                      >
+                        {/* Indicador pulsante en vivo para Sala Teams */}
+                        {tab.isLive && (
+                          <span className="relative flex h-2 w-2 shrink-0">
+                            <span 
+                              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                              style={{ backgroundColor: tab.neonColor }}
+                            />
+                            <span 
+                              className="relative inline-flex rounded-full h-2 w-2"
+                              style={{ backgroundColor: tab.neonColor }}
+                            />
+                          </span>
+                        )}
 
-            {/* Tab 5: Estudiantes Matriculados */}
-            <button
-              onClick={() => setActiveTab('students')}
-              className={`flex items-center gap-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 whitespace-nowrap cursor-pointer ${
-                activeTab === 'students'
-                  ? 'bg-[#002B49] text-white shadow-sm'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-              <span>Estudiantes</span>
-            </button>
+                        {/* Icono con resplandor neón */}
+                        <IconComp 
+                          className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-all duration-300"
+                          style={{
+                            color: isActive ? tab.neonColor : undefined,
+                            filter: isActive ? `drop-shadow(0 0 6px ${tab.neonColor})` : undefined
+                          }}
+                        />
 
+                        {/* Nombre de la pestaña */}
+                        <span className="tracking-tight font-extrabold">{tab.label}</span>
+
+                        {/* Badge numérico integrado */}
+                        {tab.badge !== undefined && (
+                          <span 
+                            className={`text-[10px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 rounded-full font-mono font-black transition-all ${
+                              tab.badgePulse ? 'animate-pulse' : ''
+                            }`}
+                            style={{
+                              backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+                              color: isActive ? '#FFFFFF' : '#94A3B8',
+                              border: isActive ? `1px solid ${tab.neonColor}60` : '1px solid rgba(255,255,255,0.08)',
+                              boxShadow: isActive ? `0 0 8px ${tab.neonColor}40` : undefined
+                            }}
+                          >
+                            {tab.badge}
+                          </span>
+                        )}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
           </div>
 
           {/* =================================================================== */}
