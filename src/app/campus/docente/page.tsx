@@ -1147,9 +1147,9 @@ export default function TeacherCampusPage() {
       id: 'live',
       label: 'Sala Teams',
       icon: Video,
-      neonColor: '#10B981', // Emerald / Menta Neón
-      glowColor: 'rgba(16, 185, 129, 0.95)',
-      lightPoolColor: 'rgba(16, 185, 129, 0.45)',
+      neonColor: '#6366F1', // Teams Tech Indigo Neón
+      glowColor: 'rgba(99, 102, 241, 0.95)',
+      lightPoolColor: 'rgba(99, 102, 241, 0.45)',
       badge: liveClasses.length > 0 ? liveClasses.length : undefined,
       isLive: true,
     },
@@ -1462,39 +1462,54 @@ export default function TeacherCampusPage() {
           {activeTab === 'live' && (
             <div className="space-y-6 animate-fadeIn">
               
-              {/* Tarjeta Destacada: Configuración Enlace de Teams */}
-              <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-900 text-white p-5 sm:p-7 rounded-3xl border border-emerald-500/30 shadow-xl space-y-4">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
-                      <span className="text-[11px] font-black uppercase tracking-wider text-emerald-300">
-                        Sala Sincrónica Oficial · {activeLevel.toUpperCase()}
+              {/* Tarjeta Destacada: Configuración Enlace de Teams (Opción A: Teams Tech Indigo) */}
+              <div className="relative overflow-hidden bg-gradient-to-br from-[#121A38] via-[#0E152F] to-[#080D1E] text-white p-5 sm:p-7 rounded-3xl border border-[#5B5FC7]/40 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.6),0_0_30px_rgba(91,95,199,0.15)] space-y-5">
+                
+                {/* Resplandores ambientales de fondo Microsoft Teams */}
+                <div className="absolute -right-16 -top-16 w-72 h-72 bg-[#5B5FC7]/15 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -left-12 -bottom-12 w-56 h-56 bg-[#464EB8]/10 rounded-full blur-2xl pointer-events-none" />
+
+                <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400 shadow-[0_0_8px_#10B981]" />
+                      </span>
+                      <span className="text-[11px] font-black uppercase tracking-wider text-indigo-200 bg-[#5B5FC7]/25 border border-[#5B5FC7]/40 px-2.5 py-0.5 rounded-full font-mono shadow-xs">
+                        Microsoft Teams · Sala Sincrónica {activeLevel.toUpperCase()}
                       </span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-white">
-                      Enlace Principal de Microsoft Teams ({activeLevel.toUpperCase()})
+                    <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+                      <span>Enlace Maestro de Microsoft Teams</span>
+                      <span className="text-xs px-2 py-0.5 rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-400/30 font-mono">
+                        {activeLevel.toUpperCase()}
+                      </span>
                     </h2>
-                    <p className="text-xs text-emerald-100/80 font-medium max-w-2xl">
-                      El botón flotante verde 3D de Teams en el aula del estudiante redirigirá automáticamente a esta reunión para todas las sesiones sincrónicas programadas.
+                    <p className="text-xs text-indigo-100/75 font-medium max-w-2xl leading-relaxed">
+                      El botón flotante de Teams en el aula de los estudiantes de {activeLevel.toUpperCase()} redirigirá automáticamente a esta sala recurrente para todas las sesiones sincrónicas agendadas.
                     </p>
                   </div>
 
+                  {/* BOTÓN 1: PROBAR SALA EN TEAMS (Hover con luces neón) */}
                   <a
                     href={generalTeamsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-emerald-200 border border-white/20 text-xs font-bold transition-all shadow-sm shrink-0 self-start md:self-center"
+                    className="group relative inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-b from-[#222C52] via-[#161F3D] to-[#0F162E] text-indigo-100 hover:text-white border-t border-white/30 border-b border-black/40 text-xs font-bold transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),0_6px_14px_rgba(0,0,0,0.4)] hover:shadow-[0_0_24px_rgba(91,95,199,0.65),inset_0_1.5px_1px_rgba(255,255,255,0.4)] hover:-translate-y-0.5 active:translate-y-0.5 shrink-0 self-start md:self-center cursor-pointer select-none"
                   >
-                    <ExternalLink className="w-4 h-4 text-emerald-300" />
+                    {/* Haz de luz neón superior */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1px] bg-gradient-to-r from-transparent via-[#818CF8] to-transparent opacity-75 group-hover:opacity-100 transition-opacity" />
+                    <Video className="w-4 h-4 text-[#818CF8] group-hover:text-white transition-colors group-hover:drop-shadow-[0_0_8px_#818CF8]" />
                     <span>Probar Sala en Teams</span>
+                    <ExternalLink className="w-3.5 h-3.5 text-indigo-300 group-hover:text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   </a>
                 </div>
 
                 {/* Formulario de guardado rápido de URL de Teams */}
-                <form onSubmit={handleSaveGeneralTeamsUrl} className="pt-2 flex flex-col sm:flex-row gap-3">
-                  <div className="relative flex-1">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-emerald-300">
+                <form onSubmit={handleSaveGeneralTeamsUrl} className="relative z-10 pt-1 flex flex-col sm:flex-row gap-3">
+                  <div className="relative flex-1 group">
+                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-indigo-400 group-focus-within:text-[#818CF8] transition-colors">
                       <Video className="w-4 h-4" />
                     </div>
                     <input
@@ -1503,21 +1518,31 @@ export default function TeacherCampusPage() {
                       value={generalTeamsUrl}
                       onChange={(e) => setGeneralTeamsUrl(e.target.value)}
                       placeholder="https://teams.microsoft.com/l/meetup-join/..."
-                      className="w-full bg-white/10 border border-emerald-400/40 focus:border-emerald-300 focus:bg-white/15 text-white placeholder-emerald-300/50 rounded-2xl pl-10 pr-4 py-3 text-xs sm:text-sm font-mono outline-none transition-all"
+                      className="w-full bg-[#070B18] border border-[#2D3768] focus:border-[#6366F1] text-white placeholder-indigo-300/40 rounded-2xl pl-10 pr-24 py-3.5 text-xs sm:text-sm font-mono outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.6)] focus:ring-2 focus:ring-[#6366F1]/30 focus:shadow-[0_0_20px_rgba(99,102,241,0.25),inset_0_2px_4px_rgba(0,0,0,0.6)] transition-all"
                     />
+                    {/* Indicador de formato en el input */}
+                    <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-400/80 bg-indigo-500/10 px-2 py-0.5 rounded-md border border-indigo-400/20">
+                        Teams URL
+                      </span>
+                    </div>
                   </div>
 
+                  {/* BOTÓN 2: GUARDAR Y PUBLICAR EN AULA (Hover con luces neón y elevación 3D) */}
                   <button
                     type="submit"
                     disabled={savingTeamsUrl}
-                    className="bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black px-6 py-3 rounded-2xl text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-lg shrink-0 cursor-pointer disabled:opacity-70"
+                    className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-b from-[#6366F1] via-[#4F46E5] to-[#3B429F] hover:from-[#7174F8] hover:via-[#5950EC] hover:to-[#4338CA] text-white font-black text-xs sm:text-sm tracking-wide border-t border-indigo-200/50 border-b border-indigo-950/80 shadow-[0_8px_20px_rgba(79,70,229,0.45),inset_0_1.5px_1px_rgba(255,255,255,0.45)] hover:shadow-[0_12px_28px_rgba(99,102,241,0.7),0_0_25px_rgba(99,102,241,0.5),inset_0_1.5px_1px_rgba(255,255,255,0.6)] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-[0_4px_12px_rgba(79,70,229,0.4)] transition-all duration-300 shrink-0 cursor-pointer select-none disabled:opacity-60"
                   >
+                    {/* Micro-reflejo de luz en el borde superior */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
+                    
                     {savingTeamsUrl ? (
-                      <RefreshCw className="w-4 h-4 animate-spin" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-white" />
                     ) : (
-                      <Check className="w-4 h-4 text-slate-950" />
+                      <Check className="w-4 h-4 text-indigo-100 group-hover:scale-110 transition-transform drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
                     )}
-                    <span>Guardar y Publicar en Aula</span>
+                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Guardar y Publicar en Aula</span>
                   </button>
                 </form>
               </div>
