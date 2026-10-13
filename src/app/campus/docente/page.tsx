@@ -318,7 +318,7 @@ export default function TeacherCampusPage() {
     setShowRecordingModal(true)
   }
 
-  const handleSaveRecording = (e: React.FormEvent) => {
+  const handleSaveRecording = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!recordingForm.title.trim() || !recordingForm.videoUrl.trim()) return
 
@@ -349,6 +349,21 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
       }
+
+      // Sincronizar en Supabase si la tabla classes existe
+      try {
+        await supabase
+          .from('classes')
+          .update({
+            title: recordingForm.title,
+            meeting_link: recordingForm.videoUrl,
+            status: 'completed'
+          })
+          .eq('title', recordingForm.title)
+      } catch (e) {
+        console.warn('Nota Supabase classes update:', e)
+      }
+
       showNotification(`¡Clase grabada de ${activeLevel.toUpperCase()} actualizada con éxito!`)
     } else {
       // Crear nueva
@@ -371,6 +386,22 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_recordings_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_recordings_updated', { detail: { level: activeLevel } }))
       }
+
+      // Insertar en Supabase tabla 'classes'
+      try {
+        await supabase
+          .from('classes')
+          .insert([{
+            title: newRec.title,
+            meeting_link: newRec.videoUrl,
+            status: 'completed',
+            location: 'Microsoft Teams',
+            scheduled_at: new Date().toISOString()
+          }])
+      } catch (e) {
+        console.warn('Nota Supabase classes insert:', e)
+      }
+
       showNotification(`¡Nueva grabación de Teams publicada en el aula de ${activeLevel.toUpperCase()}!`)
     }
 
@@ -543,6 +574,22 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
       }
+
+      // Sincronizar en Supabase tabla course_materials
+      try {
+        await supabase
+          .from('course_materials')
+          .update({
+            title: materialForm.title.trim(),
+            file_url: finalDownloadUrl,
+            type: materialForm.type,
+            description: materialForm.description.trim()
+          })
+          .eq('title', materialForm.title.trim())
+      } catch (e) {
+        console.warn('Nota Supabase course_materials update:', e)
+      }
+
       showNotification('¡Recurso didáctico actualizado y sincronizado!')
     } else {
       const newMaterial: TeacherStudyMaterial = {
@@ -562,6 +609,21 @@ export default function TeacherCampusPage() {
         localStorage.setItem(`ade_teacher_materials_${activeLevel}`, JSON.stringify(updated))
         window.dispatchEvent(new CustomEvent('ade_materials_updated', { detail: { level: activeLevel } }))
       }
+
+      // Insertar en Supabase tabla course_materials
+      try {
+        await supabase
+          .from('course_materials')
+          .insert([{
+            title: newMaterial.title,
+            file_url: finalDownloadUrl,
+            type: newMaterial.type,
+            description: newMaterial.description
+          }])
+      } catch (e) {
+        console.warn('Nota Supabase course_materials insert:', e)
+      }
+
       showNotification('¡Nuevo recurso didáctico publicado en el aula de los estudiantes!')
     }
 
