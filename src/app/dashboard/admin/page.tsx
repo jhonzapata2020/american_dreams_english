@@ -1662,218 +1662,184 @@ export default function AdminDashboardPage() {
         {activeTab === 'overview' && (
           <div className="space-y-4 animate-fadeIn">
             
-            {/* BENTO GRID: HEADER & TOP METRIC CARDS */}
+            {/* BENTO GRID: HEADER & TOP METRIC CARDS (ESTILO SOFT 3D NEUMORPHIC PRO) */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
               
-              {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS */}
-              <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-5 text-slate-800 transition-all duration-300 hover:border-slate-300 flex flex-col justify-between relative overflow-hidden group">
+              {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (3D Executive Card) */}
+              <div className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] border border-white/90 rounded-[28px] p-5 sm:p-6 text-slate-800 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-0.5 transition-all duration-300">
                 <div>
-                  <div className="flex items-center justify-between gap-3 mb-3">
-                    <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-slate-100 text-slate-700 rounded-full text-xs font-semibold border border-slate-200">
-                      <ShieldCheck className="w-3.5 h-3.5 text-slate-600" />
-                      <span>Director Académico</span>
+                  <div className="flex items-center justify-between gap-2 flex-wrap mb-3">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[11px] font-bold border border-blue-200/60 shadow-2xs">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Panel Directivo</span>
                     </div>
 
-                    <div className="inline-flex items-center gap-2 px-3 py-0.5 bg-emerald-50 text-emerald-700 rounded-full text-xs font-medium border border-emerald-200">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-full text-[11px] font-mono font-bold border border-emerald-200/60 shadow-2xs">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>En vivo: {currentTime || 'Live'}</span>
+                      <span>{currentTime || 'En vivo'}</span>
                     </div>
                   </div>
 
-                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-2">
                     American Dream
                   </h1>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
-                    Panel Directivo & Control RBAC Sede Urabá.
+                  <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">
+                    Control Maestro RBAC · Sede Urabá.
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span className="flex items-center gap-1.5 text-[11px]">
-                    <Building2 className="w-3.5 h-3.5 text-slate-500" />
-                    Sede Turbo
+                <div className="mt-4 pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+                    <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                    Turbo, Antioquia
                   </span>
-                  <span className="text-[11px] font-mono text-slate-400">v2.4.0 Live</span>
+                  <span className="text-[10px] font-mono font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">
+                    v2.4.0 Live
+                  </span>
                 </div>
               </div>
 
-              {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS */}
+              {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (Soft 3D Card) */}
               <button 
                 type="button"
                 onClick={() => setActiveTab('estudiantes')}
-                className="bg-white shadow-sm border border-slate-200/90 hover:border-red-300 rounded-3xl p-5 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-[28px] p-5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 select-none"
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Estudiantes</span>
-                  <div className="p-1.5 bg-red-50 text-red-600 rounded-2xl border border-red-100 group-hover:scale-105 transition-transform">
-                    <GraduationCap className="w-4 h-4" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between my-2">
-                  <div>
-                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{studentsCount}</p>
-                    <p className="text-[11px] text-slate-500 mt-0.5 font-medium">Registrados en profiles</p>
-                  </div>
-
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-slate-100"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className="text-emerald-500 transition-all duration-1000"
-                        strokeDasharray={`${Math.min(100, Math.max(25, studentsCount * 25))}, 100`}
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-                    <span className="absolute text-[10px] font-bold text-emerald-600">100%</span>
-                  </div>
-                </div>
-
-                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    Sincronizado
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Estudiantes</span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    100% Activos
                   </span>
-                  <span className="text-slate-500 font-semibold group-hover:text-red-600 transition-colors">Ver Tabla →</span>
+                </div>
+
+                <div className="flex items-center gap-4 my-2">
+                  {/* Cápsula 3D del Icono */}
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-emerald-50 to-teal-100/70 border border-emerald-200/60 shadow-[0_6px_14px_rgba(16,185,129,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <GraduationCap className="w-7 h-7 text-emerald-600 drop-shadow-xs" />
+                  </div>
+
+                  <div>
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                      {studentsCount}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-1 font-medium">Alumnos en Campus</p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                  <span className="text-emerald-700 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Sincronizado Supabase
+                  </span>
+                  <span className="text-slate-500 font-bold group-hover:text-emerald-700 transition-colors flex items-center gap-1">
+                    Ver Tabla →
+                  </span>
                 </div>
               </button>
 
-              {/* BENTO WIDGET 3: EQUIPO DOCENTE TITULAR */}
+              {/* BENTO WIDGET 3: EQUIPO DOCENTE TITULAR (Soft 3D Card) */}
               <button 
                 type="button"
                 onClick={() => setActiveTab('docentes')}
-                className="bg-white shadow-sm border border-slate-200/90 hover:border-blue-400 rounded-3xl p-5 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(37,99,235,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-[28px] p-5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 select-none"
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Equipo Docente</span>
-                  <div className="p-1.5 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100 group-hover:scale-105 transition-transform">
-                    <UserCheck className="w-4 h-4" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between my-2">
-                  <div>
-                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{teachersCount}</p>
-                    <p className="text-[11px] text-blue-600 mt-0.5 font-medium">Profesores activos</p>
-                  </div>
-
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-slate-100"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className="text-blue-500 transition-all duration-1000"
-                        strokeDasharray="100, 100"
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-                    <span className="absolute text-[10px] font-bold text-blue-600">100%</span>
-                  </div>
-                </div>
-
-                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <span className="text-blue-600 font-semibold flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                    Planta Activa
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Equipo Docente</span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+                    Titulares
                   </span>
-                  <span className="text-slate-500 font-semibold group-hover:text-blue-600 transition-colors">Gestionar →</span>
+                </div>
+
+                <div className="flex items-center gap-4 my-2">
+                  {/* Cápsula 3D del Icono */}
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-blue-50 to-indigo-100/70 border border-blue-200/60 shadow-[0_6px_14px_rgba(37,99,235,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <UserCheck className="w-7 h-7 text-blue-600 drop-shadow-xs" />
+                  </div>
+
+                  <div>
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                      {teachersCount}
+                    </p>
+                    <p className="text-[11px] text-blue-700 mt-1 font-bold">Profesores Activos</p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                  <span className="text-blue-700 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    Planta Académica
+                  </span>
+                  <span className="text-slate-500 font-bold group-hover:text-blue-700 transition-colors flex items-center gap-1">
+                    Gestionar →
+                  </span>
                 </div>
               </button>
 
-              {/* BENTO WIDGET 4: BECAS URABÁ */}
+              {/* BENTO WIDGET 4: BECAS URABÁ (Soft 3D Card) */}
               <button 
                 type="button"
                 onClick={() => setActiveTab('becas')}
-                className="bg-white shadow-sm border border-slate-200/90 hover:border-amber-300 rounded-3xl p-5 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left"
+                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(217,119,6,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-[28px] p-5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 select-none"
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Urabá</span>
-                  <div className="p-1.5 bg-amber-50 text-amber-600 rounded-2xl border border-amber-200 group-hover:scale-105 transition-transform">
-                    <Heart className="w-4 h-4" />
-                  </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-wider">Becas Urabá</span>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60">
+                    Fondo 2026
+                  </span>
                 </div>
 
-                <div className="flex items-center justify-between my-2">
+                <div className="flex items-center gap-4 my-2">
+                  {/* Cápsula 3D del Icono */}
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-b from-amber-50 to-orange-100/70 border border-amber-200/60 shadow-[0_6px_14px_rgba(217,119,6,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Heart className="w-7 h-7 text-amber-600 drop-shadow-xs" />
+                  </div>
+
                   <div>
-                    <p className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">{pendingBecasCount}</p>
-                    <p className="text-[11px] text-amber-700 mt-0.5 font-medium">Pendientes por aprobar</p>
-                  </div>
-
-                  <div className="relative w-14 h-14 flex items-center justify-center">
-                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        className="text-slate-100"
-                        strokeWidth="3.5"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                      <path
-                        className="text-amber-500 transition-all duration-1000"
-                        strokeDasharray={`${pendingBecasCount > 0 ? 75 : 100}, 100`}
-                        strokeWidth="3.5"
-                        strokeLinecap="round"
-                        stroke="currentColor"
-                        fill="none"
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                      />
-                    </svg>
-                    <span className="absolute text-[10px] font-extrabold text-amber-600">
-                      {pendingBecasCount > 0 ? `${pendingBecasCount}` : 'OK'}
-                    </span>
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                      {pendingBecasCount}
+                    </p>
+                    <p className="text-[11px] text-amber-800 mt-1 font-bold">Por Aprobar</p>
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <span className="text-amber-700 font-semibold">Fondo Social</span>
-                  <span className="text-slate-500 font-semibold group-hover:text-amber-700 transition-colors">Revisar →</span>
+                <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between text-[11px]">
+                  <span className="text-amber-800 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                    Impacto Social
+                  </span>
+                  <span className="text-slate-500 font-bold group-hover:text-amber-800 transition-colors flex items-center gap-1">
+                    Revisar →
+                  </span>
                 </div>
               </button>
 
             </div>
 
-            {/* BENTO GRID: QUICK ACTIONS SHORTCUTS */}
-            <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-4 sm:p-5 text-slate-800 relative z-10">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-red-600" />
+            {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (TECLAS FÍSICAS 3D SOFT TÁCTILES) */}
+            <div className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.2),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] border border-white/90 rounded-[28px] p-5 sm:p-6 text-slate-800 relative z-10">
+              <div className="flex items-center justify-between mb-3.5 px-1">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
                   <span>Accesos Rápidos & Gestión Directa</span>
                 </h3>
-                <span className="text-[11px] text-slate-400 font-medium">Bento Shortcuts</span>
+                <span className="text-[11px] font-mono font-bold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200/60">
+                  Bento Shortcuts 3D
+                </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                 {/* Button 1: Agregar Estudiante */}
                 <button
                   type="button"
                   onClick={() => setIsAddStudentOpen(true)}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(239,68,68,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-red-50 text-red-600 rounded-xl border border-red-100 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <UserPlus className="w-4 h-4 text-red-600" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-rose-50 to-red-100/80 border border-red-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <UserPlus className="w-5 h-5 text-red-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-red-700 transition-colors">+ Estudiante</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">Crear en profiles</p>
+                    <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-red-600 transition-colors">+ Estudiante</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">Crear perfil</p>
                   </div>
                 </button>
 
@@ -1881,14 +1847,14 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddTeacherOpen(true)}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-blue-200 bg-blue-50/40 hover:bg-blue-50 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-blue-200 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-blue-600 text-white rounded-xl shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <GraduationCap className="w-4 h-4 text-white" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-600 text-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <GraduationCap className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-blue-900 leading-tight group-hover:text-blue-700 transition-colors">+ Registrar Docente</p>
-                    <p className="text-[10px] text-blue-600 mt-0.5 line-clamp-1">Dar alta & clave</p>
+                    <p className="text-xs font-black text-blue-900 leading-tight group-hover:text-blue-700 transition-colors">+ Docente</p>
+                    <p className="text-[10px] text-blue-600 mt-0.5 line-clamp-1 font-bold">Alta & Credenciales</p>
                   </div>
                 </button>
 
@@ -1896,14 +1862,14 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('docentes')}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(14,165,233,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <UserCheck className="w-4 h-4 text-slate-700" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-sky-50 to-blue-100/80 border border-sky-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <UserCheck className="w-5 h-5 text-sky-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Docentes</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{teachersCount} titulares</p>
+                    <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">Docentes</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{teachersCount} titulares</p>
                   </div>
                 </button>
 
@@ -1911,14 +1877,14 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('estudiantes')}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(16,185,129,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <Users className="w-4 h-4 text-slate-700" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-emerald-50 to-teal-100/80 border border-emerald-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Users className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Estudiantes</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{studentsCount} matriculados</p>
+                    <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-emerald-700 transition-colors">Estudiantes</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{studentsCount} en aula</p>
                   </div>
                 </button>
 
@@ -1926,14 +1892,14 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('leads')}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(99,102,241,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <Inbox className="w-4 h-4 text-slate-700" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-indigo-50 to-purple-100/80 border border-indigo-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Inbox className="w-5 h-5 text-indigo-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Prospectos Web</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{leadsCount} registros</p>
+                    <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Prospectos</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{leadsCount} registros</p>
                   </div>
                 </button>
 
@@ -1942,14 +1908,14 @@ export default function AdminDashboardPage() {
                   type="button"
                   onClick={fetchAdminData}
                   disabled={refreshing}
-                  className="group flex flex-row items-center gap-2.5 p-3 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs text-left cursor-pointer"
+                  className="group flex flex-row items-center gap-3 p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(37,99,235,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="p-2 bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform flex-shrink-0">
-                    <RefreshCw className={`w-4 h-4 text-slate-700 ${refreshing ? 'animate-spin' : ''}`} />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200/80 border border-slate-300/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <RefreshCw className={`w-5 h-5 text-slate-700 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-semibold text-slate-800 leading-tight group-hover:text-slate-900 transition-colors">Sincronizar BD</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">Refrescar Supabase</p>
+                    <p className="text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">Sincronizar</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">Refrescar BD</p>
                   </div>
                 </button>
               </div>

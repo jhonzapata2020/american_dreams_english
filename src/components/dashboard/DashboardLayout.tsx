@@ -113,14 +113,18 @@ export function DashboardLayout({
     loadUserProfile()
   }, [propRole])
 
-  // Cargar ancho preferido guardado en localStorage
+  // Cargar ancho preferido guardado en localStorage (evitar estados aplastados intermedios)
   useEffect(() => {
     try {
       const savedWidth = localStorage.getItem('ade_sidebar_width')
       if (savedWidth) {
         const parsed = parseInt(savedWidth, 10)
-        if (!isNaN(parsed) && parsed >= 76 && parsed <= 380) {
-          setSidebarWidth(parsed)
+        if (!isNaN(parsed)) {
+          if (parsed <= 95) {
+            setSidebarWidth(76)
+          } else {
+            setSidebarWidth(Math.min(380, Math.max(260, parsed)))
+          }
         }
       }
     } catch (e) {}
@@ -152,12 +156,13 @@ export function DashboardLayout({
       const asideRect = sidebarRef.current.getBoundingClientRect()
       const newWidth = e.clientX - asideRect.left
 
-      // Snap inteligente: si se arrastra hacia la izquierda (< 140px), se compacta a sólo iconos (76px)
-      if (newWidth < 140) {
+      // Snap inteligente: si se arrastra hacia la izquierda (< 210px), se compacta limpiamente a sólo iconos (76px)
+      if (newWidth < 210) {
         setSidebarWidth(76)
         try { localStorage.setItem('ade_sidebar_width', '76') } catch (e) {}
       } else {
-        const clamped = Math.min(380, Math.max(210, newWidth))
+        // En modo expandido, el ancho mínimo es 260px para que ningún texto se corte con puntos suspensivos
+        const clamped = Math.min(380, Math.max(260, newWidth))
         setSidebarWidth(clamped)
         try { localStorage.setItem('ade_sidebar_width', String(clamped)) } catch (e) {}
       }
