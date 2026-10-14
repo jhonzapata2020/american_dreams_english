@@ -1,14 +1,12 @@
 'use client'
 
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { createClient } from '../../../utils/supabase/client'
 import { 
   Users, 
   UserPlus, 
-  Search, 
-  Filter, 
   CheckCircle2, 
   AlertCircle, 
   GraduationCap, 
@@ -16,45 +14,46 @@ import {
   Copy, 
   Check, 
   X, 
-  Trash2, 
   RefreshCw, 
-  Building2, 
   ShieldCheck, 
   Mail, 
   Phone, 
   BookOpen, 
-  ArrowRight,
-  ExternalLink,
   Sparkles,
-  MessageSquare
+  MessageSquare,
+  Award,
+  ChevronRight,
+  Pencil
 } from 'lucide-react'
-
-interface StudentRecord {
-  id: string
-  full_name: string
-  email: string
-  document_type?: string
-  document_number?: string
-  phone?: string
-  mcer_level?: string
-  municipality?: string
-  status?: string
-  created_at?: string
-  course_name?: string
-}
+import { StudentsCrudTable, StudentRecord } from '../../../components/dashboard/StudentsCrudTable'
 
 const INITIAL_STUDENTS: StudentRecord[] = [
+  {
+    id: 'stu-000',
+    full_name: 'Edward John',
+    email: 'lawson@example.com',
+    document_type: 'C.C.',
+    document_number: '1040892341',
+    phone: '(252) 555-0126',
+    mcer_level: 'A1',
+    course_name: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
+    municipality: 'Turbo (Urabá)',
+    status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-10-04T09:00:00-05:00'
+  },
   {
     id: 'stu-001',
     full_name: 'Valeria Morales Montoya',
     email: 'valeria.morales@americandream.edu.co',
     document_type: 'C.C.',
-    document_number: '1040892341',
+    document_number: '1040892342',
     phone: '+57 312 456 7890',
     mcer_level: 'A1',
     course_name: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
     municipality: 'Turbo (Urabá)',
     status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     created_at: '2026-10-04T09:00:00-05:00'
   },
   {
@@ -64,10 +63,11 @@ const INITIAL_STUDENTS: StudentRecord[] = [
     document_type: 'C.C.',
     document_number: '1038712990',
     phone: '+57 310 882 1934',
-    mcer_level: 'A1',
-    course_name: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
+    mcer_level: 'A2',
+    course_name: 'ENGLISH LEVEL 2 - PRE-INTERMEDIATE',
     municipality: 'Apartadó',
     status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
     created_at: '2026-10-04T10:30:00-05:00'
   },
   {
@@ -81,25 +81,94 @@ const INITIAL_STUDENTS: StudentRecord[] = [
     course_name: 'ENGLISH LEVEL 2 - PRE-INTERMEDIATE',
     municipality: 'Carepa',
     status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     created_at: '2026-10-03T15:00:00-05:00'
+  },
+  {
+    id: 'stu-004',
+    full_name: 'Darlene Robertson',
+    email: 'alma.lawson@example.com',
+    document_type: 'C.C.',
+    document_number: '1040552190',
+    phone: '(252) 555-0126',
+    mcer_level: 'A1',
+    course_name: 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
+    municipality: 'Turbo (Urabá)',
+    status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-10-02T11:20:00-05:00'
+  },
+  {
+    id: 'stu-005',
+    full_name: 'Annette Black',
+    email: 'bill.sanders@example.com',
+    document_type: 'T.I.',
+    document_number: '1040991823',
+    phone: '(252) 555-0126',
+    mcer_level: 'A2',
+    course_name: 'ENGLISH LEVEL 2 - PRE-INTERMEDIATE',
+    municipality: 'Apartadó',
+    status: 'paused',
+    avatar_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-10-01T14:10:00-05:00'
+  },
+  {
+    id: 'stu-006',
+    full_name: 'Ronald Richards',
+    email: 'weaver@example.com',
+    document_type: 'C.C.',
+    document_number: '1040223841',
+    phone: '(252) 555-0126',
+    mcer_level: 'B1',
+    course_name: 'ENGLISH LEVEL 3 - INTERMEDIATE',
+    municipality: 'Carepa',
+    status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-09-28T16:00:00-05:00'
+  },
+  {
+    id: 'stu-007',
+    full_name: 'Ralph Edwards',
+    email: 'simmons@example.com',
+    document_type: 'C.C.',
+    document_number: '1039871234',
+    phone: '(252) 555-0126',
+    mcer_level: 'B1',
+    course_name: 'ENGLISH LEVEL 3 - INTERMEDIATE',
+    municipality: 'Chigorodó',
+    status: 'active',
+    avatar_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-09-25T08:30:00-05:00'
+  },
+  {
+    id: 'stu-008',
+    full_name: 'Courtney Henry',
+    email: 'felicia.reid@example.com',
+    document_type: 'C.C.',
+    document_number: '1038992110',
+    phone: '(252) 555-0126',
+    mcer_level: 'B2',
+    course_name: 'ENGLISH LEVEL 4 - UPPER INTERMEDIATE',
+    municipality: 'Virtual',
+    status: 'completed',
+    avatar_url: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+    created_at: '2026-09-20T10:00:00-05:00'
   }
 ]
 
 export default function AdminEstudiantesPage() {
   const supabase = createClient()
 
-  // Estados de lista
+  // Estados de lista de estudiantes
   const [students, setStudents] = useState<StudentRecord[]>(INITIAL_STUDENTS)
   const [loading, setLoading] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [levelFilter, setLevelFilter] = useState('all')
 
   // Estados del modal de registro
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
-  // Form Fields
+  // Form Fields de creación
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [documentType, setDocumentType] = useState('C.C.')
@@ -110,7 +179,17 @@ export default function AdminEstudiantesPage() {
   const [modality, setModality] = useState('virtual')
   const [municipality, setMunicipality] = useState('Turbo (Urabá)')
 
-  // Estado del Modal de Éxito / Credenciales
+  // Estados de edición de estudiante
+  const [studentToEdit, setStudentToEdit] = useState<StudentRecord | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editFullName, setEditFullName] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+  const [editPhone, setEditPhone] = useState('')
+  const [editMcerLevel, setEditMcerLevel] = useState('A1')
+  const [editMunicipality, setEditMunicipality] = useState('Turbo (Urabá)')
+  const [editStatus, setEditStatus] = useState('active')
+
+  // Estado del Modal de Credenciales
   const [createdCredentials, setCreatedCredentials] = useState<{
     studentName: string
     username: string
@@ -123,7 +202,7 @@ export default function AdminEstudiantesPage() {
 
   const [copiedNotification, setCopiedNotification] = useState(false)
 
-  // Cargar estudiantes desde la API
+  // Cargar estudiantes desde la API de Supabase
   const fetchStudents = async () => {
     setLoading(true)
     try {
@@ -131,11 +210,35 @@ export default function AdminEstudiantesPage() {
       if (res.ok) {
         const data = await res.json()
         if (data.students && data.students.length > 0) {
-          setStudents(data.students)
+          // Mapear registros de Supabase profiles
+          const apiStudents: StudentRecord[] = data.students.map((sp: any) => ({
+            id: sp.id,
+            full_name: sp.full_name || 'Estudiante Registrado',
+            email: sp.email || 'estudiante@americandream.edu.co',
+            document_type: sp.document_type || 'C.C.',
+            document_number: sp.document_number || '',
+            phone: sp.phone || '',
+            mcer_level: sp.mcer_level || sp.academic_level || 'A1',
+            municipality: sp.municipality || sp.origin_location || 'Turbo (Urabá)',
+            status: sp.status || 'active',
+            avatar_url: sp.avatar_url,
+            created_at: sp.created_at,
+            course_name: sp.course_name || `ENGLISH LEVEL ${sp.mcer_level || '1'} - GENERAL PROGRAM`
+          }))
+
+          // Combinar registros asegurando unicidad por ID
+          setStudents(prev => {
+            const map = new Map<string, StudentRecord>()
+            // Iniciales primero
+            INITIAL_STUDENTS.forEach(s => map.set(s.id, s))
+            // Supabase sobrescribe o añade
+            apiStudents.forEach(s => map.set(s.id, s))
+            return Array.from(map.values())
+          })
         }
       }
     } catch (e) {
-      console.warn('Error al cargar estudiantes:', e)
+      console.warn('Aviso: modo demostración con datos locales:', e)
     } finally {
       setLoading(false)
     }
@@ -145,26 +248,7 @@ export default function AdminEstudiantesPage() {
     fetchStudents()
   }, [])
 
-  // Filtrado reactivo
-  const filteredStudents = useMemo(() => {
-    return students.filter(s => {
-      const name = s.full_name || ''
-      const email = s.email || ''
-      const doc = s.document_number || ''
-      const level = s.mcer_level || 'A1'
-
-      const matchesSearch = 
-        name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        doc.includes(searchTerm)
-
-      const matchesLevel = levelFilter === 'all' || level === levelFilter
-
-      return matchesSearch && matchesLevel
-    })
-  }, [students, searchTerm, levelFilter])
-
-  // Resetear formulario
+  // Resetear y abrir modal de nuevo estudiante
   const handleOpenModal = () => {
     setFirstName('')
     setLastName('')
@@ -179,7 +263,74 @@ export default function AdminEstudiantesPage() {
     setIsModalOpen(true)
   }
 
-  // Envío del Formulario
+  // Abrir modal de edición
+  const handleOpenEdit = (student: StudentRecord) => {
+    setStudentToEdit(student)
+    setEditFullName(student.full_name || '')
+    setEditEmail(student.email || '')
+    setEditPhone(student.phone || '')
+    setEditMcerLevel(student.mcer_level || 'A1')
+    setEditMunicipality(student.municipality || 'Turbo (Urabá)')
+    setEditStatus(student.status || 'active')
+  }
+
+  // Guardar cambios de edición
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!studentToEdit) return
+
+    setIsEditing(true)
+    try {
+      const courseTitle = 
+        editMcerLevel === 'A1' ? 'ENGLISH LEVEL 1 - GENERAL PROGRAM' :
+        editMcerLevel === 'A2' ? 'ENGLISH LEVEL 2 - PRE-INTERMEDIATE' :
+        editMcerLevel === 'B1' ? 'ENGLISH LEVEL 3 - INTERMEDIATE' :
+        'ENGLISH LEVEL 4 - UPPER INTERMEDIATE'
+
+      // Intentar actualizar en Supabase si no es demo id
+      if (!studentToEdit.id.startsWith('stu-')) {
+        await supabase
+          .from('profiles')
+          .update({
+            full_name: editFullName.trim(),
+            email: editEmail.trim(),
+            phone: editPhone.trim(),
+            mcer_level: editMcerLevel,
+            academic_level: editMcerLevel,
+            municipality: editMunicipality,
+            origin_location: editMunicipality,
+            status: editStatus,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', studentToEdit.id)
+      }
+
+      // Actualizar estado local reactivo
+      setStudents(prev => prev.map(s => {
+        if (s.id === studentToEdit.id) {
+          return {
+            ...s,
+            full_name: editFullName.trim(),
+            email: editEmail.trim(),
+            phone: editPhone.trim(),
+            mcer_level: editMcerLevel,
+            municipality: editMunicipality,
+            status: editStatus,
+            course_name: courseTitle
+          }
+        }
+        return s
+      }))
+
+      setStudentToEdit(null)
+    } catch (err: any) {
+      console.error('Error al actualizar estudiante:', err)
+    } finally {
+      setIsEditing(false)
+    }
+  }
+
+  // Crear estudiante en Supabase Auth y lista
   const handleCreateStudent = async (e: React.FormEvent) => {
     e.preventDefault()
     setFormError(null)
@@ -192,7 +343,6 @@ export default function AdminEstudiantesPage() {
     const cleanEmail = email.trim().toLowerCase()
     const cleanDoc = documentId.trim()
 
-    // Validar si ya existe en la lista local
     const exists = students.some(s => s.email?.toLowerCase() === cleanEmail || s.document_number === cleanDoc)
     if (exists) {
       setFormError('Ya existe un estudiante registrado con este correo o número de documento.')
@@ -249,11 +399,10 @@ export default function AdminEstudiantesPage() {
         created_at: new Date().toISOString()
       }
 
-      // Actualizar lista local
       setStudents(prev => [newStudentRecord, ...prev])
-
-      // Cerrar modal de formulario y abrir modal de credenciales
       setIsModalOpen(false)
+
+      // Mostrar modal de credenciales
       setCreatedCredentials({
         studentName: fullName,
         username: cleanDoc,
@@ -271,11 +420,26 @@ export default function AdminEstudiantesPage() {
     }
   }
 
-  // Copiar Credenciales al Portapapeles (Formato WhatsApp)
+  // Ver credenciales de cualquier alumno
+  const handleViewCredentials = (s: StudentRecord) => {
+    const doc = s.document_number || '1040892341'
+    const pwd = doc.length >= 6 ? doc : `${doc}2026*`
+    setCreatedCredentials({
+      studentName: s.full_name,
+      username: doc,
+      email: s.email,
+      documentId: doc,
+      password: pwd,
+      courseName: s.course_name || 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
+      loginUrl: window.location.origin + '/campus/login'
+    })
+  }
+
+  // Copiar Credenciales en formato WhatsApp
   const handleCopyCredentials = () => {
     if (!createdCredentials) return
 
-    const message = `🎉 *¡BIENVENIDO(A) A AMERICAN DREAM ENGLISH!* 🎓\n\nHola *${createdCredentials.studentName}*, tu matrícula oficial ha sido procesada con éxito en el *${createdCredentials.courseName}*.\n\n🔑 *TUS CREDENCIALES DEL CAMPUS VIRTUAL:*\n• *Portal de Acceso:* ${createdCredentials.loginUrl}\n• *Usuario:* ${createdCredentials.documentId} (o tu correo: ${createdCredentials.email})\n• *Contraseña Inicial:* ${createdCredentials.password}\n\n📚 *En tu Campus encontrarás:* Tus clases en vivo por Microsoft Teams, guías pedagógicas PDF, laboratorios de audio y zona de tareas.\n\n_American Dream English · Resolución Oficial 2471_`
+    const message = `🎉 *¡BIENVENIDO(A) A AMERICAN DREAM ENGLISH!* 🎓\n\nHola *${createdCredentials.studentName}*, tu matrícula oficial ha sido procesada con éxito en el *${createdCredentials.courseName}*.\n\n🔑 *TUS CREDENCIALES DEL CAMPUS VIRTUAL:*\n• *Portal de Acceso:* ${createdCredentials.loginUrl}\n• *Usuario:* ${createdCredentials.documentId} (o tu correo: ${createdCredentials.email})\n• *Contraseña Inicial:* ${createdCredentials.password}\n\n📚 *En tu Campus encontrarás:* Clases en vivo por Microsoft Teams, guías pedagógicas PDF, laboratorios de pronunciación y zona de tareas.\n\n_American Dream English · Resolución Oficial 2471_`
 
     navigator.clipboard.writeText(message)
     setCopiedNotification(true)
@@ -284,7 +448,7 @@ export default function AdminEstudiantesPage() {
 
   // Eliminar estudiante
   const handleDeleteStudent = async (id: string, name: string) => {
-    if (!confirm(`¿Estás seguro de que deseas eliminar la cuenta del estudiante "${name}"?`)) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar la matrícula de "${name}"?`)) {
       return
     }
 
@@ -298,261 +462,137 @@ export default function AdminEstudiantesPage() {
 
   return (
     <DashboardLayout currentRole="admin" activeTab="estudiantes">
-      <div className="space-y-8 font-sans pb-12">
+      <div className="space-y-6 font-sans pb-12">
         
-        {/* CABECERA PRINCIPAL */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        {/* ========================================================================= */}
+        {/* CABECERA PRINCIPAL ESTILO SOFT 3D NEUMORPHIC                             */}
+        {/* ========================================================================= */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <div>
             <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              <GraduationCap className="w-4 h-4 text-[#002B49]" />
-              <span>Gestión Académica Institucional · Periodo 2026-I</span>
+              <span className="text-blue-600 font-extrabold">Admin Dashboard</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              <span>Gestión de Estudiantes & Matrículas</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Estudiantes & Matrículas Oficiales
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <span>Lista de Estudiantes</span>
+              <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black rounded-full shadow-2xs">
+                {students.length} Registrados
+              </span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-              Creación de cuentas, asignación de cursos y generación automática de credenciales de Campus Virtual.
+              Control de matrículas, asignación de cursos MCER, credenciales de Campus Virtual y seguimiento por sedes de Urabá.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <button
               onClick={handleOpenModal}
-              className="inline-flex items-center gap-2 bg-[#002B49] hover:bg-[#001f35] text-white font-black px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all text-xs active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <UserPlus className="w-4 h-4 text-amber-400" />
-              <span>Registrar Nuevo Estudiante</span>
-            </button>
-
-            <button
-              onClick={fetchStudents}
-              className="p-2.5 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-slate-600 transition-colors"
-              title="Actualizar lista"
-            >
-              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              <UserPlus className="w-4 h-4 text-blue-100" />
+              <span>+ Matricular Estudiante</span>
             </button>
           </div>
         </div>
 
-        {/* METRIC CARDS */}
+        {/* ========================================================================= */}
+        {/* 4 CARDS DE MÉTRICAS (SOFT 3D NEUMORPHIC WHITE)                            */}
+        {/* ========================================================================= */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-slate-400 text-xs font-bold uppercase block">Total Alumnos Registrados</span>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">{students.length}</div>
+          
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Total Matriculados</span>
+              <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
+                <Users className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{students.length}</div>
             <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 100% con credenciales activas
+              <CheckCircle2 className="w-3.5 h-3.5" /> 100% con Campus activo
             </span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-slate-400 text-xs font-bold uppercase block">Nivel 1 (A1 Principiante)</span>
-            <div className="text-2xl sm:text-3xl font-black text-[#002B49] mt-1">
-              {students.filter(s => s.mcer_level === 'A1').length}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Nivel 1 (A1 Principiante)</span>
+              <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-inner">
+                <BookOpen className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+              {students.filter(s => (s.mcer_level || '').toUpperCase() === 'A1').length}
             </div>
             <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Ciclo formativo en curso
+              Iniciación oral & gramática
             </span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-slate-400 text-xs font-bold uppercase block">Nivel 2 y Superior (A2/B1/B2)</span>
-            <div className="text-2xl sm:text-3xl font-black text-amber-600 mt-1">
-              {students.filter(s => s.mcer_level !== 'A1').length}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Nivel 2 y Superior (A2/B1/B2)</span>
+              <div className="w-9 h-9 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
+                <Award className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+              {students.filter(s => (s.mcer_level || '').toUpperCase() !== 'A1').length}
             </div>
             <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Pre-intermedio & Avanzado
+              Pre-intermedio & Conversación
             </span>
           </div>
 
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-            <span className="text-slate-400 text-xs font-bold uppercase block">Seguridad & Contraseñas</span>
-            <div className="text-sm font-extrabold text-slate-800 mt-2 flex items-center gap-2">
-              <KeyRound className="w-4 h-4 text-emerald-600" />
+          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Seguridad Institucional</span>
+              <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner">
+                <KeyRound className="w-4 h-4" />
+              </div>
+            </div>
+            <div className="text-xs font-black text-slate-800 mt-3 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>Password = No. Documento</span>
             </div>
             <span className="text-[11px] text-slate-400 mt-1 block">
-              Facilidad de acceso para el alumno
+              Acceso simplificado sin fricción
             </span>
-          </div>
-        </div>
-
-        {/* CONTENEDOR DE TABLA DE ESTUDIANTES */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-          
-          {/* Barra de Filtros y Búsqueda */}
-          <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="relative min-w-[260px]">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar por nombre, documento o correo..."
-                  className="w-full text-xs pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#002B49] text-slate-900"
-                />
-              </div>
-
-              <select
-                value={levelFilter}
-                onChange={(e) => setLevelFilter(e.target.value)}
-                className="text-xs bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 font-medium text-slate-700"
-              >
-                <option value="all">Todos los Niveles</option>
-                <option value="A1">Nivel A1 (English Level 1)</option>
-                <option value="A2">Nivel A2 (Pre-Intermediate)</option>
-                <option value="B1">Nivel B1 (Intermediate)</option>
-                <option value="B2">Nivel B2 (Upper Intermediate)</option>
-              </select>
-            </div>
-
-            <span className="text-xs text-slate-500 font-medium">
-              Mostrando <strong>{filteredStudents.length}</strong> de <strong>{students.length}</strong> estudiantes
-            </span>
-          </div>
-
-          {/* Tabla */}
-          <div className="overflow-x-auto">
-            {filteredStudents.length === 0 ? (
-              <div className="p-12 text-center text-slate-500">
-                <Users className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <h3 className="text-base font-extrabold text-slate-800">
-                  No se encontraron estudiantes
-                </h3>
-                <p className="text-xs text-slate-400 mt-1">
-                  Intenta cambiar el criterio de búsqueda o registra un nuevo estudiante con el botón superior.
-                </p>
-              </div>
-            ) : (
-              <table className="w-full text-left text-xs text-slate-600">
-                <thead className="bg-slate-50 text-slate-700 font-extrabold border-b border-slate-200 uppercase text-[10px] tracking-wider">
-                  <tr>
-                    <th className="py-3.5 px-4">Estudiante</th>
-                    <th className="py-3.5 px-4">Documento / Usuario</th>
-                    <th className="py-3.5 px-4">Curso & Nivel</th>
-                    <th className="py-3.5 px-4">Contacto & Sede</th>
-                    <th className="py-3.5 px-4 text-center">Estado</th>
-                    <th className="py-3.5 px-4 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {filteredStudents.map((s) => (
-                    <tr key={s.id} className="hover:bg-slate-50/80 transition-colors">
-                      
-                      {/* Estudiante */}
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#002B49] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            {s.full_name ? s.full_name.substring(0, 2).toUpperCase() : 'ST'}
-                          </div>
-                          <div>
-                            <div className="font-extrabold text-slate-900">
-                              {s.full_name}
-                            </div>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                              {s.email}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Documento */}
-                      <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-slate-800">
-                          {s.document_number || 'Sin registrar'}
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                          {s.document_type || 'C.C.'} · Password Inicial
-                        </span>
-                      </td>
-
-                      {/* Curso */}
-                      <td className="py-3.5 px-4">
-                        <div className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-200 px-2.5 py-0.5 rounded-md text-[11px] font-bold">
-                          <BookOpen className="w-3 h-3 text-amber-600" />
-                          <span>{s.mcer_level || 'A1'} - {s.course_name || 'ENGLISH LEVEL 1'}</span>
-                        </div>
-                      </td>
-
-                      {/* Contacto & Sede */}
-                      <td className="py-3.5 px-4">
-                        <div className="text-slate-700 font-medium">
-                          {s.phone || 'Sin teléfono'}
-                        </div>
-                        <span className="text-[11px] text-slate-400">
-                          {s.municipality || 'Turbo (Urabá)'}
-                        </span>
-                      </td>
-
-                      {/* Estado */}
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
-                          <Check className="w-3 h-3 text-emerald-600" />
-                          <span>Activo</span>
-                        </span>
-                      </td>
-
-                      {/* Acciones */}
-                      <td className="py-3.5 px-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button
-                            onClick={() => {
-                              const doc = s.document_number || ''
-                              const pwd = doc.length >= 6 ? doc : `${doc}2026*`
-                              setCreatedCredentials({
-                                studentName: s.full_name,
-                                username: doc,
-                                email: s.email,
-                                documentId: doc,
-                                password: pwd,
-                                courseName: s.course_name || 'ENGLISH LEVEL 1 - GENERAL PROGRAM',
-                                loginUrl: window.location.origin + '/campus/login'
-                              })
-                            }}
-                            className="p-1.5 text-[#002B49] hover:bg-slate-100 rounded-lg transition-colors"
-                            title="Ver credenciales de acceso"
-                          >
-                            <KeyRound className="w-4 h-4" />
-                          </button>
-
-                          <button
-                            onClick={() => handleDeleteStudent(s.id, s.full_name)}
-                            className="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                            title="Eliminar estudiante"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </td>
-
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
           </div>
 
         </div>
 
-        {/* ======================================================== */}
-        {/* MODAL 1: REGISTRAR NUEVO ESTUDIANTE                      */}
-        {/* ======================================================== */}
+        {/* ========================================================================= */}
+        {/* COMPONENTE DE TABLA CRUD (ESTILO EXACTO FIGMA TEAM LIST)                  */}
+        {/* ========================================================================= */}
+        <StudentsCrudTable
+          students={students}
+          loading={loading}
+          onRefresh={fetchStudents}
+          onOpenCreateModal={handleOpenModal}
+          onOpenEditModal={handleOpenEdit}
+          onDeleteStudent={handleDeleteStudent}
+          onViewCredentials={handleViewCredentials}
+        />
+
+        {/* ========================================================================= */}
+        {/* MODAL 1: REGISTRAR NUEVO ESTUDIANTE                                       */}
+        {/* ========================================================================= */}
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-xl w-full overflow-hidden animate-fadeIn">
               
-              {/* Header Modal */}
               <div className="bg-[#002B49] text-white p-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-400">
+                  <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-amber-400">
                     <UserPlus className="w-5 h-5" />
                   </div>
                   <div>
                     <h3 className="font-extrabold text-base text-white">
-                      Registrar Nuevo Estudiante
+                      Matricular Nuevo Estudiante
                     </h3>
                     <span className="text-xs text-slate-300 font-medium">
-                      Creación de credenciales automáticas en Supabase Auth
+                      Generación de credenciales automáticas en Supabase Auth
                     </span>
                   </div>
                 </div>
@@ -564,7 +604,6 @@ export default function AdminEstudiantesPage() {
                 </button>
               </div>
 
-              {/* Formulario */}
               <form onSubmit={handleCreateStudent} className="p-6 space-y-4">
                 
                 {formError && (
@@ -575,7 +614,6 @@ export default function AdminEstudiantesPage() {
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Nombres */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Nombres *
@@ -590,7 +628,6 @@ export default function AdminEstudiantesPage() {
                     />
                   </div>
 
-                  {/* Apellidos */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Apellidos *
@@ -607,7 +644,6 @@ export default function AdminEstudiantesPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                  {/* Tipo de Documento */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Tipo Doc. *
@@ -624,7 +660,6 @@ export default function AdminEstudiantesPage() {
                     </select>
                   </div>
 
-                  {/* Número de Documento */}
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Número de Documento (Contraseña Inicial) *
@@ -641,10 +676,9 @@ export default function AdminEstudiantesPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Correo Electrónico */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Correo Electrónico Personal *
+                      Correo Electrónico *
                     </label>
                     <input
                       type="email"
@@ -656,7 +690,6 @@ export default function AdminEstudiantesPage() {
                     />
                   </div>
 
-                  {/* Teléfono / WhatsApp */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
                       Teléfono / WhatsApp *
@@ -673,10 +706,9 @@ export default function AdminEstudiantesPage() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {/* Nivel Formativo */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Nivel Académico Asignado *
+                      Nivel Académico MCER *
                     </label>
                     <select
                       value={mcerLevel}
@@ -690,27 +722,29 @@ export default function AdminEstudiantesPage() {
                     </select>
                   </div>
 
-                  {/* Modalidad */}
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
-                      Modalidad *
+                      Sede / Municipio Urabá *
                     </label>
                     <select
-                      value={modality}
-                      onChange={(e) => setModality(e.target.value)}
+                      value={municipality}
+                      onChange={(e) => setMunicipality(e.target.value)}
                       className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800"
                     >
-                      <option value="virtual">Virtual en Vivo por Teams</option>
-                      <option value="presencial">Presencial Sede Turbo (Urabá)</option>
+                      <option value="Turbo (Urabá)">Turbo (Sede Principal Urabá)</option>
+                      <option value="Apartadó">Apartadó</option>
+                      <option value="Carepa">Carepa</option>
+                      <option value="Chigorodó">Chigorodó</option>
+                      <option value="Necoclí">Necoclí</option>
+                      <option value="Virtual">Virtual en Vivo (Microsoft Teams)</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-500">
-                  ℹ️ <strong>Nota automática:</strong> La cuenta se creará en Supabase Auth y su contraseña inicial será exactamente su número de documento. Podrá ingresar de inmediato desde <span className="font-mono text-[#002B49]">/campus/login</span>.
+                  ℹ️ <strong>Nota:</strong> La cuenta se creará en Supabase Auth y su contraseña inicial será exactamente su número de documento. Podrá ingresar de inmediato desde <span className="font-mono text-[#002B49]">/campus/login</span>.
                 </div>
 
-                {/* Botones */}
                 <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
                   <button
                     type="button"
@@ -724,7 +758,7 @@ export default function AdminEstudiantesPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-5 py-2.5 text-xs font-extrabold text-white bg-[#002B49] hover:bg-[#001f35] rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-70 active:scale-[0.98]"
+                    className="px-5 py-2.5 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-70 active:scale-[0.98]"
                   >
                     {isSubmitting ? (
                       <>
@@ -733,7 +767,7 @@ export default function AdminEstudiantesPage() {
                       </>
                     ) : (
                       <>
-                        <UserPlus className="w-4 h-4 text-amber-400" />
+                        <UserPlus className="w-4 h-4 text-blue-100" />
                         <span>Crear Cuenta & Matricular</span>
                       </>
                     )}
@@ -746,27 +780,172 @@ export default function AdminEstudiantesPage() {
           </div>
         )}
 
-        {/* ======================================================== */}
-        {/* MODAL 2: CONFIRMACIÓN Y CREDENCIALES GENERADAS           */}
-        {/* ======================================================== */}
+        {/* ========================================================================= */}
+        {/* MODAL 2: EDITAR ESTUDIANTE                                                */}
+        {/* ========================================================================= */}
+        {studentToEdit && (
+          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-fadeIn">
+              
+              <div className="bg-slate-900 text-white p-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center text-blue-400">
+                    <Pencil className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-base text-white">
+                      Editar Estudiante
+                    </h3>
+                    <span className="text-xs text-slate-300 font-medium">
+                      Modificar nivel MCER, sede o datos de contacto
+                    </span>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setStudentToEdit(null)}
+                  className="text-slate-300 hover:text-white p-1 rounded-lg hover:bg-white/10"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
+                
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                    Nombre Completo
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editFullName}
+                    onChange={(e) => setEditFullName(e.target.value)}
+                    className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-slate-900"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Correo Electrónico
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-slate-900"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Teléfono / WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 text-slate-900"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Nivel MCER
+                    </label>
+                    <select
+                      value={editMcerLevel}
+                      onChange={(e) => setEditMcerLevel(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-blue-700"
+                    >
+                      <option value="A1">Nivel A1</option>
+                      <option value="A2">Nivel A2</option>
+                      <option value="B1">Nivel B1</option>
+                      <option value="B2">Nivel B2</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Sede Urabá
+                    </label>
+                    <select
+                      value={editMunicipality}
+                      onChange={(e) => setEditMunicipality(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800"
+                    >
+                      <option value="Turbo (Urabá)">Turbo</option>
+                      <option value="Apartadó">Apartadó</option>
+                      <option value="Carepa">Carepa</option>
+                      <option value="Chigorodó">Chigorodó</option>
+                      <option value="Necoclí">Necoclí</option>
+                      <option value="Virtual">Virtual</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Estado
+                    </label>
+                    <select
+                      value={editStatus}
+                      onChange={(e) => setEditStatus(e.target.value)}
+                      className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-emerald-700"
+                    >
+                      <option value="active">Activo</option>
+                      <option value="paused">Pausado</option>
+                      <option value="completed">Graduado</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-3 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setStudentToEdit(null)}
+                    className="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-xl"
+                    disabled={isEditing}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isEditing}
+                    className="px-5 py-2.5 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md transition-all flex items-center gap-2 active:scale-[0.98]"
+                  >
+                    {isEditing ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+
+              </form>
+
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* MODAL 3: CREDENCIALES DEL ESTUDIANTE & MENSAJE WHATSAPP                   */}
+        {/* ========================================================================= */}
         {createdCredentials && (
           <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-fadeIn">
               
-              {/* Header */}
-              <div className="bg-gradient-to-r from-emerald-600 to-[#002B49] text-white p-6 text-center">
+              <div className="bg-gradient-to-r from-blue-600 to-[#002B49] text-white p-6 text-center">
                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
                   <CheckCircle2 className="w-7 h-7 text-emerald-300" />
                 </div>
                 <h3 className="font-black text-lg text-white">
-                  ¡Cuenta de Estudiante Creada!
+                  Credenciales de Campus Virtual
                 </h3>
                 <p className="text-xs text-slate-200 mt-1">
-                  El alumno ha sido matriculado y activado en el Campus Virtual.
+                  Datos de acceso institucional para el alumno.
                 </p>
               </div>
 
-              {/* Contenido de Credenciales */}
               <div className="p-6 space-y-4">
                 
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4.5 space-y-2.5 text-xs">
@@ -776,7 +955,7 @@ export default function AdminEstudiantesPage() {
                   </div>
                   <div>
                     <span className="text-slate-400 uppercase font-bold text-[10px] block">Curso Asignado:</span>
-                    <strong className="text-amber-800">{createdCredentials.courseName}</strong>
+                    <strong className="text-blue-800">{createdCredentials.courseName}</strong>
                   </div>
                   <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2">
                     <div>
@@ -790,30 +969,29 @@ export default function AdminEstudiantesPage() {
                   </div>
                   <div>
                     <span className="text-slate-400 uppercase font-bold text-[10px] block">Enlace de Ingreso:</span>
-                    <span className="font-mono text-[#002B49] font-semibold">{createdCredentials.loginUrl}</span>
+                    <span className="font-mono text-blue-700 font-semibold">{createdCredentials.loginUrl}</span>
                   </div>
                 </div>
 
                 {copiedNotification && (
                   <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600" />
-                    <span>¡Mensaje de bienvenida copiado en formato WhatsApp!</span>
+                    <span>¡Mensaje de bienvenida copiado para WhatsApp!</span>
                   </div>
                 )}
 
-                {/* Acciones */}
                 <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-3">
                   <button
                     onClick={handleCopyCredentials}
                     className="w-full sm:w-auto px-4 py-2.5 text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-500 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2 active:scale-[0.98]"
                   >
                     <MessageSquare className="w-4 h-4 text-slate-950" />
-                    <span>Copiar Bienvenida para WhatsApp</span>
+                    <span>Copiar Bienvenida WhatsApp</span>
                   </button>
 
                   <button
                     onClick={() => setCreatedCredentials(null)}
-                    className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-white bg-[#002B49] hover:bg-[#001f35] rounded-xl transition-colors"
+                    className="w-full sm:w-auto px-5 py-2.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors"
                   >
                     Cerrar
                   </button>
