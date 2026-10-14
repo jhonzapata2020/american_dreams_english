@@ -1142,15 +1142,15 @@ export default function TeacherCampusPage() {
   const pdfMaterialsCount = materials.filter(m => m.type === 'pdf').length
   const audioMaterialsCount = materials.filter(m => m.type === 'audio').length
 
-  // Configuración de las pestañas 3D con luces neón inferiores proyectadas
+  // Configuración de las pestañas 3D con luces neón inferiores proyectadas (solo botón activo)
   const teacherTabs = [
     {
       id: 'live',
       label: 'Sala Teams',
       icon: Video,
       neonColor: '#6366F1', // Teams Tech Indigo Neón
-      glowColor: 'rgba(99, 102, 241, 0.95)',
-      lightPoolColor: 'rgba(99, 102, 241, 0.45)',
+      glowColor: 'rgba(99, 102, 241, 0.45)',
+      lightPoolColor: 'rgba(99, 102, 241, 0.20)',
       badge: liveClasses.length > 0 ? liveClasses.length : undefined,
       isLive: true,
     },
@@ -1159,8 +1159,8 @@ export default function TeacherCampusPage() {
       label: 'Clases Grabadas',
       icon: Video,
       neonColor: '#F59E0B', // Ámbar / Oro Cálido
-      glowColor: 'rgba(245, 158, 11, 0.95)',
-      lightPoolColor: 'rgba(245, 158, 11, 0.45)',
+      glowColor: 'rgba(245, 158, 11, 0.45)',
+      lightPoolColor: 'rgba(245, 158, 11, 0.20)',
       badge: recordings.length > 0 ? recordings.length : undefined,
       isLive: false,
     },
@@ -1169,8 +1169,8 @@ export default function TeacherCampusPage() {
       label: 'Recursos & Guías',
       icon: Headphones,
       neonColor: '#A855F7', // Violeta / Púrpura Real
-      glowColor: 'rgba(168, 85, 247, 0.95)',
-      lightPoolColor: 'rgba(168, 85, 247, 0.45)',
+      glowColor: 'rgba(168, 85, 247, 0.45)',
+      lightPoolColor: 'rgba(168, 85, 247, 0.20)',
       badge: materials.length > 0 ? materials.length : undefined,
       isLive: false,
     },
@@ -1179,8 +1179,8 @@ export default function TeacherCampusPage() {
       label: 'Calificar Tareas',
       icon: FileText,
       neonColor: '#3B82F6', // Azul Cobalto Eléctrico
-      glowColor: 'rgba(59, 130, 246, 0.95)',
-      lightPoolColor: 'rgba(59, 130, 246, 0.45)',
+      glowColor: 'rgba(59, 130, 246, 0.45)',
+      lightPoolColor: 'rgba(59, 130, 246, 0.20)',
       badge: pendingGradingCount > 0 ? pendingGradingCount : undefined,
       badgePulse: pendingGradingCount > 0,
       isLive: false,
@@ -1190,8 +1190,8 @@ export default function TeacherCampusPage() {
       label: 'Foro de Dudas',
       icon: MessageSquare,
       neonColor: '#06B6D4', // Cian Neón / Turquesa
-      glowColor: 'rgba(6, 182, 212, 0.95)',
-      lightPoolColor: 'rgba(6, 182, 212, 0.45)',
+      glowColor: 'rgba(6, 182, 212, 0.45)',
+      lightPoolColor: 'rgba(6, 182, 212, 0.20)',
       badge: unansweredForumCount > 0 ? unansweredForumCount : undefined,
       isLive: false,
     },
@@ -1200,8 +1200,8 @@ export default function TeacherCampusPage() {
       label: 'Estudiantes',
       icon: Users,
       neonColor: '#F43F5E', // Coral Neón / Rosa
-      glowColor: 'rgba(244, 63, 94, 0.95)',
-      lightPoolColor: 'rgba(244, 63, 94, 0.45)',
+      glowColor: 'rgba(244, 63, 94, 0.45)',
+      lightPoolColor: 'rgba(244, 63, 94, 0.20)',
       badge: (INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1).length,
       isLive: false,
     },
@@ -1364,48 +1364,49 @@ export default function TeacherCampusPage() {
 
                   return (
                     <div key={tab.id} className="relative group shrink-0">
-                      {/* 1. LUZ PROYECTADA ABAJO (OPTICAL UNDERGLOW LIGHT BEAM) */}
-                      {/* Proyección difusa de luz sobre el suelo blanco */}
-                      <div 
-                        className={`absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-3/4 h-3 rounded-full blur-md pointer-events-none transition-all duration-300 ${
-                          isActive ? 'opacity-95 scale-105' : 'opacity-25 group-hover:opacity-85 group-hover:scale-100'
-                        }`}
-                        style={{
-                          backgroundColor: tab.neonColor,
-                          boxShadow: `0 6px 18px 4px ${tab.glowColor}`,
-                        }}
-                      />
+                      {/* 1. LUZ PROYECTADA ABAJO (ÚNICAMENTE EN EL BOTÓN ACTIVO / SELECCIONADO, MENOS INTENSA) */}
+                      {isActive && (
+                        <>
+                          {/* Proyección difusa de luz sobre el suelo blanco */}
+                          <div 
+                            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-2 rounded-full blur-md pointer-events-none transition-all duration-300 opacity-55"
+                            style={{
+                              backgroundColor: tab.neonColor,
+                              boxShadow: `0 4px 12px 2px ${tab.glowColor}`,
+                            }}
+                          />
 
-                      {/* Núcleo LED incandescente en la rendija inferior de la cápsula */}
-                      <div 
-                        className={`absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-8 sm:w-10 h-1 rounded-full blur-[0.8px] pointer-events-none transition-all duration-300 ${
-                          isActive ? 'opacity-100' : 'opacity-40 group-hover:opacity-90'
-                        }`}
-                        style={{
-                          backgroundColor: '#FFFFFF',
-                          boxShadow: `0 0 8px 2px ${tab.neonColor}`,
-                        }}
-                      />
+                          {/* Núcleo de luz tenue */}
+                          <div 
+                            className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 sm:w-8 h-0.5 rounded-full blur-[0.6px] pointer-events-none transition-all duration-300 opacity-60"
+                            style={{
+                              backgroundColor: '#FFFFFF',
+                              boxShadow: `0 0 4px 1px ${tab.neonColor}`,
+                            }}
+                          />
 
-                      {/* Difusión ambiental suave */}
-                      <div 
-                        className={`absolute -bottom-4 left-1/2 -translate-x-1/2 w-full h-4 rounded-full blur-lg pointer-events-none transition-all duration-300 ${
-                          isActive ? 'opacity-70' : 'opacity-10 group-hover:opacity-40'
-                        }`}
-                        style={{
-                          backgroundColor: tab.lightPoolColor,
-                        }}
-                      />
+                          {/* Difusión ambiental sutil */}
+                          <div 
+                            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-4/5 h-2 rounded-full blur-lg pointer-events-none transition-all duration-300 opacity-20"
+                            style={{
+                              backgroundColor: tab.lightPoolColor,
+                            }}
+                          />
+                        </>
+                      )}
 
-                      {/* 2. CÁPSULA PÍLDORA 3D FLOTANTE (OBSIDIAN FLOATING PILL) */}
+                      {/* 2. CÁPSULA PÍLDORA 3D FLOTANTE */}
                       <button
                         type="button"
                         onClick={() => setActiveTab(tab.id as any)}
                         className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
                           isActive
-                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-0.5 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.45),inset_0_-2px_4px_rgba(0,0,0,0.8),0_10px_20px_-4px_rgba(0,0,0,0.5)] ring-1 ring-white/20'
-                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-300 hover:text-white hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.25),inset_0_-2px_4px_rgba(0,0,0,0.7),0_6px_12px_-4px_rgba(0,0,0,0.4)] border-t border-white/10'
+                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-0.5 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.8),0_6px_14px_-2px_rgba(0,0,0,0.35)] ring-1'
+                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-400 hover:text-slate-200 hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.7),0_4px_8px_-2px_rgba(0,0,0,0.3)] border-t border-white/10'
                         }`}
+                        style={{
+                          borderColor: isActive ? `${tab.neonColor}60` : undefined,
+                        }}
                       >
                         {/* Indicador pulsante en vivo para Sala Teams */}
                         {tab.isLive && (
@@ -1421,12 +1422,12 @@ export default function TeacherCampusPage() {
                           </span>
                         )}
 
-                        {/* Icono con resplandor neón */}
+                        {/* Icono con resplandor suave solo si está activo */}
                         <IconComp 
                           className="w-3.5 h-3.5 shrink-0 transition-all duration-300"
                           style={{
                             color: isActive ? tab.neonColor : undefined,
-                            filter: isActive ? `drop-shadow(0 0 5px ${tab.neonColor})` : undefined
+                            filter: isActive ? `drop-shadow(0 0 2.5px ${tab.neonColor}60)` : undefined
                           }}
                         />
 
@@ -1440,10 +1441,10 @@ export default function TeacherCampusPage() {
                               tab.badgePulse ? 'animate-pulse' : ''
                             }`}
                             style={{
-                              backgroundColor: isActive ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+                              backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)',
                               color: isActive ? '#FFFFFF' : '#94A3B8',
-                              border: isActive ? `1px solid ${tab.neonColor}60` : '1px solid rgba(255,255,255,0.08)',
-                              boxShadow: isActive ? `0 0 6px ${tab.neonColor}40` : undefined
+                              border: isActive ? `1px solid ${tab.neonColor}40` : '1px solid rgba(255,255,255,0.06)',
+                              boxShadow: isActive ? `0 0 4px ${tab.neonColor}30` : undefined
                             }}
                           >
                             {tab.badge}
