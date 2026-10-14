@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '../../utils/supabase/client'
@@ -23,9 +23,13 @@ import {
   Menu, 
   X,
   ChevronRight,
+  ChevronLeft,
   Inbox,
   Receipt,
-  DollarSign
+  DollarSign,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Sparkles
 } from 'lucide-react'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
@@ -36,6 +40,8 @@ interface NavItem {
   href: string
   icon: React.ComponentType<{ className?: string }>
   badge?: string
+  iconBg?: string
+  iconColor?: string
 }
 
 interface DashboardLayoutProps {
@@ -60,6 +66,12 @@ export function DashboardLayout({
   const [userEmail, setUserEmail] = useState<string>('')
   const [loadingUser, setLoadingUser] = useState<boolean>(true)
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false)
+
+  // ESTADOS DEL SIDEBAR RETRÁCTIL & RESIZABLE (ESTILO VISUAL STUDIO CODE)
+  const [sidebarWidth, setSidebarWidth] = useState<number>(270)
+  const [isResizing, setIsResizing] = useState<boolean>(false)
+  const sidebarRef = useRef<HTMLElement>(null)
+  const isCollapsed = sidebarWidth <= 95
 
   useEffect(() => {
     async function loadUserProfile() {
@@ -101,6 +113,76 @@ export function DashboardLayout({
     loadUserProfile()
   }, [propRole])
 
+  // Cargar ancho preferido guardado en localStorage
+  useEffect(() => {
+    try {
+      const savedWidth = localStorage.getItem('ade_sidebar_width')
+      if (savedWidth) {
+        const parsed = parseInt(savedWidth, 10)
+        if (!isNaN(parsed) && parsed >= 76 && parsed <= 380) {
+          setSidebarWidth(parsed)
+        }
+      }
+    } catch (e) {}
+  }, [])
+
+  // Control del arrastre (Drag Resize estilo Visual Studio Code)
+  const startResizing = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }
+
+  const stopResizing = () => {
+    setIsResizing(false)
+  }
+
+  const toggleCollapse = () => {
+    if (isCollapsed) {
+      setSidebarWidth(270)
+      try { localStorage.setItem('ade_sidebar_width', '270') } catch (e) {}
+    } else {
+      setSidebarWidth(76)
+      try { localStorage.setItem('ade_sidebar_width', '76') } catch (e) {}
+    }
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing || !sidebarRef.current) return
+      const asideRect = sidebarRef.current.getBoundingClientRect()
+      const newWidth = e.clientX - asideRect.left
+
+      // Snap inteligente: si se arrastra hacia la izquierda (< 140px), se compacta a sólo iconos (76px)
+      if (newWidth < 140) {
+        setSidebarWidth(76)
+        try { localStorage.setItem('ade_sidebar_width', '76') } catch (e) {}
+      } else {
+        const clamped = Math.min(380, Math.max(210, newWidth))
+        setSidebarWidth(clamped)
+        try { localStorage.setItem('ade_sidebar_width', String(clamped)) } catch (e) {}
+      }
+    }
+
+    if (isResizing) {
+      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener('mouseup', stopResizing)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    } else {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', stopResizing)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', stopResizing)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [isResizing])
+
   const handleSignOut = async () => {
     try {
       const supabase = createClient()
@@ -120,27 +202,27 @@ export function DashboardLayout({
     }
   }
 
-  // Navigation Items by Role (Pure State or Path matching - 100% SSR Safe)
+  // Navigation Items con paleta de iconos llamativos y estilizados
   const navItemsByRole: Record<UserRole, NavItem[]> = {
     admin: [
-      { id: 'overview', label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard },
-      { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo' },
-      { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/admin/estudiantes', icon: Users, badge: 'Prioritario' },
-      { id: 'docentes', label: 'Equipo Docente & Tutores', href: '/dashboard/admin', icon: GraduationCap, badge: 'Facultad' },
-      { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package },
-      { id: 'liquidaciones', label: 'Liquidaciones CORPLEX', href: '/admin/liquidaciones', icon: Receipt, badge: 'Finanzas' },
-      { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: Award },
-      { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart }
+      { id: 'overview', label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard, iconBg: 'bg-blue-50 text-blue-600', iconColor: 'text-blue-600' },
+      { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo', iconBg: 'bg-indigo-50 text-indigo-600', iconColor: 'text-indigo-600' },
+      { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/admin/estudiantes', icon: Users, badge: 'Prioritario', iconBg: 'bg-emerald-50 text-emerald-600', iconColor: 'text-emerald-600' },
+      { id: 'docentes', label: 'Equipo Docente & Tutores', href: '/dashboard/admin', icon: GraduationCap, badge: 'Facultad', iconBg: 'bg-sky-50 text-sky-600', iconColor: 'text-sky-600' },
+      { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package, iconBg: 'bg-purple-50 text-purple-600', iconColor: 'text-purple-600' },
+      { id: 'liquidaciones', label: 'Liquidaciones CORPLEX', href: '/admin/liquidaciones', icon: Receipt, badge: 'Finanzas', iconBg: 'bg-teal-50 text-teal-600', iconColor: 'text-teal-600' },
+      { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: Award, iconBg: 'bg-amber-50 text-amber-600', iconColor: 'text-amber-600' },
+      { id: 'donaciones', label: 'Fondos & Donaciones', href: '/dashboard/admin', icon: Heart, iconBg: 'bg-rose-50 text-rose-600', iconColor: 'text-rose-600' }
     ],
     teacher: [
-      { label: 'Portal Docente Titular', href: '/campus/docente', icon: Video },
-      { label: 'Recursos & Guías', href: '/campus/docente', icon: CheckSquare },
-      { label: 'Mi Perfil Docente', href: '/campus/docente', icon: User }
+      { label: 'Portal Docente Titular', href: '/campus/docente', icon: Video, iconBg: 'bg-blue-50 text-blue-600', iconColor: 'text-blue-600' },
+      { label: 'Recursos & Guías', href: '/campus/docente', icon: CheckSquare, iconBg: 'bg-indigo-50 text-indigo-600', iconColor: 'text-indigo-600' },
+      { label: 'Mi Perfil Docente', href: '/campus/docente', icon: User, iconBg: 'bg-emerald-50 text-emerald-600', iconColor: 'text-emerald-600' }
     ],
     student: [
-      { label: 'Mi Aula Virtual', href: '/dashboard/student', icon: BookOpen },
-      { label: 'Progreso MCER', href: '/dashboard/student', icon: Award },
-      { label: 'Horas Acumuladas', href: '/dashboard/student', icon: Clock }
+      { label: 'Mi Aula Virtual', href: '/dashboard/student', icon: BookOpen, iconBg: 'bg-blue-50 text-blue-600', iconColor: 'text-blue-600' },
+      { label: 'Progreso MCER', href: '/dashboard/student', icon: Award, iconBg: 'bg-amber-50 text-amber-600', iconColor: 'text-amber-600' },
+      { label: 'Horas Acumuladas', href: '/dashboard/student', icon: Clock, iconBg: 'bg-teal-50 text-teal-600', iconColor: 'text-teal-600' }
     ]
   }
 
@@ -148,21 +230,21 @@ export function DashboardLayout({
 
   const roleStyles: Record<UserRole, { badgeBg: string; badgeText: string; border: string; label: string }> = {
     admin: {
-      badgeBg: 'bg-white/10',
-      badgeText: 'text-slate-200',
-      border: 'border-white/15',
+      badgeBg: 'bg-blue-50',
+      badgeText: 'text-blue-700',
+      border: 'border-blue-200',
       label: 'Admin General'
     },
     teacher: {
-      badgeBg: 'bg-white/10',
-      badgeText: 'text-slate-200',
-      border: 'border-white/15',
+      badgeBg: 'bg-indigo-50',
+      badgeText: 'text-indigo-700',
+      border: 'border-indigo-200',
       label: 'Docente Titular'
     },
     student: {
-      badgeBg: 'bg-white/10',
-      badgeText: 'text-slate-200',
-      border: 'border-white/15',
+      badgeBg: 'bg-emerald-50',
+      badgeText: 'text-emerald-700',
+      border: 'border-emerald-200',
       label: 'Estudiante Becario'
     }
   }
@@ -170,28 +252,28 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    // MARCO CONTENEDOR FLOTANTE PERSISTENTE (App Canvas Unificado)
-    <div className="fixed inset-0 w-screen h-screen bg-slate-100/90 text-slate-800 font-sans p-2 sm:p-4 md:p-6 flex items-center justify-center overflow-hidden z-0">
+    // LIENZO CLARO Y ESCULPIDO (NEUMORPHIC SOFT 3D CANVAS)
+    <div className="fixed inset-0 w-screen h-screen bg-[#EDF2F7] text-slate-800 font-sans p-2 sm:p-4 md:p-5 flex items-center justify-center overflow-hidden z-0 select-none">
       
-      {/* UNIFIED CANVAS FRAME (Fixed Full Height) */}
-      <div className="w-full max-w-[1550px] h-full max-h-[94vh] bg-white rounded-[32px] shadow-2xl border border-slate-200/60 overflow-hidden flex flex-col lg:flex-row relative">
+      {/* UNIFIED CANVAS FRAME (Card 3D Flotante Gigante) */}
+      <div className="w-full max-w-[1600px] h-full max-h-[96vh] bg-[#FAFBFD] rounded-[32px] shadow-[0_20px_60px_-15px_rgba(15,23,42,0.12),0_0_1px_1px_rgba(255,255,255,1),inset_0_2px_1px_rgba(255,255,255,1)] border border-slate-200/80 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-slate-900 text-white border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shrink-0">
+        <div className="lg:hidden bg-white/90 backdrop-blur-md text-slate-800 border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shrink-0">
           <div className="flex items-center gap-3">
             <button 
               type="button" 
               onClick={() => onTabChange && onTabChange('overview')}
-              className="inline-flex items-center text-left cursor-pointer p-0.5 rounded-xl bg-white/5 border border-white/10"
+              className="inline-flex items-center text-left cursor-pointer p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs"
             >
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-12 w-auto object-contain filter drop-shadow-md" 
+                className="h-10 w-auto object-contain filter drop-shadow-sm" 
               />
             </button>
             <div>
-              <h1 className="text-xs font-black text-white">American Dream</h1>
+              <h1 className="text-xs font-black text-slate-900">American Dream</h1>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
                 {roleBadgeInfo.label}
               </span>
@@ -200,58 +282,98 @@ export function DashboardLayout({
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-white rounded-xl bg-white/10 border border-white/20"
+            className="p-2 text-slate-700 rounded-xl bg-slate-100 border border-slate-200 active:scale-95 transition-transform"
             aria-label="Abrir menú"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
 
-        {/* SIDEBAR ESTRICTAMENTE PERSISTENTE (FIJO A LA IZQUIERDA) */}
+        {/* SIDEBAR RETRÁCTIL & RESIZABLE ESTILO VISUAL STUDIO CODE (LIGHT SOFT 3D) */}
         <aside
-          className={`fixed lg:relative top-0 left-0 z-30 w-72 h-full bg-slate-900 text-white flex flex-col justify-between shrink-0 transition-transform duration-300 lg:translate-x-0 overflow-hidden ${
+          ref={sidebarRef}
+          style={{ width: mobileMenuOpen ? '280px' : `${sidebarWidth}px` }}
+          className={`fixed lg:relative top-0 left-0 z-30 h-full bg-[#F3F6FA] text-slate-800 flex flex-col justify-between shrink-0 transition-all ${
+            isResizing ? 'transition-none' : 'duration-200'
+          } lg:translate-x-0 overflow-visible relative border-r border-slate-200/80 shadow-[4px_0_15px_rgba(0,0,0,0.02)] ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
-          <div className="p-5 space-y-4 overflow-y-auto overflow-x-hidden no-scrollbar flex-1 min-h-0">
-            
-            {/* LOGO INSTITUCIONAL CON CONTENEDOR DE REALCE */}
-            <div className="flex flex-col items-center text-center pb-4 border-b border-slate-800/80">
-              <div className="w-full p-2.5 rounded-2xl bg-white/10 border border-white/15 shadow-sm flex items-center justify-center backdrop-blur-sm mb-2">
-                <button 
+          {/* HEADER DEL SIDEBAR: LOGO + TOGGLE RÁPIDO */}
+          <div className="p-4 border-b border-slate-200/70 flex flex-col justify-between shrink-0">
+            <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} gap-2`}>
+              
+              {/* Logo en modo Expandido vs Colapsado */}
+              {isCollapsed ? (
+                <button
                   type="button"
                   onClick={() => onTabChange && onTabChange('overview')}
-                  title="Visión General"
-                  className="block hover:scale-105 transition-transform cursor-pointer"
+                  title="American Dream English"
+                  className="w-12 h-12 rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] border border-slate-200/80 flex items-center justify-center p-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                 >
                   <img 
                     src="/logo-american-dream.png" 
-                    alt="American Dream English" 
-                    className="h-14 w-auto object-contain drop-shadow-md mx-auto" 
+                    alt="ADE" 
+                    className="w-full h-full object-contain drop-shadow-xs" 
                   />
                 </button>
-              </div>
-              <h2 className="text-xs font-black text-white tracking-wide">
-                AMERICAN DREAM ENGLISH
-              </h2>
-              <p className="text-[10px] text-slate-400 mb-2 font-medium">Plataforma Bilingüe Sede Urabá</p>
-
-              {loadingUser ? (
-                <div className="h-5 w-24 bg-slate-800 rounded-full animate-pulse" />
               ) : (
-                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold rounded-full border shadow-sm ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>{roleBadgeInfo.label}</span>
-                </span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <button 
+                    type="button"
+                    onClick={() => onTabChange && onTabChange('overview')}
+                    title="Visión General"
+                    className="w-11 h-11 rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] border border-slate-200/80 flex items-center justify-center p-1.5 shrink-0 hover:scale-105 transition-transform cursor-pointer"
+                  >
+                    <img 
+                      src="/logo-american-dream.png" 
+                      alt="American Dream English" 
+                      className="w-full h-full object-contain drop-shadow-xs" 
+                    />
+                  </button>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-xs font-black text-slate-900 tracking-tight truncate leading-tight">
+                      AMERICAN DREAM
+                    </h2>
+                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                      Sede Urabá · Admin
+                    </p>
+                  </div>
+                </div>
               )}
+
+              {/* Botón de alternar colapso (un clic) */}
+              <button
+                type="button"
+                onClick={toggleCollapse}
+                title={isCollapsed ? 'Expandir menú lateral' : 'Colapsar a sólo iconos'}
+                className="hidden lg:flex w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-blue-600 items-center justify-center border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+              >
+                {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
             </div>
 
-            {/* NAVIGATION LINKS */}
-            <nav className="space-y-1.5 pr-0 lg:-mr-5">
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-1.5">
+            {/* Badge de rol (sólo visible si expandido) */}
+            {!isCollapsed && (
+              <div className="mt-3 flex items-center justify-between">
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full border shadow-2xs ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+                  <ShieldCheck className="w-3 h-3 text-blue-600" />
+                  <span>{roleBadgeInfo.label}</span>
+                </span>
+                <span className="text-[10px] font-mono text-slate-400">v2.4 Live</span>
+              </div>
+            )}
+          </div>
+
+          {/* LISTA DE ENLACES DE NAVEGACIÓN */}
+          <div className="p-3 space-y-1.5 overflow-y-auto overflow-x-hidden no-scrollbar flex-1 min-h-0">
+            {!isCollapsed && (
+              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-2">
                 Navegación Principal
               </p>
+            )}
 
+            <nav className="space-y-1.5">
               {currentNavItems.map((item) => {
                 const Icon = item.icon
 
@@ -275,23 +397,60 @@ export function DashboardLayout({
                         onTabChange(item.id)
                       }
                     }}
-                    className={`flex items-center justify-between px-3.5 py-2.5 text-xs font-bold transition-all ${
+                    className={`group relative flex items-center ${
+                      isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
+                    } rounded-2xl transition-all duration-200 cursor-pointer select-none ${
                       isActive
-                        ? 'bg-white text-slate-900 rounded-l-2xl shadow-md lg:rounded-r-none relative font-extrabold text-xs sm:text-sm'
-                        : 'text-slate-400 hover:bg-white/5 hover:text-white rounded-xl mr-3.5'
+                        ? 'bg-white text-slate-900 shadow-[0_4px_14px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(203,213,225,0.7)] border border-slate-200/90 font-black'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 hover:shadow-2xs font-semibold'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className={`w-4 h-4 ${isActive ? 'text-slate-900' : 'text-slate-400'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Cápsula del Icono 3D Llamativo */}
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                        isActive
+                          ? 'bg-blue-600 text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)]'
+                          : `${item.iconBg || 'bg-slate-100 text-slate-600'} group-hover:bg-blue-50 group-hover:text-blue-600 border border-slate-200/50 shadow-2xs`
+                      }`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+
+                      {/* Texto de la opción (sólo si no está colapsado) */}
+                      {!isCollapsed && (
+                        <span className="text-xs truncate tracking-tight">
+                          {item.label}
+                        </span>
+                      )}
                     </div>
 
-                    {item.badge && (
-                      <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md ${
-                        isActive ? 'bg-slate-100 text-slate-800' : 'bg-white/10 text-slate-300'
-                      }`}>
-                        {item.badge}
-                      </span>
+                    {/* Badge numérico o etiqueta (sólo expandido) */}
+                    {!isCollapsed && (
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {item.badge && (
+                          <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md font-mono ${
+                            isActive 
+                              ? 'bg-blue-50 text-blue-700 border border-blue-200/60' 
+                              : 'bg-slate-200/70 text-slate-600'
+                          }`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        {isActive && (
+                          <ChevronRight className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        )}
+                      </div>
+                    )}
+
+                    {/* TOOLTIP FLOTANTE EN MODO COLAPSADO (ESTILO VS CODE) */}
+                    {isCollapsed && (
+                      <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
+                        <span>{item.label}</span>
+                        {item.badge && (
+                          <span className="px-1.5 py-0.2 bg-blue-500 text-white rounded text-[10px] font-mono">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </Link>
                 )
@@ -299,60 +458,97 @@ export function DashboardLayout({
             </nav>
           </div>
 
-          {/* SIDEBAR FOOTER: USER CARD & LOGOUT */}
-          <div className="p-3.5 border-t border-slate-800/80 bg-[#090e1a] space-y-2 shrink-0">
-            <div className="bg-slate-900/80 border border-slate-800 p-2.5 rounded-2xl flex items-center justify-between gap-2.5">
-              <div className="min-w-0 flex-1">
-                {loadingUser ? (
-                  <div className="space-y-1.5 animate-pulse">
-                    <div className="h-3 bg-slate-800 rounded w-3/4" />
-                    <div className="h-2 bg-slate-800 rounded w-1/2" />
+          {/* FOOTER DEL SIDEBAR: PERFIL DE USUARIO Y CIERRE DE SESIÓN */}
+          <div className="p-3 border-t border-slate-200/70 bg-[#EAF0F6] shrink-0">
+            {isCollapsed ? (
+              <div className="flex flex-col items-center gap-2">
+                {/* Avatar Compacto con Tooltip */}
+                <div 
+                  className="group relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md cursor-default"
+                >
+                  {userName ? userName.charAt(0).toUpperCase() : 'A'}
+                  <div className="absolute left-full ml-3 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                    <p className="font-bold">{userName || 'Administrador'}</p>
+                    <p className="text-[10px] text-slate-300">{userEmail}</p>
                   </div>
-                ) : (
-                  <>
-                    <p className="text-xs font-bold text-white truncate">{userName}</p>
-                    <p className="text-[10px] text-slate-400 truncate">{userEmail}</p>
-                  </>
-                )}
+                </div>
+
+                {/* Botón Logout Compacto */}
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  title="Cerrar Sesión"
+                  className="group relative w-10 h-10 rounded-2xl bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <div className="absolute left-full ml-3 px-2.5 py-1 rounded-xl bg-slate-900 text-white text-[10px] font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                    Cerrar Sesión
+                  </div>
+                </button>
               </div>
+            ) : (
+              <div className="bg-white border border-slate-200/90 p-2.5 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                    {userName ? userName.charAt(0).toUpperCase() : 'A'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold text-slate-900 truncate leading-tight">{userName || 'Administrador'}</p>
+                    <p className="text-[10px] text-slate-500 truncate">{userEmail || 'admin@americandream.edu.co'}</p>
+                  </div>
+                </div>
 
-              <button
-                onClick={handleSignOut}
-                title="Cerrar Sesión"
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors flex-shrink-0"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-
-            <p className="text-[9px] text-slate-500 text-center font-medium">
-              © 2026 American Dream English S.A.S.
-            </p>
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  title="Cerrar Sesión"
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0 cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
 
+          {/* LÍNEA DIVISORIA ARRASTRABLE (ESTILO VISUAL STUDIO CODE) */}
+          <div
+            onMouseDown={startResizing}
+            onDoubleClick={toggleCollapse}
+            className="hidden lg:flex items-center justify-center absolute top-0 -right-1 w-2.5 h-full cursor-col-resize z-50 select-none group hover:bg-blue-500/20 active:bg-blue-600/30 transition-colors"
+            title="Arrastra para redimensionar o doble clic para alternar sólo iconos"
+          >
+            {/* Línea vertical sutil */}
+            <div className={`w-[2px] h-full transition-colors ${isResizing ? 'bg-blue-600' : 'bg-slate-200/80 group-hover:bg-blue-500'}`} />
+            {/* Micro-tirador central */}
+            <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-8 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center transition-opacity pointer-events-none ${
+              isResizing ? 'opacity-100 ring-2 ring-blue-400' : 'opacity-0 group-hover:opacity-100'
+            }`}>
+              <div className="w-0.5 h-3 bg-slate-400 rounded-full" />
+            </div>
+          </div>
         </aside>
 
-        {/* ÁREA PRINCIPAL DE CONTENIDO */}
-        <div className="flex-1 flex flex-col min-w-0 bg-white p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
+        {/* ÁREA PRINCIPAL DE CONTENIDO (SE EXPADE FLUIDAMENTE AL CONTRAER EL SIDEBAR) */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#FAFBFD] p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 mb-4 shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200/70 mb-4 shrink-0">
             
-            {/* BREADCRUMB */}
+            {/* BREADCRUMB CON ESTILO NEUMÓRFICO SUAVE */}
             <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-900 transition-colors flex items-center gap-1">
+              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1">
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <span>Inicio</span>
               </a>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-slate-600">Dashboard</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span className="text-slate-900 capitalize font-bold">{title || roleBadgeInfo.label}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <span className="text-slate-600 font-medium">Dashboard</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <span className="text-slate-900 capitalize font-extrabold">{title || roleBadgeInfo.label}</span>
             </div>
 
-            {/* STATUS BADGES */}
+            {/* STATUS BADGES CLAROS */}
             <div className="flex items-center gap-3 text-xs">
-              <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium text-[11px]">
+              <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-bold text-[11px] shadow-2xs">
                 <Lock className="w-3 h-3 text-emerald-600" />
                 <span>SSL 256-bit Encriptado</span>
               </div>
@@ -361,16 +557,16 @@ export function DashboardLayout({
                 href="https://americandreamenglish.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 font-semibold rounded-xl text-xs transition-colors border border-slate-200 flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 font-bold rounded-xl text-xs transition-colors border border-slate-200/90 shadow-2xs flex items-center gap-1.5"
               >
-                <Globe className="w-3.5 h-3.5 text-slate-500" />
+                <Globe className="w-3.5 h-3.5 text-blue-600" />
                 <span>Ver Sitio Público</span>
               </a>
             </div>
 
           </div>
 
-          {/* PAGE CONTENT */}
+          {/* CONTENIDO DE LA PÁGINA */}
           <main className="flex-1 min-w-0">
             {children}
           </main>
