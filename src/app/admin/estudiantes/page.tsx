@@ -467,28 +467,28 @@ export default function AdminEstudiantesPage() {
         {/* ========================================================================= */}
         {/* CABECERA PRINCIPAL ESTILO SOFT 3D NEUMORPHIC                             */}
         {/* ========================================================================= */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-2">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              <span className="text-blue-600 font-extrabold">Admin Dashboard</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
+              <span className="text-blue-600 font-extrabold">Admin</span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span>Gestión de Estudiantes & Matrículas</span>
+              <span>Gestión de Estudiantes</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
               <span>Lista de Estudiantes</span>
-              <span className="px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-black rounded-full shadow-2xs">
+              <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-50 border border-blue-200 text-blue-700 text-[11px] sm:text-xs font-black rounded-full shadow-2xs">
                 {students.length} Registrados
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-              Control de matrículas, asignación de cursos MCER, credenciales de Campus Virtual y seguimiento por sedes de Urabá.
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 sm:mt-1">
+              Control de matrículas, cursos MCER, credenciales y seguimiento por sedes de Urabá.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               onClick={handleOpenModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <UserPlus className="w-4 h-4 text-blue-100" />
               <span>+ Matricular Estudiante</span>
@@ -497,69 +497,68 @@ export default function AdminEstudiantesPage() {
         </div>
 
         {/* ========================================================================= */}
-        {/* 4 CARDS DE MÉTRICAS (SOFT 3D NEUMORPHIC WHITE)                            */}
+        {/* 4 CARDS DE MÉTRICAS (SOFT 3D NEUMORPHIC WHITE - 2x2 on Mobile)            */}
         {/* ========================================================================= */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Total Matriculados</span>
-              <div className="w-9 h-9 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
+              <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Matriculados</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
                 <Users className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{students.length}</div>
-            <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
-              <CheckCircle2 className="w-3.5 h-3.5" /> 100% con Campus activo
+            <div className="text-xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">{students.length}</div>
+            <span className="text-[10px] sm:text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
+              <CheckCircle2 className="w-3.5 h-3.5" /> 100% Activos
             </span>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Nivel 1 (A1 Principiante)</span>
-              <div className="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-inner">
+              <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Nivel 1 (A1)</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-inner">
                 <BookOpen className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+            <div className="text-xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">
               {students.filter(s => (s.mcer_level || '').toUpperCase() === 'A1').length}
             </div>
-            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Iniciación oral & gramática
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-1 block">
+              Iniciación oral
             </span>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Nivel 2 y Superior (A2/B1/B2)</span>
-              <div className="w-9 h-9 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
+              <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">A2 y Superior</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
                 <Award className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
+            <div className="text-xl sm:text-3xl font-black text-slate-900 mt-1 sm:mt-2">
               {students.filter(s => (s.mcer_level || '').toUpperCase() !== 'A1').length}
             </div>
-            <span className="text-[11px] text-slate-500 font-medium mt-1 block">
-              Pre-intermedio & Conversación
+            <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-1 block">
+              Pre-intermedio+
             </span>
           </div>
 
-          <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
             <div className="flex items-center justify-between">
-              <span className="text-slate-400 text-[11px] font-bold uppercase tracking-wider">Seguridad Institucional</span>
-              <div className="w-9 h-9 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner">
+              <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Seguridad</span>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner">
                 <KeyRound className="w-4 h-4" />
               </div>
             </div>
-            <div className="text-xs font-black text-slate-800 mt-3 flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Password = No. Documento</span>
+            <div className="text-[11px] sm:text-xs font-black text-slate-800 mt-2 sm:mt-3 flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
+              <span>Password = Doc</span>
             </div>
-            <span className="text-[11px] text-slate-400 mt-1 block">
-              Acceso simplificado sin fricción
+            <span className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 block">
+              Acceso simplificado
             </span>
           </div>
-
         </div>
 
         {/* ========================================================================= */}

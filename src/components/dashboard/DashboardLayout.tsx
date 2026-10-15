@@ -258,49 +258,60 @@ export function DashboardLayout({
 
   return (
     // LIENZO CLARO Y ESCULPIDO (NEUMORPHIC SOFT 3D CANVAS)
-    <div className="fixed inset-0 w-screen h-screen bg-[#EDF2F7] text-slate-800 font-sans p-2 sm:p-4 md:p-5 flex items-center justify-center overflow-hidden z-0 select-none">
+    <div className="fixed inset-0 w-full h-[100dvh] bg-[#EDF2F7] text-slate-800 font-sans p-0 sm:p-3 md:p-5 flex items-center justify-center overflow-hidden z-0 select-none">
       
       {/* UNIFIED CANVAS FRAME (Card 3D Flotante Gigante) */}
-      <div className="w-full max-w-[1600px] h-full max-h-[96vh] bg-[#FAFBFD] rounded-[32px] shadow-[0_20px_60px_-15px_rgba(15,23,42,0.12),0_0_1px_1px_rgba(255,255,255,1),inset_0_2px_1px_rgba(255,255,255,1)] border border-slate-200/80 overflow-hidden flex flex-col lg:flex-row relative">
+      <div className="w-full max-w-[1600px] h-full sm:max-h-[96vh] bg-[#FAFBFD] rounded-none sm:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(15,23,42,0.12),0_0_1px_1px_rgba(255,255,255,1),inset_0_2px_1px_rgba(255,255,255,1)] border-0 sm:border border-slate-200/80 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
-        <div className="lg:hidden bg-white/90 backdrop-blur-md text-slate-800 border-b border-slate-200 px-4 py-3 flex items-center justify-between sticky top-0 z-40 shrink-0">
-          <div className="flex items-center gap-3">
+        <div className="lg:hidden bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/80 px-3.5 py-2.5 flex items-center justify-between sticky top-0 z-40 shrink-0">
+          <div className="flex items-center gap-2.5">
             <button 
               type="button" 
               onClick={() => onTabChange && onTabChange('overview')}
-              className="inline-flex items-center text-left cursor-pointer p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs"
+              className="inline-flex items-center text-left cursor-pointer p-1 rounded-xl bg-slate-50 border border-slate-200 shadow-2xs active:scale-95 transition-transform"
             >
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-10 w-auto object-contain filter drop-shadow-sm" 
+                className="h-9 w-auto object-contain filter drop-shadow-sm" 
               />
             </button>
-            <div>
-              <h1 className="text-xs font-black text-slate-900">American Dream</h1>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
+            <div className="min-w-0">
+              <h1 className="text-xs font-black text-slate-900 tracking-tight leading-none truncate">American Dream</h1>
+              <span className={`inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
                 {roleBadgeInfo.label}
               </span>
             </div>
           </div>
 
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 text-slate-700 rounded-xl bg-slate-100 border border-slate-200 active:scale-95 transition-transform"
-            aria-label="Abrir menú"
-          >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 text-slate-700 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200/80 active:scale-95 transition-transform cursor-pointer"
+              aria-label="Abrir menú"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5 text-slate-800" /> : <Menu className="w-5 h-5 text-slate-800" />}
+            </button>
+          </div>
         </div>
+
+        {/* BACKDROP OVERLAY CUANDO EL DRAWER MÓVIL ESTÁ ABIERTO */}
+        {mobileMenuOpen && (
+          <div
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 lg:hidden transition-opacity duration-200 animate-fadeIn"
+            aria-hidden="true"
+          />
+        )}
 
         {/* SIDEBAR RETRÁCTIL & RESIZABLE ESTILO VISUAL STUDIO CODE (LIGHT SOFT 3D) */}
         <aside
           ref={sidebarRef}
-          style={{ width: mobileMenuOpen ? '280px' : `${sidebarWidth}px` }}
-          className={`fixed lg:relative top-0 left-0 z-30 h-full bg-[#F3F6FA] text-slate-800 flex flex-col justify-between shrink-0 transition-all ${
+          style={{ width: mobileMenuOpen ? '290px' : `${sidebarWidth}px` }}
+          className={`fixed lg:relative top-0 left-0 z-50 lg:z-30 h-full max-w-[85vw] lg:max-w-none bg-[#F3F6FA] text-slate-800 flex flex-col justify-between shrink-0 transition-all ${
             isResizing ? 'transition-none' : 'duration-200'
-          } lg:translate-x-0 overflow-visible relative border-r border-slate-200/80 shadow-[4px_0_15px_rgba(0,0,0,0.02)] ${
+          } lg:translate-x-0 overflow-visible relative border-r border-slate-200/80 shadow-[8px_0_25px_rgba(0,0,0,0.12)] lg:shadow-[4px_0_15px_rgba(0,0,0,0.02)] ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
@@ -347,7 +358,7 @@ export function DashboardLayout({
                 </div>
               )}
 
-              {/* Botón de alternar colapso (un clic) */}
+              {/* Botón de alternar colapso (un clic en Desktop) */}
               <button
                 type="button"
                 onClick={toggleCollapse}
@@ -355,6 +366,16 @@ export function DashboardLayout({
                 className="hidden lg:flex w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-blue-600 items-center justify-center border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+              </button>
+
+              {/* Botón para cerrar drawer en Mobile */}
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                title="Cerrar menú"
+                className="lg:hidden w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -533,39 +554,40 @@ export function DashboardLayout({
           </div>
         </aside>
 
-        {/* ÁREA PRINCIPAL DE CONTENIDO (SE EXPADE FLUIDAMENTE AL CONTRAER EL SIDEBAR) */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#FAFBFD] p-4 sm:p-5 md:p-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
+        {/* ÁREA PRINCIPAL DE CONTENIDO (SE EXPANDE FLUIDAMENTE AL CONTRAER EL SIDEBAR) */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#FAFBFD] p-3 sm:p-5 md:p-6 pb-24 lg:pb-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
           
           {/* TOP BREADCRUMB & STATUS BAR */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200/70 mb-4 shrink-0">
             
             {/* BREADCRUMB CON ESTILO NEUMÓRFICO SUAVE */}
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 overflow-x-auto no-scrollbar py-0.5">
+              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1 shrink-0">
                 <Globe className="w-3.5 h-3.5 text-slate-400" />
                 <span>Inicio</span>
               </a>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-              <span className="text-slate-600 font-medium">Dashboard</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-              <span className="text-slate-900 capitalize font-extrabold">{title || roleBadgeInfo.label}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+              <span className="text-slate-600 font-medium shrink-0">Dashboard</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+              <span className="text-slate-900 capitalize font-extrabold truncate">{title || roleBadgeInfo.label}</span>
             </div>
 
             {/* STATUS BADGES CLAROS */}
-            <div className="flex items-center gap-3 text-xs">
-              <div className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-bold text-[11px] shadow-2xs">
+            <div className="flex items-center gap-2 sm:gap-3 text-xs justify-between sm:justify-end">
+              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-bold text-[10px] sm:text-[11px] shadow-2xs">
                 <Lock className="w-3 h-3 text-emerald-600" />
-                <span>SSL 256-bit Encriptado</span>
+                <span>SSL 256-bit</span>
               </div>
 
               <a
                 href="https://americandreamenglish.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 font-bold rounded-xl text-xs transition-colors border border-slate-200/90 shadow-2xs flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 font-bold rounded-xl text-xs transition-colors border border-slate-200/90 shadow-2xs flex items-center gap-1.5"
               >
                 <Globe className="w-3.5 h-3.5 text-blue-600" />
-                <span>Ver Sitio Público</span>
+                <span className="hidden xs:inline">Sitio Público</span>
+                <span className="xs:hidden">Web</span>
               </a>
             </div>
 
@@ -577,6 +599,128 @@ export function DashboardLayout({
           </main>
 
         </div>
+
+        {/* ========================================================================= */}
+        {/* EXECUTIVE MOBILE BOTTOM NAVIGATION (THUMBS-FIRST CON ACCESO RÁPIDO)        */}
+        {/* ========================================================================= */}
+        <nav 
+          aria-label="Navegación móvil"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[calc(0.4rem+env(safe-area-inset-bottom))]"
+        >
+          <div className="flex items-center justify-around max-w-lg mx-auto">
+            {/* 1. Resumen / Overview */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onTabChange) onTabChange('overview')
+                else router.push('/dashboard/admin')
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
+                activeTab === 'overview' || (!activeTab && pathname === '/dashboard/admin')
+                  ? 'text-blue-600 font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-transform ${
+                activeTab === 'overview' || (!activeTab && pathname === '/dashboard/admin')
+                  ? 'bg-blue-50 text-blue-600 shadow-2xs scale-105'
+                  : 'text-slate-500'
+              }`}>
+                <LayoutDashboard className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5 tracking-tight">Resumen</span>
+            </button>
+
+            {/* 2. Estudiantes */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onTabChange) onTabChange('estudiantes')
+                else router.push('/admin/estudiantes')
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
+                activeTab === 'estudiantes' || pathname === '/admin/estudiantes'
+                  ? 'text-emerald-700 font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-transform ${
+                activeTab === 'estudiantes' || pathname === '/admin/estudiantes'
+                  ? 'bg-emerald-50 text-emerald-700 shadow-2xs scale-105'
+                  : 'text-slate-500'
+              }`}>
+                <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5 tracking-tight">Alumnos</span>
+            </button>
+
+            {/* 3. Docentes */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onTabChange) onTabChange('docentes')
+                else router.push('/dashboard/admin')
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
+                activeTab === 'docentes'
+                  ? 'text-blue-600 font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-transform ${
+                activeTab === 'docentes'
+                  ? 'bg-blue-50 text-blue-600 shadow-2xs scale-105'
+                  : 'text-slate-500'
+              }`}>
+                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5 tracking-tight">Docentes</span>
+            </button>
+
+            {/* 4. Leads / Prospectos */}
+            <button
+              type="button"
+              onClick={() => {
+                if (onTabChange) onTabChange('leads')
+                else router.push('/dashboard/admin')
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
+                activeTab === 'leads'
+                  ? 'text-indigo-600 font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-transform ${
+                activeTab === 'leads'
+                  ? 'bg-indigo-50 text-indigo-600 shadow-2xs scale-105'
+                  : 'text-slate-500'
+              }`}>
+                <Inbox className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5 tracking-tight">Leads</span>
+            </button>
+
+            {/* 5. Más (Abre el drawer lateral con el resto de módulos: Becas, Liquidaciones, Donaciones, Tienda) */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all cursor-pointer select-none active:scale-95 ${
+                ['becas', 'donaciones', 'products', 'liquidaciones'].includes(activeTab || '')
+                  ? 'text-purple-600 font-black'
+                  : 'text-slate-500 hover:text-slate-900 font-medium'
+              }`}
+            >
+              <div className={`p-1.5 rounded-xl transition-transform ${
+                ['becas', 'donaciones', 'products', 'liquidaciones'].includes(activeTab || '')
+                  ? 'bg-purple-50 text-purple-600 shadow-2xs scale-105'
+                  : 'text-slate-500'
+              }`}>
+                <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5 tracking-tight">Más</span>
+            </button>
+          </div>
+        </nav>
 
       </div>
 
