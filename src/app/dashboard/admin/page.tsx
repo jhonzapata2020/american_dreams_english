@@ -268,6 +268,9 @@ export default function AdminDashboardPage() {
   const [newStudentData, setNewStudentData] = useState({
     fullName: '',
     email: '',
+    documentType: 'C.C.',
+    documentId: '',
+    phone: '',
     mcerLevel: 'A1',
     municipality: 'Turbo'
   })
@@ -429,24 +432,19 @@ export default function AdminDashboardPage() {
     try {
       const studentIdToDelete = studentToDelete.id
       const deletedName = studentToDelete.student_name
-      const supabase = createClient()
 
-      // 1. Eliminar matrículas asociadas
-      await supabase.from('enrollments').delete().eq('student_id', studentIdToDelete)
+      const res = await fetch(`/api/admin/students?id=${studentIdToDelete}`, {
+        method: 'DELETE'
+      })
+      const data = await res.json()
 
-      // 2. Eliminar de profiles
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', studentIdToDelete)
-
-      if (profileError) {
-        throw profileError
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo eliminar el estudiante de Supabase.')
       }
 
       setToast({
         title: 'Estudiante eliminado',
-        message: `${deletedName} ha sido eliminado correctamente.`
+        message: `${deletedName} ha sido eliminado correctamente del sistema.`
       })
       setTimeout(() => setToast(null), 4500)
 
@@ -469,76 +467,81 @@ export default function AdminDashboardPage() {
     e.preventDefault()
     const fullName = newStudentData.fullName.trim()
     const email = newStudentData.email.trim()
+    const documentType = newStudentData.documentType || 'C.C.'
+    const documentId = newStudentData.documentId.trim()
+    const phone = newStudentData.phone.trim()
     const municipality = newStudentData.municipality
     const mcerLevel = newStudentData.mcerLevel
 
-    if (!fullName || !email) return
+    if (!fullName || !email || !documentId) {
+      setToast({
+        title: 'Campos requeridos',
+        message: 'Por favor ingresa nombre completo, correo y número de documento.'
+      })
+      setTimeout(() => setToast(null), 4500)
+      return
+    }
 
     setIsSubmittingStudent(true)
     try {
-      const studentId = crypto.randomUUID()
-      const supabase = createClient()
-      const profilePayload: any = {
-        id: studentId,
-        full_name: fullName,
-        email: email,
-        role: 'student',
-        origin_location: municipality,
-        mcer_level: mcerLevel,
-        academic_level: mcerLevel,
-        document_type: 'C.C.',
-        document_number: `${Math.floor(1000000000 + Math.random() * 9000000000)}`
-      }
+      const response = await fetch('/api/admin/create-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName,
+          email,
+          documentType,
+          documentId,
+          phone,
+          mcerLevel,
+          municipality
+        })
+      })
 
-      const { error: directErr } = await supabase.from('profiles').upsert(profilePayload)
-      if (directErr && !directErr.message?.toLowerCase().includes('duplicate')) {
-        throw directErr
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'No se pudo registrar al estudiante.')
       }
 
       setIsAddStudentOpen(false)
       setNewStudentData({
         fullName: '',
         email: '',
+        documentType: 'C.C.',
+        documentId: '',
+        phone: '',
         mcerLevel: 'A1',
         municipality: 'Turbo'
       })
 
       setToast({
-        title: '¡Estudiante guardado con éxito!',
-        message: `${fullName} se ha registrado correctamente en la plataforma.`
+        title: '¡Estudiante creado con éxito!',
+        message: `${fullName} se ha registrado en Supabase Auth y Profiles con acceso activo.`
       })
       setTimeout(() => setToast(null), 4500)
 
-      setStudentsCount((prev) => prev + 1)
-      setStudentsList((prev) => [
-        {
-          id: studentId,
-          student_name: fullName,
-          student_email: email,
-          mcer_level: mcerLevel,
-          completed_hours: 0,
-          total_hours: 120,
-          status: 'active',
-          municipality: municipality
-        },
-        ...prev
-      ])
-
-      try {
-        await fetchAdminData()
-      } catch (syncErr) {
-        console.warn('Advertencia al resincronizar datos:', syncErr)
+      if (data.credentials) {
+        setSelectedStudentCredentials({
+          studentName: data.credentials.studentName,
+          username: data.credentials.username,
+          email: data.credentials.email,
+          documentId: data.credentials.documentId,
+          password: data.credentials.password,
+          courseName: data.credentials.courseName,
+          loginUrl: typeof window !== 'undefined' ? `${window.location.origin}/campus/login` : 'https://americandreams.edu.co/campus/login'
+        })
       }
+
+      await fetchAdminData()
 
     } catch (err: any) {
       console.error('Error al registrar estudiante:', err)
-      setIsAddStudentOpen(false)
       setToast({
-        title: '¡Estudiante guardado con éxito!',
-        message: `${fullName} se ha registrado en Supabase.`
+        title: 'Error al registrar',
+        message: err.message || 'No se pudo crear la cuenta del estudiante.'
       })
       setTimeout(() => setToast(null), 4500)
-      fetchAdminData()
     } finally {
       setIsSubmittingStudent(false)
     }
@@ -719,13 +722,13 @@ export default function AdminDashboardPage() {
           }
         })
 
-        // Unificar con estudiantes demo garantizando que siempre haya datos ricos estilo Figma
-        const mergedStudentsMap = new Map<string, StudentItem>()
-        FALLBACK_STUDENTS.forEach(s => mergedStudentsMap.set(s.id, s))
-        mapped.forEach(s => mergedStudentsMap.set(s.id, s))
-        const finalList = Array.from(mergedStudentsMap.values())
-        setStudentsList(finalList)
-        setStudentsCount(finalList.length)
+        if (mapped.length > 0) {
+          setStudentsList(mapped)
+          setStudentsCount(mapped.length)
+        } else {
+          setStudentsList(FALLBACK_STUDENTS)
+          setStudentsCount(FALLBACK_STUDENTS.length)
+        }
       } else {
         setStudentsList(FALLBACK_STUDENTS)
         setStudentsCount(FALLBACK_STUDENTS.length)
@@ -1221,21 +1224,68 @@ export default function AdminDashboardPage() {
                     />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-700">
-                      Correo Institucional / Personal <span className="text-red-600">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="estudiante@americandream.edu.co"
-                      value={newStudentData.email}
-                      onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Tipo Doc <span className="text-red-600">*</span>
+                      </label>
+                      <select
+                        value={newStudentData.documentType}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, documentType: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      >
+                        <option value="C.C.">Cédula (C.C.)</option>
+                        <option value="T.I.">Tarjeta Identidad (T.I.)</option>
+                        <option value="C.E.">Cédula Extranjería (C.E.)</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        No. Documento / Identificación <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ej: 1040892341"
+                        value={newStudentData.documentId}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, documentId: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 font-mono"
+                      />
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Correo Personal / Institucional <span className="text-red-600">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="estudiante@americandream.edu.co"
+                        value={newStudentData.email}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, email: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-700">
+                        Teléfono / WhatsApp de Contacto
+                      </label>
+                      <input
+                        type="tel"
+                        placeholder="Ej: +57 300 892 3410"
+                        value={newStudentData.phone}
+                        onChange={(e) => setNewStudentData({ ...newStudentData, phone: e.target.value })}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-slate-700">
                         Nivel MCER Inicial
@@ -1245,10 +1295,10 @@ export default function AdminDashboardPage() {
                         onChange={(e) => setNewStudentData({ ...newStudentData, mcerLevel: e.target.value })}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                       >
-                        <option value="A1">A1 - Principiante</option>
-                        <option value="A2">A2 - Elemental</option>
-                        <option value="B1">B1 - Pre-Intermedio</option>
-                        <option value="B2">B2 - Intermedio Alto</option>
+                        <option value="A1">A1 - Principiante (Level 1)</option>
+                        <option value="A2">A2 - Elemental (Level 2)</option>
+                        <option value="B1">B1 - Pre-Intermedio (Level 3)</option>
+                        <option value="B2">B2 - Intermedio Alto (Level 4)</option>
                       </select>
                     </div>
 
@@ -1273,6 +1323,13 @@ export default function AdminDashboardPage() {
                         <option value="Otra Sede">Otra Sede</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="p-3 bg-red-50/60 rounded-2xl border border-red-100 flex items-start gap-2.5 text-[11px] text-red-900 leading-relaxed">
+                    <ShieldCheck className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>
+                      El estudiante se registrará en <strong>Supabase Auth</strong> con rol <code>student</code> pre-confirmado y matrícula en <code>enrollments</code>. Podrá acceder de inmediato al Campus Virtual con su número de documento o correo.
+                    </span>
                   </div>
                 </div>
 

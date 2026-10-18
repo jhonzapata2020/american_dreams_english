@@ -226,15 +226,11 @@ export default function AdminEstudiantesPage() {
             course_name: sp.course_name || `ENGLISH LEVEL ${sp.mcer_level || '1'} - GENERAL PROGRAM`
           }))
 
-          // Combinar registros asegurando unicidad por ID
-          setStudents(prev => {
-            const map = new Map<string, StudentRecord>()
-            // Iniciales primero
-            INITIAL_STUDENTS.forEach(s => map.set(s.id, s))
-            // Supabase sobrescribe o añade
-            apiStudents.forEach(s => map.set(s.id, s))
-            return Array.from(map.values())
-          })
+          if (apiStudents.length > 0) {
+            setStudents(apiStudents)
+          } else {
+            setStudents(INITIAL_STUDENTS)
+          }
         }
       }
     } catch (e) {
