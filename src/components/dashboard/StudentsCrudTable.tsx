@@ -676,16 +676,16 @@ export function StudentsCrudTable({
             </div>
 
             {/* ========================================================================= */}
-            {/* VISTA DESKTOP: TABLA COMPLETA DE 8 COLUMNAS (hidden md:block)             */}
+            {/* VISTA DESKTOP: TABLA RESPONSIVA COMPACTA CON ACCIONES STICKY              */}
             {/* ========================================================================= */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto overscroll-x-contain pb-1">
               <table className="w-full text-left text-xs font-sans border-collapse">
               
               {/* Encabezados de Tabla estilo Figma Team List */}
-              <thead className="bg-slate-50/70 border-b border-slate-200/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+              <thead className="bg-slate-50/90 backdrop-blur-xs border-b border-slate-200/80 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                 <tr>
                   {/* Checkbox Header */}
-                  <th className="py-4 pl-5 pr-2 w-10">
+                  <th className="py-3.5 pl-4 pr-1 w-9">
                     <input
                       type="checkbox"
                       checked={isAllSelected}
@@ -695,16 +695,16 @@ export function StudentsCrudTable({
                   </th>
 
                   {/* Expand Chevron Space */}
-                  <th className="py-4 px-1 w-8"></th>
+                  <th className="py-3.5 px-1 w-7"></th>
 
                   {/* Columns */}
-                  <th className="py-4 px-3 text-slate-700 font-extrabold">Nombre</th>
-                  <th className="py-4 px-3 text-slate-700 font-extrabold">Nivel MCER</th>
-                  <th className="py-4 px-3 text-slate-700 font-extrabold">Programa / Curso</th>
-                  <th className="py-4 px-3 text-slate-700 font-extrabold">Correo Electrónico</th>
-                  <th className="py-4 px-3 text-slate-700 font-extrabold">Teléfono</th>
-                  <th className="py-4 px-3 text-slate-700 font-extrabold text-center">Estado</th>
-                  <th className="py-4 px-5 text-slate-700 font-extrabold text-right">Acciones</th>
+                  <th className="py-3.5 px-2.5 text-slate-700 font-extrabold min-w-[170px]">Nombre</th>
+                  <th className="py-3.5 px-2 text-slate-700 font-extrabold whitespace-nowrap">Nivel MCER</th>
+                  <th className="py-3.5 px-2 text-slate-700 font-extrabold hidden lg:table-cell max-w-[170px]">Programa / Curso</th>
+                  <th className="py-3.5 px-2 text-slate-700 font-extrabold">Correo Electrónico</th>
+                  <th className="py-3.5 px-2 text-slate-700 font-extrabold hidden xl:table-cell whitespace-nowrap">Teléfono</th>
+                  <th className="py-3.5 px-2 text-slate-700 font-extrabold text-center whitespace-nowrap">Estado</th>
+                  <th className="py-3.5 px-3 text-slate-700 font-extrabold text-right sticky right-0 bg-slate-50/95 backdrop-blur-xs shadow-[-6px_0_12px_rgba(0,0,0,0.05)] z-20 whitespace-nowrap">Acciones</th>
                 </tr>
               </thead>
 
@@ -735,7 +735,7 @@ export function StudentsCrudTable({
                       >
                         
                         {/* Checkbox */}
-                        <td className="py-3.5 pl-5 pr-2 w-10" onClick={(e) => e.stopPropagation()}>
+                        <td className="py-3 pl-4 pr-1 w-9" onClick={(e) => e.stopPropagation()}>
                           <input
                             type="checkbox"
                             checked={isSelected}
@@ -745,7 +745,7 @@ export function StudentsCrudTable({
                         </td>
 
                         {/* Chevron Expand / Collapse */}
-                        <td className="py-3.5 px-1 w-8 text-slate-400 group-hover:text-slate-600">
+                        <td className="py-3 px-1 w-7 text-slate-400 group-hover:text-slate-600">
                           <button
                             type="button"
                             onClick={(e) => {
@@ -763,9 +763,9 @@ export function StudentsCrudTable({
                         </td>
 
                         {/* Nombre y Avatar (Figma Style) */}
-                        <td className="py-3.5 px-3">
-                          <div className="flex items-center gap-3">
-                            <div className="relative w-9 h-9 rounded-full overflow-hidden shrink-0 ring-1 ring-slate-200 shadow-2xs">
+                        <td className="py-3 px-2.5">
+                          <div className="flex items-center gap-2.5">
+                            <div className="relative w-8 h-8 rounded-full overflow-hidden shrink-0 ring-1 ring-slate-200 shadow-2xs">
                               {avatarUrl ? (
                                 <img
                                   src={avatarUrl}
@@ -782,11 +782,11 @@ export function StudentsCrudTable({
                               </div>
                             </div>
 
-                            <div className="min-w-0">
-                              <span className="font-extrabold text-slate-900 text-xs sm:text-[13px] block truncate">
+                            <div className="min-w-0 max-w-[170px] sm:max-w-[200px]">
+                              <span className="font-extrabold text-slate-900 text-xs sm:text-[13px] block truncate" title={st.full_name}>
                                 {st.full_name}
                               </span>
-                              <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
+                              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                                 <span>{st.document_type || 'C.C.'} {st.document_number || 'S/D'}</span>
                               </div>
                             </div>
@@ -794,15 +794,15 @@ export function StudentsCrudTable({
                         </td>
 
                         {/* Nivel MCER (Position en Figma) */}
-                        <td className="py-3.5 px-3 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold border ${levelInfo.badgeClass}`}>
+                        <td className="py-3 px-2 whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-lg text-[10px] sm:text-[11px] font-bold border ${levelInfo.badgeClass}`}>
                             {levelInfo.label}
                           </span>
                         </td>
 
-                        {/* Programa / Curso (Department en Figma) */}
-                        <td className="py-3.5 px-3 whitespace-nowrap">
-                          <span className="text-slate-700 font-semibold text-xs truncate max-w-[200px] block">
+                        {/* Programa / Curso (Oculto en tablets/pantallas estrechas para evitar desbordes) */}
+                        <td className="py-3 px-2 whitespace-nowrap hidden lg:table-cell max-w-[170px]">
+                          <span className="text-slate-700 font-semibold text-xs truncate block max-w-[160px]" title={st.course_name}>
                             {st.course_name || 'Inglés General Urabá'}
                           </span>
                           <span className="text-[10px] text-slate-400 font-medium">
@@ -811,28 +811,37 @@ export function StudentsCrudTable({
                         </td>
 
                         {/* Correo Electrónico (Email en Figma) */}
-                        <td className="py-3.5 px-3 whitespace-nowrap">
-                          <span className="text-slate-600 font-mono text-[11px]">
+                        <td className="py-3 px-2 max-w-[170px]">
+                          <span className="text-slate-600 font-mono text-[11px] truncate block" title={st.email}>
                             {st.email}
                           </span>
                         </td>
 
-                        {/* Teléfono (Phone en Figma) */}
-                        <td className="py-3.5 px-3 whitespace-nowrap">
+                        {/* Teléfono (Oculto en pantallas menores a xl: ya que está en la card expandida) */}
+                        <td className="py-3 px-2 whitespace-nowrap hidden xl:table-cell">
                           <span className="text-slate-700 font-medium text-xs">
                             {st.phone || '(57) 310 000-0000'}
                           </span>
                         </td>
 
                         {/* Estado (Status en Figma - Pastel Pills) */}
-                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                          <span className={`inline-flex items-center px-3 py-0.5 rounded-full text-[11px] font-bold ${statusInfo.className}`}>
+                        <td className="py-3 px-2 text-center whitespace-nowrap">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold ${statusInfo.className}`}>
                             {statusInfo.label}
                           </span>
                         </td>
 
-                        {/* Acciones (Edit / Actions en Figma) */}
-                        <td className="py-3.5 px-5 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                        {/* Acciones STICKY (SIEMPRE 100% VISIBLE EN EL BORDE DERECHO SIN REQUERIR ZOOM) */}
+                        <td 
+                          className={`py-3 px-3 text-right whitespace-nowrap sticky right-0 transition-colors z-10 shadow-[-6px_0_12px_rgba(0,0,0,0.05)] ${
+                            isExpanded 
+                              ? 'bg-[#f4f8fe]' 
+                              : isSelected 
+                                ? 'bg-[#f1f6fd]' 
+                                : 'bg-white group-hover:bg-slate-50'
+                          }`} 
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="inline-flex items-center justify-end gap-1">
                             
                             {/* Ver credenciales de acceso */}
@@ -878,10 +887,10 @@ export function StudentsCrudTable({
                       {isExpanded && (
                         <tr className="bg-gradient-to-b from-blue-50/40 to-slate-50/30 border-y-2 border-blue-200/80">
                           <td colSpan={9} className="p-0">
-                            <div className="p-5 sm:p-6 space-y-4 animate-fadeIn">
+                            <div className="p-4 sm:p-5 space-y-4 animate-fadeIn">
                               
-                              {/* Grid de Datos Expandidos de Figma */}
-                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                              {/* Grid de Datos Expandidos de Figma - Responsive Adaptable */}
+                              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                                 
                                 {/* 1. Office Location / Sede */}
                                 <div className="bg-white/80 backdrop-blur-sm p-3.5 rounded-2xl border border-slate-200/80 shadow-2xs">
