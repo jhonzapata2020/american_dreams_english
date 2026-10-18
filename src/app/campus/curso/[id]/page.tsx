@@ -343,14 +343,25 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
           if (dbTeachers && dbTeachers.length > 0) {
             const currentLvl = levelKey.toUpperCase()
-            const assignedTeacher = dbTeachers.find(t => t.mcer_level?.toUpperCase() === currentLvl)
-              || dbTeachers.find(t => t.mcer_level?.toUpperCase() === 'ALL')
-              || dbTeachers[0]
+            // Filtrar docentes asignados al nivel actual
+            const exactMatches = dbTeachers.filter(t => t.mcer_level?.toUpperCase() === currentLvl)
+            const globalMatches = dbTeachers.filter(t => t.mcer_level?.toUpperCase() === 'ALL')
+            const candidates = exactMatches.length > 0 ? exactMatches : (globalMatches.length > 0 ? globalMatches : [dbTeachers[0]])
 
-            if (assignedTeacher?.full_name) {
+            if (candidates.length === 1) {
               setCfg(prev => ({
                 ...prev,
-                teacherName: assignedTeacher.full_name
+                teacherName: candidates[0].full_name
+              }))
+            } else if (candidates.length === 2) {
+              setCfg(prev => ({
+                ...prev,
+                teacherName: `${candidates[0].full_name} & ${candidates[1].full_name}`
+              }))
+            } else if (candidates.length > 2) {
+              setCfg(prev => ({
+                ...prev,
+                teacherName: `Equipo Docente ${currentLvl} (${candidates.length})`
               }))
             }
           }
@@ -775,7 +786,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
 
                 <div className="hidden sm:flex items-center gap-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/15 text-xs text-slate-200 backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>Docente: <strong className="text-white font-bold">{cfg.teacherName}</strong></span>
+                  <span>{cfg.teacherName.includes('&') || cfg.teacherName.includes('Equipo') ? 'Docentes: ' : 'Docente: '}<strong className="text-white font-bold">{cfg.teacherName}</strong></span>
                 </div>
 
                 <StudentAvatarMenu
@@ -1108,7 +1119,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                       </div>
                       <div className="flex items-center gap-1 text-slate-400">
                         <span>•</span>
-                        <span>Docente: <strong className="text-slate-700">{cfg.teacherName}</strong></span>
+                        <span>{cfg.teacherName.includes('&') || cfg.teacherName.includes('Equipo') ? 'Docentes: ' : 'Docente: '}<strong className="text-slate-700">{cfg.teacherName}</strong></span>
                       </div>
                     </div>
                   </div>

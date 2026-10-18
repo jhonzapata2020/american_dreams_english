@@ -180,12 +180,16 @@ export default function CampusVirtualPage() {
 
           if (dbTeachers && dbTeachers.length > 0) {
             const currentLvl = (detectedLevel || 'A1').toUpperCase()
-            const matchTeacher = dbTeachers.find(t => t.mcer_level?.toUpperCase() === currentLvl)
-              || dbTeachers.find(t => t.mcer_level?.toUpperCase() === 'ALL')
-              || dbTeachers[0]
+            const exactMatches = dbTeachers.filter(t => t.mcer_level?.toUpperCase() === currentLvl)
+            const globalMatches = dbTeachers.filter(t => t.mcer_level?.toUpperCase() === 'ALL')
+            const candidates = exactMatches.length > 0 ? exactMatches : (globalMatches.length > 0 ? globalMatches : [dbTeachers[0]])
 
-            if (matchTeacher?.full_name) {
-              resolvedTeacher = matchTeacher.full_name
+            if (candidates.length === 1) {
+              resolvedTeacher = candidates[0].full_name
+            } else if (candidates.length === 2) {
+              resolvedTeacher = `${candidates[0].full_name} & ${candidates[1].full_name}`
+            } else if (candidates.length > 2) {
+              resolvedTeacher = `Equipo Docente ${currentLvl} (${candidates.length})`
             }
           }
         } catch (e) {}
