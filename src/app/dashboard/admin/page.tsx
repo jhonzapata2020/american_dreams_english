@@ -1033,7 +1033,7 @@ export default function AdminDashboardPage() {
   }
 
   const handleCopyCredentials = (teacher: TeacherItem, customPass?: string) => {
-    const pass = customPass || (teacher.document_number && teacher.document_number.length >= 6 ? teacher.document_number : 'Docente2026*')
+    const pass = customPass || (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
     const text = 
       `🏛️ AMERICAN DREAM ENGLISH — CREDENCIALES DOCENTE TITULAR\n\n` +
       `Estimado(a) ${teacher.full_name},\n` +
@@ -2381,62 +2381,62 @@ export default function AdminDashboardPage() {
                     return (
                       <div
                         key={teacher.id}
-                        className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between hover:shadow-md group"
+                        className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between hover:shadow-md group overflow-hidden relative"
                       >
-                        <div className="space-y-4">
+                        <div className="space-y-4 min-w-0 w-full">
                           
                           {/* TOP CARD: AVATAR + BADGE */}
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0B1B3D] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-md border border-white/20 shrink-0">
+                          <div className="flex items-start justify-between gap-2.5 min-w-0 w-full">
+                            <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
+                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#0B1B3D] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-md border border-white/20 shrink-0">
                                 {initials}
                               </div>
-                              <div className="min-w-0">
-                                <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-tight truncate">
+                              <div className="min-w-0 flex-1">
+                                <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug line-clamp-2 break-words" title={teacher.full_name}>
                                   {teacher.full_name}
                                 </h3>
-                                <p className="text-[11px] text-slate-500 mt-0.5 truncate">
+                                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1 break-words" title={teacher.specialty || `Docente Titular Nivel ${level}`}>
                                   {teacher.specialty || `Docente Titular Nivel ${level}`}
                                 </p>
                               </div>
                             </div>
 
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-lg border whitespace-nowrap shrink-0 ${levelColor}`}>
+                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-lg border whitespace-nowrap shrink-0 mt-0.5 ${levelColor}`}>
                               Nivel {level}
                             </span>
                           </div>
 
                           {/* INFORMACIÓN DE CONTACTO Y CÉDULA */}
-                          <div className="bg-slate-50/70 rounded-2xl p-3 space-y-2 border border-slate-100 text-xs">
-                            <div className="flex items-center justify-between text-slate-600">
-                              <span className="flex items-center gap-1.5 text-slate-500 text-[11px]">
-                                <Mail className="w-3.5 h-3.5 text-slate-400" />
+                          <div className="bg-slate-50/70 rounded-2xl p-3 space-y-2 border border-slate-100 text-xs min-w-0">
+                            <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
+                              <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                                <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                 Correo:
                               </span>
-                              <span className="font-semibold text-slate-800 text-[11px] truncate max-w-[170px]" title={teacher.email}>
+                              <span className="font-semibold text-slate-800 text-[11px] truncate text-right flex-1 min-w-0" title={teacher.email}>
                                 {teacher.email}
                               </span>
                             </div>
 
                             {teacher.phone && (
-                              <div className="flex items-center justify-between text-slate-600">
-                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px]">
-                                  <Phone className="w-3.5 h-3.5 text-slate-400" />
+                              <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
+                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                                  <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   WhatsApp:
                                 </span>
-                                <span className="font-mono text-slate-800 text-[11px]">
+                                <span className="font-mono text-slate-800 text-[11px] truncate text-right">
                                   {teacher.phone}
                                 </span>
                               </div>
                             )}
 
                             {teacher.document_number && (
-                              <div className="flex items-center justify-between text-slate-600">
-                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px]">
-                                  <KeyRound className="w-3.5 h-3.5 text-slate-400" />
+                              <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
+                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                                  <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   Identificación:
                                 </span>
-                                <span className="font-mono text-slate-800 text-[11px]">
+                                <span className="font-mono text-slate-800 text-[11px] truncate text-right">
                                   {teacher.document_type || 'C.C.'} {teacher.document_number}
                                 </span>
                               </div>
@@ -2472,7 +2472,7 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => {
-                                const pass = (teacher.document_number && teacher.document_number.length >= 6 ? teacher.document_number : 'Docente2026*')
+                                const pass = (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
                                 const cleanPhone = teacher.phone ? teacher.phone.replace(/\D/g, '') : ''
                                 const msg = encodeURIComponent(
                                   `🏛️ *AMERICAN DREAM ENGLISH — ACCESO DOCENTE TITULAR*\n\n` +
