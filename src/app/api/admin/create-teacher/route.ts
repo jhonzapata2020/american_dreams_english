@@ -41,42 +41,26 @@ export async function POST(request: Request) {
       }
     })
 
-    // Contraseña inicial: la especificada por el Director, o la cédula, o predeterminada institucional
-    const initialPassword = password?.trim() || (cleanDoc.length >= 6 ? cleanDoc : 'Docente2026*')
+    // Contraseña inicial: la especificada por el Director, o la cédula (si >= 6 chars), o predeterminada institucional
+    const initialPassword = (password && password.trim().length >= 6)
+      ? password.trim()
+      : (cleanDoc.length >= 6 ? cleanDoc : 'Docente2026*')
 
-    let userId = `tch-${Date.now()}`
-    let isPersistedInAuth = false
+    let userId: string | null = null
 
-    try {
-      // 1. Verificar si ya existe perfil registrado con este correo
-      const { data: existingProfile } = await supabaseAdmin
-        .from('profiles')
-        .select('id, email, full_name')
-        .eq('email', cleanEmail)
-        .maybeSingle()
+    // 1. Verificar si ya existe perfil registrado con este correo
+    const { data: existingProfile } = await supabaseAdmin
+      .from('profiles')
+      .select('id, email, full_name')
+      .eq('email', cleanEmail)
+      .maybeSingle()
 
-      if (existingProfile?.id) {
-        userId = existingProfile.id
-        try {
-          await supabaseAdmin.auth.admin.updateUserById(userId, { 
-            password: initialPassword,
-            user_metadata: {
-              role: 'teacher',
-              full_name: cleanName,
-              mcer_level: assignedLevel,
-              specialty: cleanSpecialty
-            }
-          })
-          isPersistedInAuth = true
-        } catch (authUpdateErr) {
-          console.warn('Aviso al actualizar auth de docente existente:', authUpdateErr)
-        }
-      } else {
-        // 2. Crear usuario nuevo en Supabase Auth con Service Role (email pre-confirmado)
-        const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
-          email: cleanEmail,
+    if (existingProfile?.id) {
+      const existingId: string = existingProfile.id
+      userId = existingId
+      try {
+        await supabaseAdmin.auth.admin.updateUserById(existingId, { 
           password: initialPassword,
-          email_confirm: true,
           user_metadata: {
             role: 'teacher',
             full_name: cleanName,
@@ -87,49 +71,97 @@ export async function POST(request: Request) {
             specialty: cleanSpecialty
           }
         })
+      } catch (authUpdateErr: any) {
+        console.warn('Aviso al actualizar auth de docente existente:', authUpdateErr?.message)
+      }
+    } else {
+      // 2. Crear usuario nuevo en Supabase Auth con Service Role (email pre-confirmado)
+      const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email: cleanEmail,
+        password: initialPassword,
+        email_confirm: true,
+        user_metadata: {
+          role: 'teacher',
+          full_name: cleanName,
+          document_type: documentType || 'C.C.',
+          document_id: cleanDoc,
+          phone: phone || '',
+          mcer_level: assignedLevel,
+          specialty: cleanSpecialty
+        }
+      })
 
-        if (authUser?.user?.id) {
-          userId = authUser.user.id
-          isPersistedInAuth = true
-        } else if (authError && authError.message?.toLowerCase().includes('already')) {
-          const { data: listData } = await supabaseAdmin.auth.admin.listUsers()
+      if (authUser?.user?.id) {
+        userId = authUser.user.id
+      } else if (authError) {
+        // Si el usuario ya está registrado en auth.users, buscamos su ID
+        if (authError.message?.toLowerCase().includes('already')) {
+          const { data: listData } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 })
           const matchedUser = listData?.users?.find(u => u.email?.toLowerCase() === cleanEmail)
-          if (matchedUser) {
-            userId = matchedUser.id
-            await supabaseAdmin.auth.admin.updateUserById(userId, { 
+          if (matchedUser?.id) {
+            const matchedId: string = matchedUser.id
+            userId = matchedId
+            await supabaseAdmin.auth.admin.updateUserById(matchedId, { 
               password: initialPassword,
-              user_metadata: { role: 'teacher', full_name: cleanName }
+              user_metadata: { 
+                role: 'teacher', 
+                full_name: cleanName,
+                document_type: documentType || 'C.C.',
+                document_id: cleanDoc,
+                phone: phone || '',
+                mcer_level: assignedLevel,
+                specialty: cleanSpecialty
+              }
             })
-            isPersistedInAuth = true
+          } else {
+            return NextResponse.json(
+              { error: `El correo ${cleanEmail} ya se encuentra registrado en el sistema de autenticación.` },
+              { status: 400 }
+            )
           }
+        } else {
+          console.error('Error de Supabase Auth al registrar docente:', authError)
+          return NextResponse.json(
+            { error: `Error de autenticación al crear el docente: ${authError.message}` },
+            { status: 400 }
+          )
         }
       }
+    }
 
-      // 3. Insertar / Actualizar en public.profiles con rol 'teacher'
-      const profilePayload: any = {
-        id: userId,
-        full_name: cleanName,
-        email: cleanEmail,
-        role: 'teacher',
-        document_type: documentType || 'C.C.',
-        document_number: cleanDoc || `${Math.floor(1000000000 + Math.random() * 9000000000)}`,
-        phone: phone || '',
-        mcer_level: assignedLevel,
-        academic_level: assignedLevel,
-        origin_location: 'American Dream English Faculty',
-        updated_at: new Date().toISOString()
-      }
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'No se pudo generar un identificador de usuario válido para el docente.' },
+        { status: 500 }
+      )
+    }
 
-      const { error: profileError } = await supabaseAdmin
-        .from('profiles')
-        .upsert(profilePayload, { onConflict: 'id' })
+    // 3. Insertar / Actualizar en public.profiles con columnas reales de la base de datos
+    const profilePayload: any = {
+      id: userId,
+      full_name: cleanName,
+      email: cleanEmail,
+      role: 'teacher',
+      document_type: documentType || 'C.C.',
+      document_number: cleanDoc || null,
+      phone: phone || null,
+      mcer_level: assignedLevel,
+      origin_location: 'American Dream English Faculty',
+      updated_at: new Date().toISOString()
+    }
 
-      if (profileError) {
-        console.warn('Advertencia al insertar perfil en Supabase:', profileError.message)
-      }
+    const { data: savedProfile, error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .upsert(profilePayload, { onConflict: 'id' })
+      .select()
+      .single()
 
-    } catch (dbErr: any) {
-      console.warn('Operación Supabase degradada a respuesta local:', dbErr?.message)
+    if (profileError) {
+      console.error('Error al insertar perfil en Supabase (profiles):', profileError)
+      return NextResponse.json(
+        { error: `Error en la base de datos al guardar perfil de docente: ${profileError.message}` },
+        { status: 500 }
+      )
     }
 
     const whatsappMessage = encodeURIComponent(
@@ -157,7 +189,7 @@ export async function POST(request: Request) {
         initialPassword: initialPassword,
         role: 'teacher',
         whatsappMessage: whatsappMessage,
-        createdAt: new Date().toISOString()
+        createdAt: savedProfile?.created_at || new Date().toISOString()
       }
     })
 

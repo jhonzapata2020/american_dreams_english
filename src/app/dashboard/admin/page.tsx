@@ -627,8 +627,17 @@ export default function AdminDashboardPage() {
             full_name: t.full_name || 'Docente Titular',
             email: t.email || 'docente@americandream.edu.co',
             phone: t.phone || '',
-            mcer_level: (t.mcer_level || t.academic_level || 'A1').toUpperCase(),
-            specialty: t.specialty || `Docente Titular Nivel ${(t.mcer_level || 'A1').toUpperCase()}`,
+            mcer_level: (t.mcer_level || 'A1').toUpperCase(),
+            specialty: (() => {
+              if (t.specialty) return t.specialty
+              const lvl = (t.mcer_level || 'A1').toUpperCase()
+              if (lvl === 'A1') return 'Docente Titular A1 · Fonética & Gramática'
+              if (lvl === 'A2') return 'Docente Titular A2 · Inmersión Oral & Storytelling'
+              if (lvl === 'B1') return 'Docente Titular B1 · Conversación & Negocios'
+              if (lvl === 'B2') return 'Docente Titular B2 · Fluidez & Certificaciones'
+              if (lvl === 'ALL') return 'Director Académico · Coordinación General'
+              return `Docente Titular Nivel ${lvl}`
+            })(),
             document_type: t.document_type || 'C.C.',
             document_number: t.document_number || '',
             status: t.status || 'active',
@@ -947,6 +956,7 @@ export default function AdminDashboardPage() {
       setTeachersList((prev) => [newTeacherItem, ...prev.filter(t => t.email !== created.email)])
       setTeachersCount((prev) => prev + 1)
       setIsAddTeacherOpen(false)
+      fetchAdminData().catch(console.error)
 
       // Mostrar modal de credenciales generadas listo para WhatsApp
       setCreatedTeacherCredentials({

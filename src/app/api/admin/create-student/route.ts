@@ -106,29 +106,23 @@ export async function POST(request: Request) {
         email: cleanEmail,
         role: 'student',
         document_type: documentType || 'C.C.',
-        document_number: cleanDoc,
-        phone: phone || '',
+        document_number: cleanDoc || null,
+        phone: phone || null,
         mcer_level: mcerLevel || 'A1',
-        academic_level: mcerLevel || 'A1',
-        municipality: municipality || 'Turbo (Urabá)',
         origin_location: municipality || 'Turbo (Urabá)',
-        status: 'active'
+        updated_at: new Date().toISOString()
       }
 
-      let { error: profileError } = await supabaseAdmin
+      const { error: profileError } = await supabaseAdmin
         .from('profiles')
         .upsert(profilePayload, { onConflict: 'id' })
 
       if (profileError) {
-        console.warn('Upsert en profiles reportó advertencia:', profileError.message)
-        const fallbackPayload: any = {
-          id: userId,
-          full_name: cleanName,
-          email: cleanEmail,
-          role: 'student',
-          origin_location: municipality || 'Turbo'
-        }
-        await supabaseAdmin.from('profiles').upsert(fallbackPayload, { onConflict: 'id' })
+        console.error('Error insertando perfil de estudiante en Supabase:', profileError)
+        return NextResponse.json(
+          { error: `Error en base de datos al guardar estudiante: ${profileError.message}` },
+          { status: 500 }
+        )
       }
 
       await supabaseAdmin
