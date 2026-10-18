@@ -322,18 +322,11 @@ export default function CampusLoginPage() {
               </button>
             </div>
 
-            <div className="text-center mb-3 mt-0.5">
-              <Link href="/" className="inline-block group mb-1.5">
-                <img 
-                  src="/logo-american-dream.png" 
-                  alt="American Dream English" 
-                  className="h-12 sm:h-14 w-auto object-contain mx-auto filter drop-shadow-md group-hover:scale-105 transition-transform" 
-                />
-              </Link>
-              <h1 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight transition-colors">
+            <div className="text-center mb-4 mt-1">
+              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight transition-colors">
                 {roleMode === 'teacher' ? t.welcomeTeacher : t.welcomeStudent}
               </h1>
-              <p className="text-gray-500 text-xs font-medium mt-0.5">
+              <p className="text-gray-500 text-xs font-medium mt-1">
                 {roleMode === 'teacher' ? t.subtitleTeacher : t.subtitleStudent}
               </p>
             </div>
