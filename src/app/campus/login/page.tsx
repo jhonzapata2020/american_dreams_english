@@ -23,55 +23,72 @@ const translations = {
   EN: {
     back: 'Back to website',
     period: 'Period 2026',
-    welcome: 'ADE Student Portal',
-    subtitle: 'Please enter your student credentials.',
-    emailPlaceholder: 'Email or Document',
+    welcomeStudent: 'ADE Student Portal',
+    welcomeTeacher: 'ADE Faculty Portal',
+    subtitleStudent: 'Please enter your student credentials.',
+    subtitleTeacher: 'Please enter your faculty or tutor credentials.',
+    emailPlaceholderStudent: 'Email or Document (ID)',
+    emailPlaceholderTeacher: 'Teacher Email or Document (ID)',
     passwordPlaceholder: 'Password',
     remember: 'Remember for 30 days',
     forgot: 'Forgot password?',
-    loginBtn: 'Enter Virtual Campus',
+    loginBtnStudent: 'Enter Virtual Campus',
+    loginBtnTeacher: 'Enter Faculty Portal',
     entering: 'Entering...',
     or: 'or',
     demoTooltip: 'Load demo student credentials',
     adminTooltip: 'Go to Admin Portal',
-    footer: 'American Dream English · Student Campus',
+    footerStudent: 'American Dream English · Student Campus',
+    footerTeacher: 'American Dream English · Faculty Portal',
     errorEmpty: 'Please enter your document or email and password.',
     validationSuccess: 'Academic validation successful! Entering your Virtual Campus...',
     invalidCreds: 'Invalid credentials. Please verify your document and password.',
     welcomeSuccess: 'Welcome! Loading your courses...',
     accessVerified: 'Access verified. Redirecting to your virtual classroom...',
-    demoLoaded: 'Demo credentials loaded (Doc: 1040892341).',
     teacherPrompt: 'Are you a faculty teacher? ',
-    teacherLink: 'Access your portal here'
+    teacherLink: 'Access Faculty Portal here',
+    studentPrompt: 'Are you a student? ',
+    studentLink: 'Access Student Portal here',
+    studentTab: 'Student',
+    teacherTab: 'Teacher / Faculty'
   },
   ES: {
     back: 'Volver a la web',
     period: 'Periodo 2026',
-    welcome: 'Portal del Estudiante ADE',
-    subtitle: 'Ingresa tus datos de acceso.',
-    emailPlaceholder: 'Correo o Documento',
+    welcomeStudent: 'Portal del Estudiante ADE',
+    welcomeTeacher: 'Portal del Docente ADE',
+    subtitleStudent: 'Ingresa tus datos de acceso institucional.',
+    subtitleTeacher: 'Ingresa tus credenciales de docente titular o tutor.',
+    emailPlaceholderStudent: 'Correo o Documento (C.C.)',
+    emailPlaceholderTeacher: 'Correo institucional o Documento (C.C.)',
     passwordPlaceholder: 'Contraseña',
     remember: 'Recordar sesión',
     forgot: '¿Olvidaste tu contraseña?',
-    loginBtn: 'Ingresar a mi Campus',
+    loginBtnStudent: 'Ingresar a mi Campus',
+    loginBtnTeacher: 'Ingresar al Portal Docente',
     entering: 'Ingresando...',
     or: 'or',
     demoTooltip: 'Cargar credenciales de estudiante demo',
     adminTooltip: 'Ir al Portal Administrativo',
-    footer: 'American Dream English · Campus Estudiantil',
+    footerStudent: 'American Dream English · Campus Estudiantil',
+    footerTeacher: 'American Dream English · Portal Docente Titular',
     errorEmpty: 'Por favor ingresa tu documento o correo y contraseña.',
     validationSuccess: '¡Validación académica exitosa! Ingresando a tu Campus Virtual...',
     invalidCreds: 'Credenciales inválidas. Verifica tu documento y contraseña.',
     welcomeSuccess: '¡Bienvenido(a)! Cargando tus cursos...',
     accessVerified: 'Acceso verificado. Redirigiendo a tu aula virtual...',
-    demoLoaded: 'Credenciales demo cargadas (Doc: 1040892341).',
     teacherPrompt: '¿Eres docente titular? ',
-    teacherLink: 'Ingresa a tu panel aquí'
+    teacherLink: 'Ingresa a tu panel aquí',
+    studentPrompt: '¿Eres estudiante? ',
+    studentLink: 'Ingresa al portal estudiantil aquí',
+    studentTab: 'Estudiante',
+    teacherTab: 'Docente Titular'
   }
 }
 
 export default function CampusLoginPage() {
   const [lang, setLang] = useState<Language>('ES')
+  const [roleMode, setRoleMode] = useState<'student' | 'teacher'>('student')
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -93,9 +110,11 @@ export default function CampusLoginPage() {
       // Silencioso
     }
 
-    // Si la URL contiene error o unauthorized, informar al usuario
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
+      if (params.get('role') === 'teacher' || params.get('mode') === 'teacher' || params.get('mode') === 'docente') {
+        setRoleMode('teacher')
+      }
       if (params.has('error') || params.has('unauthorized')) {
         setMessage({
           type: 'error',
@@ -115,6 +134,13 @@ export default function CampusLoginPage() {
     }
   }
 
+  const handleToggleRoleMode = (targetRole: 'student' | 'teacher') => {
+    setRoleMode(targetRole)
+    setMessage(null)
+    setIdentifier('')
+    setPassword('')
+  }
+
   const handleStudentLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!identifier.trim() || !password.trim()) {
@@ -128,11 +154,11 @@ export default function CampusLoginPage() {
     try {
       let loginEmail = identifier.trim().toLowerCase()
       
-      // Si el estudiante ingresó su número de documento sin '@'
+      // Si el usuario ingresó su número de documento sin '@'
       if (!loginEmail.includes('@')) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('email')
+          .select('email, role')
           .eq('document_number', loginEmail)
           .maybeSingle()
 
@@ -148,74 +174,7 @@ export default function CampusLoginPage() {
         password: password
       })
 
-      // Fallback inteligente para credenciales demo si no están creadas en Supabase Auth
       if (error) {
-        if (loginEmail.startsWith('estudiante') || loginEmail.includes('1040892341') || password === '1040892341' || password.toLowerCase().includes('estudiante')) {
-          localStorage.setItem('ade_student_level', 'A1')
-
-          let cloudAvatar = ''
-          try {
-            const pRes = await fetch('/api/campus/profile?doc=1040892341&email=valeria.morales@americandream.edu.co')
-            if (pRes.ok) {
-              const pData = await pRes.json()
-              if (pData?.profile?.avatarUrl) {
-                cloudAvatar = pData.profile.avatarUrl
-              }
-            }
-          } catch (e) {}
-
-          if (!cloudAvatar) {
-            try {
-              const prev = JSON.parse(localStorage.getItem('ade_student_profile') || '{}')
-              if (prev.avatarUrl) cloudAvatar = prev.avatarUrl
-            } catch (e) {}
-          }
-
-          localStorage.setItem('ade_student_profile', JSON.stringify({
-            id: 'stu-valeria-01',
-            fullName: 'Valeria Morales Montoya',
-            email: 'valeria.morales@americandream.edu.co',
-            phone: '+57 300 892 3410',
-            avatarUrl: cloudAvatar,
-            docType: 'C.C.',
-            docNumber: '1.040.892.341',
-            currentLevel: 'A1',
-            programName: 'Programa de Inglés Jóvenes y Adultos',
-            studentCode: 'ADE-2026-0894',
-            status: 'Matriculado Regular'
-          }))
-          setMessage({ 
-            type: 'success', 
-            text: t.welcomeSuccess 
-          })
-          setTimeout(() => {
-            window.location.href = '/campus/curso/a1'
-          }, 300)
-          return
-        }
-
-        if (loginEmail.startsWith('docente') || loginEmail.includes('teacher') || password === 'Docente2026*') {
-          setMessage({ 
-            type: 'success', 
-            text: '¡Acceso docente confirmado! Redirigiendo a tu aula...' 
-          })
-          setTimeout(() => {
-            window.location.href = '/campus/docente'
-          }, 600)
-          return
-        }
-
-        if (loginEmail.startsWith('admin') || password === 'Admin2026*') {
-          setMessage({ 
-            type: 'success', 
-            text: '¡Acceso directivo confirmado! Redirigiendo...' 
-          })
-          setTimeout(() => {
-            window.location.href = '/dashboard/admin'
-          }, 600)
-          return
-        }
-
         const isBadCreds = error.message.toLowerCase().includes('invalid login credentials') || error.message.toLowerCase().includes('invalid')
         setMessage({ 
           type: 'error', 
@@ -228,6 +187,32 @@ export default function CampusLoginPage() {
           .eq('id', data.user.id)
           .maybeSingle()
 
+        const isTeacherEmail = loginEmail.startsWith('docente') || loginEmail.includes('teacher')
+        const role = profile?.role || data.user.user_metadata?.role || (isTeacherEmail ? 'teacher' : 'student')
+
+        if (role === 'teacher') {
+          setMessage({ 
+            type: 'success', 
+            text: '¡Acceso docente confirmado! Redirigiendo a tu aula...' 
+          })
+          setTimeout(() => {
+            window.location.href = '/campus/docente'
+          }, 350)
+          return
+        }
+
+        if (role === 'admin') {
+          setMessage({ 
+            type: 'success', 
+            text: '¡Acceso directivo confirmado! Redirigiendo...' 
+          })
+          setTimeout(() => {
+            window.location.href = '/dashboard/admin'
+          }, 350)
+          return
+        }
+
+        // Estudiante
         if (profile) {
           localStorage.setItem('ade_student_profile', JSON.stringify({
             id: profile.id,
@@ -244,22 +229,14 @@ export default function CampusLoginPage() {
           }))
         }
 
-        const isTeacherEmail = loginEmail.startsWith('docente') || loginEmail.includes('teacher')
-        const role = profile?.role || data.user.user_metadata?.role || (isTeacherEmail ? 'teacher' : 'student')
         setMessage({ 
           type: 'success', 
-          text: role === 'teacher' ? '¡Acceso docente confirmado! Redirigiendo a tu aula...' : t.welcomeSuccess 
+          text: t.welcomeSuccess 
         })
         const rawLevel = (profile?.mcer_level || data.user.user_metadata?.mcer_level || 'a1').toLowerCase()
         const studentLevel = ['a1', 'a2', 'b1', 'b2'].includes(rawLevel) ? rawLevel : 'a1'
         setTimeout(() => {
-          if (role === 'admin') {
-            window.location.href = '/dashboard/admin'
-          } else if (role === 'teacher') {
-            window.location.href = '/campus/docente'
-          } else {
-            window.location.href = `/campus/curso/${studentLevel}`
-          }
+          window.location.href = `/campus/curso/${studentLevel}`
         }, 300)
       }
     } catch (err: any) {
@@ -272,32 +249,11 @@ export default function CampusLoginPage() {
     }
   }
 
-  const handleFillDemoStudent = () => {
-    setIdentifier('1040892341')
-    setPassword('1040892341')
-    setMessage({
-      type: 'info',
-      text: t.demoLoaded
-    })
-  }
-
-  const handleSelectTeacherMode = (e?: React.MouseEvent) => {
-    if (e) e.preventDefault()
-    setIdentifier('docente@americandream.edu.co')
-    setPassword('Docente2026*')
-    setMessage({
-      type: 'info',
-      text: lang === 'ES' 
-        ? 'Credenciales de Docente Titular cargadas (docente@americandream.edu.co). Haz clic en "Ingresar a mi Campus" para entrar.' 
-        : 'Faculty Teacher credentials loaded (docente@americandream.edu.co). Click "Enter Virtual Campus" to continue.'
-    })
-  }
-
   return (
     <div className="bg-[#183ec2] min-h-screen h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans selection:bg-[#11246b] selection:text-white overflow-hidden">
       
       {/* TARJETA MAESTRA BLANCA OPTIMIZADA (SIN SCROLL EN 100% ZOOM) */}
-      <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.3)] w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-[840px] md:max-h-[580px] md:h-[580px] p-2 sm:p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-stretch overflow-hidden">
+      <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.3)] w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-[840px] md:max-h-[590px] md:h-[590px] p-2 sm:p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-stretch overflow-hidden">
         
         {/* ========================================================= */}
         {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & COMPACTO      */}
@@ -336,21 +292,49 @@ export default function CampusLoginPage() {
           </div>
 
           {/* Bloque central: Título, Subtítulo y Form */}
-          <div className="my-auto max-w-sm mx-auto w-full py-2">
+          <div className="my-auto max-w-sm mx-auto w-full py-1">
             
-            <div className="text-center mb-4 mt-1">
-              <Link href="/" className="inline-block group mb-2">
+            {/* Selector de Rol Segmentado: Estudiante / Docente Titular */}
+            <div className="flex items-center justify-center bg-slate-100 p-1 rounded-full mb-3 max-w-[270px] mx-auto border border-slate-200/80">
+              <button
+                type="button"
+                onClick={() => handleToggleRoleMode('student')}
+                className={`flex-1 py-1 px-3 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                  roleMode === 'student'
+                    ? 'bg-white text-blue-700 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>{t.studentTab}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleRoleMode('teacher')}
+                className={`flex-1 py-1 px-3 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                  roleMode === 'teacher'
+                    ? 'bg-[#002B49] text-amber-400 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
+                <span>{t.teacherTab}</span>
+              </button>
+            </div>
+
+            <div className="text-center mb-3 mt-0.5">
+              <Link href="/" className="inline-block group mb-1.5">
                 <img 
                   src="/logo-american-dream.png" 
                   alt="American Dream English" 
-                  className="h-14 sm:h-16 w-auto object-contain mx-auto filter drop-shadow-md group-hover:scale-105 transition-transform" 
+                  className="h-12 sm:h-14 w-auto object-contain mx-auto filter drop-shadow-md group-hover:scale-105 transition-transform" 
                 />
               </Link>
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight">
-                {t.welcome}
+              <h1 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight transition-colors">
+                {roleMode === 'teacher' ? t.welcomeTeacher : t.welcomeStudent}
               </h1>
-              <p className="text-gray-400 text-xs font-medium mt-0.5">
-                {t.subtitle}
+              <p className="text-gray-500 text-xs font-medium mt-0.5">
+                {roleMode === 'teacher' ? t.subtitleTeacher : t.subtitleStudent}
               </p>
             </div>
 
@@ -384,12 +368,12 @@ export default function CampusLoginPage() {
                   required
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder={t.emailPlaceholder}
+                  placeholder={roleMode === 'teacher' ? t.emailPlaceholderTeacher : t.emailPlaceholderStudent}
                   className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
                   disabled={loading}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
-                  <User className="w-4 h-4" />
+                  {roleMode === 'teacher' ? <GraduationCap className="w-4 h-4 text-amber-500" /> : <User className="w-4 h-4" />}
                 </div>
               </div>
 
@@ -414,7 +398,7 @@ export default function CampusLoginPage() {
                 </button>
               </div>
 
-              {/* Checkbox Remember & Forgot */}
+              {/* Checkbox Remember & Period Info */}
               <div className="flex items-center justify-between text-xs text-gray-500 pt-0.5 px-1">
                 <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
                   <input 
@@ -426,21 +410,21 @@ export default function CampusLoginPage() {
                   <span className="text-[11px] sm:text-xs text-gray-600 font-medium">{t.remember}</span>
                 </label>
                 
-                <button
-                  type="button"
-                  onClick={handleFillDemoStudent}
-                  className="text-[11px] sm:text-xs text-gray-400 hover:text-blue-600 transition-colors font-medium"
-                >
-                  {t.forgot}
-                </button>
+                <span className="text-[11px] text-gray-400 font-medium">
+                  {roleMode === 'teacher' ? 'Docentes Titulares ADE' : t.period}
+                </span>
               </div>
 
-              {/* Botón Principal Cápsula Azul */}
+              {/* Botón Principal Cápsula */}
               <div className="pt-1">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-bold py-3 px-5 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm"
+                  className={`w-full text-white font-bold py-2.5 sm:py-3 px-5 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm ${
+                    roleMode === 'teacher'
+                      ? 'bg-[#002B49] hover:bg-[#001f35] text-amber-400'
+                      : 'bg-[#183ec2] hover:bg-[#123099]'
+                  }`}
                 >
                   {loading ? (
                     <>
@@ -448,61 +432,50 @@ export default function CampusLoginPage() {
                       <span>{t.entering}</span>
                     </>
                   ) : (
-                    <span>{t.loginBtn}</span>
+                    <span>{roleMode === 'teacher' ? t.loginBtnTeacher : t.loginBtnStudent}</span>
                   )}
                 </button>
               </div>
 
-              {/* Acceso Discreto para Docentes Titulares */}
+              {/* Alternar entre Modo Estudiante y Modo Docente Titular */}
               <div className="text-center pt-2">
                 <p className="text-[11px] sm:text-xs text-gray-500 font-medium">
-                  {t.teacherPrompt}
-                  <button 
-                    type="button"
-                    onClick={handleSelectTeacherMode} 
-                    className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
-                  >
-                    {t.teacherLink}
-                  </button>
+                  {roleMode === 'student' ? (
+                    <>
+                      {t.teacherPrompt}
+                      <button 
+                        type="button"
+                        onClick={() => handleToggleRoleMode('teacher')} 
+                        className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
+                      >
+                        {t.teacherLink}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {t.studentPrompt}
+                      <button 
+                        type="button"
+                        onClick={() => handleToggleRoleMode('student')} 
+                        className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
+                      >
+                        {t.studentLink}
+                      </button>
+                    </>
+                  )}
                 </p>
               </div>
 
             </form>
 
-            {/* Separador "or" */}
-            <div className="relative my-3 sm:my-4 text-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-100" />
-              </div>
-              <span className="relative bg-white px-2.5 text-[11px] text-gray-400 font-medium">
-                {t.or}
-              </span>
-            </div>
-
-            {/* Accesos rápidos circulares / Portal Switcher */}
-            <div className="flex items-center justify-center gap-2.5">
-              <button
-                type="button"
-                onClick={handleFillDemoStudent}
-                title={t.demoTooltip}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={handleSelectTeacherMode}
-                title={lang === 'ES' ? 'Cargar credenciales de docente demo' : 'Load demo teacher credentials'}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-amber-400 hover:bg-amber-50 text-gray-600 hover:text-amber-600 flex items-center justify-center transition-all shadow-2xs cursor-pointer"
-              >
-                <GraduationCap className="w-3.5 h-3.5" />
-              </button>
+            {/* Acceso Administrativo Directivo */}
+            <div className="pt-3 text-center">
               <Link
                 href="/admin/login"
-                title={t.adminTooltip}
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
+                className="inline-flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-blue-600 transition-colors font-medium"
               >
-                <Lock className="w-3.5 h-3.5" />
+                <Lock className="w-3 h-3 text-gray-400" />
+                <span>{lang === 'ES' ? 'Ingreso Directivo / Admin' : 'Administrative / Admin Portal'}</span>
               </Link>
             </div>
 
@@ -511,7 +484,7 @@ export default function CampusLoginPage() {
           {/* Pie */}
           <div className="text-center pt-1">
             <p className="text-[10px] text-gray-400 font-medium">
-              {t.footer}
+              {roleMode === 'teacher' ? t.footerTeacher : t.footerStudent}
             </p>
           </div>
 
