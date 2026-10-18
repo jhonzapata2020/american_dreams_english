@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createAdminClient } from '../../../../utils/supabase/admin'
 
 export async function POST(request: Request) {
   try {
@@ -30,18 +30,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://grfjnmpkoezeyhjhrzkw.supabase.co'
-    const serviceRoleKey =
-      process.env.SUPABASE_SERVICE_ROLE_KEY ||
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-      'sb_publishable_0N0XR9pwO_83Y_t75aie1g_ajIRgD1O'
-
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
-    })
+    const supabaseAdmin = createAdminClient()
 
     // Contraseña inicial por defecto: el mismo número de documento (mínimo 6 caracteres)
     const initialPassword = cleanDoc.length >= 6 ? cleanDoc : `${cleanDoc}2026*`
