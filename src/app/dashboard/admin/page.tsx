@@ -722,16 +722,11 @@ export default function AdminDashboardPage() {
           }
         })
 
-        if (mapped.length > 0) {
-          setStudentsList(mapped)
-          setStudentsCount(mapped.length)
-        } else {
-          setStudentsList(FALLBACK_STUDENTS)
-          setStudentsCount(FALLBACK_STUDENTS.length)
-        }
+        setStudentsList(mapped)
+        setStudentsCount(mapped.length)
       } else {
-        setStudentsList(FALLBACK_STUDENTS)
-        setStudentsCount(FALLBACK_STUDENTS.length)
+        setStudentsList([])
+        setStudentsCount(0)
       }
 
     } catch (err) {

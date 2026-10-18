@@ -46,7 +46,9 @@ import {
   List,
   ArrowUpDown,
   MessageCircle,
-  Mail
+  Mail,
+  UserPlus,
+  Copy
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
@@ -55,7 +57,6 @@ import { LEVEL_CONFIGURATIONS } from '../../../data/levelConfig'
 import { 
   INITIAL_RECORDINGS_BY_LEVEL, 
   INITIAL_SUBMISSIONS_BY_LEVEL, 
-  INITIAL_STUDENTS_BY_LEVEL,
   LevelRecordedSession,
   LevelStudentSubmission,
   EnrolledStudent
@@ -200,33 +201,167 @@ export default function TeacherCampusPage() {
   const [currentNoteInput, setCurrentNoteInput] = useState('')
   const [savingNote, setSavingNote] = useState(false)
 
-  // Cargar avatares oficiales desde Supabase para los estudiantes
+  // Estados de estudiantes reales desde Supabase profiles
   const [studentCloudAvatars, setStudentCloudAvatars] = useState<Record<string, string>>({})
+  const [dbStudentsByLevel, setDbStudentsByLevel] = useState<Record<string, EnrolledStudent[]>>({
+    a1: [],
+    a2: [],
+    b1: [],
+    b2: []
+  })
+  const [isLoadingStudents, setIsLoadingStudents] = useState<boolean>(true)
+  const [showAddStudentModal, setShowAddStudentModal] = useState<boolean>(false)
+  const [isSubmittingStudent, setIsSubmittingStudent] = useState<boolean>(false)
+  const [newStudentForm, setNewStudentForm] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    documentType: 'C.C.',
+    documentId: '',
+    mcerLevel: 'A1',
+    modality: 'virtual',
+    municipality: 'Turbo (Urabá)',
+    password: ''
+  })
+  const [createdStudentCreds, setCreatedStudentCreds] = useState<{
+    fullName: string
+    documentId: string
+    email: string
+    password: string
+    mcerLevel: string
+  } | null>(null)
+
+  const loadRealStudents = async () => {
+    setIsLoadingStudents(true)
+    try {
+      const res = await fetch('/api/admin/students')
+      if (res.ok) {
+        const data = await res.json()
+        if (data?.students && Array.isArray(data.students)) {
+          const map: Record<string, string> = {}
+          const levelMap: Record<string, EnrolledStudent[]> = {
+            a1: [],
+            a2: [],
+            b1: [],
+            b2: []
+          }
+
+          data.students.forEach((s: any) => {
+            if (s.avatar_url) {
+              if (s.email) map[s.email.toLowerCase()] = s.avatar_url
+              if (s.document_number) {
+                map[s.document_number] = s.avatar_url
+                map[s.document_number.replace(/\./g, '')] = s.avatar_url
+              }
+            }
+
+            const rawLvl = (s.mcer_level || s.academic_level || 'A1').toString().toUpperCase()
+            let lvlKey = 'a1'
+            if (rawLvl.includes('B2')) lvlKey = 'b2'
+            else if (rawLvl.includes('B1')) lvlKey = 'b1'
+            else if (rawLvl.includes('A2')) lvlKey = 'a2'
+            else lvlKey = 'a1'
+
+            const cleanDoc = s.document_number ? s.document_number.toString().trim() : ''
+            const studentCode = cleanDoc ? `ADE-2026-${cleanDoc.slice(-4)}` : `ADE-2026-${(s.id || '0000').slice(0, 4).toUpperCase()}`
+            const docFormatted = cleanDoc ? `${s.document_type || 'C.C.'} ${cleanDoc}` : 'S/D'
+
+            const enrolledStudent: EnrolledStudent = {
+              name: s.full_name || 'Estudiante Registrado',
+              code: studentCode,
+              doc: docFormatted,
+              email: s.email || 'estudiante@americandream.edu.co',
+              phone: s.phone || '',
+              progress: typeof s.completed_hours === 'number' && s.completed_hours > 0 ? Math.min(100, Math.round((s.completed_hours / 120) * 100)) : 20,
+              avg: s.grade ? `${s.grade} / 5.0` : '4.8 / 5.0',
+              status: s.status === 'completed' ? 'Al día' : (s.status === 'pending' ? 'Pendiente' : 'Activo'),
+              avatarUrl: s.avatar_url
+            }
+
+            if (!levelMap[lvlKey]) levelMap[lvlKey] = []
+            levelMap[lvlKey].push(enrolledStudent)
+          })
+
+          setStudentCloudAvatars(map)
+          setDbStudentsByLevel(levelMap)
+        }
+      }
+    } catch (e) {
+      console.warn('Aviso al cargar estudiantes desde Supabase:', e)
+    } finally {
+      setIsLoadingStudents(false)
+    }
+  }
 
   useEffect(() => {
-    async function loadStudentAvatars() {
-      try {
-        const res = await fetch('/api/admin/students')
-        if (res.ok) {
-          const data = await res.json()
-          if (data?.students && Array.isArray(data.students)) {
-            const map: Record<string, string> = {}
-            data.students.forEach((s: any) => {
-              if (s.avatar_url) {
-                if (s.email) map[s.email.toLowerCase()] = s.avatar_url
-                if (s.document_number) {
-                  map[s.document_number] = s.avatar_url
-                  map[s.document_number.replace(/\./g, '')] = s.avatar_url
-                }
-              }
-            })
-            setStudentCloudAvatars(map)
-          }
-        }
-      } catch (e) {}
-    }
-    loadStudentAvatars()
+    loadRealStudents()
   }, [])
+
+  const handleCreateStudentInCampus = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const cleanName = newStudentForm.fullName.trim()
+    const cleanEmail = newStudentForm.email.trim().toLowerCase()
+    const cleanDoc = newStudentForm.documentId.trim()
+
+    if (!cleanName || !cleanEmail || !cleanDoc) {
+      showNotification('Por favor ingresa Nombre Completo, Correo y Documento de Identidad.')
+      return
+    }
+
+    setIsSubmittingStudent(true)
+    try {
+      const res = await fetch('/api/admin/create-student', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName: cleanName,
+          email: cleanEmail,
+          phone: newStudentForm.phone.trim(),
+          documentType: newStudentForm.documentType,
+          documentId: cleanDoc,
+          mcerLevel: newStudentForm.mcerLevel || activeLevel.toUpperCase(),
+          modality: newStudentForm.modality,
+          municipality: newStudentForm.municipality,
+          password: newStudentForm.password.trim() || undefined
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'No se pudo registrar al estudiante.')
+      }
+
+      const generatedPassword = newStudentForm.password.trim() || (cleanDoc.length >= 6 ? cleanDoc : `${cleanDoc}2026*`)
+
+      setCreatedStudentCreds({
+        fullName: cleanName,
+        documentId: cleanDoc,
+        email: cleanEmail,
+        password: generatedPassword,
+        mcerLevel: newStudentForm.mcerLevel || activeLevel.toUpperCase()
+      })
+
+      setShowAddStudentModal(false)
+      setNewStudentForm({
+        fullName: '',
+        email: '',
+        phone: '',
+        documentType: 'C.C.',
+        documentId: '',
+        mcerLevel: activeLevel.toUpperCase(),
+        modality: 'virtual',
+        municipality: 'Turbo (Urabá)',
+        password: ''
+      })
+
+      showNotification(`¡${cleanName} matriculado con éxito en la base de datos!`)
+      await loadRealStudents()
+    } catch (err: any) {
+      showNotification(`Error: ${err.message}`)
+    } finally {
+      setIsSubmittingStudent(false)
+    }
+  }
 
   const handleOpenStudentDetail = (st: EnrolledStudent) => {
     setSelectedStudentDetail(st)
@@ -1202,7 +1337,7 @@ export default function TeacherCampusPage() {
       neonColor: '#F43F5E', // Coral Neón / Rosa
       glowColor: 'rgba(244, 63, 94, 0.45)',
       lightPoolColor: 'rgba(244, 63, 94, 0.20)',
-      badge: (INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1).length,
+      badge: (dbStudentsByLevel[activeLevel] || []).length,
       isLive: false,
     },
   ]
@@ -2369,7 +2504,7 @@ export default function TeacherCampusPage() {
           {/* SECCIÓN 4: ESTUDIANTES MATRICULADOS & CONTROL DE ASISTENCIA         */}
           {/* =================================================================== */}
           {activeTab === 'students' && (() => {
-            const baseStudents: EnrolledStudent[] = INITIAL_STUDENTS_BY_LEVEL[activeLevel] || INITIAL_STUDENTS_BY_LEVEL.a1
+            const baseStudents: EnrolledStudent[] = dbStudentsByLevel[activeLevel] || []
             const processedStudents = baseStudents
               .filter(st => {
                 if (studentSearch.trim()) {
@@ -2448,20 +2583,45 @@ export default function TeacherCampusPage() {
                       </h2>
                     </div>
                     <p className="text-xs text-slate-500 font-medium">
-                      Periodo 2026-I · Lista indexada para seguimiento pedagógico, calificaciones y pase de asistencia.
+                      Periodo 2026-I · Conectado en tiempo real con Supabase Profiles & Enrollments.
                     </p>
                   </div>
 
-                  {/* Botón de Exportar Planilla para el Profesor */}
-                  <div className="flex items-center gap-2 self-start md:self-center">
+                  {/* Acciones del Módulo: Sincronizar, Matricular y Exportar */}
+                  <div className="flex items-center gap-2 self-start md:self-center flex-wrap">
+                    <button
+                      type="button"
+                      onClick={loadRealStudents}
+                      disabled={isLoadingStudents}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                      title="Sincronizar estudiantes desde la base de datos Supabase"
+                    >
+                      <RefreshCw className={`w-3.5 h-3.5 text-blue-600 ${isLoadingStudents ? 'animate-spin' : ''}`} />
+                      <span>Actualizar</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewStudentForm(prev => ({ ...prev, mcerLevel: activeLevel.toUpperCase() }))
+                        setShowAddStudentModal(true)
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#002B49] hover:bg-[#001f35] text-amber-400 border border-amber-400/30 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                      title="Matricular nuevo estudiante real en la base de datos"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-amber-400" />
+                      <span>+ Matricular Estudiante</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={handleExportAttendance}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer"
+                      disabled={processedStudents.length === 0}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-xl text-xs font-bold shadow-2xs transition-all active:scale-95 cursor-pointer disabled:opacity-40"
                       title="Descargar lista oficial de estudiantes en Excel/CSV"
                     >
                       <Download className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Planilla de Asistencia (Excel)</span>
+                      <span>Planilla (Excel)</span>
                     </button>
                   </div>
                 </div>
@@ -2745,8 +2905,38 @@ export default function TeacherCampusPage() {
                             ))
                           ) : (
                             <tr>
-                              <td colSpan={8} className="py-8 text-center text-xs text-slate-400 font-medium">
-                                No se encontraron estudiantes que coincidan con la búsqueda.
+                              <td colSpan={8} className="py-16 text-center">
+                                {isLoadingStudents ? (
+                                  <div className="flex flex-col items-center justify-center gap-3">
+                                    <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+                                    <p className="text-xs font-bold text-slate-700">Sincronizando estudiantes desde Supabase...</p>
+                                  </div>
+                                ) : (
+                                  <div className="max-w-md mx-auto flex flex-col items-center justify-center gap-3 p-6 bg-slate-50/70 rounded-3xl border border-dashed border-slate-200">
+                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-2xs border border-slate-200/80 flex items-center justify-center text-slate-400">
+                                      <Users className="w-6 h-6 text-slate-500" />
+                                    </div>
+                                    <div className="space-y-1">
+                                      <h4 className="text-sm font-bold text-slate-800">
+                                        No hay estudiantes matriculados en {LEVEL_CONFIGURATIONS[activeLevel]?.title || `Nivel ${activeLevel.toUpperCase()}`}
+                                      </h4>
+                                      <p className="text-xs text-slate-500">
+                                        Los estudiantes registrados en la base de datos para este nivel aparecerán aquí en tiempo real para seguimiento, pase de asistencia y calificaciones.
+                                      </p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setNewStudentForm(prev => ({ ...prev, mcerLevel: activeLevel.toUpperCase() }))
+                                        setShowAddStudentModal(true)
+                                      }}
+                                      className="inline-flex items-center gap-2 px-4 py-2 bg-[#002B49] hover:bg-[#001f35] text-amber-400 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer mt-1"
+                                    >
+                                      <UserPlus className="w-3.5 h-3.5" />
+                                      <span>Matricular Primer Estudiante de {activeLevel.toUpperCase()}</span>
+                                    </button>
+                                  </div>
+                                )}
                               </td>
                             </tr>
                           )}
@@ -2869,8 +3059,38 @@ export default function TeacherCampusPage() {
                         </div>
                       ))
                     ) : (
-                      <div className="col-span-full py-12 text-center text-xs text-slate-400 font-medium bg-white rounded-3xl border border-slate-200">
-                        No se encontraron estudiantes que coincidan con los criterios de búsqueda.
+                      <div className="col-span-full py-16 text-center bg-slate-50/70 rounded-3xl border border-dashed border-slate-200 p-6">
+                        {isLoadingStudents ? (
+                          <div className="flex flex-col items-center justify-center gap-3">
+                            <RefreshCw className="w-6 h-6 text-blue-600 animate-spin" />
+                            <p className="text-xs font-bold text-slate-700">Sincronizando estudiantes desde Supabase...</p>
+                          </div>
+                        ) : (
+                          <div className="max-w-md mx-auto flex flex-col items-center justify-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-white shadow-2xs border border-slate-200/80 flex items-center justify-center text-slate-400">
+                              <Users className="w-6 h-6 text-slate-500" />
+                            </div>
+                            <div className="space-y-1">
+                              <h4 className="text-sm font-bold text-slate-800">
+                                No hay estudiantes matriculados en {LEVEL_CONFIGURATIONS[activeLevel]?.title || `Nivel ${activeLevel.toUpperCase()}`}
+                              </h4>
+                              <p className="text-xs text-slate-500">
+                                Los estudiantes registrados en la base de datos para este nivel aparecerán aquí automáticamente en tiempo real.
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewStudentForm(prev => ({ ...prev, mcerLevel: activeLevel.toUpperCase() }))
+                                setShowAddStudentModal(true)
+                              }}
+                              className="inline-flex items-center gap-2 px-4 py-2 bg-[#002B49] hover:bg-[#001f35] text-amber-400 rounded-xl text-xs font-bold shadow-2xs transition-all cursor-pointer mt-1"
+                            >
+                              <UserPlus className="w-3.5 h-3.5" />
+                              <span>Matricular Primer Estudiante de {activeLevel.toUpperCase()}</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -3719,6 +3939,312 @@ export default function TeacherCampusPage() {
               >
                 Cerrar
               </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================================= */}
+      {/* MODAL: MATRICULAR NUEVO ESTUDIANTE DIRECTO EN SUPABASE                  */}
+      {/* ======================================================================= */}
+      {showAddStudentModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-200">
+            
+            {/* Header del modal */}
+            <div className="bg-[#002B49] text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-amber-400/20 text-amber-400 border border-amber-400/30">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-base sm:text-lg text-white">Matricular Nuevo Estudiante</h3>
+                  <p className="text-xs text-amber-300 font-medium">Registro directo en Supabase Auth & Profiles</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAddStudentModal(false)}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Formulario */}
+            <form onSubmit={handleCreateStudentInCampus} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Nombre Completo <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Ej: Laura Sofía Gómez Zapata"
+                  value={newStudentForm.fullName}
+                  onChange={(e) => setNewStudentForm({ ...newStudentForm, fullName: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Correo Electrónico <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="estudiante@correo.com"
+                  value={newStudentForm.email}
+                  onChange={(e) => setNewStudentForm({ ...newStudentForm, email: e.target.value })}
+                  className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Tipo de Documento
+                  </label>
+                  <select
+                    value={newStudentForm.documentType}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, documentType: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 bg-white"
+                  >
+                    <option value="C.C.">Cédula de Ciudadanía (C.C.)</option>
+                    <option value="T.I.">Tarjeta de Identidad (T.I.)</option>
+                    <option value="C.E.">Cédula de Extranjería (C.E.)</option>
+                    <option value="P.P.">Pasaporte</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Número de Documento <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ej: 1040892341"
+                    value={newStudentForm.documentId}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, documentId: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 font-medium"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Teléfono / WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="Ej: 310 441 8021"
+                    value={newStudentForm.phone}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, phone: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Nivel MCER Asignado
+                  </label>
+                  <select
+                    value={newStudentForm.mcerLevel}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, mcerLevel: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 bg-white font-bold text-blue-700"
+                  >
+                    <option value="A1">English Level A1 (Principiante)</option>
+                    <option value="A2">English Level A2 (Elemental)</option>
+                    <option value="B1">English Level B1 (Pre-Intermedio)</option>
+                    <option value="B2">English Level B2 (Intermedio Alto)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Municipio de Residencia
+                  </label>
+                  <select
+                    value={newStudentForm.municipality}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, municipality: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 bg-white"
+                  >
+                    <option value="Turbo (Urabá)">Turbo (Urabá)</option>
+                    <option value="Apartadó">Apartadó</option>
+                    <option value="Carepa">Carepa</option>
+                    <option value="Chigorodó">Chigorodó</option>
+                    <option value="Necoclí">Necoclí</option>
+                    <option value="Medellín">Medellín</option>
+                    <option value="Virtual / Nacional">Virtual / Nacional</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-slate-700 block mb-1">
+                    Contraseña Inicial (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Por defecto: Cédula del alumno"
+                    value={newStudentForm.password}
+                    onChange={(e) => setNewStudentForm({ ...newStudentForm, password: e.target.value })}
+                    className="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-500 font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 bg-blue-50 rounded-2xl border border-blue-200/80 text-[11px] text-blue-900 space-y-1">
+                <p className="font-bold">🔐 Acceso inmediato al Campus Virtual:</p>
+                <p className="text-blue-700">
+                  El estudiante se creará en <strong>Supabase Auth</strong> con correo pre-confirmado. Podrá ingresar en <code>/campus/login</code> con su número de documento.
+                </p>
+              </div>
+
+              {/* Botones */}
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setShowAddStudentModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingStudent}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#002B49] hover:bg-[#001f35] text-amber-400 rounded-xl text-xs font-extrabold shadow-sm transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmittingStudent ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Registrando en BD...</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Matricular en Supabase</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================================= */}
+      {/* MODAL: CREDENCIALES GENERADAS DEL ESTUDIANTE                             */}
+      {/* ======================================================================= */}
+      {createdStudentCreds && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-emerald-200">
+            
+            <div className="bg-emerald-600 text-white p-5 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-6 h-6 text-emerald-200" />
+                <div>
+                  <h3 className="font-extrabold text-base text-white">¡Estudiante Matriculado!</h3>
+                  <p className="text-xs text-emerald-100">Credenciales listas para entregar</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCreatedStudentCreds(null)}
+                className="p-1.5 rounded-xl text-emerald-200 hover:text-white hover:bg-emerald-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Estudiante:</span>
+                  <span className="font-bold text-slate-900">{createdStudentCreds.fullName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Usuario / Cédula:</span>
+                  <span className="font-mono font-bold text-slate-900">{createdStudentCreds.documentId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Correo:</span>
+                  <span className="font-mono text-slate-800">{createdStudentCreds.email}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Contraseña:</span>
+                  <span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    {createdStudentCreds.password}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 font-medium">Nivel Asignado:</span>
+                  <span className="font-bold text-blue-700">Nivel {createdStudentCreds.mcerLevel}</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-slate-200">
+                  <span className="text-slate-500 font-medium">Campus Virtual:</span>
+                  <span className="text-blue-600 font-bold">/campus/login</span>
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = `🏛️ AMERICAN DREAM ENGLISH — CREDENCIALES DE ACCESO\n\n` +
+                      `¡Hola ${createdStudentCreds.fullName}! Tu matrícula ha sido completada.\n\n` +
+                      `📍 Campus Virtual: https://americandreamenglish.com/campus/login\n` +
+                      `👤 Usuario: ${createdStudentCreds.documentId}\n` +
+                      `📧 Correo: ${createdStudentCreds.email}\n` +
+                      `🔑 Contraseña: ${createdStudentCreds.password}\n` +
+                      `📚 Nivel: English Level ${createdStudentCreds.mcerLevel}\n\n` +
+                      `Ingresa al campus para acceder a tus salas de Teams, clases grabadas y talleres.`
+                    navigator.clipboard.writeText(text)
+                    showNotification('¡Credenciales copiadas al portapapeles!')
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  <Copy className="w-4 h-4 text-amber-400" />
+                  <span>Copiar Datos de Acceso</span>
+                </button>
+
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `🏛️ *AMERICAN DREAM ENGLISH — CREDENCIALES DE ACCESO*\n\n` +
+                    `¡Hola ${createdStudentCreds.fullName}! Tu matrícula está activa en la plataforma.\n\n` +
+                    `📍 *Campus Virtual:* https://americandreamenglish.com/campus/login\n` +
+                    `👤 *Usuario:* \`${createdStudentCreds.documentId}\`\n` +
+                    `📧 *Correo:* \`${createdStudentCreds.email}\`\n` +
+                    `🔑 *Contraseña:* \`${createdStudentCreds.password}\`\n` +
+                    `📚 *Nivel:* English Level ${createdStudentCreds.mcerLevel}\n\n` +
+                    `¡Te esperamos en tus clases sincrónicas!`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Enviar por WhatsApp</span>
+                </a>
+              </div>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => setCreatedStudentCreds(null)}
+                  className="text-xs text-slate-500 hover:text-slate-800 font-bold cursor-pointer"
+                >
+                  Entendido y Cerrar
+                </button>
+              </div>
+
             </div>
 
           </div>

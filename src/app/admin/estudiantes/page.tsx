@@ -160,8 +160,8 @@ export default function AdminEstudiantesPage() {
   const supabase = createClient()
 
   // Estados de lista de estudiantes
-  const [students, setStudents] = useState<StudentRecord[]>(INITIAL_STUDENTS)
-  const [loading, setLoading] = useState(false)
+  const [students, setStudents] = useState<StudentRecord[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Estados del modal de registro
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -226,15 +226,16 @@ export default function AdminEstudiantesPage() {
             course_name: sp.course_name || `ENGLISH LEVEL ${sp.mcer_level || '1'} - GENERAL PROGRAM`
           }))
 
-          if (apiStudents.length > 0) {
-            setStudents(apiStudents)
-          } else {
-            setStudents(INITIAL_STUDENTS)
-          }
+          setStudents(apiStudents)
+        } else {
+          setStudents([])
         }
+      } else {
+        setStudents([])
       }
     } catch (e) {
-      console.warn('Aviso: modo demostración con datos locales:', e)
+      console.warn('Aviso al cargar estudiantes desde Supabase:', e)
+      setStudents([])
     } finally {
       setLoading(false)
     }
