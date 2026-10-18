@@ -117,8 +117,8 @@ export default function TeacherCampusPage() {
   const supabase = createClient()
 
   // Estado del docente
-  const [teacherName, setTeacherName] = useState('Lic. Carlos Méndez')
-  const [teacherEmail, setTeacherEmail] = useState('carlos.mendez@americandream.edu.co')
+  const [teacherName, setTeacherName] = useState('Docente Titular')
+  const [teacherEmail, setTeacherEmail] = useState('docente@americandream.edu.co')
   const [activeLevel, setActiveLevel] = useState<'a1' | 'a2' | 'b1' | 'b2'>('a1')
   const [activeTab, setActiveTab] = useState<'live' | 'recordings' | 'materials' | 'grading' | 'forum' | 'students'>('live')
 

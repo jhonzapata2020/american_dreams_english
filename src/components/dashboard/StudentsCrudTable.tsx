@@ -645,7 +645,7 @@ export function StudentsCrudTable({
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-slate-500 text-[11px]">Docente Titular:</span>
-                              <span className="font-semibold text-slate-800 text-[11px]">Lic. Carlos Méndez</span>
+                              <span className="font-semibold text-slate-800 text-[11px]">Docente Titular Asignado</span>
                             </div>
                             <div className="flex items-center justify-between">
                               <span className="text-slate-500 text-[11px]">Matrícula:</span>
@@ -934,10 +934,10 @@ export function StudentsCrudTable({
                                     </span>
                                   </div>
                                   <p className="text-xs font-bold text-slate-800">
-                                    Lic. Carlos Méndez
+                                    Docente Titular Asignado
                                   </p>
                                   <span className="text-[10px] text-slate-400">
-                                    Teacher Anthony (Director)
+                                    Coordinación Académica ADE
                                   </span>
                                 </div>
 

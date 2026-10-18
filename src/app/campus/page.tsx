@@ -114,7 +114,7 @@ export default function CampusVirtualPage() {
       accumulatedPoints: 120,
       maxPoints: 380,
       credits: 3,
-      teacherName: 'Lic. Carlos Méndez',
+      teacherName: 'Docente Titular Asignado',
       nextLiveClass: 'Miércoles 7:00 PM'
     }
   ])
@@ -170,6 +170,26 @@ export default function CampusVirtualPage() {
 
         // Configurar curso matriculado según el nivel del estudiante (A1, A2, B1, B2, C1)
         const cfg = getLevelConfig(detectedLevel)
+        let resolvedTeacher = cfg.teacherName
+
+        try {
+          const { data: dbTeachers } = await supabase
+            .from('profiles')
+            .select('full_name, mcer_level')
+            .eq('role', 'teacher')
+
+          if (dbTeachers && dbTeachers.length > 0) {
+            const currentLvl = (detectedLevel || 'A1').toUpperCase()
+            const matchTeacher = dbTeachers.find(t => t.mcer_level?.toUpperCase() === currentLvl)
+              || dbTeachers.find(t => t.mcer_level?.toUpperCase() === 'ALL')
+              || dbTeachers[0]
+
+            if (matchTeacher?.full_name) {
+              resolvedTeacher = matchTeacher.full_name
+            }
+          }
+        } catch (e) {}
+
         setEnrolledCourses([
           {
             id: cfg.id,
@@ -181,7 +201,7 @@ export default function CampusVirtualPage() {
             accumulatedPoints: 120,
             maxPoints: 380,
             credits: cfg.credits,
-            teacherName: cfg.teacherName,
+            teacherName: resolvedTeacher,
             nextLiveClass: cfg.nextLiveClass
           }
         ])

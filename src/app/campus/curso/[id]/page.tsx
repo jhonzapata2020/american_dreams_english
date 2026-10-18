@@ -334,6 +334,30 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
         const resolved = getLevelConfig(levelKey)
         setCfg(resolved)
 
+        // Sincronizar dinámicamente con el docente titular real registrado en Supabase
+        try {
+          const { data: dbTeachers } = await supabase
+            .from('profiles')
+            .select('id, full_name, role, mcer_level')
+            .eq('role', 'teacher')
+
+          if (dbTeachers && dbTeachers.length > 0) {
+            const currentLvl = levelKey.toUpperCase()
+            const assignedTeacher = dbTeachers.find(t => t.mcer_level?.toUpperCase() === currentLvl)
+              || dbTeachers.find(t => t.mcer_level?.toUpperCase() === 'ALL')
+              || dbTeachers[0]
+
+            if (assignedTeacher?.full_name) {
+              setCfg(prev => ({
+                ...prev,
+                teacherName: assignedTeacher.full_name
+              }))
+            }
+          }
+        } catch (tErr) {
+          console.warn('Aviso al sincronizar docente titular:', tErr)
+        }
+
         if (typeof window !== 'undefined') {
           // 1. Grabaciones de Teams para este nivel
           const savedRecs = localStorage.getItem(`ade_teacher_recordings_${levelKey}`)
@@ -872,7 +896,7 @@ export default function AulaVirtualPage({ params }: CourseDetailProps) {
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                   <span className="text-emerald-300 font-bold">En vivo Teams</span>
                   <span className="text-white/30">•</span>
-                  <span className="truncate">{cfg.teacherName.replace('Lic. ', '')}</span>
+                  <span className="truncate">{cfg.teacherName}</span>
                 </div>
               </div>
 
