@@ -10,9 +10,7 @@ import {
   Pen, 
   RotateCcw, 
   Trash2, 
-  X,
-  ChevronUp,
-  ChevronDown
+  X
 } from 'lucide-react'
 
 type ToolMode = 'navigate' | 'laser' | 'pen'
@@ -33,14 +31,14 @@ interface Stroke {
 export const PresentationAnnotationToolbar: React.FC = () => {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
-  const [toolMode, setToolMode] = useState<ToolMode>('navigate')
+  const [toolMode, setToolMode] = useState<ToolMode>('laser')
   const [selectedColor, setSelectedColor] = useState('#FF3B30')
   const [strokeWidth, setStrokeWidth] = useState<'fino' | 'med'>('fino')
   
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const strokesRef = useRef<Stroke[]>([])
   const currentStrokeRef = useRef<Stroke | null>(null)
-  const laserTrailRef = useRef<Point[]>([])
+  const mousePosRef = useRef<{ x: number; y: number; visible: boolean }>({ x: -100, y: -100, visible: false })
   const animFrameIdRef = useRef<number | null>(null)
   const isMouseDownRef = useRef(false)
 
@@ -68,7 +66,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange)
   }, [])
 
-  // Canvas size sync
+  // Canvas size sync with HiDPI support
   const updateCanvasSize = useCallback(() => {
     if (!canvasRef.current) return
     const canvas = canvasRef.current
@@ -87,7 +85,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
     return () => window.removeEventListener('resize', updateCanvasSize)
   }, [updateCanvasSize])
 
-  // Redraw canvas
+  // Redraw canvas: renders persistent strokes + in-progress stroke + PowerPoint laser dot
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -97,9 +95,9 @@ export const PresentationAnnotationToolbar: React.FC = () => {
     const dpr = window.devicePixelRatio || 1
     ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr)
 
-    // Render persistent pen strokes
+    // 1. Render all persistent strokes (both laser drawings and pen drawings)
     strokesRef.current.forEach((stroke) => {
-      if (stroke.points.length < 2) return
+      if (stroke.points.length === 0) return
 
       ctx.save()
       ctx.beginPath()
@@ -112,18 +110,24 @@ export const PresentationAnnotationToolbar: React.FC = () => {
       ctx.shadowColor = stroke.color
       ctx.shadowBlur = stroke.isLaser ? 14 : 6
 
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
-      for (let i = 1; i < stroke.points.length; i++) {
-        const xc = (stroke.points[i].x + stroke.points[i - 1].x) / 2
-        const yc = (stroke.points[i].y + stroke.points[i - 1].y) / 2
-        ctx.quadraticCurveTo(stroke.points[i - 1].x, stroke.points[i - 1].y, xc, yc)
+      if (stroke.points.length === 1) {
+        ctx.fillStyle = stroke.color
+        ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.width / 2, 0, Math.PI * 2)
+        ctx.fill()
+      } else {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
+        for (let i = 1; i < stroke.points.length; i++) {
+          const xc = (stroke.points[i].x + stroke.points[i - 1].x) / 2
+          const yc = (stroke.points[i].y + stroke.points[i - 1].y) / 2
+          ctx.quadraticCurveTo(stroke.points[i - 1].x, stroke.points[i - 1].y, xc, yc)
+        }
+        ctx.stroke()
       }
-      ctx.stroke()
       ctx.restore()
     })
 
-    // Render current in-progress stroke
-    if (currentStrokeRef.current && currentStrokeRef.current.points.length >= 2) {
+    // 2. Render current in-progress stroke while mouse is pressed down
+    if (currentStrokeRef.current && currentStrokeRef.current.points.length > 0) {
       const stroke = currentStrokeRef.current
       ctx.save()
       ctx.beginPath()
@@ -134,70 +138,59 @@ export const PresentationAnnotationToolbar: React.FC = () => {
       ctx.shadowColor = stroke.color
       ctx.shadowBlur = stroke.isLaser ? 16 : 8
 
-      ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
-      for (let i = 1; i < stroke.points.length; i++) {
-        const xc = (stroke.points[i].x + stroke.points[i - 1].x) / 2
-        const yc = (stroke.points[i].y + stroke.points[i - 1].y) / 2
-        ctx.quadraticCurveTo(stroke.points[i - 1].x, stroke.points[i - 1].y, xc, yc)
+      if (stroke.points.length === 1) {
+        ctx.fillStyle = stroke.color
+        ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.width / 2, 0, Math.PI * 2)
+        ctx.fill()
+      } else {
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y)
+        for (let i = 1; i < stroke.points.length; i++) {
+          const xc = (stroke.points[i].x + stroke.points[i - 1].x) / 2
+          const yc = (stroke.points[i].y + stroke.points[i - 1].y) / 2
+          ctx.quadraticCurveTo(stroke.points[i - 1].x, stroke.points[i - 1].y, xc, yc)
+        }
+        ctx.stroke()
       }
-      ctx.stroke()
       ctx.restore()
     }
 
-    // Render fading laser pointer trail
-    if (laserTrailRef.current.length > 0) {
-      const now = Date.now()
-      // Filter out points older than 1200ms
-      laserTrailRef.current = laserTrailRef.current.filter((p) => now - (p.time || 0) < 1200)
+    // 3. Render PowerPoint / Teams style Laser Pointer Dot (only visible when in laser mode)
+    // NO trailing curves when just moving freely. Just the crisp, glowing red laser dot!
+    if (toolMode === 'laser' && mousePosRef.current.visible) {
+      const { x: lx, y: ly } = mousePosRef.current
+      ctx.save()
 
-      if (laserTrailRef.current.length > 1) {
-        ctx.save()
-        for (let i = 1; i < laserTrailRef.current.length; i++) {
-          const p1 = laserTrailRef.current[i - 1]
-          const p2 = laserTrailRef.current[i]
-          const age = now - (p2.time || now)
-          const opacity = Math.max(0, 1 - age / 1200)
+      // Soft luminous outer halo
+      const outerGrad = ctx.createRadialGradient(lx, ly, 1, lx, ly, 20)
+      outerGrad.addColorStop(0, 'rgba(255, 59, 48, 0.85)')
+      outerGrad.addColorStop(0.35, 'rgba(255, 59, 48, 0.35)')
+      outerGrad.addColorStop(1, 'rgba(255, 59, 48, 0)')
 
-          ctx.beginPath()
-          ctx.strokeStyle = `rgba(255, 59, 48, ${opacity})`
-          ctx.lineWidth = 4 * opacity + 1
-          ctx.lineCap = 'round'
-          ctx.shadowColor = '#FF3B30'
-          ctx.shadowBlur = 14 * opacity
+      ctx.fillStyle = outerGrad
+      ctx.beginPath()
+      ctx.arc(lx, ly, 20, 0, Math.PI * 2)
+      ctx.fill()
 
-          ctx.moveTo(p1.x, p1.y)
-          ctx.lineTo(p2.x, p2.y)
-          ctx.stroke()
-        }
-        ctx.restore()
-      }
+      // Intense laser red core
+      ctx.shadowColor = '#FF3B30'
+      ctx.shadowBlur = 12
+      ctx.fillStyle = '#FF3B30'
+      ctx.beginPath()
+      ctx.arc(lx, ly, 5.5, 0, Math.PI * 2)
+      ctx.fill()
 
-      // Glowing laser dot at the latest point
-      const lastPoint = laserTrailRef.current[laserTrailRef.current.length - 1]
-      if (lastPoint && toolMode === 'laser') {
-        ctx.save()
-        // Outer glow
-        const gradient = ctx.createRadialGradient(lastPoint.x, lastPoint.y, 2, lastPoint.x, lastPoint.y, 16)
-        gradient.addColorStop(0, '#FFFFFF')
-        gradient.addColorStop(0.3, '#FF3B30')
-        gradient.addColorStop(1, 'rgba(255, 59, 48, 0)')
+      // Hot white center spot
+      ctx.shadowBlur = 0
+      ctx.fillStyle = '#FFFFFF'
+      ctx.beginPath()
+      ctx.arc(lx, ly, 2.2, 0, Math.PI * 2)
+      ctx.fill()
 
-        ctx.fillStyle = gradient
-        ctx.beginPath()
-        ctx.arc(lastPoint.x, lastPoint.y, 16, 0, Math.PI * 2)
-        ctx.fill()
-
-        // White core
-        ctx.fillStyle = '#FFFFFF'
-        ctx.beginPath()
-        ctx.arc(lastPoint.x, lastPoint.y, 3.5, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.restore()
-      }
+      ctx.restore()
     }
   }, [toolMode])
 
-  // Animation frame loop for smooth laser fading
+  // Continuous animation frame loop to render laser position & strokes ultra smoothly
   useEffect(() => {
     let active = true
     const loop = () => {
@@ -214,60 +207,97 @@ export const PresentationAnnotationToolbar: React.FC = () => {
     }
   }, [renderCanvas])
 
-  // Mouse event handlers for drawing
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (toolMode === 'navigate') return
+  // Coordinate helper for both Mouse & Touch events
+  const getCoordinates = (
+    e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>
+  ): { x: number; y: number } | null => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    const rect = canvas.getBoundingClientRect()
+    if ('touches' in e && e.touches.length > 0) {
+      return {
+        x: e.touches[0].clientX - rect.left,
+        y: e.touches[0].clientY - rect.top
+      }
+    } else if ('clientX' in e) {
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      }
+    }
+    return null
+  }
+
+  // Pointer Down: Start drawing stroke (works in both laser and pen mode)
+  const handleStart = (coords: { x: number; y: number } | null) => {
+    if (toolMode === 'navigate' || !coords) return
     isMouseDownRef.current = true
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
+    mousePosRef.current = { x: coords.x, y: coords.y, visible: true }
 
     currentStrokeRef.current = {
-      points: [{ x, y, time: Date.now() }],
-      color: selectedColor,
+      points: [{ x: coords.x, y: coords.y, time: Date.now() }],
+      color: toolMode === 'laser' ? '#FF3B30' : selectedColor,
       width: activeWidth,
       isLaser: toolMode === 'laser'
     }
+    renderCanvas()
   }
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const rect = canvasRef.current?.getBoundingClientRect()
-    if (!rect) return
-    const x = e.clientX - rect.left
-    const y = e.clientY - rect.top
-    const now = Date.now()
+  // Pointer Move:
+  // - If mouse is NOT pressed down: just moves the PowerPoint laser pointer dot (NO trails left behind)
+  // - If mouse IS pressed down: records drawing trajectory
+  const handleMove = (coords: { x: number; y: number } | null) => {
+    if (!coords) return
+    mousePosRef.current = { x: coords.x, y: coords.y, visible: true }
 
-    // Record laser trail point
-    if (toolMode === 'laser') {
-      laserTrailRef.current.push({ x, y, time: now })
-    }
-
-    if (!isMouseDownRef.current || !currentStrokeRef.current) return
-    currentStrokeRef.current.points.push({ x, y, time: now })
-  }
-
-  const handleMouseUp = () => {
     if (isMouseDownRef.current && currentStrokeRef.current) {
-      if (toolMode === 'pen') {
-        // Persist pen stroke
-        strokesRef.current.push(currentStrokeRef.current)
+      currentStrokeRef.current.points.push({ x: coords.x, y: coords.y, time: Date.now() })
+    }
+  }
+
+  // Pointer Up: Persist the drawing stroke permanently on screen!
+  const handleEnd = () => {
+    if (isMouseDownRef.current && currentStrokeRef.current) {
+      if (currentStrokeRef.current.points.length === 1) {
+        const p = currentStrokeRef.current.points[0]
+        currentStrokeRef.current.points.push({ x: p.x + 0.5, y: p.y + 0.5, time: p.time })
       }
+      strokesRef.current.push(currentStrokeRef.current)
       currentStrokeRef.current = null
     }
     isMouseDownRef.current = false
+    renderCanvas()
   }
 
-  const handleUndo = () => {
+  const handleMouseLeave = () => {
+    mousePosRef.current.visible = false
+    handleEnd()
+  }
+
+  // Undo last stroke (Ctrl + Z or Undo button)
+  const handleUndo = useCallback(() => {
     strokesRef.current.pop()
     renderCanvas()
-  }
+  }, [renderCanvas])
 
-  const handleClear = () => {
+  // Clear all annotations
+  const handleClear = useCallback(() => {
     strokesRef.current = []
-    laserTrailRef.current = []
+    currentStrokeRef.current = null
     renderCanvas()
-  }
+  }, [renderCanvas])
+
+  // Global keyboard shortcuts (Ctrl+Z to undo, Esc to exit or close)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault()
+        handleUndo()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handleUndo])
 
   // Toggle fullscreen mode
   const toggleFullscreen = async () => {
@@ -282,26 +312,25 @@ export const PresentationAnnotationToolbar: React.FC = () => {
       }
     } catch (err) {
       console.warn('Fullscreen toggle not supported or blocked:', err)
-      // Fallback: toggle presentation mode inside page
       setIsOpen(!isOpen)
     }
   }
 
   return (
     <>
-      {/* 1. TOP TRIGGER BUTTON (MOUNTED IN HEADER) */}
+      {/* 1. BOTÓN SUPERIOR EN HEADER (EXPANDIR PANTALLA) */}
       <div className="inline-flex items-center gap-2">
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           type="button"
           onClick={toggleFullscreen}
-          className={`px-3 sm:px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer ${
+          className={`px-3 sm:px-3.5 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-2xs cursor-pointer ${
             isFullscreen
               ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 border border-amber-300 ring-2 ring-amber-400/30'
               : 'bg-white hover:bg-slate-50 text-slate-700 border border-slate-200/90'
           }`}
-          title={isFullscreen ? 'Salir de pantalla completa' : 'Presentar en pantalla completa con herramientas de láser y dibujo'}
+          title={isFullscreen ? 'Salir de pantalla completa' : 'Presentar en pantalla completa con puntero láser PowerPoint y anotaciones'}
         >
           {isFullscreen ? (
             <>
@@ -317,7 +346,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
           )}
         </motion.button>
 
-        {/* Small launcher to open toolbar even if not in native fullscreen */}
+        {/* Botón rápido para abrir/cerrar barra sin forzar fullscreen si se desea */}
         {!isFullscreen && (
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -326,25 +355,35 @@ export const PresentationAnnotationToolbar: React.FC = () => {
             onClick={() => setIsOpen(!isOpen)}
             className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
               isOpen 
-                ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-600 border-slate-200'
+                ? 'bg-rose-50 text-rose-700 border-rose-200 ring-2 ring-rose-400/20' 
+                : 'bg-white hover:bg-slate-50 text-slate-600 border-slate-200'
             }`}
-            title="Herramientas de Láser y Marcación"
+            title="Abrir barra de puntero láser y anotaciones"
           >
             <Sparkles className="w-4 h-4 text-rose-600" />
           </motion.button>
         )}
       </div>
 
-      {/* 2. FULLSCREEN TRANSPARENT CANVAS OVERLAY */}
+      {/* 2. LIENZO TRANSPARENTE ULTRA-FLUIDO */}
       <canvas
         ref={canvasRef}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
+        onMouseDown={(e) => handleStart(getCoordinates(e))}
+        onMouseMove={(e) => handleMove(getCoordinates(e))}
+        onMouseUp={handleEnd}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={(e) => handleStart(getCoordinates(e))}
+        onTouchMove={(e) => handleMove(getCoordinates(e))}
+        onTouchEnd={handleEnd}
         className={`fixed inset-0 z-[99990] transition-opacity duration-150 ${
           isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        } ${toolMode === 'navigate' ? 'pointer-events-none' : 'cursor-crosshair'}`}
+        } ${
+          toolMode === 'navigate' 
+            ? 'pointer-events-none' 
+            : toolMode === 'laser' 
+            ? 'cursor-none' 
+            : 'cursor-crosshair'
+        }`}
         style={{
           width: '100vw',
           height: '100vh',
@@ -352,7 +391,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
         }}
       />
 
-      {/* 3. FLOATING PRESENTATION TOOLBAR (BOTTOM-RIGHT EXACTLY LIKE PSP SCREENSHOT) */}
+      {/* 3. CÁPSULA FLOTANTE DE PRESENTACIÓN (EXACTA AL SCREENSHOT PSP) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -362,24 +401,24 @@ export const PresentationAnnotationToolbar: React.FC = () => {
             transition={{ type: 'spring', stiffness: 450, damping: 28 }}
             className="fixed bottom-5 right-5 z-[99999] select-none pointer-events-auto"
           >
-            <div className="flex items-center gap-2 p-1.5 sm:p-2 bg-slate-950/92 backdrop-blur-2xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_25px_rgba(255,59,48,0.25)] rounded-2xl text-white">
+            <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 sm:p-2 bg-slate-950/92 backdrop-blur-2xl border border-white/20 shadow-[0_20px_50px_rgba(0,0,0,0.85),0_0_25px_rgba(255,59,48,0.25)] rounded-2xl text-white">
               
-              {/* Mode: Navegar */}
+              {/* Botón Navegar */}
               <button
                 type="button"
                 onClick={() => setToolMode('navigate')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                   toolMode === 'navigate'
-                    ? 'bg-white/20 text-white shadow-sm'
+                    ? 'bg-white/20 text-white shadow-sm ring-1 ring-white/30'
                     : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
-                title="Modo interactivo (permite hacer clic en la plataforma)"
+                title="Modo interactivo: interactúa con clics, scrolls y botones del dashboard"
               >
                 <MousePointer className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Navegar</span>
               </button>
 
-              {/* Mode: Láser (Glowing Coral/Red Pill) */}
+              {/* Botón Láser PowerPoint */}
               <button
                 type="button"
                 onClick={() => setToolMode('laser')}
@@ -388,13 +427,13 @@ export const PresentationAnnotationToolbar: React.FC = () => {
                     ? 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-lg shadow-red-500/40 ring-1 ring-red-300'
                     : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
-                title="Puntero láser con estela luminosa"
+                title="Láser PowerPoint: mueve libre para señalar sin estelas. Presiona y arrastra para dibujar figuras permanentes."
               >
                 <Sparkles className="w-3.5 h-3.5 text-white" />
                 <span>Láser</span>
               </button>
 
-              {/* Mode: Lápiz */}
+              {/* Botón Lápiz */}
               <button
                 type="button"
                 onClick={() => setToolMode('pen')}
@@ -403,15 +442,15 @@ export const PresentationAnnotationToolbar: React.FC = () => {
                     ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md ring-1 ring-blue-300'
                     : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
-                title="Lápiz para anotaciones libres y flechas"
+                title="Lápiz libre con selector de color"
               >
                 <Pen className="w-3.5 h-3.5" />
-                <span>Lápiz</span>
+                <span className="hidden sm:inline">Lápiz</span>
               </button>
 
               <div className="h-5 w-px bg-white/15 mx-0.5" />
 
-              {/* Color Picker Dots */}
+              {/* Selector de Color */}
               <div className="flex items-center gap-1.5">
                 {colors.map((c) => (
                   <button
@@ -431,7 +470,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
 
               <div className="h-5 w-px bg-white/15 mx-0.5" />
 
-              {/* Thickness: Fino / Med */}
+              {/* Selector de Grosor: Fino / Med */}
               <div className="flex items-center bg-white/10 p-0.5 rounded-lg text-[10px] font-bold">
                 <button
                   type="button"
@@ -455,7 +494,7 @@ export const PresentationAnnotationToolbar: React.FC = () => {
 
               <div className="h-5 w-px bg-white/15 mx-0.5" />
 
-              {/* Undo Button */}
+              {/* Botón Deshacer (Undo) */}
               <button
                 type="button"
                 onClick={handleUndo}
@@ -465,25 +504,25 @@ export const PresentationAnnotationToolbar: React.FC = () => {
                 <RotateCcw className="w-3.5 h-3.5" />
               </button>
 
-              {/* Clear / Trash Button */}
+              {/* Botón Limpiar Todo (Trash) */}
               <button
                 type="button"
                 onClick={handleClear}
                 className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors cursor-pointer"
-                title="Borrar todos los trazos"
+                title="Borrar todas las marcas y figuras"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
 
-              {/* Close Toolbar */}
+              {/* Botón Cerrar */}
               <button
                 type="button"
                 onClick={() => {
                   setIsOpen(false)
                   setToolMode('navigate')
                 }}
-                className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer ml-1"
-                title="Ocultar barra de herramientas"
+                className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer ml-0.5"
+                title="Cerrar barra de herramientas"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
