@@ -33,6 +33,48 @@ export function LoginView() {
   React.useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
+      const roleParam = params.get('role') || params.get('mode')
+      const emailParam = params.get('email') || params.get('user') || params.get('identifier')
+      const passParam = params.get('pass') || params.get('password')
+
+      let targetRole = roleParam
+      let targetEmail = emailParam
+      let targetPass = passParam
+
+      try {
+        if (!targetRole && localStorage.getItem('campus_prefill_role')) {
+          targetRole = localStorage.getItem('campus_prefill_role')
+        }
+        if (!targetEmail && localStorage.getItem('campus_prefill_user')) {
+          targetEmail = localStorage.getItem('campus_prefill_user')
+        }
+        if (!targetPass && localStorage.getItem('campus_prefill_pass')) {
+          targetPass = localStorage.getItem('campus_prefill_pass')
+        }
+      } catch (e) {
+        // Silencioso
+      }
+
+      if (targetRole === 'teacher' || targetRole === 'docente') {
+        setSelectedRole('teacher')
+      } else if (targetRole === 'student' || targetRole === 'estudiante') {
+        setSelectedRole('student')
+      }
+
+      if (targetEmail) {
+        setEmail(targetEmail)
+      }
+      if (targetPass) {
+        setPassword(targetPass)
+      }
+
+      if (targetEmail && targetPass) {
+        setMessage({
+          type: 'success',
+          text: '✓ Credenciales precargadas en el formulario. Listo para ingresar.'
+        })
+      }
+
       if (params.has('error') || params.has('unauthorized')) {
         setMessage({
           type: 'error',

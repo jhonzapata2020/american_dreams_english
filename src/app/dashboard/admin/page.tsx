@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '../../../utils/supabase/client'
@@ -330,9 +330,24 @@ export default function AdminDashboardPage() {
   const [teacherToDelete, setTeacherToDelete] = useState<TeacherItem | null>(null)
   const [isDeletingTeacher, setIsDeletingTeacher] = useState(false)
   const [copiedCredentials, setCopiedCredentials] = useState(false)
+  const [copiedTeacherId, setCopiedTeacherId] = useState<string | null>(null)
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Floating Toast State
-  const [toast, setToast] = useState<{ title: string; message: string } | null>(null)
+  // Floating Toast State with rich details & animation support
+  interface AdminToastData {
+    title: string
+    message: string
+    type?: 'success' | 'error' | 'info'
+    details?: {
+      teacherName?: string
+      user?: string
+      pass?: string
+      actionUrl?: string
+      actionText?: string
+    }
+  }
+
+  const [toast, setToast] = useState<AdminToastData | null>(null)
 
   // Live Clock Effect
   useEffect(() => {
@@ -1032,27 +1047,59 @@ export default function AdminDashboardPage() {
   }
 
   const handleCopyCredentials = (teacher: TeacherItem, customPass?: string) => {
-    const pass = customPass || (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
+    const rawPass = customPass || (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
+    const cleanPass = rawPass.includes('Docente2026*') ? 'Docente2026*' : rawPass
+    const campusTeacherUrl = `/campus/login?role=teacher&email=${encodeURIComponent(teacher.email)}&pass=${encodeURIComponent(cleanPass)}`
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://americandreamenglish.com'
+    const fullDirectUrl = `${origin}${campusTeacherUrl}`
+
     const text = 
       `🏛️ AMERICAN DREAM ENGLISH — CREDENCIALES DOCENTE TITULAR\n\n` +
       `Estimado(a) ${teacher.full_name},\n` +
       `Tu cuenta docente está activa en la plataforma:\n\n` +
-      `🔗 Portal de Acceso: https://americandreamenglish.com/login\n` +
+      `🔗 Portal de Acceso Directo: ${fullDirectUrl}\n` +
       `📧 Usuario: ${teacher.email}\n` +
-      `🔑 Contraseña Inicial: ${pass}\n` +
+      `🔑 Contraseña Inicial: ${cleanPass}\n` +
       `📚 Nivel Asignado: ${teacher.mcer_level}\n\n` +
-      `Al iniciar sesión ingresarás directamente al panel de control de tu aula, Teams y calificaciones.`
+      `Al abrir el enlace tus datos quedarán cargados automáticamente en el Portal Docente para ingresar a Teams y calificaciones.`
 
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text)
     }
+
+    try {
+      localStorage.setItem('campus_prefill_role', 'teacher')
+      localStorage.setItem('campus_prefill_user', teacher.email)
+      localStorage.setItem('campus_prefill_pass', cleanPass)
+      localStorage.setItem('campus_prefill_name', teacher.full_name)
+    } catch (e) {
+      // Silencioso
+    }
+
     setCopiedCredentials(true)
-    setTimeout(() => setCopiedCredentials(false), 2500)
+    setCopiedTeacherId(teacher.id)
+    setTimeout(() => {
+      setCopiedCredentials(false)
+      setCopiedTeacherId(null)
+    }, 2800)
+
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current)
+    }
+
     setToast({
-      title: '¡Credenciales copiadas!',
-      message: 'Texto de acceso copiado al portapapeles listo para enviar por WhatsApp o correo.'
+      title: '¡Credenciales copiadas al portapapeles!',
+      message: 'Texto de acceso copiado. Quedan precargadas para ingresar directamente al formulario del Portal Docente.',
+      type: 'success',
+      details: {
+        teacherName: teacher.full_name,
+        user: teacher.email,
+        pass: cleanPass,
+        actionUrl: campusTeacherUrl,
+        actionText: 'Abrir Portal Docente (Auto-Completado)'
+      }
     })
-    setTimeout(() => setToast(null), 3500)
+    toastTimeoutRef.current = setTimeout(() => setToast(null), 7000)
   }
 
   const filteredTeachers = teachersList.filter((teacher) => {
@@ -1106,28 +1153,180 @@ export default function AdminDashboardPage() {
     >
       <div className="relative min-h-full text-slate-800 font-sans select-none space-y-6">
 
-        {/* FLOATING SUCCESS TOAST NOTIFICATION */}
-        {toast && (
-          <div className="fixed bottom-6 right-6 z-[9999] bg-white border border-emerald-300 text-slate-900 p-4 rounded-2xl shadow-xl shadow-slate-300/40 flex items-center justify-between gap-4 animate-fadeIn max-w-sm backdrop-blur-md">
-            <div className="flex items-center gap-3.5">
-              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-200 flex-shrink-0">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-              </div>
-              <div>
-                <h4 className="text-xs font-extrabold text-slate-900">{toast.title}</h4>
-                <p className="text-[11px] text-slate-600 mt-0.5">{toast.message}</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setToast(null)}
-              className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors flex-shrink-0"
-              title="Cerrar notificación"
+        {/* FLOATING SUCCESS TOAST NOTIFICATION WITH SMOOTH FRAMER MOTION ANIMATION */}
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              initial={{ opacity: 0, y: -35, scale: 0.92 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -25, scale: 0.95 }}
+              transition={{
+                type: 'spring',
+                stiffness: 380,
+                damping: 26,
+                mass: 0.8
+              }}
+              className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] w-[94vw] max-w-lg select-none"
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+              <div
+                className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 backdrop-blur-2xl border-2 transition-all ${
+                  toast.type === 'error'
+                    ? 'bg-slate-950/95 border-red-500 shadow-[0_25px_60px_-10px_rgba(239,68,68,0.4)] ring-4 ring-red-500/20 text-white'
+                    : 'bg-slate-950/95 border-emerald-400 shadow-[0_25px_60px_-10px_rgba(16,185,129,0.35)] ring-4 ring-emerald-500/20 text-white'
+                }`}
+              >
+                {/* Header row */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3.5">
+                    {/* Glowing animated badge */}
+                    <motion.div
+                      initial={{ scale: 0, rotate: -25 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: 'spring', stiffness: 450, damping: 20, delay: 0.05 }}
+                      className="relative flex-shrink-0 mt-0.5"
+                    >
+                      <div
+                        className={`absolute inset-0 rounded-2xl blur-md animate-pulse ${
+                          toast.type === 'error' ? 'bg-red-500/50' : 'bg-emerald-400/50'
+                        }`}
+                      />
+                      <div
+                        className={`relative p-3 rounded-2xl shadow-lg border flex items-center justify-center ${
+                          toast.type === 'error'
+                            ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white border-red-300/40'
+                            : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-emerald-300/40'
+                        }`}
+                      >
+                        {toast.type === 'error' ? (
+                          <AlertTriangle className="w-6 h-6 text-white stroke-[2.5]" />
+                        ) : (
+                          <CheckCircle2 className="w-6 h-6 text-white stroke-[2.5]" />
+                        )}
+                      </div>
+                    </motion.div>
+
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase border ${
+                            toast.type === 'error'
+                              ? 'bg-red-500/20 text-red-300 border-red-400/40'
+                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+                          }`}
+                        >
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full animate-ping ${
+                              toast.type === 'error' ? 'bg-red-400' : 'bg-emerald-400'
+                            }`}
+                          />
+                          {toast.type === 'error' ? 'Atención' : '¡Portapapeles Listo!'}
+                        </span>
+                      </div>
+                      <h4 className="text-sm sm:text-base font-extrabold text-white mt-1.5 tracking-tight leading-snug">
+                        {toast.title}
+                      </h4>
+                      <p className="text-xs text-slate-300 mt-1 leading-relaxed font-normal">
+                        {toast.message}
+                      </p>
+                    </div>
+                  </div>
+
+                  <motion.button
+                    whileHover={{ scale: 1.15, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
+                    type="button"
+                    onClick={() => {
+                      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
+                      setToast(null)
+                    }}
+                    className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 transition-colors border border-slate-800 cursor-pointer flex-shrink-0"
+                    title="Cerrar notificación"
+                  >
+                    <X className="w-4 h-4" />
+                  </motion.button>
+                </div>
+
+                {/* Rich credentials details card if available */}
+                {toast.details && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.12, duration: 0.25 }}
+                    className="mt-4 bg-slate-900/90 rounded-2xl p-3.5 border border-emerald-500/30 space-y-3"
+                  >
+                    {toast.details.teacherName && (
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800/80">
+                        <span className="text-slate-400 font-medium">Docente Titular:</span>
+                        <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                          <UserCheck className="w-3.5 h-3.5" />
+                          {toast.details.teacherName}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="bg-slate-950/90 p-2.5 rounded-xl border border-slate-800">
+                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Usuario / Email</div>
+                        <div className="font-mono text-slate-100 font-bold truncate mt-0.5 select-all text-xs" title={toast.details.user}>
+                          {toast.details.user}
+                        </div>
+                      </div>
+
+                      <div className="bg-slate-950/90 p-2.5 rounded-xl border border-slate-800">
+                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Contraseña Inicial</div>
+                        <div className="font-mono text-emerald-400 font-extrabold truncate mt-0.5 select-all text-xs" title={toast.details.pass}>
+                          {toast.details.pass}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-1 flex items-center gap-2">
+                      <motion.a
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        href={toast.details.actionUrl || '/login'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center gap-2 py-2 px-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <span>{toast.details.actionText || 'Ir al Campus (Login)'}</span>
+                      </motion.a>
+
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                        onClick={() => {
+                          if (typeof navigator !== 'undefined' && navigator.clipboard && toast.details?.pass) {
+                            navigator.clipboard.writeText(toast.details.pass)
+                          }
+                        }}
+                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors cursor-pointer"
+                        title="Copiar solo la contraseña"
+                      >
+                        <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Solo Clave</span>
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Smooth countdown progress bar */}
+                <motion.div
+                  initial={{ width: '100%' }}
+                  animate={{ width: '0%' }}
+                  transition={{ duration: 6, ease: 'linear' }}
+                  className={`absolute bottom-0 left-0 h-1 ${
+                    toast.type === 'error'
+                      ? 'bg-gradient-to-r from-red-500 to-rose-400'
+                      : 'bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500'
+                  }`}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* STYLED CONFIRMATION MODAL FOR LEAD DELETION */}
         {leadToDelete && (
@@ -2606,15 +2805,44 @@ export default function AdminDashboardPage() {
                         {/* ACCIONES DEL DOCENTE */}
                         <div className="grid grid-cols-3 gap-2 pt-3.5 border-t border-slate-100 mt-4 relative z-10">
                           <motion.button
-                            whileHover={{ scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.94 }}
                             type="button"
                             onClick={() => handleCopyCredentials(teacher)}
-                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-[11px] font-semibold transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
-                            title="Copiar credenciales de acceso"
+                            className={`flex items-center justify-center gap-1 py-2 px-2 rounded-xl text-[11px] font-bold transition-all duration-300 cursor-pointer shadow-2xs ${
+                              copiedTeacherId === teacher.id
+                                ? 'bg-emerald-600 text-white border border-emerald-500 shadow-md shadow-emerald-500/30 ring-2 ring-emerald-400'
+                                : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/80'
+                            }`}
+                            title="Copiar credenciales de acceso para el campus"
                           >
-                            <Copy className="w-3.5 h-3.5 text-slate-500" />
-                            <span>Accesos</span>
+                            <AnimatePresence mode="wait" initial={false}>
+                              {copiedTeacherId === teacher.id ? (
+                                <motion.span
+                                  key="copied"
+                                  initial={{ opacity: 0, scale: 0.7 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.7 }}
+                                  transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                                  className="flex items-center gap-1 text-white"
+                                >
+                                  <Check className="w-3.5 h-3.5 stroke-[3] animate-bounce" />
+                                  <span>¡Copiado!</span>
+                                </motion.span>
+                              ) : (
+                                <motion.span
+                                  key="idle"
+                                  initial={{ opacity: 0, scale: 0.7 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.7 }}
+                                  transition={{ duration: 0.15 }}
+                                  className="flex items-center gap-1 text-slate-700"
+                                >
+                                  <Copy className="w-3.5 h-3.5 text-slate-500" />
+                                  <span>Accesos</span>
+                                </motion.span>
+                              )}
+                            </AnimatePresence>
                           </motion.button>
 
                           {teacher.phone ? (
@@ -2623,17 +2851,20 @@ export default function AdminDashboardPage() {
                               whileTap={{ scale: 0.97 }}
                               type="button"
                               onClick={() => {
-                                const pass = (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
+                                const rawPass = (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
+                                const cleanPass = rawPass.includes('Docente2026*') ? 'Docente2026*' : rawPass
                                 const cleanPhone = teacher.phone ? teacher.phone.replace(/\D/g, '') : ''
+                                const origin = typeof window !== 'undefined' ? window.location.origin : 'https://americandreamenglish.com'
+                                const directLoginUrl = `${origin}/campus/login?role=teacher&email=${encodeURIComponent(teacher.email)}&pass=${encodeURIComponent(cleanPass)}`
                                 const msg = encodeURIComponent(
                                   `🏛️ *AMERICAN DREAM ENGLISH — ACCESO DOCENTE TITULAR*\n\n` +
                                   `Estimado(a) *${teacher.full_name}*,\n` +
                                   `Tus accesos al Campus Docente están habilitados:\n\n` +
-                                  `🔗 *Portal:* https://americandreamenglish.com/login\n` +
+                                  `🔗 *Portal de Acceso Directo:* ${directLoginUrl}\n` +
                                   `📧 *Usuario:* ${teacher.email}\n` +
-                                  `🔑 *Contraseña:* ${pass}\n` +
+                                  `🔑 *Contraseña:* ${cleanPass}\n` +
                                   `📚 *Nivel Asignado:* ${teacher.mcer_level}\n\n` +
-                                  `Al ingresar accederás de inmediato a tu sala Teams, calificador y grabaciones.`
+                                  `Al hacer clic en el enlace tus datos quedarán cargados automáticamente en el Portal Docente para ingresar de inmediato.`
                                 )
                                 window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
                               }}
