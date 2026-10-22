@@ -1157,28 +1157,28 @@ export default function AdminDashboardPage() {
         <AnimatePresence>
           {toast && (
             <motion.div
-              initial={{ opacity: 0, y: -35, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -25, scale: 0.95 }}
+              initial={{ opacity: 0, y: 45, scale: 0.88, x: 20 }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
+              exit={{ opacity: 0, y: 35, scale: 0.9, x: 20 }}
               transition={{
                 type: 'spring',
-                stiffness: 380,
-                damping: 26,
-                mass: 0.8
+                stiffness: 420,
+                damping: 25,
+                mass: 0.7
               }}
-              className="fixed top-6 left-1/2 -translate-x-1/2 z-[9999] w-[94vw] max-w-lg select-none"
+              className="fixed bottom-6 right-6 z-[99999] w-[94vw] max-w-md select-none"
             >
               <div
-                className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 backdrop-blur-2xl border-2 transition-all ${
+                className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 border-2 transition-all ${
                   toast.type === 'error'
-                    ? 'bg-slate-950/95 border-red-500 shadow-[0_25px_60px_-10px_rgba(239,68,68,0.4)] ring-4 ring-red-500/20 text-white'
-                    : 'bg-slate-950/95 border-emerald-400 shadow-[0_25px_60px_-10px_rgba(16,185,129,0.35)] ring-4 ring-emerald-500/20 text-white'
+                    ? 'bg-gradient-to-br from-red-600 via-rose-700 to-red-950 text-white border-red-300 shadow-[0_25px_60px_-10px_rgba(220,38,38,0.55)] ring-4 ring-red-400/40'
+                    : 'bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-950 text-white border-emerald-300 shadow-[0_25px_60px_-10px_rgba(5,150,105,0.65)] ring-4 ring-emerald-300/50'
                 }`}
               >
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3.5">
-                    {/* Glowing animated badge */}
+                    {/* High-impact Glowing Animated Badge */}
                     <motion.div
                       initial={{ scale: 0, rotate: -25 }}
                       animate={{ scale: 1, rotate: 0 }}
@@ -1186,21 +1186,21 @@ export default function AdminDashboardPage() {
                       className="relative flex-shrink-0 mt-0.5"
                     >
                       <div
-                        className={`absolute inset-0 rounded-2xl blur-md animate-pulse ${
-                          toast.type === 'error' ? 'bg-red-500/50' : 'bg-emerald-400/50'
+                        className={`absolute inset-0 rounded-2xl blur-lg animate-pulse ${
+                          toast.type === 'error' ? 'bg-white/40' : 'bg-emerald-200/50'
                         }`}
                       />
                       <div
-                        className={`relative p-3 rounded-2xl shadow-lg border flex items-center justify-center ${
+                        className={`relative p-3 rounded-2xl shadow-xl flex items-center justify-center ${
                           toast.type === 'error'
-                            ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white border-red-300/40'
-                            : 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-emerald-300/40'
+                            ? 'bg-white text-red-600 border border-white'
+                            : 'bg-white text-emerald-700 border border-white'
                         }`}
                       >
                         {toast.type === 'error' ? (
-                          <AlertTriangle className="w-6 h-6 text-white stroke-[2.5]" />
+                          <AlertTriangle className="w-6 h-6 stroke-[3] text-red-600" />
                         ) : (
-                          <CheckCircle2 className="w-6 h-6 text-white stroke-[2.5]" />
+                          <CheckCircle2 className="w-6 h-6 stroke-[3] text-emerald-600" />
                         )}
                       </div>
                     </motion.div>
@@ -1208,24 +1208,24 @@ export default function AdminDashboardPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black tracking-wider uppercase border ${
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase shadow-xs ${
                             toast.type === 'error'
-                              ? 'bg-red-500/20 text-red-300 border-red-400/40'
-                              : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40'
+                              ? 'bg-black/30 text-white border border-white/30'
+                              : 'bg-black/25 text-emerald-100 border border-emerald-200/40'
                           }`}
                         >
                           <span
-                            className={`w-1.5 h-1.5 rounded-full animate-ping ${
-                              toast.type === 'error' ? 'bg-red-400' : 'bg-emerald-400'
+                            className={`w-2 h-2 rounded-full animate-ping ${
+                              toast.type === 'error' ? 'bg-red-300' : 'bg-emerald-200'
                             }`}
                           />
-                          {toast.type === 'error' ? 'Atención' : '¡Portapapeles Listo!'}
+                          {toast.type === 'error' ? 'Alerta' : '¡Portapapeles Activo!'}
                         </span>
                       </div>
-                      <h4 className="text-sm sm:text-base font-extrabold text-white mt-1.5 tracking-tight leading-snug">
+                      <h4 className="text-base sm:text-lg font-black text-white mt-1.5 tracking-tight leading-snug drop-shadow-sm">
                         {toast.title}
                       </h4>
-                      <p className="text-xs text-slate-300 mt-1 leading-relaxed font-normal">
+                      <p className="text-xs text-emerald-50 mt-1 leading-relaxed font-medium drop-shadow-xs">
                         {toast.message}
                       </p>
                     </div>
@@ -1239,10 +1239,10 @@ export default function AdminDashboardPage() {
                       if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current)
                       setToast(null)
                     }}
-                    className="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-900/80 hover:bg-slate-800 transition-colors border border-slate-800 cursor-pointer flex-shrink-0"
+                    className="text-white/80 hover:text-white p-2 rounded-xl bg-black/20 hover:bg-black/40 transition-colors border border-white/20 cursor-pointer flex-shrink-0"
                     title="Cerrar notificación"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-4 h-4 stroke-[2.5]" />
                   </motion.button>
                 </div>
 
@@ -1252,12 +1252,12 @@ export default function AdminDashboardPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.12, duration: 0.25 }}
-                    className="mt-4 bg-slate-900/90 rounded-2xl p-3.5 border border-emerald-500/30 space-y-3"
+                    className="mt-4 bg-emerald-950/70 backdrop-blur-md rounded-2xl p-3.5 border border-emerald-300/40 space-y-3 shadow-inner"
                   >
                     {toast.details.teacherName && (
-                      <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-800/80">
-                        <span className="text-slate-400 font-medium">Docente Titular:</span>
-                        <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                      <div className="flex items-center justify-between text-xs pb-2 border-b border-white/15">
+                        <span className="text-emerald-200 font-semibold">Docente Titular:</span>
+                        <span className="font-extrabold text-amber-300 flex items-center gap-1.5 drop-shadow-xs">
                           <UserCheck className="w-3.5 h-3.5" />
                           {toast.details.teacherName}
                         </span>
@@ -1265,16 +1265,16 @@ export default function AdminDashboardPage() {
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                      <div className="bg-slate-950/90 p-2.5 rounded-xl border border-slate-800">
-                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Usuario / Email</div>
-                        <div className="font-mono text-slate-100 font-bold truncate mt-0.5 select-all text-xs" title={toast.details.user}>
+                      <div className="bg-black/40 p-2.5 rounded-xl border border-white/15">
+                        <div className="text-[10px] uppercase font-black text-emerald-200 tracking-wider">Usuario / Email</div>
+                        <div className="font-mono text-white font-bold truncate mt-0.5 select-all text-xs" title={toast.details.user}>
                           {toast.details.user}
                         </div>
                       </div>
 
-                      <div className="bg-slate-950/90 p-2.5 rounded-xl border border-slate-800">
-                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Contraseña Inicial</div>
-                        <div className="font-mono text-emerald-400 font-extrabold truncate mt-0.5 select-all text-xs" title={toast.details.pass}>
+                      <div className="bg-black/40 p-2.5 rounded-xl border border-white/15">
+                        <div className="text-[10px] uppercase font-black text-emerald-200 tracking-wider">Contraseña Inicial</div>
+                        <div className="font-mono text-amber-300 font-black truncate mt-0.5 select-all text-xs drop-shadow-xs" title={toast.details.pass}>
                           {toast.details.pass}
                         </div>
                       </div>
@@ -1282,30 +1282,30 @@ export default function AdminDashboardPage() {
 
                     <div className="pt-1 flex items-center gap-2">
                       <motion.a
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         href={toast.details.actionUrl || '/login'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 py-2 px-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs shadow-lg shadow-emerald-500/25 transition-all cursor-pointer"
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 px-3.5 rounded-xl bg-white hover:bg-emerald-50 text-emerald-950 font-black text-xs shadow-xl transition-all cursor-pointer"
                       >
-                        <ExternalLink className="w-3.5 h-3.5 stroke-[2.5]" />
+                        <ExternalLink className="w-3.5 h-3.5 stroke-[3] text-emerald-800" />
                         <span>{toast.details.actionText || 'Ir al Campus (Login)'}</span>
                       </motion.a>
 
                       <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
                         type="button"
                         onClick={() => {
                           if (typeof navigator !== 'undefined' && navigator.clipboard && toast.details?.pass) {
                             navigator.clipboard.writeText(toast.details.pass)
                           }
                         }}
-                        className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors cursor-pointer"
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-900/80 hover:bg-emerald-800 text-white text-xs font-bold border border-white/30 transition-colors cursor-pointer shadow-sm"
                         title="Copiar solo la contraseña"
                       >
-                        <KeyRound className="w-3.5 h-3.5 text-emerald-400" />
+                        <KeyRound className="w-3.5 h-3.5 text-amber-300" />
                         <span>Solo Clave</span>
                       </motion.button>
                     </div>
@@ -1316,11 +1316,11 @@ export default function AdminDashboardPage() {
                 <motion.div
                   initial={{ width: '100%' }}
                   animate={{ width: '0%' }}
-                  transition={{ duration: 6, ease: 'linear' }}
-                  className={`absolute bottom-0 left-0 h-1 ${
+                  transition={{ duration: 7, ease: 'linear' }}
+                  className={`absolute bottom-0 left-0 h-1.5 ${
                     toast.type === 'error'
-                      ? 'bg-gradient-to-r from-red-500 to-rose-400'
-                      : 'bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500'
+                      ? 'bg-gradient-to-r from-white via-red-200 to-white'
+                      : 'bg-gradient-to-r from-amber-300 via-white to-emerald-200'
                   }`}
                 />
               </div>
