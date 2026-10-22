@@ -33,6 +33,7 @@ import {
   Sparkles,
   BarChart3
 } from 'lucide-react'
+import { PresentationAnnotationToolbar } from './PresentationAnnotationToolbar'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
 
@@ -591,6 +592,9 @@ export function DashboardLayout({
 
             {/* STATUS BADGES CLAROS */}
             <div className="flex items-center gap-2 sm:gap-3 text-xs justify-between sm:justify-end">
+              {/* PRESENTACIÓN Y ANOTACIONES CON LÁSER */}
+              <PresentationAnnotationToolbar />
+
               <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-bold text-[10px] sm:text-[11px] shadow-2xs">
                 <Lock className="w-3 h-3 text-emerald-600" />
                 <span>SSL 256-bit</span>
