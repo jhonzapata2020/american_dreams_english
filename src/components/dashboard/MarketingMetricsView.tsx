@@ -37,6 +37,7 @@ import {
   triggerLeadDesktopNotification,
   notifyLeadCaptured
 } from '../../lib/marketingTelemetry'
+import { createClient } from '../../utils/supabase/client'
 
 interface MarketingMetricsViewProps {
   onOpenLeadsTab?: () => void
@@ -82,8 +83,8 @@ export const MarketingMetricsView: React.FC<MarketingMetricsViewProps> = ({ onOp
     }
   }
 
-  // Simulate a live lead submission
-  const handleSimulateLead = () => {
+  // Simulate a live lead submission & broadcast to all connected admin laptops via Supabase
+  const handleSimulateLead = async () => {
     const demoNames = [
       'Valentina Gómez Restrepo',
       'Andrés Felipe Murillo',
@@ -95,8 +96,25 @@ export const MarketingMetricsView: React.FC<MarketingMetricsViewProps> = ({ onOp
     const randomPhone = `+57 3${Math.floor(100000000 + Math.random() * 900000000)}`
     const isAdult = Math.random() > 0.4
     const audience = isAdult ? 'para_mi' : 'para_mi_hijo'
+    const nameParts = randomName.split(' ')
 
-    // Fire sound & OS notification
+    // 1. Inyectar en Supabase para que viaje por WebSocket a Anthony y a todos los administradores en vivo
+    try {
+      const supabase = createClient()
+      await supabase.from('leads').insert([
+        {
+          first_name: nameParts[0] || 'Prospecto',
+          last_name: nameParts.slice(1).join(' ') || 'Simulado',
+          email: `${randomName.toLowerCase().replace(/\s+/g, '.')}@gmail.com`,
+          phone: randomPhone,
+          audience,
+        }
+      ])
+    } catch (err) {
+      console.warn('[Simulación] Fallback a broadcast local:', err)
+    }
+
+    // 2. Disparar sonido y notificación local
     notifyLeadCaptured({
       name: randomName,
       phone: randomPhone,
