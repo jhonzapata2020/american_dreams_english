@@ -30,7 +30,8 @@ import {
   DollarSign,
   PanelLeftClose,
   PanelLeftOpen,
-  Sparkles
+  Sparkles,
+  BarChart3
 } from 'lucide-react'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
@@ -213,6 +214,7 @@ export function DashboardLayout({
     admin: [
       { id: 'overview', label: 'Visión General', href: '/dashboard/admin', icon: LayoutDashboard, iconBg: 'bg-blue-50 text-blue-600', iconColor: 'text-blue-600' },
       { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo', iconBg: 'bg-indigo-50 text-indigo-600', iconColor: 'text-indigo-600' },
+      { id: 'marketing', label: 'Marketing & Telemetría', href: '/dashboard/admin', icon: BarChart3, badge: 'Métricas', iconBg: 'bg-rose-50 text-rose-600', iconColor: 'text-rose-600' },
       { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/admin/estudiantes', icon: Users, badge: 'Prioritario', iconBg: 'bg-emerald-50 text-emerald-600', iconColor: 'text-emerald-600' },
       { id: 'docentes', label: 'Equipo Docente & Tutores', href: '/dashboard/admin', icon: GraduationCap, badge: 'Facultad', iconBg: 'bg-sky-50 text-sky-600', iconColor: 'text-sky-600' },
       { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package, iconBg: 'bg-purple-50 text-purple-600', iconColor: 'text-purple-600' },

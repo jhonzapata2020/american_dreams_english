@@ -13,6 +13,7 @@ import { PresencialModal } from './components/PresencialModal';
 import { ScholarshipModal } from './components/ScholarshipModal';
 import { Currency } from './types';
 import { useCurrency } from './context/CurrencyContext';
+import { MarketingTelemetryTracker } from './components/MarketingTelemetryTracker';
 
 import CursosPage from './app/cursos/page';
 import CourseDetailPage from './app/cursos/[slug]/page';
@@ -171,6 +172,8 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white">
+      {/* Telemetry & Analytics Tracker */}
+      <MarketingTelemetryTracker />
       
       {/* 1. Navbar */}
       <Navbar

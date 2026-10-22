@@ -35,8 +35,15 @@ import {
   KeyRound, 
   Award, 
   UserCheck, 
-  Video 
+  Video,
+  BarChart3
 } from 'lucide-react'
+import { MarketingMetricsView } from '../../../components/dashboard/MarketingMetricsView'
+import { 
+  subscribeToLeadNotifications, 
+  playLeadChimeSound, 
+  triggerLeadDesktopNotification 
+} from '../../../lib/marketingTelemetry'
 
 export interface TeacherItem {
   id: string
@@ -755,6 +762,59 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchAdminData()
+
+    // 1. Cross-tab Lead Notification Listener (BroadCastChannel)
+    const unsubscribeBroadcast = subscribeToLeadNotifications((lead) => {
+      playLeadChimeSound()
+      triggerLeadDesktopNotification({
+        name: lead.name || 'Nuevo Prospecto',
+        phone: lead.phone || '',
+        email: lead.email,
+        audience: lead.audience,
+        source: 'cross_tab_sync'
+      })
+      setToast({
+        title: '¡Nuevo Lead Capturado en el Hero!',
+        message: `${lead.name || 'Prospecto'} (${lead.phone || 'Sin cel'}) se registró. ¡Revisa la pestaña Leads!`,
+        type: 'success'
+      })
+      setTimeout(() => setToast(null), 6000)
+      fetchAdminData()
+    })
+
+    // 2. Supabase Realtime Channel on public.leads table
+    const supabase = createClient()
+    const leadsChannel = supabase
+      .channel('admin_realtime_leads')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'leads' },
+        (payload) => {
+          const newLead = payload.new as any
+          const fullName = `${newLead.first_name || ''} ${newLead.last_name || ''}`.trim() || 'Nuevo Prospecto'
+          playLeadChimeSound()
+          triggerLeadDesktopNotification({
+            name: fullName,
+            phone: newLead.phone || '',
+            email: newLead.email,
+            audience: newLead.audience,
+            source: 'supabase_realtime'
+          })
+          setToast({
+            title: '¡Nuevo Lead Registrado en Supabase!',
+            message: `${fullName} (${newLead.phone || 'Sin cel'}) acaba de ingresar por el Hero.`,
+            type: 'success'
+          })
+          setTimeout(() => setToast(null), 6000)
+          fetchAdminData()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      unsubscribeBroadcast()
+      supabase.removeChannel(leadsChannel)
+    }
   }, [])
 
   const handleApproveApplication = async (appId: string, studentName: string) => {
@@ -1133,6 +1193,8 @@ export default function AdminDashboardPage() {
         return 'Estudiantes & Matrículas'
       case 'leads':
         return 'Prospectos & Leads Web'
+      case 'marketing':
+        return 'Marketing & Telemetría del Hero'
       case 'becas':
         return 'Postulaciones Becas Urabá'
       case 'donaciones':
@@ -2408,7 +2470,7 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2.5 sm:gap-3">
                 {/* Button 1: Agregar Estudiante */}
                 <motion.button
                   whileHover={{ y: -3, scale: 1.02 }}
@@ -2506,7 +2568,25 @@ export default function AdminDashboardPage() {
                   </div>
                 </motion.button>
 
-                {/* Button 6: Sincronizar Base de Datos */}
+                {/* Button 6: Métricas de Marketing & Telemetría */}
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                  type="button"
+                  onClick={() => setActiveTab('marketing')}
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-gradient-to-br from-rose-50 to-orange-50/60 hover:from-rose-100/80 hover:to-orange-100/80 border border-rose-200 hover:border-rose-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none"
+                >
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] sm:text-xs font-black text-rose-900 leading-tight group-hover:text-rose-700 transition-colors">Marketing</p>
+                    <p className="text-[9px] sm:text-[10px] text-rose-600 mt-0.5 line-clamp-1 font-bold">Hero & Scroll</p>
+                  </div>
+                </motion.button>
+
+                {/* Button 7: Sincronizar Base de Datos */}
                 <motion.button
                   whileHover={{ y: -3, scale: 1.02 }}
                   whileTap={{ scale: 0.97 }}
@@ -3042,9 +3122,20 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
-                <span className="px-3.5 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-2xl border border-indigo-200/80 whitespace-nowrap shadow-2xs">
+                <span className="px-3.5 py-2 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-2xl border border-indigo-200/80 whitespace-nowrap shadow-2xs">
                   {filteredLeads.length} Leads
                 </span>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="button"
+                  onClick={() => setActiveTab('marketing')}
+                  className="px-3.5 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-2xl border border-rose-200/80 whitespace-nowrap shadow-2xs flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <BarChart3 className="w-3.5 h-3.5 text-rose-600" />
+                  <span>Métricas & Tráfico</span>
+                </motion.button>
               </div>
             </div>
 
@@ -3184,6 +3275,21 @@ export default function AdminDashboardPage() {
               </>
             )}
 
+          </motion.div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* VISTA: MARKETING, TELEMETRÍA DEL HERO & EMBUDO DE CONVERSIÓN              */}
+        {/* ========================================================================= */}
+        {activeTab === 'marketing' && (
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="space-y-4"
+          >
+            <MarketingMetricsView onOpenLeadsTab={() => setActiveTab('leads')} />
           </motion.div>
         )}
 

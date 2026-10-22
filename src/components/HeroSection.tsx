@@ -21,6 +21,7 @@ import { createClient } from '../utils/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
 import { trackEvent } from '../lib/analytics';
 import { getWhatsAppUrl } from '../config/contact';
+import { notifyLeadCaptured } from '../lib/marketingTelemetry';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -73,6 +74,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
       if (res.ok) {
         setSubmitted(true);
+        notifyLeadCaptured(payload);
         trackEvent('lead_capture', {
           audience: audienceType,
           source: 'hero_form',
@@ -93,6 +95,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
       }
 
       setSubmitted(true);
+      notifyLeadCaptured(payload);
       trackEvent('lead_capture', {
         audience: audienceType,
         source: 'hero_form_fallback',
@@ -104,6 +107,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         const supabase = createClient();
         await supabase.from('leads').insert([payload]);
         setSubmitted(true);
+        notifyLeadCaptured(payload);
       } catch (fallbackErr) {
         setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
       }
