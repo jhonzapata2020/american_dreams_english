@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   GraduationCap, 
   Video, 
@@ -1343,250 +1344,230 @@ export default function TeacherCampusPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#0B1528] sm:bg-[#F0F3F7] text-slate-100 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
+    <div className="min-h-screen bg-[#070D18] sm:bg-[#0B132B] text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
       
       {/* ========================================================================= */}
-      {/* CONTENEDOR PRINCIPAL AMPLIO (MAX-W-6XL) CON ESQUINAS REDONDEADAS TIPO APP */}
+      {/* CONTENEDOR PRINCIPAL AMPLIO CON ESQUINAS REDONDEADAS TIPO APP DE ALTA GAMA */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-6xl mx-auto bg-[#0B1528] rounded-none sm:rounded-[40px] overflow-hidden shadow-none sm:shadow-2xl border-0 sm:border sm:border-slate-700/40 flex flex-col flex-1">
+      <div className="w-full max-w-6xl mx-auto bg-white rounded-none sm:rounded-[36px] overflow-hidden shadow-[0_25px_80px_-20px_rgba(0,0,0,0.65)] border-0 sm:border sm:border-slate-700/50 flex flex-col flex-1">
 
         {/* ======================================================================= */}
-        {/* 1. CABECERA SUPERIOR OSCURA (NAVY #0B1528)                            */}
+        {/* 1. CABECERA EJECUTIVA DOCENTE (NAVY OSCURO INTEGRADO SIN CORTE DE ONDA) */}
         {/* ======================================================================= */}
-        <header className="w-full bg-[#0B1528] text-white pt-3 sm:pt-6 relative">
+        <header className="w-full bg-gradient-to-r from-[#001f35] via-[#081e36] to-[#041220] text-white pt-4 pb-5 sm:pt-5 sm:pb-6 relative border-b border-white/10 overflow-hidden">
           
-          {/* Muesca Superior Elegante (Top App Notch Curve - Solo Desktop/Tablet) */}
-          <div className="hidden sm:flex justify-center pb-2">
-            <div className="w-12 h-1.5 bg-white/20 rounded-full" />
-          </div>
+          {/* Malla sutil de micro-puntos de fondo */}
+          <div 
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)',
+              backgroundSize: '24px 24px'
+            }}
+          />
 
-          <div className="px-4 sm:px-8 space-y-3 sm:space-y-4">
+          {/* Halos de luz ambiental suave */}
+          <div className="absolute top-0 right-1/4 w-80 h-32 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-10 w-64 h-24 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+
+          <div className="px-4 sm:px-8 space-y-3 sm:space-y-4 relative z-10">
           
-          {/* Fila 1: Logo Institucional + Saludo Docente + Selector de Nivel Evolucionado + Acciones */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
-            
-            {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
-            <div className="flex items-center justify-between sm:justify-start gap-3">
-              <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-                <Link href="/" className="shrink-0 group flex flex-col items-center relative py-1 cursor-pointer" title="Ir al Inicio">
-                  {/* Logo Institucional con Levitación y Resplandor 3D */}
-                  <img 
-                    src="/logo-american-dream.png" 
-                    alt="American Dream English" 
-                    className="h-9 sm:h-14 w-auto object-contain filter drop-shadow-[0_8px_16px_rgba(0,0,0,0.5)] group-hover:-translate-y-1.5 group-hover:scale-105 group-hover:drop-shadow-[0_16px_25px_rgba(245,158,11,0.35)] transition-all duration-300 ease-out" 
-                  />
-                  {/* Sombra de piso elíptica que responde dinámicamente a la flotación */}
-                  <div className="w-4/5 h-1.5 sm:h-2 bg-black/60 rounded-full blur-[3px] sm:blur-[4px] mt-0.5 group-hover:scale-75 group-hover:opacity-40 group-hover:blur-[6px] transition-all duration-300 pointer-events-none" />
-                </Link>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
-                      Portal Docente
-                    </span>
-                    <span className="hidden sm:inline-flex font-mono text-[10px] font-bold uppercase bg-blue-500/20 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">
-                      Periodo 2026-I
-                    </span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                    <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Online</span>
-                  </div>
-                  <h1 className="text-base sm:text-2xl font-black text-white tracking-tight truncate">
-                    {teacherName}
-                  </h1>
-                  <p className="text-[11px] sm:text-xs text-slate-400 font-medium truncate hidden sm:block">
-                    {teacherEmail} · Docente Titular American Dream English
-                  </p>
-                </div>
-              </div>
-
-              {/* Botón Salir Móvil (visible solo en pantallas pequeñas arriba a la derecha) */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="sm:hidden inline-flex items-center justify-center p-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
-                title="Cerrar Sesión Segura"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Bloque Derecho: Selector de Nivel Evolucionado (Dark Glass Capsule) + Ver Aula + Salir */}
-            <div className="flex items-center justify-between lg:justify-end gap-2 sm:gap-3 flex-wrap">
-              <span className="text-[11px] font-bold text-slate-400 sm:hidden">Nivel del Aula:</span>
+            {/* Fila 1: Logo Institucional + Saludo Docente + Selector de Nivel con LayoutId + Acciones */}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
               
-              {/* Selector de Nivel Evolucionado (Dark Glass Segmented Capsule) */}
-              <div className="flex items-center bg-slate-900/70 p-1 rounded-2xl border border-white/15 backdrop-blur-md shadow-inner gap-1">
-                {(['a1', 'a2', 'b1', 'b2'] as const).map((lvl) => {
-                  const isActive = activeLevel === lvl
-                  return (
-                    <button
-                      key={lvl}
-                      type="button"
-                      onClick={() => setActiveLevel(lvl)}
-                      className={`relative px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-black uppercase transition-all duration-200 cursor-pointer select-none ${
-                        isActive
-                          ? 'bg-gradient-to-b from-amber-400 to-amber-500 text-slate-950 shadow-[0_2px_12px_rgba(251,191,36,0.4)] scale-102 ring-1 ring-amber-300/70'
-                          : 'text-slate-300 hover:text-white hover:bg-white/10 active:scale-95'
-                      }`}
-                      title={`Cambiar a Nivel ${lvl.toUpperCase()}`}
-                    >
-                      {lvl.toUpperCase()}
-                    </button>
-                  )
-                })}
+              {/* Bloque Izquierdo: Logo Oficial + Saludo Docente */}
+              <div className="flex items-center justify-between sm:justify-start gap-3">
+                <div className="flex items-center gap-3 sm:gap-3.5 min-w-0">
+                  <Link href="/" className="shrink-0 group flex flex-col items-center relative py-1 cursor-pointer" title="Ir al Inicio">
+                    <img 
+                      src="/logo-american-dream.png" 
+                      alt="American Dream English" 
+                      className="h-10 sm:h-12 w-auto object-contain filter drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)] group-hover:scale-105 transition-all duration-300 ease-out" 
+                    />
+                  </Link>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono text-[10px] font-black uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full">
+                        Portal Docente
+                      </span>
+                      <span className="hidden sm:inline-flex font-mono text-[10px] font-bold uppercase bg-blue-500/20 text-blue-200 border border-blue-400/30 px-2 py-0.5 rounded-full">
+                        Periodo 2026-I
+                      </span>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                      <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">Online</span>
+                    </div>
+                    <h1 className="text-base sm:text-xl font-black text-white tracking-tight truncate mt-0.5">
+                      {teacherName}
+                    </h1>
+                    <p className="text-[11px] sm:text-xs text-slate-300 font-medium truncate hidden sm:block">
+                      {teacherEmail} · Docente Titular American Dream English
+                    </p>
+                  </div>
+                </div>
+
+                {/* Botón Salir Móvil */}
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="sm:hidden inline-flex items-center justify-center p-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                  title="Cerrar Sesión Segura"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
               </div>
 
-              {/* Botón Ver Aula Estudiante (Oculto en móvil) */}
-              <Link
-                href={`/campus/curso/${activeLevel}?from=docente`}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/20 border border-white/15 hover:border-amber-400/40 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm"
-                title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
-              >
-                <Eye className="w-3.5 h-3.5 text-amber-400" />
-                <span>Ver Aula {activeLevel.toUpperCase()}</span>
-              </Link>
+              {/* Bloque Derecho: Selector de Nivel con LayoutId + Ver Aula + Salir */}
+              <div className="flex items-center justify-between lg:justify-end gap-2 sm:gap-3 flex-wrap">
+                <span className="text-[11px] font-bold text-slate-300 sm:hidden">Nivel del Aula:</span>
+                
+                {/* Selector de Nivel Fluido con Píldora Deslizante LayoutId */}
+                <div className="relative flex items-center bg-slate-900/80 p-1 rounded-2xl border border-white/15 backdrop-blur-md shadow-inner gap-1">
+                  {(['a1', 'a2', 'b1', 'b2'] as const).map((lvl) => {
+                    const isActive = activeLevel === lvl
+                    return (
+                      <button
+                        key={lvl}
+                        type="button"
+                        onClick={() => setActiveLevel(lvl)}
+                        className={`relative z-10 px-3 sm:px-3.5 py-1 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-black uppercase transition-colors cursor-pointer select-none ${
+                          isActive
+                            ? 'text-slate-950 font-black'
+                            : 'text-slate-300 hover:text-white'
+                        }`}
+                        title={`Cambiar a Nivel ${lvl.toUpperCase()}`}
+                      >
+                        {isActive && (
+                          <motion.div
+                            layoutId="activeDocenteLevelPill"
+                            className="absolute inset-0 bg-gradient-to-b from-amber-400 to-amber-500 rounded-xl shadow-[0_2px_10px_rgba(251,191,36,0.4)] -z-10"
+                            transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                          />
+                        )}
+                        <span>{lvl.toUpperCase()}</span>
+                      </button>
+                    )
+                  })}
+                </div>
 
-              {/* Salir Desktop */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
-                title="Cerrar Sesión Segura"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span>Cerrar Sesión</span>
-              </button>
+                {/* Botón Ver Aula Estudiante */}
+                <motion.div whileHover={{ scale: 1.03, y: -1 }} whileTap={{ scale: 0.97 }}>
+                  <Link
+                    href={`/campus/curso/${activeLevel}?from=docente`}
+                    className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-white/10 hover:bg-white/15 border border-white/20 text-slate-200 hover:text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                    title={`Abrir vista de estudiante para el nivel ${activeLevel.toUpperCase()}`}
+                  >
+                    <Eye className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Ver Aula {activeLevel.toUpperCase()}</span>
+                  </Link>
+                </motion.div>
+
+                {/* Salir Desktop */}
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  type="button"
+                  onClick={handleLogout}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                  title="Cerrar Sesión Segura"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Cerrar Sesión</span>
+                </motion.button>
+
+              </div>
 
             </div>
 
+            {/* Banner de Notificación Toast */}
+            {bannerNotice && (
+              <motion.div 
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="p-3 bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 rounded-2xl text-xs font-bold flex items-center gap-2"
+              >
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>{bannerNotice}</span>
+              </motion.div>
+            )}
+
           </div>
 
-          {/* Banner de Notificación Toast */}
-          {bannerNotice && (
-            <div className="p-3 bg-emerald-500/20 border border-emerald-400/30 text-emerald-200 rounded-2xl text-xs font-bold flex items-center gap-2 animate-fadeIn">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{bannerNotice}</span>
-            </div>
-          )}
-
-          </div>
-
-          {/* TRANSICIÓN DE ONDA ORGÁNICA CONTINUA */}
-          <div className="w-full overflow-hidden leading-none -mb-1 select-none pointer-events-none">
-            <svg 
-              viewBox="0 0 1440 100" 
-              preserveAspectRatio="none" 
-              className="w-full h-6 sm:h-14 text-white fill-current block"
-            >
-              <path d="M0,0 C320,85 520,95 760,50 C1020,10 1240,75 1440,85 L1440,100 L0,100 Z" />
-            </svg>
-          </div>
         </header>
 
         {/* ======================================================================= */}
-        {/* 2. SUPERFICIE BLANCA CONTINUA UNIFICADA (BG-WHITE)                      */}
+        {/* 2. SUPERFICIE DE TRABAJO CONTINUA Y DESFATICADA (BG-[#F4F6FB])          */}
         {/* ======================================================================= */}
-        <main className="w-full bg-white text-slate-800 flex-1 p-3.5 sm:p-7 md:p-8 space-y-4 sm:space-y-6">
+        <main className="w-full bg-[#F4F6FB] text-slate-800 flex-1 p-3.5 sm:p-7 md:p-8 space-y-4 sm:space-y-6">
           
           {/* =================================================================== */}
-          {/* PESTAÑAS 3D FLOTANTES CON LUCES NEÓN INFERIORES (STUDIO LIGHT BAR)  */}
+          {/* DOCK DE PESTAÑAS EJECUTIVO CON DESPLAZAMIENTO SUAVE (LAYOUTID DOCK) */}
           {/* =================================================================== */}
-          <div className="w-full bg-gradient-to-b from-slate-100/90 via-slate-50/70 to-white rounded-2xl sm:rounded-3xl p-2 sm:p-3.5 border border-slate-200/90 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.06)] relative overflow-visible">
-            <div className="w-full flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar scroll-smooth pt-1.5 pb-5 px-1">
-              <div className="flex items-center justify-start md:justify-center gap-2 sm:gap-2.5 shrink-0">
+          <div className="w-full bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-1.5 sm:p-2 border border-slate-200/90 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] relative overflow-visible">
+            <div className="w-full flex items-center justify-start md:justify-center overflow-x-auto no-scrollbar scroll-smooth px-1">
+              <div className="flex items-center justify-start md:justify-center gap-1.5 sm:gap-2 shrink-0">
                 {teacherTabs.map((tab) => {
                   const isActive = activeTab === tab.id
                   const IconComp = tab.icon
 
                   return (
-                    <div key={tab.id} className="relative group shrink-0">
-                      {/* 1. LUZ PROYECTADA ABAJO (ÚNICAMENTE EN EL BOTÓN ACTIVO / SELECCIONADO, MENOS INTENSA) */}
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`relative z-10 flex items-center gap-2 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl text-xs font-bold transition-colors cursor-pointer select-none whitespace-nowrap ${
+                        isActive
+                          ? 'text-white font-black'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80 font-semibold'
+                      }`}
+                    >
+                      {/* Píldora Deslizante LayoutId con Sombra Volumétrica */}
                       {isActive && (
-                        <>
-                          {/* Proyección difusa de luz sobre el suelo blanco */}
-                          <div 
-                            className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-2 rounded-full blur-md pointer-events-none transition-all duration-300 opacity-55"
-                            style={{
-                              backgroundColor: tab.neonColor,
-                              boxShadow: `0 4px 12px 2px ${tab.glowColor}`,
-                            }}
-                          />
-
-                          {/* Núcleo de luz tenue */}
-                          <div 
-                            className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-6 sm:w-8 h-0.5 rounded-full blur-[0.6px] pointer-events-none transition-all duration-300 opacity-60"
-                            style={{
-                              backgroundColor: '#FFFFFF',
-                              boxShadow: `0 0 4px 1px ${tab.neonColor}`,
-                            }}
-                          />
-
-                          {/* Difusión ambiental sutil */}
-                          <div 
-                            className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-4/5 h-2 rounded-full blur-lg pointer-events-none transition-all duration-300 opacity-20"
-                            style={{
-                              backgroundColor: tab.lightPoolColor,
-                            }}
-                          />
-                        </>
+                        <motion.div
+                          layoutId="activeTeacherTabPill"
+                          className="absolute inset-0 bg-[#002B49] rounded-xl sm:rounded-2xl shadow-md shadow-blue-950/25 -z-10"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                        />
                       )}
 
-                      {/* 2. CÁPSULA PÍLDORA 3D FLOTANTE */}
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab(tab.id as any)}
-                        className={`relative z-10 flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${
-                          isActive
-                            ? 'bg-gradient-to-b from-[#1C2744] via-[#101A30] to-[#080D1A] text-white -translate-y-0.5 shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.4),inset_0_-2px_4px_rgba(0,0,0,0.8),0_6px_14px_-2px_rgba(0,0,0,0.35)] ring-1'
-                            : 'bg-gradient-to-b from-[#162035] via-[#0E1626] to-[#0A0F1D] text-slate-400 hover:text-slate-200 hover:-translate-y-0.5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.15),inset_0_-2px_4px_rgba(0,0,0,0.7),0_4px_8px_-2px_rgba(0,0,0,0.3)] border-t border-white/10'
-                        }`}
-                        style={{
-                          borderColor: isActive ? `${tab.neonColor}60` : undefined,
-                        }}
-                      >
-                        {/* Indicador pulsante en vivo para Sala Teams */}
-                        {tab.isLive && (
-                          <span className="relative flex h-1.5 w-1.5 shrink-0">
-                            <span 
-                              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                              style={{ backgroundColor: tab.neonColor }}
-                            />
-                            <span 
-                              className="relative inline-flex rounded-full h-1.5 w-1.5"
-                              style={{ backgroundColor: tab.neonColor }}
-                            />
-                          </span>
-                        )}
-
-                        {/* Icono con resplandor suave solo si está activo */}
-                        <IconComp 
-                          className="w-3.5 h-3.5 shrink-0 transition-all duration-300"
-                          style={{
-                            color: isActive ? tab.neonColor : undefined,
-                            filter: isActive ? `drop-shadow(0 0 2.5px ${tab.neonColor}60)` : undefined
-                          }}
-                        />
-
-                        {/* Nombre de la pestaña */}
-                        <span className="tracking-tight">{tab.label}</span>
-
-                        {/* Badge numérico integrado */}
-                        {tab.badge !== undefined && (
+                      {/* Indicador pulsante en vivo para Sala Teams */}
+                      {tab.isLive && (
+                        <span className="relative flex h-2 w-2 shrink-0">
                           <span 
-                            className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold transition-all ${
-                              tab.badgePulse ? 'animate-pulse' : ''
-                            }`}
-                            style={{
-                              backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)',
-                              color: isActive ? '#FFFFFF' : '#94A3B8',
-                              border: isActive ? `1px solid ${tab.neonColor}40` : '1px solid rgba(255,255,255,0.06)',
-                              boxShadow: isActive ? `0 0 4px ${tab.neonColor}30` : undefined
-                            }}
-                          >
-                            {tab.badge}
-                          </span>
-                        )}
-                      </button>
-                    </div>
+                            className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                            style={{ backgroundColor: tab.neonColor }}
+                          />
+                          <span 
+                            className="relative inline-flex rounded-full h-2 w-2"
+                            style={{ backgroundColor: tab.neonColor }}
+                          />
+                        </span>
+                      )}
+
+                      {/* Icono del Módulo */}
+                      <IconComp 
+                        className="w-4 h-4 shrink-0 transition-transform"
+                        style={{
+                          color: isActive ? tab.neonColor : undefined,
+                        }}
+                      />
+
+                      {/* Nombre de la pestaña */}
+                      <span className="tracking-tight text-xs">{tab.label}</span>
+
+                      {/* Badge numérico integrado */}
+                      {tab.badge !== undefined && (
+                        <span 
+                          className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold transition-all ${
+                            tab.badgePulse ? 'animate-pulse' : ''
+                          } ${
+                            isActive 
+                              ? 'bg-white/20 text-white' 
+                              : 'bg-slate-200/90 text-slate-700'
+                          }`}
+                        >
+                          {tab.badge}
+                        </span>
+                      )}
+                    </button>
                   )
                 })}
               </div>
@@ -1599,18 +1580,18 @@ export default function TeacherCampusPage() {
           {activeTab === 'live' && (
             <div className="space-y-6 animate-fadeIn">
               
-              {/* Tarjeta Destacada: Configuración Enlace de Teams (Estilo 3D Blanco Flotante Neumorphic con Logo Oficial) */}
-              <div className="relative overflow-hidden bg-gradient-to-b from-[#FFFFFF] via-[#FAFBFD] to-[#F1F4F9] text-slate-900 p-6 sm:p-7 rounded-3xl border border-white/90 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_12px_24px_-8px_rgba(91,95,199,0.18),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-4px_0_rgba(226,232,240,0.85)] space-y-5">
+              {/* Tarjeta Destacada: Configuración Enlace de Teams (Executive EdTech Style) */}
+              <div className="relative overflow-hidden bg-white text-slate-900 p-6 sm:p-7 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-all space-y-5">
                 
                 {/* Resplandores ambientales de fondo suaves */}
                 <div className="absolute -right-16 -top-16 w-72 h-72 bg-[#5B5FC7]/10 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -left-12 -bottom-12 w-56 h-56 bg-indigo-100/40 rounded-full blur-2xl pointer-events-none" />
+                <div className="absolute -left-12 -bottom-12 w-56 h-56 bg-indigo-50/60 rounded-full blur-2xl pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
                   {/* Contenedor del Logo 3D Oficial de Teams y Textos */}
                   <div className="flex items-start sm:items-center gap-4 sm:gap-5">
-                    {/* Icono 3D de Teams flotante idéntico a la imagen de referencia */}
-                    <div className="relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-white via-slate-50 to-[#EDF2F7] p-3 sm:p-3.5 shadow-[0_12px_24px_rgba(91,95,199,0.18),0_4px_8px_rgba(0,0,0,0.06),inset_0_2px_1px_rgba(255,255,255,1),inset_0_-3px_0_rgba(203,213,225,0.7)] border border-slate-200/70 flex items-center justify-center group hover:-translate-y-1 transition-transform duration-300">
+                    {/* Icono 3D de Teams flotante */}
+                    <div className="relative shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-white via-slate-50 to-[#EDF2F7] p-3 sm:p-3.5 shadow-sm border border-slate-200/70 flex items-center justify-center group hover:-translate-y-1 transition-transform duration-300">
                       <Image 
                         src="/images/microsoft-teams.svg" 
                         alt="Microsoft Teams Logo" 
@@ -1626,7 +1607,7 @@ export default function TeacherCampusPage() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
                           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500 shadow-[0_0_8px_#10B981]" />
                         </span>
-                        <span className="text-[11px] font-black uppercase tracking-wider text-[#5B5FC7] bg-[#5B5FC7]/10 border border-[#5B5FC7]/20 px-2.5 py-0.5 rounded-full font-mono shadow-xs">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-[#5B5FC7] bg-[#5B5FC7]/10 border border-[#5B5FC7]/20 px-2.5 py-0.5 rounded-full font-mono shadow-2xs">
                           Microsoft Teams · Sala Sincrónica {activeLevel.toUpperCase()}
                         </span>
                       </div>
@@ -1642,12 +1623,14 @@ export default function TeacherCampusPage() {
                     </div>
                   </div>
 
-                  {/* BOTÓN 1: PROBAR SALA EN TEAMS (Estilo 3D flotante blanco con icono Teams) */}
-                  <a
+                  {/* BOTÓN 1: PROBAR SALA EN TEAMS */}
+                  <motion.a
+                    whileHover={{ scale: 1.03, y: -1 }}
+                    whileTap={{ scale: 0.97 }}
                     href={generalTeamsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group relative inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-700 hover:text-[#4F52B2] border border-slate-200/90 text-xs font-bold transition-all duration-300 shadow-[0_4px_10px_rgba(0,0,0,0.06),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_8px_20px_rgba(91,95,199,0.2),inset_0_1.5px_1px_rgba(255,255,255,1)] hover:-translate-y-0.5 active:translate-y-0.5 shrink-0 self-start md:self-center cursor-pointer select-none"
+                    className="group relative inline-flex items-center gap-2.5 px-5 py-3 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 hover:text-[#4F52B2] border border-slate-200/90 text-xs font-bold transition-all shadow-2xs shrink-0 self-start md:self-center cursor-pointer select-none"
                   >
                     <Image 
                       src="/images/microsoft-teams.svg" 
@@ -1658,7 +1641,7 @@ export default function TeacherCampusPage() {
                     />
                     <span>Probar Sala en Teams</span>
                     <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#4F52B2] transition-colors ml-0.5" />
-                  </a>
+                  </motion.a>
                 </div>
 
                 {/* Formulario de guardado rápido de URL de Teams con Input Inset 3D */}
@@ -1679,7 +1662,7 @@ export default function TeacherCampusPage() {
                       value={generalTeamsUrl}
                       onChange={(e) => setGeneralTeamsUrl(e.target.value)}
                       placeholder="https://teams.microsoft.com/l/meetup-join/..."
-                      className="w-full bg-[#F8FAFC] border border-slate-300/80 focus:border-[#5B5FC7] focus:bg-white text-slate-900 placeholder-slate-400 rounded-2xl pl-11 pr-24 py-3.5 text-xs sm:text-sm font-mono outline-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.05)] focus:ring-4 focus:ring-[#5B5FC7]/15 focus:shadow-[0_0_15px_rgba(91,95,199,0.15)] transition-all"
+                      className="w-full bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200/90 focus:border-[#5B5FC7] text-slate-900 placeholder-slate-400 rounded-2xl pl-11 pr-24 py-3 text-xs sm:text-sm font-mono outline-none shadow-2xs focus:ring-4 focus:ring-[#5B5FC7]/15 transition-all"
                     />
                     {/* Indicador de formato en el input */}
                     <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
@@ -1689,21 +1672,28 @@ export default function TeacherCampusPage() {
                     </div>
                   </div>
 
-                  {/* BOTÓN 2: GUARDAR Y PUBLICAR EN AULA (3D Teams Indigo con relieve y brillo superior) */}
-                  <button
+                  {/* BOTÓN 2: GUARDAR Y PUBLICAR EN AULA CON HAZ DE LUZ LÍQUIDO */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     type="submit"
                     disabled={savingTeamsUrl}
-                    className="group relative inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-2xl bg-gradient-to-b from-[#5B5FC7] via-[#4F52B2] to-[#3B429F] hover:from-[#6A6ED6] hover:via-[#595CBF] hover:to-[#4549A8] text-white font-black text-xs sm:text-sm tracking-wide border-t border-white/40 border-b border-indigo-950/60 shadow-[0_10px_24px_rgba(79,70,229,0.35),inset_0_1.5px_1px_rgba(255,255,255,0.4),inset_0_-3px_0_rgba(30,35,80,0.4)] hover:shadow-[0_14px_30px_rgba(91,95,199,0.5),inset_0_1.5px_1px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all duration-300 shrink-0 cursor-pointer select-none disabled:opacity-60"
+                    className="group relative overflow-hidden inline-flex items-center justify-center gap-2.5 px-7 py-3 rounded-2xl bg-gradient-to-r from-[#5B5FC7] to-[#4F52B2] hover:from-[#6A6ED6] hover:to-[#595CBF] text-white font-extrabold text-xs sm:text-sm tracking-wide shadow-md shadow-[#5B5FC7]/25 transition-all shrink-0 cursor-pointer select-none disabled:opacity-60"
                   >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4/5 h-[1px] bg-gradient-to-r from-transparent via-white/80 to-transparent pointer-events-none" />
+                    {/* Haz de luz líquido 21st.dev */}
+                    <motion.span
+                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+                      animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                      transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 1 }}
+                    />
                     
                     {savingTeamsUrl ? (
-                      <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                      <RefreshCw className="w-4 h-4 animate-spin text-white relative z-10" />
                     ) : (
-                      <Check className="w-4 h-4 text-white group-hover:scale-110 transition-transform drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]" />
+                      <Check className="w-4 h-4 text-white group-hover:scale-110 transition-transform relative z-10" />
                     )}
-                    <span className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.3)]">Guardar y Publicar en Aula</span>
-                  </button>
+                    <span className="relative z-10">Guardar y Publicar en Aula</span>
+                  </motion.button>
                 </form>
               </div>
 
