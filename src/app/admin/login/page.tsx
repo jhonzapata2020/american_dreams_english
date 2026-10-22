@@ -2,16 +2,22 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Mail, 
+  Lock, 
   Eye, 
   EyeOff, 
-  KeyRound,
-  ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-  GraduationCap,
-  ArrowLeft
+  KeyRound, 
+  ArrowRight, 
+  AlertCircle, 
+  CheckCircle2, 
+  GraduationCap, 
+  ArrowLeft,
+  ShieldCheck,
+  BarChart3,
+  Sparkles,
+  Users
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 
@@ -64,7 +70,7 @@ export default function AdminLoginPage() {
           })
           setTimeout(() => {
             window.location.href = '/dashboard/admin'
-          }, 600)
+          }, 400)
           return
         }
 
@@ -89,7 +95,7 @@ export default function AdminLoginPage() {
           })
           setTimeout(() => {
             window.location.href = '/dashboard/admin'
-          }, 600)
+          }, 400)
         } else {
           await supabase.auth.signOut()
           setMessage({
@@ -113,309 +119,345 @@ export default function AdminLoginPage() {
     setPassword('Admin2026*')
     setMessage({
       type: 'info',
-      text: 'Credenciales administrativas cargadas (admin@americandream.edu.co).'
+      text: 'Credenciales administrativas demo cargadas (admin@americandream.edu.co).'
     })
   }
 
   return (
-    <div className="bg-[#183ec2] min-h-screen h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans selection:bg-[#11246b] selection:text-white overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 font-sans bg-[#080E1E] text-slate-900 selection:bg-amber-500 selection:text-slate-950 overflow-hidden">
       
-      {/* TARJETA MAESTRA BLANCA OPTIMIZADA (SIN SCROLL EN 100% ZOOM) */}
-      <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.3)] w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-[840px] md:max-h-[580px] md:h-[580px] p-2 sm:p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-stretch overflow-hidden">
+      {/* ========================================================= */}
+      {/* FONDO AMBIENTAL DE PROFUNDIDAD (21st.dev / Linear Canvas) */}
+      {/* ========================================================= */}
+      {/* Malla de micro-puntos moderna */}
+      <div 
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)',
+          backgroundSize: '28px 28px'
+        }}
+      />
+
+      {/* Orbes de luz atmosféricos difusos */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/20 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-amber-500/15 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] bg-indigo-500/10 rounded-full blur-[160px] pointer-events-none" />
+
+      {/* ========================================================= */}
+      {/* TARJETA MAESTRA DIRECTIVA (ESTILO PRO MAX DESIGN)         */}
+      {/* ========================================================= */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+        className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[32px] border border-white/20 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.6)] grid grid-cols-1 md:grid-cols-12 overflow-hidden"
+      >
         
         {/* ========================================================= */}
-        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & COMPACTO      */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO ADMINISTRATIVO (7 COLS)    */}
         {/* ========================================================= */}
-        <div className="p-4 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto">
+        <div className="md:col-span-7 p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-white">
           
-          {/* Top navigation / Back */}
-          <div className="flex items-center justify-between gap-2">
+          {/* Top Bar: Volver a la web + Badge de Portal Directivo */}
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100">
             <Link 
               href="/" 
-              className="inline-flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
+              className="group inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-700 transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Volver a la web</span>
-              <span className="sm:hidden">Web</span>
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span>Volver a la web</span>
             </Link>
 
-            <span className="text-[10px] sm:text-[11px] font-bold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
-              Portal Directivo
+            <span className="inline-flex items-center gap-1 text-[10px] font-black tracking-wider uppercase text-amber-800 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+              <span>Portal Directivo · RBAC</span>
             </span>
           </div>
 
-          {/* Bloque central: Logo, Título, Subtítulo y Form */}
-          <div className="my-auto max-w-sm mx-auto w-full py-2">
+          {/* Bloque Central: Contenido y Formulario */}
+          <div className="py-6 sm:py-8 max-w-sm mx-auto w-full space-y-5">
             
-            {/* Logo Oficial American Dream English */}
-            <div className="text-center mb-3 mt-1">
-              <img 
-                src="/images/logo.png" 
-                alt="American Dream English" 
-                className="h-16 sm:h-20 w-auto object-contain mx-auto drop-shadow-md transition-transform duration-200 hover:scale-105" 
-              />
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight mt-1.5">
-                Control Panel
+            {/* Header del Formulario */}
+            <div className="space-y-1.5 text-left">
+              <div className="inline-flex items-center gap-2 mb-1">
+                <img 
+                  src="/images/logo.png" 
+                  alt="American Dream English" 
+                  className="h-9 w-auto object-contain drop-shadow-xs" 
+                />
+                <span className="text-[11px] font-black uppercase tracking-widest text-[#002B49] bg-slate-100 px-2 py-0.5 rounded-md">
+                  Panel Central
+                </span>
+              </div>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                Control Directivo
               </h1>
-              <p className="text-gray-400 text-xs font-medium mt-0.5">
-                Please enter your admin credentials.
+              <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                Ingresa con tu cuenta institucional de administrador para gestionar estudiantes, docentes y finanzas.
               </p>
             </div>
 
-            {/* Mensajes de Alerta */}
-            {message && (
-              <div 
-                className={`mb-3 p-2.5 rounded-xl text-xs font-medium flex items-start gap-2 animate-fadeIn border ${
-                  message.type === 'error' 
-                    ? 'bg-rose-50 text-rose-800 border-rose-200' 
-                    : message.type === 'success'
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                    : 'bg-blue-50 text-blue-800 border-blue-200'
-                }`}
-              >
-                {message.type === 'error' ? (
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                ) : (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                )}
-                <p className="leading-snug font-semibold">{message.text}</p>
-              </div>
-            )}
+            {/* Mensajes de Alerta con AnimatePresence */}
+            <AnimatePresence>
+              {message && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className={`p-3 rounded-2xl text-xs font-semibold flex items-start gap-2.5 border ${
+                    message.type === 'error' 
+                      ? 'bg-red-50 text-red-800 border-red-200' 
+                      : message.type === 'success'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-blue-50 text-blue-800 border-blue-200'
+                  }`}
+                >
+                  {message.type === 'error' ? (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  )}
+                  <p className="leading-snug">{message.text}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Formulario */}
-            <form onSubmit={handleAdminLogin} className="space-y-3">
+            <form onSubmit={handleAdminLogin} className="space-y-3.5 text-left">
               
-              {/* Campo Email Institucional */}
-              <div className="relative">
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@americandream.edu.co"
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
-                  disabled={loading}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
-                  <Mail className="w-4 h-4" />
+              {/* Campo Email Institucional con Icono a la Izquierda */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide">
+                  Correo Institucional Directivo
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Mail className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@americandream.edu.co"
+                    className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-10 pr-4 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 font-medium outline-none transition-all shadow-2xs"
+                    disabled={loading}
+                  />
                 </div>
               </div>
 
-              {/* Campo Contraseña */}
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              {/* Campo Contraseña con Icono a la Izquierda y Toggle a la Derecha */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide">
+                  Contraseña de Seguridad
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-10 pr-11 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 font-medium outline-none transition-all shadow-2xs"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
-              {/* Checkbox Remember */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-0.5 px-1">
-                <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              {/* Mantener sesión y demo */}
+              <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
+                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 rounded-md border-slate-300 focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-[11px] sm:text-xs text-gray-600 font-medium">Keep me signed in</span>
+                  <span className="text-xs font-semibold">Mantener sesión activa</span>
                 </label>
-                
+
                 <button
                   type="button"
                   onClick={handleFillDemoAdmin}
-                  className="text-[11px] sm:text-xs text-gray-400 hover:text-blue-600 transition-colors font-medium"
+                  className="text-xs text-amber-700 hover:text-amber-900 font-bold hover:underline cursor-pointer flex items-center gap-1"
                 >
-                  Forgot password?
+                  <KeyRound className="w-3 h-3" />
+                  <span>Cargar Demo</span>
                 </button>
               </div>
 
-              {/* Botón Principal Cápsula Azul */}
-              <div className="pt-1">
-                <button
+              {/* Botón Principal Directivo con Shimmer (21st.dev style) */}
+              <div className="pt-2">
+                <motion.button
+                  whileHover={{ scale: 1.015 }}
+                  whileTap={{ scale: 0.985 }}
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#183ec2] hover:bg-[#123099] active:bg-[#0c226e] text-white font-bold py-3 px-5 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm"
+                  className="relative overflow-hidden w-full font-extrabold py-3.5 px-6 rounded-2xl shadow-lg shadow-[#002B49]/25 transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer disabled:opacity-70 bg-gradient-to-r from-[#002B49] via-[#003B64] to-[#0A192F] text-amber-300"
                 >
+                  {/* Haz de luz líquido brillante */}
+                  <motion.span
+                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-amber-200/20 to-transparent -translate-x-full pointer-events-none"
+                    animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                    transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 1.2 }}
+                  />
+
                   {loading ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Validating...</span>
+                      <div className="w-4 h-4 border-2 border-amber-300/30 border-t-amber-300 rounded-full animate-spin" />
+                      <span className="relative z-10">Validando privilegios...</span>
                     </>
                   ) : (
-                    <span>Login</span>
+                    <>
+                      <span className="relative z-10">Ingresar al Panel Directivo</span>
+                      <ArrowRight className="w-4 h-4 relative z-10 stroke-[2.5]" />
+                    </>
                   )}
-                </button>
+                </motion.button>
               </div>
 
             </form>
 
-            {/* Separador "or" */}
-            <div className="relative my-3 sm:my-4 text-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-100" />
-              </div>
-              <span className="relative bg-white px-2.5 text-[11px] text-gray-400 font-medium">
-                or
-              </span>
-            </div>
-
-            {/* Accesos rápidos circulares / Portal Switcher */}
-            <div className="flex items-center justify-center gap-2.5">
-              <button
-                type="button"
-                onClick={handleFillDemoAdmin}
-                title="Cargar credenciales administrativas demo"
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
-              >
-                <KeyRound className="w-3.5 h-3.5" />
-              </button>
-              <Link
-                href="/campus/login"
-                title="Ir al Campus Estudiantil"
-                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 hover:border-blue-400 hover:bg-blue-50 text-gray-600 hover:text-blue-600 flex items-center justify-center transition-all shadow-2xs"
-              >
-                <GraduationCap className="w-3.5 h-3.5" />
-              </Link>
+            {/* Accesos Rápidos hacia Campus Estudiantil */}
+            <div className="text-center pt-1">
+              <p className="text-xs text-slate-500 font-medium">
+                ¿Buscas el portal académico?{' '}
+                <Link 
+                  href="/campus/login"
+                  className="text-blue-700 hover:text-blue-900 font-bold hover:underline inline-flex items-center gap-1 ml-0.5"
+                >
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>Ir a Campus Estudiantil</span>
+                </Link>
+              </p>
             </div>
 
           </div>
 
-          {/* Pie */}
-          <div className="text-center pt-1">
-            <p className="text-[10px] text-gray-400 font-medium">
-              American Dream English · Seguridad & Control Directivo
-            </p>
+          {/* Footer del Formulario */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <span>American Dream English · Seguridad & Control</span>
+            <span>Periodo 2026</span>
           </div>
 
         </div>
 
         {/* ========================================================= */}
-        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO COMPACTO           */}
+        {/* COLUMNA DERECHA: SHOWCASE DE GESTIÓN DIRECTIVA (5 COLS)   */}
         {/* ========================================================= */}
-        <div className="hidden md:block relative h-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-[#090D2A] shadow-inner">
+        <div className="hidden md:flex md:col-span-5 relative flex-col justify-between p-8 bg-gradient-to-br from-[#002B49] via-[#07192C] to-[#020B16] text-white overflow-hidden">
           
-          {/* Fondo Degradado Base */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
+          {/* Malla de micro-líneas sutiles */}
+          <div 
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#f59e0b 1px, transparent 1px)',
+              backgroundSize: '22px 22px'
+            }}
+          />
 
-          {/* Gráfico 3D Fluid Organics (SVG de alta fidelidad con curvas suaves y sombras de relieve) */}
-          <svg
-            className="absolute inset-0 w-full h-full object-cover"
-            viewBox="0 0 600 800"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              <radialGradient id="grad-admin-top-left" cx="30%" cy="25%" r="70%">
-                <stop offset="0%" stopColor="#818CF8" />
-                <stop offset="45%" stopColor="#4338CA" />
-                <stop offset="85%" stopColor="#1E1B4B" />
-                <stop offset="100%" stopColor="#0B0F2A" />
-              </radialGradient>
+          {/* Halos difusos internos */}
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-amber-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-blue-500/15 rounded-full blur-3xl pointer-events-none" />
 
-              <radialGradient id="grad-admin-wave-right" cx="75%" cy="35%" r="65%">
-                <stop offset="0%" stopColor="#6366F1" />
-                <stop offset="35%" stopColor="#312E81" />
-                <stop offset="70%" stopColor="#1E1B4B" />
-                <stop offset="100%" stopColor="#06091E" />
-              </radialGradient>
-
-              <linearGradient id="grad-admin-center-valley" x1="20%" y1="30%" x2="80%" y2="85%">
-                <stop offset="0%" stopColor="#3730A3" />
-                <stop offset="40%" stopColor="#1E1B4B" />
-                <stop offset="80%" stopColor="#090D26" />
-                <stop offset="100%" stopColor="#040614" />
-              </linearGradient>
-
-              <radialGradient id="grad-admin-bottom-glow" cx="45%" cy="80%" r="60%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="#1E3A8A" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#090D2A" stopOpacity="0" />
-              </radialGradient>
-
-              <filter id="soft-blur-admin" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-            </defs>
-
-            {/* Capa de fondo con luz ambiental difusa */}
-            <circle cx="200" cy="180" r="260" fill="url(#grad-admin-top-left)" filter="url(#soft-blur-admin)" opacity="0.65" />
-            <circle cx="450" cy="300" r="280" fill="url(#grad-admin-wave-right)" filter="url(#soft-blur-admin)" opacity="0.75" />
-            <circle cx="300" cy="700" r="240" fill="url(#grad-admin-bottom-glow)" filter="url(#soft-blur-admin)" opacity="0.6" />
-
-            {/* Curva Orgánica Superior Izquierda */}
-            <path
-              d="M -50 -50 
-                 L 400 -50 
-                 C 380 200, 220 380, 100 480 
-                 C 20 560, -20 620, -50 700 
-                 Z"
-              fill="url(#grad-admin-top-left)"
-              opacity="0.9"
-            />
-
-            {/* Sombra de relieve interior para dar profundidad 3D */}
-            <path
-              d="M 400 -50 
-                 C 380 200, 220 380, 100 480 
-                 C 150 420, 260 300, 320 150 
-                 C 360 50, 380 -20, 400 -50 
-                 Z"
-              fill="#06081E"
-              opacity="0.4"
-            />
-
-            {/* Gran Onda Esculpida Derecha y Valle Central */}
-            <path
-              d="M 650 -50 
-                 L 650 850 
-                 L -50 850 
-                 C 150 780, 280 620, 290 480 
-                 C 300 380, 420 320, 520 200 
-                 C 580 120, 620 40, 650 -50 
-                 Z"
-              fill="url(#grad-admin-center-valley)"
-            />
-
-            {/* Contorno orgánico con brillo de cresta */}
-            <path
-              d="M 650 150 
-                 C 550 250, 420 340, 360 420 
-                 C 300 500, 360 620, 480 720 
-                 C 540 770, 600 810, 650 850 
-                 Z"
-              fill="url(#grad-admin-wave-right)"
-              opacity="0.85"
-            />
-
-            {/* Destello de luz inferior */}
-            <ellipse cx="380" cy="720" rx="200" ry="120" fill="#2563EB" opacity="0.35" filter="url(#soft-blur-admin)" />
-          </svg>
-
-          {/* Sutil detalle de marca al pie */}
-          <div className="absolute bottom-4 right-4 z-10">
-            <span className="text-[10px] font-semibold text-white/40 tracking-wider uppercase">
-              Management Portal · RBAC
+          {/* Top: Header institucional directivo */}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-wider text-amber-300">
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>Security Hub · RBAC</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">
+              Admin v2.4
             </span>
           </div>
 
+          {/* Centro: Escudo Oficial con resplandor dorado + Badges Directivos */}
+          <div className="relative z-10 my-auto py-6 flex flex-col items-center space-y-6 text-center">
+            
+            {/* Escudo Oficial */}
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
+              transition={{ duration: 0.3 }}
+              className="relative group cursor-pointer"
+            >
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl group-hover:bg-amber-400/30 transition-all duration-500" />
+              <img 
+                src="/images/logo.png" 
+                alt="American Dream English" 
+                className="w-40 sm:w-44 h-auto object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] select-none relative z-10" 
+              />
+            </motion.div>
+
+            {/* Micro-Bento Badges de Funcionalidad Directiva */}
+            <div className="w-full space-y-2.5 text-left">
+              
+              {/* Badge 1: Control de Estudiantes y Matrículas */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0">
+                  <Users className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">Gestión Académica Integral</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">Estudiantes, notas y avance por niveles MCER</span>
+                </div>
+              </motion.div>
+
+              {/* Badge 2: Finanzas y Corplex */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
+                  <BarChart3 className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">Finanzas & Liquidaciones</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">Pasarela, fondo de becas y auditoría tributaria</span>
+                </div>
+              </motion.div>
+
+              {/* Badge 3: Seguridad y Privilegios */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">Control de Seguridad RBAC</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">Auditoría en tiempo real y permisos estrictos</span>
+                </div>
+              </motion.div>
+
+            </div>
+
+          </div>
+
+          {/* Bottom: Legal / Branding */}
+          <div className="relative z-10 pt-2 flex items-center justify-between text-[10px] text-slate-400 border-t border-white/10 font-medium">
+            <span>Sede Principal Turbo · Urabá</span>
+            <span className="text-white/60 font-semibold">Resolución Oficial 2471</span>
+          </div>
+
         </div>
 
-      </div>
+      </motion.div>
 
     </div>
   )

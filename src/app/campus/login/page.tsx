@@ -2,17 +2,21 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   User, 
   Eye, 
   EyeOff, 
-  KeyRound,
+  Lock, 
+  ArrowLeft, 
   ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-  Lock,
-  ArrowLeft,
-  GraduationCap
+  AlertCircle, 
+  CheckCircle2, 
+  GraduationCap,
+  Sparkles,
+  Bot,
+  Award,
+  ShieldCheck
 } from 'lucide-react'
 import { createClient } from '../../../utils/supabase/client'
 import { SoftSwitch3D } from '../../../components/ui/SoftSwitch3D'
@@ -25,32 +29,34 @@ const translations = {
     period: 'Period 2026',
     welcomeStudent: 'ADE Student Portal',
     welcomeTeacher: 'ADE Faculty Portal',
-    subtitleStudent: 'Please enter your student credentials.',
-    subtitleTeacher: 'Please enter your faculty or tutor credentials.',
-    emailPlaceholderStudent: 'Email or Document (ID)',
-    emailPlaceholderTeacher: 'Teacher Email or Document (ID)',
+    subtitleStudent: 'Enter your institutional access credentials.',
+    subtitleTeacher: 'Enter your faculty or certified tutor credentials.',
+    emailPlaceholderStudent: 'Email or Document ID (C.C.)',
+    emailPlaceholderTeacher: 'Institutional Email or Document ID',
     passwordPlaceholder: 'Password',
-    remember: 'Remember for 30 days',
+    remember: 'Remember session',
     forgot: 'Forgot password?',
     loginBtnStudent: 'Enter Virtual Campus',
     loginBtnTeacher: 'Enter Faculty Portal',
-    entering: 'Entering...',
-    or: 'or',
-    demoTooltip: 'Load demo student credentials',
-    adminTooltip: 'Go to Admin Portal',
+    entering: 'Authenticating...',
+    adminLink: 'Administrative / Admin Access',
     footerStudent: 'American Dream English · Student Campus',
-    footerTeacher: 'American Dream English · Faculty Portal',
+    footerTeacher: 'American Dream English · Faculty Campus',
     errorEmpty: 'Please enter your document or email and password.',
-    validationSuccess: 'Academic validation successful! Entering your Virtual Campus...',
+    welcomeSuccess: 'Welcome! Accessing your virtual classroom...',
     invalidCreds: 'Invalid credentials. Please verify your document and password.',
-    welcomeSuccess: 'Welcome! Loading your courses...',
-    accessVerified: 'Access verified. Redirecting to your virtual classroom...',
     teacherPrompt: 'Are you a faculty teacher? ',
     teacherLink: 'Access Faculty Portal here',
     studentPrompt: 'Are you a student? ',
     studentLink: 'Access Student Portal here',
     studentTab: 'Student',
-    teacherTab: 'Teacher / Faculty'
+    teacherTab: 'Faculty Teacher',
+    badge1Title: 'AI Voice Tutor 24/7',
+    badge1Desc: 'Daily speaking practice',
+    badge2Title: 'CEFR Official Levels',
+    badge2Desc: 'Structured A1 to B2 framework',
+    badge3Title: 'Supervised & Certified',
+    badge3Desc: 'Official Turbo Resolution 2471'
   },
   ES: {
     back: 'Volver a la web',
@@ -66,23 +72,25 @@ const translations = {
     forgot: '¿Olvidaste tu contraseña?',
     loginBtnStudent: 'Ingresar a mi Campus',
     loginBtnTeacher: 'Ingresar al Portal Docente',
-    entering: 'Ingresando...',
-    or: 'or',
-    demoTooltip: 'Cargar credenciales de estudiante demo',
-    adminTooltip: 'Ir al Portal Administrativo',
+    entering: 'Autenticando...',
+    adminLink: 'Ingreso Directivo / Admin',
     footerStudent: 'American Dream English · Campus Estudiantil',
     footerTeacher: 'American Dream English · Portal Docente Titular',
     errorEmpty: 'Por favor ingresa tu documento o correo y contraseña.',
-    validationSuccess: '¡Validación académica exitosa! Ingresando a tu Campus Virtual...',
+    welcomeSuccess: '¡Bienvenido(a)! Accediendo a tu aula virtual...',
     invalidCreds: 'Credenciales inválidas. Verifica tu documento y contraseña.',
-    welcomeSuccess: '¡Bienvenido(a)! Cargando tus cursos...',
-    accessVerified: 'Acceso verificado. Redirigiendo a tu aula virtual...',
     teacherPrompt: '¿Eres docente titular? ',
     teacherLink: 'Ingresa a tu panel aquí',
     studentPrompt: '¿Eres estudiante? ',
     studentLink: 'Ingresa al portal estudiantil aquí',
     studentTab: 'Estudiante',
-    teacherTab: 'Docente Titular'
+    teacherTab: 'Docente Titular',
+    badge1Title: 'Simulador Tutor IA 24/7',
+    badge1Desc: 'Práctica conversacional activa',
+    badge2Title: 'Niveles Oficiales MCER',
+    badge2Desc: 'Estructura formal A1 a B2',
+    badge3Title: 'Supervisión y Aval',
+    badge3Desc: 'Resolución Distrital Turbo 2471'
   }
 }
 
@@ -100,7 +108,6 @@ export default function CampusLoginPage() {
   const t = translations[lang]
 
   useEffect(() => {
-    // Cargar preferencia de idioma guardada en localStorage si existe
     try {
       const savedLang = localStorage.getItem('campus_login_lang') as Language
       if (savedLang === 'EN' || savedLang === 'ES') {
@@ -137,8 +144,6 @@ export default function CampusLoginPage() {
   const handleToggleRoleMode = (targetRole: 'student' | 'teacher') => {
     setRoleMode(targetRole)
     setMessage(null)
-    setIdentifier('')
-    setPassword('')
   }
 
   const handleStudentLogin = async (e: React.FormEvent) => {
@@ -250,371 +255,426 @@ export default function CampusLoginPage() {
   }
 
   return (
-    <div className="bg-[#183ec2] min-h-screen h-screen flex items-center justify-center p-3 sm:p-4 md:p-6 font-sans selection:bg-[#11246b] selection:text-white overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 md:p-8 font-sans bg-[#0B132B] text-slate-900 selection:bg-blue-600 selection:text-white overflow-hidden">
       
-      {/* TARJETA MAESTRA BLANCA OPTIMIZADA (SIN SCROLL EN 100% ZOOM) */}
-      <div className="bg-white rounded-[32px] sm:rounded-[40px] shadow-[0_25px_60px_rgba(0,0,0,0.3)] w-full max-w-sm sm:max-w-md md:max-w-3xl lg:max-w-[840px] md:max-h-[590px] md:h-[590px] p-2 sm:p-3 md:p-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 items-stretch overflow-hidden">
+      {/* ========================================================= */}
+      {/* FONDO AMBIENTAL DE PROFUNDIDAD (21st.dev / Linear Canvas) */}
+      {/* ========================================================= */}
+      {/* Malla de micro-puntos moderna */}
+      <div 
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)',
+          backgroundSize: '28px 28px'
+        }}
+      />
+
+      {/* Orbes de luz atmosféricos difusos */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/25 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-600/20 rounded-full blur-[130px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-sky-500/10 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* ========================================================= */}
+      {/* TARJETA MAESTRA FLOTANTE (ESTILO PRO MAX DESIGN)          */}
+      {/* ========================================================= */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+        className="relative z-10 w-full max-w-4xl bg-white rounded-3xl sm:rounded-[32px] border border-white/20 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.5)] grid grid-cols-1 md:grid-cols-12 overflow-hidden"
+      >
         
         {/* ========================================================= */}
-        {/* COLUMNA IZQUIERDA: FORMULARIO MINIMALISTA & COMPACTO      */}
+        {/* COLUMNA IZQUIERDA: FORMULARIO DE ACCESO (7 COLS)         */}
         {/* ========================================================= */}
-        <div className="p-4 sm:p-6 md:p-8 flex flex-col justify-between h-full overflow-y-auto">
+        <div className="md:col-span-7 p-6 sm:p-8 md:p-10 flex flex-col justify-between bg-white">
           
-          {/* Top navigation / Back & Toggle Switch de Idioma [ EN | ES ] */}
-          <div className="flex items-center justify-between gap-2">
+          {/* Top Bar: Volver a la web + Idioma + Periodo */}
+          <div className="flex items-center justify-between pb-6 border-b border-slate-100">
             <Link 
               href="/" 
-              className="inline-flex items-center gap-1 text-xs font-semibold text-gray-400 hover:text-blue-700 transition-colors"
+              className="group inline-flex items-center gap-1.5 text-xs font-bold text-slate-500 hover:text-blue-700 transition-colors"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{t.back}</span>
-              <span className="sm:hidden">Web</span>
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+              <span>{t.back}</span>
             </Link>
 
-            <div className="flex items-center gap-2">
-              {/* Switch Neumórfico / Soft 3D de Idioma [ EN | ES ] */}
-              <div className="px-1.5 py-0.5 bg-slate-50 rounded-2xl border border-slate-200/70 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              {/* Switch Neumórfico de Idioma */}
+              <div className="px-1.5 py-0.5 bg-slate-50 rounded-2xl border border-slate-200/80 shadow-2xs">
                 <SoftSwitch3D
                   checked={lang === 'ES'}
                   onChange={(isEs) => handleLanguageChange(isEs ? 'ES' : 'EN')}
                   leftLabel="EN"
                   rightLabel="ES"
                   size="sm"
-                  ariaLabel="Toggle language between English and Spanish"
+                  ariaLabel="Toggle language"
                 />
               </div>
 
               {/* Badge Periodo */}
-              <span className="text-[10px] sm:text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 sm:py-1 rounded-full whitespace-nowrap">
+              <span className="text-[10px] font-black tracking-wider uppercase text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
                 {t.period}
               </span>
             </div>
           </div>
 
-          {/* Bloque central: Título, Subtítulo y Form */}
-          <div className="my-auto max-w-sm mx-auto w-full py-1">
+          {/* Bloque Central: Contenido y Formulario */}
+          <div className="py-6 sm:py-8 max-w-sm mx-auto w-full space-y-5">
             
-            {/* Selector de Rol Segmentado: Estudiante / Docente Titular */}
-            <div className="flex items-center justify-center bg-slate-100 p-1 rounded-full mb-3 max-w-[270px] mx-auto border border-slate-200/80">
+            {/* Segmented Role Switch con Cápsula Deslizante LayoutId */}
+            <div className="relative bg-slate-100/90 p-1 rounded-2xl flex items-center text-xs font-bold border border-slate-200">
               <button
                 type="button"
                 onClick={() => handleToggleRoleMode('student')}
-                className={`flex-1 py-1 px-3 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
-                  roleMode === 'student'
-                    ? 'bg-white text-blue-700 shadow-2xs'
-                    : 'text-slate-500 hover:text-slate-800'
+                className={`relative z-10 flex-1 py-2 text-center rounded-xl transition-colors font-bold flex items-center justify-center gap-1.5 cursor-pointer ${
+                  roleMode === 'student' ? 'text-slate-900 font-extrabold' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
+                {roleMode === 'student' && (
+                  <motion.div
+                    layoutId="activeCampusRolePill"
+                    className="absolute inset-0 bg-white rounded-xl shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 <User className="w-3.5 h-3.5" />
                 <span>{t.studentTab}</span>
               </button>
+
               <button
                 type="button"
                 onClick={() => handleToggleRoleMode('teacher')}
-                className={`flex-1 py-1 px-3 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer select-none ${
-                  roleMode === 'teacher'
-                    ? 'bg-[#002B49] text-amber-400 shadow-2xs'
-                    : 'text-slate-500 hover:text-slate-800'
+                className={`relative z-10 flex-1 py-2 text-center rounded-xl transition-colors font-bold flex items-center justify-center gap-1.5 cursor-pointer ${
+                  roleMode === 'teacher' ? 'text-white font-extrabold' : 'text-slate-500 hover:text-slate-800'
                 }`}
               >
+                {roleMode === 'teacher' && (
+                  <motion.div
+                    layoutId="activeCampusRolePill"
+                    className="absolute inset-0 bg-[#002B49] rounded-xl shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 <GraduationCap className="w-3.5 h-3.5" />
                 <span>{t.teacherTab}</span>
               </button>
             </div>
 
-            <div className="text-center mb-4 mt-1">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-gray-900 tracking-tight transition-colors">
-                {roleMode === 'teacher' ? t.welcomeTeacher : t.welcomeStudent}
-              </h1>
-              <p className="text-gray-500 text-xs font-medium mt-1">
-                {roleMode === 'teacher' ? t.subtitleTeacher : t.subtitleStudent}
-              </p>
-            </div>
-
-            {/* Mensajes de Alerta */}
-            {message && (
-              <div 
-                className={`mb-3 p-2.5 rounded-xl text-xs font-medium flex items-start gap-2 animate-fadeIn border ${
-                  message.type === 'error' 
-                    ? 'bg-rose-50 text-rose-800 border-rose-200' 
-                    : message.type === 'success'
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                    : 'bg-blue-50 text-blue-800 border-blue-200'
-                }`}
+            {/* Titular con Transición Fluida */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={roleMode}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18 }}
+                className="space-y-1 text-left"
               >
-                {message.type === 'error' ? (
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-600 shrink-0 mt-0.5" />
-                ) : (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                )}
-                <p className="leading-snug font-semibold">{message.text}</p>
-              </div>
-            )}
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+                  {roleMode === 'teacher' ? t.welcomeTeacher : t.welcomeStudent}
+                </h1>
+                <p className="text-slate-500 text-xs font-medium leading-relaxed">
+                  {roleMode === 'teacher' ? t.subtitleTeacher : t.subtitleStudent}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Mensaje de Feedback / Error */}
+            <AnimatePresence>
+              {message && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className={`p-3 rounded-2xl text-xs font-semibold flex items-start gap-2.5 border ${
+                    message.type === 'error' 
+                      ? 'bg-red-50 text-red-800 border-red-200' 
+                      : message.type === 'success'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-blue-50 text-blue-800 border-blue-200'
+                  }`}
+                >
+                  {message.type === 'error' ? (
+                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  )}
+                  <p className="leading-snug">{message.text}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Formulario */}
-            <form onSubmit={handleStudentLogin} className="space-y-3">
+            <form onSubmit={handleStudentLogin} className="space-y-3.5 text-left">
               
-              {/* Campo Email / Documento */}
-              <div className="relative">
-                <input
-                  type="text"
-                  required
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  placeholder={roleMode === 'teacher' ? t.emailPlaceholderTeacher : t.emailPlaceholderStudent}
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
-                  disabled={loading}
-                />
-                <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-gray-400">
-                  {roleMode === 'teacher' ? <GraduationCap className="w-4 h-4 text-amber-500" /> : <User className="w-4 h-4" />}
+              {/* Campo Usuario / Documento con Icono a la Izquierda */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide">
+                  {roleMode === 'teacher' ? 'Docente (Email o C.C.)' : 'Estudiante (Email o C.C.)'}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    {roleMode === 'teacher' ? (
+                      <GraduationCap className="w-4 h-4 text-amber-500" />
+                    ) : (
+                      <User className="w-4 h-4 text-slate-400" />
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={identifier}
+                    onChange={(e) => setIdentifier(e.target.value)}
+                    placeholder={roleMode === 'teacher' ? t.emailPlaceholderTeacher : t.emailPlaceholderStudent}
+                    className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-10 pr-4 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 font-medium outline-none transition-all shadow-2xs"
+                    disabled={loading}
+                  />
                 </div>
               </div>
 
-              {/* Campo Contraseña */}
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t.passwordPlaceholder}
-                  className="w-full bg-white border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-100 rounded-full px-4 py-2.5 sm:py-3 pr-10 text-xs sm:text-sm text-gray-800 placeholder-gray-400 font-medium outline-none transition-all shadow-2xs"
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                  tabIndex={-1}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+              {/* Campo Contraseña con Icono a la Izquierda y Toggle a la Derecha */}
+              <div className="space-y-1">
+                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wide">
+                  {t.passwordPlaceholder}
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Lock className="w-4 h-4 text-slate-400" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 rounded-2xl pl-10 pr-11 py-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 font-medium outline-none transition-all shadow-2xs"
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                    tabIndex={-1}
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Ver contraseña'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
 
-              {/* Checkbox Remember & Period Info */}
-              <div className="flex items-center justify-between text-xs text-gray-500 pt-0.5 px-1">
-                <label className="inline-flex items-center gap-1.5 cursor-pointer select-none">
+              {/* Recordar Sesión & Olvido */}
+              <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
+                <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    className="w-4 h-4 text-blue-600 rounded-md border-slate-300 focus:ring-blue-500 cursor-pointer"
                   />
-                  <span className="text-[11px] sm:text-xs text-gray-600 font-medium">{t.remember}</span>
+                  <span className="text-xs font-semibold">{t.remember}</span>
                 </label>
-                
-                <span className="text-[11px] text-gray-400 font-medium">
-                  {roleMode === 'teacher' ? 'Docentes Titulares ADE' : t.period}
-                </span>
+
+                <a 
+                  href="https://wa.me/573104567890?text=Hola,%20necesito%20ayuda%20para%20recuperar%20mi%20contrase%C3%B1a%20de%20ADE" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-700 hover:text-blue-900 font-bold hover:underline"
+                >
+                  {t.forgot}
+                </a>
               </div>
 
-              {/* Botón Principal Cápsula */}
-              <div className="pt-1">
-                <button
+              {/* Botón Principal de Acceso con Shimmer (21st.dev style) */}
+              <div className="pt-2">
+                <motion.button
+                  whileHover={{ scale: 1.015 }}
+                  whileTap={{ scale: 0.985 }}
                   type="submit"
                   disabled={loading}
-                  className={`w-full text-white font-bold py-2.5 sm:py-3 px-5 rounded-full shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed text-xs sm:text-sm ${
+                  className={`relative overflow-hidden w-full font-extrabold py-3.5 px-6 rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer disabled:opacity-70 ${
                     roleMode === 'teacher'
-                      ? 'bg-[#002B49] hover:bg-[#001f35] text-amber-400'
-                      : 'bg-[#183ec2] hover:bg-[#123099]'
+                      ? 'bg-gradient-to-r from-[#002B49] via-[#002B49] to-[#001728] text-amber-300 shadow-[#002B49]/20'
+                      : 'bg-gradient-to-r from-blue-600 via-blue-600 to-indigo-700 text-white shadow-blue-600/25'
                   }`}
                 >
+                  {/* Haz de luz líquido brillante */}
+                  <motion.span
+                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none"
+                    animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                    transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 1.2 }}
+                  />
+
                   {loading ? (
                     <>
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>{t.entering}</span>
-                    </>
-                  ) : (
-                    <span>{roleMode === 'teacher' ? t.loginBtnTeacher : t.loginBtnStudent}</span>
-                  )}
-                </button>
-              </div>
-
-              {/* Alternar entre Modo Estudiante y Modo Docente Titular */}
-              <div className="text-center pt-2">
-                <p className="text-[11px] sm:text-xs text-gray-500 font-medium">
-                  {roleMode === 'student' ? (
-                    <>
-                      {t.teacherPrompt}
-                      <button 
-                        type="button"
-                        onClick={() => handleToggleRoleMode('teacher')} 
-                        className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
-                      >
-                        {t.teacherLink}
-                      </button>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span className="relative z-10">{t.entering}</span>
                     </>
                   ) : (
                     <>
-                      {t.studentPrompt}
-                      <button 
-                        type="button"
-                        onClick={() => handleToggleRoleMode('student')} 
-                        className="text-[#183ec2] hover:text-[#0f2a8a] font-bold hover:underline cursor-pointer ml-1"
-                      >
-                        {t.studentLink}
-                      </button>
+                      <span className="relative z-10">
+                        {roleMode === 'teacher' ? t.loginBtnTeacher : t.loginBtnStudent}
+                      </span>
+                      <ArrowRight className="w-4 h-4 relative z-10 stroke-[2.5]" />
                     </>
                   )}
-                </p>
+                </motion.button>
               </div>
 
             </form>
 
-            {/* Acceso Administrativo Directivo */}
-            <div className="pt-3 text-center">
-              <Link
-                href="/admin/login"
-                className="inline-flex items-center gap-1.5 text-[11px] text-gray-400 hover:text-blue-600 transition-colors font-medium"
-              >
-                <Lock className="w-3 h-3 text-gray-400" />
-                <span>{lang === 'ES' ? 'Ingreso Directivo / Admin' : 'Administrative / Admin Portal'}</span>
-              </Link>
+            {/* Enlace para Docente / Estudiante */}
+            <div className="text-center pt-1">
+              <p className="text-xs text-slate-500 font-medium">
+                {roleMode === 'student' ? (
+                  <>
+                    {t.teacherPrompt}
+                    <button 
+                      type="button"
+                      onClick={() => handleToggleRoleMode('teacher')} 
+                      className="text-blue-700 hover:text-blue-900 font-bold hover:underline cursor-pointer ml-1"
+                    >
+                      {t.teacherLink}
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    {t.studentPrompt}
+                    <button 
+                      type="button"
+                      onClick={() => handleToggleRoleMode('student')} 
+                      className="text-blue-700 hover:text-blue-900 font-bold hover:underline cursor-pointer ml-1"
+                    >
+                      {t.studentLink}
+                    </button>
+                  </>
+                )}
+              </p>
             </div>
 
           </div>
 
-          {/* Pie */}
-          <div className="text-center pt-1">
-            <p className="text-[10px] text-gray-400 font-medium">
+          {/* Footer del Formulario */}
+          <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1.5 text-slate-500 hover:text-blue-700 transition-colors font-semibold"
+            >
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+              <span>{t.adminLink}</span>
+            </Link>
+
+            <span className="hidden sm:inline">
               {roleMode === 'teacher' ? t.footerTeacher : t.footerStudent}
-            </p>
-          </div>
-
-        </div>
-
-        {/* ========================================================= */}
-        {/* COLUMNA DERECHA: ARTE VISUAL 3D LÍQUIDO CON ESCUDO        */}
-        {/* ========================================================= */}
-        <div className="hidden md:flex flex-col items-center justify-center relative h-full rounded-[24px] sm:rounded-[32px] overflow-hidden bg-[#090D2A] shadow-inner p-6 text-center">
-          
-          {/* Fondo Degradado Base */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#111A4F] via-[#090D2A] to-[#040615]" />
-
-          {/* Gráfico 3D Fluid Organics */}
-          <svg
-            className="absolute inset-0 w-full h-full object-cover"
-            viewBox="0 0 600 800"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-          >
-            <defs>
-              {/* Gradiente Pétalo Superior Izquierdo */}
-              <radialGradient id="grad-top-left" cx="30%" cy="25%" r="70%">
-                <stop offset="0%" stopColor="#818CF8" />
-                <stop offset="45%" stopColor="#4338CA" />
-                <stop offset="85%" stopColor="#1E1B4B" />
-                <stop offset="100%" stopColor="#0B0F2A" />
-              </radialGradient>
-
-              {/* Gradiente Onda Central Derecha */}
-              <radialGradient id="grad-wave-right" cx="75%" cy="35%" r="65%">
-                <stop offset="0%" stopColor="#6366F1" />
-                <stop offset="35%" stopColor="#312E81" />
-                <stop offset="70%" stopColor="#1E1B4B" />
-                <stop offset="100%" stopColor="#06091E" />
-              </radialGradient>
-
-              {/* Gradiente Valle Central */}
-              <linearGradient id="grad-center-valley" x1="20%" y1="30%" x2="80%" y2="85%">
-                <stop offset="0%" stopColor="#3730A3" />
-                <stop offset="40%" stopColor="#1E1B4B" />
-                <stop offset="80%" stopColor="#090D26" />
-                <stop offset="100%" stopColor="#040614" />
-              </linearGradient>
-
-              {/* Gradiente Onda Inferior */}
-              <radialGradient id="grad-bottom-glow" cx="45%" cy="80%" r="60%">
-                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                <stop offset="50%" stopColor="#1E3A8A" stopOpacity="0.4" />
-                <stop offset="100%" stopColor="#090D2A" stopOpacity="0" />
-              </radialGradient>
-
-              {/* Filtro de Difuminado Suave */}
-              <filter id="soft-blur" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="40" />
-              </filter>
-            </defs>
-
-            {/* Capa de fondo con luz ambiental difusa */}
-            <circle cx="200" cy="180" r="260" fill="url(#grad-top-left)" filter="url(#soft-blur)" opacity="0.65" />
-            <circle cx="450" cy="300" r="280" fill="url(#grad-wave-right)" filter="url(#soft-blur)" opacity="0.75" />
-            <circle cx="300" cy="700" r="240" fill="url(#grad-bottom-glow)" filter="url(#soft-blur)" opacity="0.6" />
-
-            {/* Curva Orgánica Superior Izquierda */}
-            <path
-              d="M -50 -50 
-                 L 400 -50 
-                 C 380 200, 220 380, 100 480 
-                 C 20 560, -20 620, -50 700 
-                 Z"
-              fill="url(#grad-top-left)"
-              opacity="0.9"
-            />
-
-            {/* Sombra de relieve interior para dar profundidad 3D */}
-            <path
-              d="M 400 -50 
-                 C 380 200, 220 380, 100 480 
-                 C 150 420, 260 300, 320 150 
-                 C 360 50, 380 -20, 400 -50 
-                 Z"
-              fill="#06081E"
-              opacity="0.4"
-            />
-
-            {/* Gran Onda Esculpida Derecha y Valle Central */}
-            <path
-              d="M 650 -50 
-                 L 650 850 
-                 L -50 850 
-                 C 150 780, 280 620, 290 480 
-                 C 300 380, 420 320, 520 200 
-                 C 580 120, 620 40, 650 -50 
-                 Z"
-              fill="url(#grad-center-valley)"
-            />
-
-            {/* Contorno orgánico con brillo de cresta */}
-            <path
-              d="M 650 150 
-                 C 550 250, 420 340, 360 420 
-                 C 300 500, 360 620, 480 720 
-                 C 540 770, 600 810, 650 850 
-                 Z"
-              fill="url(#grad-wave-right)"
-              opacity="0.85"
-            />
-
-            {/* Destello de luz inferior sutil */}
-            <ellipse cx="380" cy="720" rx="200" ry="120" fill="#2563EB" opacity="0.35" filter="url(#soft-blur)" />
-          </svg>
-
-          {/* Escudo / Logo American Dream English Oficial (3x de escala, centrado y con resplandor) */}
-          <div className="relative z-10 flex flex-col items-center justify-center my-auto">
-            <div className="relative flex items-center justify-center group">
-              {/* Halo de luz suave azul/índigo */}
-              <div className="absolute w-44 h-44 sm:w-52 sm:h-52 bg-blue-500/25 rounded-full blur-2xl group-hover:bg-blue-400/35 transition-all duration-500" />
-              
-              <img 
-                src="/images/logo.png" 
-                alt="American Dream English" 
-                className="w-44 sm:w-52 md:w-56 h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.7)] transition-transform duration-300 group-hover:scale-105 select-none" 
-              />
-            </div>
-          </div>
-
-          {/* Sutil detalle de marca al pie */}
-          <div className="absolute bottom-4 right-4 z-10">
-            <span className="text-[10px] font-semibold text-white/40 tracking-wider uppercase">
-              American Dream English
             </span>
           </div>
 
         </div>
 
-      </div>
+        {/* ========================================================= */}
+        {/* COLUMNA DERECHA: SHOWCASE ACADÉMICO EDTECH (5 COLS)       */}
+        {/* ========================================================= */}
+        <div className="hidden md:flex md:col-span-5 relative flex-col justify-between p-8 bg-gradient-to-br from-[#001f35] via-[#091728] to-[#040913] text-white overflow-hidden">
+          
+          {/* Malla de micro-líneas sutiles */}
+          <div 
+            className="absolute inset-0 opacity-15 pointer-events-none"
+            style={{
+              backgroundImage: 'radial-gradient(#38bdf8 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
+            }}
+          />
+
+          {/* Halo difuso interno */}
+          <div className="absolute -top-16 -right-16 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Top: Header institucional */}
+          <div className="relative z-10 flex items-center justify-between">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/10 text-[10px] font-black uppercase tracking-wider text-amber-300">
+              <Sparkles className="w-3 h-3 text-amber-300" />
+              <span>Campus Digital 4K</span>
+            </div>
+            <span className="text-[10px] font-mono text-slate-400">
+              v2.4
+            </span>
+          </div>
+
+          {/* Centro: Escudo Oficial con relieve y resplandor + Badges */}
+          <div className="relative z-10 my-auto py-6 flex flex-col items-center space-y-6 text-center">
+            
+            {/* Escudo Oficial con halo suave */}
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: [0, -1, 1, 0] }}
+              transition={{ duration: 0.3 }}
+              className="relative group cursor-pointer"
+            >
+              <div className="absolute inset-0 bg-blue-500/30 rounded-full blur-2xl group-hover:bg-blue-400/40 transition-all duration-500" />
+              <img 
+                src="/images/logo.png" 
+                alt="American Dream English" 
+                className="w-40 sm:w-44 h-auto object-contain drop-shadow-[0_15px_35px_rgba(0,0,0,0.6)] select-none relative z-10" 
+              />
+            </motion.div>
+
+            {/* Micro-Bento Badges con Microinteracciones */}
+            <div className="w-full space-y-2.5 text-left">
+              
+              {/* Badge 1: Tutor IA */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-300 shrink-0">
+                  <Bot className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">{t.badge1Title}</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">{t.badge1Desc}</span>
+                </div>
+              </motion.div>
+
+              {/* Badge 2: Niveles MCER */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-300 shrink-0">
+                  <Award className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">{t.badge2Title}</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">{t.badge2Desc}</span>
+                </div>
+              </motion.div>
+
+              {/* Badge 3: Acreditación Oficial */}
+              <motion.div 
+                whileHover={{ x: 3 }}
+                className="bg-white/5 hover:bg-white/10 backdrop-blur-md p-3 rounded-2xl border border-white/10 transition-colors flex items-center gap-3 shadow-inner"
+              >
+                <div className="w-8 h-8 rounded-xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300 shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-xs font-bold text-white tracking-tight">{t.badge3Title}</strong>
+                  <span className="block text-[10px] text-slate-300 truncate">{t.badge3Desc}</span>
+                </div>
+              </motion.div>
+
+            </div>
+
+          </div>
+
+          {/* Bottom: Legal / Branding */}
+          <div className="relative z-10 pt-2 flex items-center justify-between text-[10px] text-slate-400 border-t border-white/10 font-medium">
+            <span>Distrito de Turbo · Urabá</span>
+            <span className="text-white/60 font-semibold">Resolución 2471/2022</span>
+          </div>
+
+        </div>
+
+      </motion.div>
 
     </div>
   )

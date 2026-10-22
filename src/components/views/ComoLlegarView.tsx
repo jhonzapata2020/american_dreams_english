@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   MapPin, 
   Navigation, 
@@ -27,7 +28,9 @@ import {
   Wifi,
   Wind,
   Coffee,
-  CarFront
+  CarFront,
+  Radio,
+  ArrowRight
 } from 'lucide-react'
 import { useLanguage } from '../../context/LanguageContext'
 import { SoftSwitch3D } from '../ui/SoftSwitch3D'
@@ -260,43 +263,88 @@ export function ComoLlegarView() {
       </header>
 
       {/* ========================================================= */}
-      {/* 2. HERO PRINCIPAL: TITULO Y GEOLOCALIZACION              */}
+      {/* 2. HERO PRINCIPAL: ATMOSFERA GPS & TELEMETRÍA             */}
       {/* ========================================================= */}
-      <section className="bg-gradient-to-br from-[#002B49] via-[#083556] to-[#0D1B2A] text-white pt-8 pb-10 sm:py-12 relative overflow-hidden">
+      <section className="bg-gradient-to-br from-[#001f35] via-[#07243d] to-[#041220] text-white pt-10 pb-14 sm:py-16 relative overflow-hidden">
         
-        {/* Luces de fondo ambientales */}
-        <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/20 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-red-600/20 rounded-full blur-[100px] pointer-events-none" />
+        {/* Grilla sutil de radar satelital */}
+        <div 
+          className="absolute inset-0 opacity-[0.07] pointer-events-none"
+          style={{
+            backgroundImage: `radial-gradient(circle at center, rgba(255,255,255,0.4) 1px, transparent 1px)`,
+            backgroundSize: '28px 28px'
+          }}
+        />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-4">
+        {/* Halos de luz ambiental */}
+        <motion.div 
+          animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.35, 0.2] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-32 -right-24 w-[480px] h-[480px] bg-blue-500/25 rounded-full blur-[110px] pointer-events-none" 
+        />
+        <motion.div 
+          animate={{ scale: [1.1, 1, 1.1], opacity: [0.15, 0.25, 0.15] }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -bottom-32 -left-24 w-[480px] h-[480px] bg-red-600/20 rounded-full blur-[110px] pointer-events-none" 
+        />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-5">
           
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 text-xs font-black px-4 py-1.5 rounded-full">
-            <MapPin className="w-4 h-4 text-red-500 animate-bounce" />
-            <span>{language === 'en' ? 'Official Campus Geolocation & Navigation' : 'Georreferenciación & Navegación Satelital Oficial'}</span>
-          </div>
+          {/* Badge de Telemetría GPS con radar pulse */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2.5 bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 text-amber-300 text-xs font-black px-4 py-1.5 rounded-full shadow-lg"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+            </span>
+            <span className="tracking-wide">
+              {language === 'en' ? 'Official Campus Geolocation & Satellite GPS' : 'Georreferenciación & Telemetría Satelital Oficial'}
+            </span>
+            <span className="text-white/30 hidden sm:inline">|</span>
+            <span className="text-slate-300 text-[11px] font-mono hidden sm:inline">Troncal Km 1.5</span>
+          </motion.div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
-            {language === 'en' 
-              ? 'How to Get to American Dream English' 
-              : '¿Cómo Llegar a American Dream English?'}
-          </h1>
+          {/* Titular Principal con Entrada Fluida */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="space-y-3"
+          >
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight">
+              {language === 'en' 
+                ? 'How to Get to American Dream English' 
+                : '¿Cómo Llegar a American Dream English?'}
+            </h1>
 
-          <p className="text-slate-200 text-xs sm:text-base leading-relaxed font-medium max-w-3xl">
-            {language === 'en'
-              ? 'Strategically located along the National Highway at Km 1.5, on the right roadway heading from Turbo towards Apartadó — between the gas station and the Vereda Casanova entrance.'
-              : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5, en la calzada derecha saliendo de Turbo hacia Apartadó — entre la bomba de gasolina y la entrada a la Vereda Casanova.'}
-          </p>
+            <p className="text-slate-200 text-xs sm:text-base leading-relaxed font-medium max-w-3xl">
+              {language === 'en'
+                ? 'Strategically located along the National Highway at Km 1.5, on the right roadway heading from Turbo towards Apartadó — between the gas station and the Vereda Casanova entrance.'
+                : 'Ubicados estratégicamente sobre la Troncal Nacional Km 1.5, en la calzada derecha saliendo de Turbo hacia Apartadó — entre la bomba de gasolina y la entrada a la Vereda Casanova.'}
+            </p>
+          </motion.div>
 
-          {/* Quick GPS Bar */}
-          <div className="pt-2 flex flex-wrap items-center gap-3">
-            <button
+          {/* Quick GPS Bar & Tiempos de Estimación en Vivo */}
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="pt-1 flex flex-wrap items-center gap-2.5 sm:gap-3"
+          >
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               onClick={handleCopyCoords}
-              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 px-4 py-2 rounded-2xl text-xs font-mono font-bold text-white transition-all shadow-sm active:scale-95"
+              className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/25 px-4 py-2 rounded-2xl text-xs font-mono font-bold text-white transition-all shadow-sm cursor-pointer"
             >
               {copied ? (
                 <>
                   <Check className="w-4 h-4 text-emerald-400" />
-                  <span className="text-emerald-300">{language === 'en' ? 'Coordinates copied!' : '¡Coordenadas copiadas!'}</span>
+                  <span className="text-emerald-300 font-sans font-extrabold">{language === 'en' ? 'Coordinates copied!' : '¡Coordenadas copiadas!'}</span>
                 </>
               ) : (
                 <>
@@ -304,35 +352,56 @@ export function ComoLlegarView() {
                   <span>GPS: {coordsDMS}</span>
                 </>
               )}
-            </button>
+            </motion.button>
 
-            <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1.5 rounded-2xl text-xs font-bold">
+            <span className="inline-flex items-center gap-1.5 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 px-3 py-1.5 rounded-2xl text-xs font-bold backdrop-blur-sm">
               <Sparkles className="w-3.5 h-3.5" />
               <span>{language === 'en' ? 'Ground Elevation: 7.83 m' : 'Elevación: 7.83 m s.n.m.'}</span>
             </span>
-          </div>
+
+            {/* Chips de Tiempos Estimados (ETAs) */}
+            <div className="hidden lg:flex items-center gap-2 text-[11px] font-bold text-slate-300 bg-white/5 border border-white/10 px-3 py-1 rounded-2xl backdrop-blur-sm">
+              <Clock className="w-3.5 h-3.5 text-blue-400" />
+              <span>Turbo: <strong className="text-white">~5 min</strong></span>
+              <span className="text-white/20">·</span>
+              <span>Currulao: <strong className="text-white">~15 min</strong></span>
+              <span className="text-white/20">·</span>
+              <span>Apartadó: <strong className="text-white">~35 min</strong></span>
+            </div>
+          </motion.div>
 
         </div>
       </section>
 
       {/* ========================================================= */}
-      {/* 3. MAPA SATELITAL HD DE PRIMERO EN LA VISTA (TOP MAP)     */}
+      {/* 3. MAPA SATELITAL HD DE ALTA GAMA (21st.dev Style)        */}
       {/* ========================================================= */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6 relative z-20 space-y-10">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 space-y-10">
         
         {/* BLOQUE DEL MAPA PRINCIPAL EN LA PARTE SUPERIOR */}
-        <div className="bg-white rounded-3xl p-3 sm:p-5 border border-slate-200 shadow-xl space-y-4 overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.25 }}
+          className="bg-white rounded-3xl p-3 sm:p-5 border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] space-y-4 overflow-hidden"
+        >
           
           {/* Header del Mapa con Enlace de GPS */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-2 pt-1">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-red-600 text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-red-600 to-rose-600 text-white flex items-center justify-center font-bold shadow-md shadow-red-600/20 shrink-0 border border-white/30">
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                  {language === 'en' ? 'Interactive Campus Map (Live GPS)' : 'Mapa Satelital Interactivo de la Sede'}
-                </h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                    {language === 'en' ? 'Interactive Campus Map (Live GPS)' : 'Mapa Satelital Interactivo de la Sede'}
+                  </h2>
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black uppercase text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-300">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                    En Servicio
+                  </span>
+                </div>
                 <p className="text-xs text-slate-500 font-medium">
                   {language === 'en' 
                     ? 'Km 1.5 Turbo National Highway · Right lane heading to Apartadó (Between the gas station & Casanova entrance)' 
@@ -343,43 +412,49 @@ export function ComoLlegarView() {
 
             {/* Acciones Rápidas de Navegación GPS */}
             <div className="flex flex-wrap items-center gap-2">
-              <a
+              <motion.a
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.96 }}
                 href={googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#002B49] hover:bg-[#001f35] text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#002B49] hover:bg-[#001f35] text-white text-xs font-extrabold rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 <Navigation className="w-3.5 h-3.5 text-amber-400" />
                 <span>Google Maps</span>
                 <ExternalLink className="w-3 h-3 text-slate-400" />
-              </a>
+              </motion.a>
 
-              <a
+              <motion.a
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.96 }}
                 href={wazeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#33CCFF] hover:bg-[#20bce6] text-slate-950 text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#33CCFF] hover:bg-[#20bce6] text-slate-950 text-xs font-black rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 <Compass className="w-3.5 h-3.5 text-slate-950" />
                 <span>Waze</span>
                 <ExternalLink className="w-3 h-3 opacity-70" />
-              </a>
+              </motion.a>
 
-              <a
+              <motion.a
+                whileHover={{ scale: 1.04, y: -1 }}
+                whileTap={{ scale: 0.96 }}
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all active:scale-95"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-extrabold rounded-xl shadow-xs transition-all cursor-pointer"
               >
                 <MessageSquare className="w-3.5 h-3.5" />
                 <span className="hidden min-[480px]:inline">WhatsApp Recepción</span>
                 <span className="min-[480px]:hidden">WhatsApp</span>
-              </a>
+              </motion.a>
             </div>
           </div>
 
-          {/* Iframe del Mapa */}
-          <div className="relative w-full h-[360px] sm:h-[460px] lg:h-[500px] rounded-2xl overflow-hidden border border-slate-200 shadow-inner bg-slate-900">
+          {/* Iframe del Mapa con HUD y Pin Dinámico */}
+          <div className="relative w-full h-[370px] sm:h-[460px] lg:h-[520px] rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200/90 shadow-inner bg-slate-900 group">
             <iframe
               title="Geolocalización Sede American Dream English Turbo"
               src="https://maps.google.com/maps?q=8.091769,-76.708828&hl=es&z=16&output=embed"
@@ -392,10 +467,27 @@ export function ComoLlegarView() {
               className="w-full h-full object-cover"
             />
 
-            {/* Floating Top Badge */}
-            <div className="absolute top-3 left-3 right-3 sm:right-auto bg-white/95 backdrop-blur-md p-3 rounded-2xl shadow-xl border border-slate-200/90 flex items-center justify-between gap-3 text-xs text-[#002B49]">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-red-600 animate-ping shrink-0" />
+            {/* Radar Center Pin Effect (Superpuesto en el mapa) */}
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="relative flex items-center justify-center">
+                <span className="animate-ping absolute inline-flex h-20 w-20 rounded-full bg-red-500/30" />
+                <span className="animate-pulse absolute inline-flex h-12 w-12 rounded-full bg-red-600/40" />
+                <div className="w-5 h-5 rounded-full bg-red-600 border-2 border-white shadow-xl flex items-center justify-center">
+                  <span className="w-1.5 h-1.5 bg-white rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Floating Top Badge de Sede Oficial */}
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-3 left-3 right-3 sm:right-auto bg-white/95 backdrop-blur-md p-3 sm:p-3.5 rounded-2xl shadow-xl border border-slate-200/90 flex items-center justify-between gap-3 text-xs text-[#002B49]"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-red-600/10 text-red-600 flex items-center justify-center shrink-0 font-black">
+                  <MapPin className="w-4 h-4 text-red-600" />
+                </div>
                 <div>
                   <strong className="font-black text-slate-900 text-xs sm:text-sm leading-tight block">
                     American Dream English
@@ -406,31 +498,34 @@ export function ComoLlegarView() {
                 </div>
               </div>
 
-              <a
+              <motion.a
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 href={googleMapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl transition-colors shrink-0 shadow-sm"
+                className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl transition-colors shrink-0 shadow-sm flex items-center gap-1.5 cursor-pointer"
               >
-                {language === 'en' ? 'Start GPS' : 'Ruta GPS'}
-              </a>
-            </div>
+                <span>{language === 'en' ? 'Start GPS' : 'Ruta GPS'}</span>
+                <Navigation className="w-3 h-3" />
+              </motion.a>
+            </motion.div>
 
-            {/* Floating Bottom Info Card */}
-            <div className="absolute bottom-3 left-3 right-3 bg-slate-900/90 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-white flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <span className="font-semibold">
+            {/* Floating Bottom Info Card con datos de orientación */}
+            <div className="absolute bottom-3 left-3 right-3 bg-slate-900/90 backdrop-blur-md p-3 sm:p-3.5 rounded-2xl border border-white/20 text-white flex flex-wrap items-center justify-between gap-2 text-xs shadow-lg">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="font-semibold text-xs sm:text-sm">
                   {language === 'en' ? 'Between Gas Station & Casanova · Right lane towards Apartadó' : 'Entre la bomba y entrada Casanova · Calzada derecha hacia Apartadó'}
                 </span>
               </div>
-              <span className="font-mono text-amber-300 text-[11px] bg-white/10 px-2.5 py-0.5 rounded-xl">
+              <span className="font-mono text-amber-300 text-[11px] bg-white/10 px-2.5 py-1 rounded-xl border border-white/10">
                 GPS: {coordsDMS}
               </span>
             </div>
           </div>
 
-        </div>
+        </motion.div>
 
         {/* ========================================================= */}
         {/* 4. GUIA PASO A PASO & PUNTOS DE REFERENCIA                */}
@@ -440,130 +535,107 @@ export function ComoLlegarView() {
           {/* COLUMNA IZQUIERDA: SELECTOR DE RUTAS & DETALLES (lg:col-span-7) */}
           <div className="lg:col-span-7 space-y-6">
             
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-md space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-md space-y-6">
               
               <div className="space-y-1.5">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider block">
-                  {language === 'en' ? 'Step-by-Step Navigation Guide' : 'Guía de Llegada Paso a Paso'}
+                <span className="text-[10px] font-black text-blue-700 uppercase tracking-wider block">
+                  {language === 'en' ? 'Step-by-Step Navigation Guide' : 'Guía de Llegada Asistida'}
                 </span>
-                <h3 className="text-xl font-black text-slate-900">
-                  {language === 'en' ? 'Select Your Origin Point' : 'Selecciona Tu Punto de Origen'}
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                  {language === 'en' ? 'Select Your Origin Point' : 'Selecciona Tu Punto de Origen:'}
                 </h3>
               </div>
 
-              {/* Tabs de Origen */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 text-xs font-bold">
+              {/* Tabs de Origen con Cápsula Deslizante (LayoutId) */}
+              <div className="relative bg-slate-100 p-1.5 rounded-2xl border border-slate-200 grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-xs font-bold">
                 
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoute('apartado')}
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                    selectedRoute === 'apartado'
-                      ? 'bg-[#002B49] text-white shadow-sm font-black'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-                  }`}
-                >
-                  <Bus className="w-4 h-4 shrink-0" />
-                  <span>Urabá Sur</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoute('turbo')}
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                    selectedRoute === 'turbo'
-                      ? 'bg-[#002B49] text-white shadow-sm font-black'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-                  }`}
-                >
-                  <Bike className="w-4 h-4 shrink-0" />
-                  <span>Turbo Centro</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoute('currulao')}
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                    selectedRoute === 'currulao'
-                      ? 'bg-[#002B49] text-white shadow-sm font-black'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-                  }`}
-                >
-                  <CarFront className="w-4 h-4 shrink-0" />
-                  <span>Currulao</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoute('necocli')}
-                  className={`py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                    selectedRoute === 'necocli'
-                      ? 'bg-[#002B49] text-white shadow-sm font-black'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-                  }`}
-                >
-                  <Bus className="w-4 h-4 shrink-0" />
-                  <span>Necoclí / Norte</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedRoute('vehicle')}
-                  className={`col-span-2 sm:col-span-2 py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                    selectedRoute === 'vehicle'
-                      ? 'bg-[#002B49] text-white shadow-sm font-black'
-                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
-                  }`}
-                >
-                  <Car className="w-4 h-4 shrink-0" />
-                  <span>{language === 'en' ? 'Private Car / Moto' : 'Auto Particular o Moto'}</span>
-                </button>
+                {[
+                  { id: 'apartado', label: 'Urabá Sur', icon: Bus },
+                  { id: 'turbo', label: 'Turbo Centro', icon: Bike },
+                  { id: 'currulao', label: 'Currulao', icon: CarFront },
+                  { id: 'necocli', label: 'Necoclí / Norte', icon: Bus },
+                  { id: 'vehicle', label: language === 'en' ? 'Car / Moto' : 'Auto o Moto', icon: Car, wide: true },
+                ].map((item) => {
+                  const isActive = selectedRoute === item.id;
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => setSelectedRoute(item.id as RegionTab)}
+                      className={`relative z-10 py-2.5 px-3 rounded-xl transition-colors flex items-center justify-center gap-1.5 cursor-pointer select-none ${
+                        item.wide ? 'col-span-2 sm:col-span-2' : ''
+                      } ${
+                        isActive ? 'text-white font-extrabold' : 'text-slate-600 hover:text-slate-900 font-semibold'
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeComoLlegarRoutePill"
+                          className="absolute inset-0 bg-[#002B49] rounded-xl shadow-md -z-10"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                        />
+                      )}
+                      <Icon className="w-4 h-4 shrink-0" />
+                      <span>{item.label}</span>
+                    </button>
+                  );
+                })}
 
               </div>
 
-              {/* Card de la Ruta Activa */}
-              <div className="bg-gradient-to-br from-blue-50/90 to-indigo-50/60 border border-blue-100 rounded-3xl p-5 sm:p-6 space-y-4">
-                
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100 pb-3">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 block">
-                      {currentRoute.badge}
-                    </span>
-                    <h4 className="text-base sm:text-lg font-black text-[#002B49]">
-                      {currentRoute.origin}
-                    </h4>
-                  </div>
-                  <span className="text-xs font-bold bg-white text-blue-900 px-3 py-1 rounded-full border border-blue-200 shadow-2xs">
-                    ⏱️ {currentRoute.time}
-                  </span>
-                </div>
-
-                <div className="text-xs text-slate-700 font-semibold space-y-1">
-                  <span className="text-slate-500 font-bold block">{language === 'en' ? 'Recommended Transit:' : 'Transporte sugerido:'}</span>
-                  <p className="text-slate-900 font-extrabold">{currentRoute.transportType}</p>
-                </div>
-
-                {/* Pasos de llegada */}
-                <div className="space-y-3 pt-2">
-                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider block">
-                    {language === 'en' ? 'Step-by-step route directions:' : 'Indicaciones paso a paso:'}
-                  </span>
+              {/* Card de la Ruta Activa con Transición Suave AnimatePresence */}
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={selectedRoute}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.22 }}
+                  className="bg-gradient-to-br from-blue-50/80 via-white to-indigo-50/40 border border-blue-100/90 rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm"
+                >
                   
-                  <div className="space-y-2.5">
-                    {currentRoute.steps.map((step, idx) => (
-                      <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-700 font-medium">
-                        <span className="w-6 h-6 rounded-full bg-[#002B49] text-white flex items-center justify-center font-black text-xs shrink-0 mt-0.5 shadow-2xs">
-                          {idx + 1}
-                        </span>
-                        <p className="leading-relaxed">{step}</p>
-                      </div>
-                    ))}
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-blue-100/80 pb-3">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-wider text-blue-600 block">
+                        {currentRoute.badge}
+                      </span>
+                      <h4 className="text-base sm:text-lg font-black text-[#002B49]">
+                        {currentRoute.origin}
+                      </h4>
+                    </div>
+                    <span className="text-xs font-extrabold bg-white text-blue-900 px-3 py-1 rounded-full border border-blue-200 shadow-2xs">
+                      ⏱️ {currentRoute.time}
+                    </span>
                   </div>
-                </div>
 
-              </div>
+                  <div className="text-xs text-slate-700 font-semibold space-y-1">
+                    <span className="text-slate-500 font-bold block">{language === 'en' ? 'Recommended Transit:' : 'Transporte sugerido:'}</span>
+                    <p className="text-slate-900 font-black text-sm">{currentRoute.transportType}</p>
+                  </div>
 
-              {/* Puntos de Referencia Clave */}
+                  {/* Pasos de llegada con Timeline Conectado */}
+                  <div className="space-y-3 pt-2">
+                    <span className="text-xs font-black text-slate-800 uppercase tracking-wider block">
+                      {language === 'en' ? 'Step-by-step route directions:' : 'Indicaciones paso a paso:'}
+                    </span>
+                    
+                    <div className="space-y-3 relative before:absolute before:top-3 before:bottom-3 before:left-3 before:w-0.5 before:bg-blue-200">
+                      {currentRoute.steps.map((step, idx) => (
+                        <div key={idx} className="flex items-start gap-3.5 text-xs sm:text-sm text-slate-700 font-medium relative">
+                          <span className="w-6 h-6 rounded-full bg-[#002B49] text-white flex items-center justify-center font-black text-xs shrink-0 mt-0.5 shadow-sm border border-white/40 z-10">
+                            {idx + 1}
+                          </span>
+                          <p className="leading-relaxed pt-0.5">{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Puntos de Referencia Clave con Microinteracciones */}
               <div className="space-y-3 pt-2">
                 <span className="text-xs font-black text-slate-900 uppercase tracking-wider block">
                   {language === 'en' ? 'Visual Landmarks & Surrounding Points:' : 'Puntos de Referencia Visual:'}
@@ -571,29 +643,39 @@ export function ComoLlegarView() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   
-                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-                    <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl shrink-0">
+                  <motion.div 
+                    whileHover={{ y: -3, borderColor: '#f59e0b' }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                    className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/90 flex items-center gap-3 transition-colors shadow-2xs"
+                  >
+                    <div className="p-2.5 bg-amber-100 text-amber-800 rounded-xl shrink-0 shadow-2xs">
                       <Fuel className="w-5 h-5" />
                     </div>
                     <div>
                       <strong className="block font-bold text-slate-900">
                         {language === 'en' ? 'Gas Station & Casanova Turnoff' : 'Entre la Bomba y Entrada a Casanova'}
                       </strong>
-                      <span className="text-slate-500 font-medium">
+                      <span className="text-slate-500 font-medium text-[11px] leading-tight block">
                         {language === 'en' ? 'Right roadway exiting Turbo towards Apartadó' : 'Calzada derecha saliendo de Turbo hacia Apartadó'}
                       </span>
                     </div>
-                  </div>
+                  </motion.div>
 
-                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-3">
-                    <div className="p-2.5 bg-red-100 text-red-700 rounded-xl shrink-0">
+                  <motion.div 
+                    whileHover={{ y: -3, borderColor: '#ef4444' }}
+                    transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                    className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/90 flex items-center gap-3 transition-colors shadow-2xs"
+                  >
+                    <div className="p-2.5 bg-red-100 text-red-700 rounded-xl shrink-0 shadow-2xs">
                       <Building2 className="w-5 h-5" />
                     </div>
                     <div>
                       <strong className="block font-bold text-slate-900">Hospital Valderrama</strong>
-                      <span className="text-slate-500 font-medium">{language === 'en' ? '1.2 km towards town center' : 'A 1.2 km hacia el casco urbano'}</span>
+                      <span className="text-slate-500 font-medium text-[11px] leading-tight block">
+                        {language === 'en' ? '1.2 km towards town center' : 'A 1.2 km hacia el casco urbano'}
+                      </span>
                     </div>
-                  </div>
+                  </motion.div>
 
                 </div>
               </div>
@@ -606,42 +688,48 @@ export function ComoLlegarView() {
           <div className="lg:col-span-5 space-y-6">
             
             {/* Amenities & Servicios de la Sede Casanova */}
-            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-md space-y-4">
-              <span className="text-xs font-black text-slate-400 uppercase tracking-wider block">
+            <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-md space-y-5">
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
                 {language === 'en' ? 'Campus Amenities & Student Services:' : 'Servicios e Instalaciones de la Sede:'}
               </span>
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-2.5 font-bold text-slate-800">
-                  <Wind className="w-4 h-4 text-blue-600 shrink-0" />
-                  <span>{language === 'en' ? 'Air-Conditioned Rooms' : 'Aulas Climatizadas'}</span>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-2.5 font-bold text-slate-800">
-                  <Wifi className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>{language === 'en' ? 'High-Speed Fiber WiFi' : 'Zona WiFi Fibra'}</span>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-2.5 font-bold text-slate-800">
-                  <Car className="w-4 h-4 text-indigo-600 shrink-0" />
-                  <span>{language === 'en' ? 'Free Secure Parking' : 'Parqueadero Vigilado'}</span>
-                </div>
-
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-2.5 font-bold text-slate-800">
-                  <Coffee className="w-4 h-4 text-amber-600 shrink-0" />
-                  <span>{language === 'en' ? 'Bilingual Lounge Hub' : 'Cafetería & Coworking'}</span>
-                </div>
+                {[
+                  { icon: Wind, label: language === 'en' ? 'Air-Conditioned Rooms' : 'Aulas Climatizadas', color: 'text-blue-600' },
+                  { icon: Wifi, label: language === 'en' ? 'High-Speed Fiber WiFi' : 'Zona WiFi Fibra', color: 'text-emerald-600' },
+                  { icon: Car, label: language === 'en' ? 'Free Secure Parking' : 'Parqueadero Vigilado', color: 'text-indigo-600' },
+                  { icon: Coffee, label: language === 'en' ? 'Bilingual Lounge Hub' : 'Cafetería & Coworking', color: 'text-amber-600' },
+                ].map((amenity, idx) => {
+                  const Icon = amenity.icon;
+                  return (
+                    <motion.div 
+                      key={idx}
+                      whileHover={{ scale: 1.03, y: -2 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      className="p-3 bg-slate-50/90 hover:bg-slate-100/80 rounded-2xl border border-slate-100 flex items-center gap-2.5 font-bold text-slate-800 transition-colors cursor-default shadow-2xs"
+                    >
+                      <Icon className={`w-4 h-4 ${amenity.color} shrink-0`} />
+                      <span className="leading-tight">{amenity.label}</span>
+                    </motion.div>
+                  );
+                })}
 
               </div>
 
-              {/* Horarios de Recepción Presencial */}
-              <div className="p-4 bg-blue-50/80 rounded-2xl border border-blue-100 flex items-start gap-3 text-xs">
+              {/* Horarios de Recepción Presencial con Estado en Vivo */}
+              <div className="p-4 bg-gradient-to-br from-blue-50/90 to-indigo-50/60 rounded-2xl border border-blue-100 flex items-start gap-3 text-xs">
                 <Clock className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
-                <div className="space-y-0.5">
-                  <strong className="text-slate-900 block font-black">
-                    {language === 'en' ? 'Campus Attention & Class Hours:' : 'Horarios de Atención en Sede:'}
-                  </strong>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <strong className="text-slate-900 block font-black">
+                      {language === 'en' ? 'Campus Attention & Class Hours:' : 'Horarios de Atención en Sede:'}
+                    </strong>
+                    <span className="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.2 rounded-full">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      Abierto
+                    </span>
+                  </div>
                   <p className="text-slate-600 font-medium">
                     {language === 'en' ? 'Monday - Friday: 8:00 AM - 12:00 PM & 2:00 PM - 6:00 PM' : 'Lunes a Viernes: 8:00 AM - 12:00 PM y 2:00 PM - 6:00 PM'}
                   </p>
@@ -651,16 +739,26 @@ export function ComoLlegarView() {
                 </div>
               </div>
 
-              {/* Botón WhatsApp de Ayuda */}
-              <a
+              {/* Botón WhatsApp de Ayuda con Shimmer Liquid Beam (21st.dev style) */}
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-5 py-3.5 rounded-2xl shadow-sm hover:shadow-md transition-all text-xs active:scale-95"
+                className="relative overflow-hidden w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black px-5 py-3.5 rounded-2xl shadow-md shadow-emerald-600/20 transition-all text-xs cursor-pointer"
               >
-                <MessageSquare className="w-4 h-4" />
-                <span>{language === 'en' ? 'Ask Reception for Route Help' : 'Solicitar Ayuda a Recepción por WhatsApp'}</span>
-              </a>
+                {/* Rayo de luz continuo */}
+                <motion.span
+                  className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+                  animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                  transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut', repeatDelay: 1 }}
+                />
+
+                <MessageSquare className="w-4 h-4 relative z-10 shrink-0" />
+                <span className="relative z-10">{language === 'en' ? 'Ask Reception for Route Help' : 'Solicitar Ayuda a Recepción por WhatsApp'}</span>
+                <ArrowRight className="w-3.5 h-3.5 relative z-10 stroke-[2.5] shrink-0" />
+              </motion.a>
 
             </div>
 

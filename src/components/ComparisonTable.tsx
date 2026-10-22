@@ -18,7 +18,7 @@ export const ComparisonTable: React.FC = () => {
       traditional: false,
     },
     {
-      feature: 'Certificación Oficial MCER (A1-C1) habilitante en Colombia',
+      feature: 'Certificación Oficial MCER (A1-B2) habilitante en Colombia',
       americanDream: true,
       openEnglish: false, // Open English cert is internal, not localized Turbo Sec Education
       duolingo: false,

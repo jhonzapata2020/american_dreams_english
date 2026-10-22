@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
   Sparkles, 
@@ -183,164 +186,221 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </p>
             </div>
 
-            {/* Switch de audiencia: Para mí / Para mi hijo */}
-            <div className="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold border border-slate-200">
-              <button
-                type="button"
-                onClick={() => setAudience('self')}
-                className={`flex-1 py-1.5 text-center rounded-lg transition-all ${
-                  audience === 'self'
-                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {t.hero.audienceSelf}
-              </button>
-              <button
-                type="button"
-                onClick={() => setAudience('child')}
-                className={`flex-1 py-1.5 text-center rounded-lg transition-all ${
-                  audience === 'child'
-                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {t.hero.audienceChild}
-              </button>
+            {/* Switch de audiencia animado: Para mí / Para mi hijo */}
+            <div className="space-y-2">
+              <div className="relative bg-slate-100 p-1 rounded-xl flex items-center text-xs font-bold border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setAudience('self')}
+                  className={`relative z-10 flex-1 py-2 text-center rounded-lg transition-colors font-bold ${
+                    audience === 'self' ? 'text-slate-900 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {audience === 'self' && (
+                    <motion.div
+                      layoutId="activeAudiencePillMobile"
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                      transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  {t.hero.audienceSelf}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAudience('child')}
+                  className={`relative z-10 flex-1 py-2 text-center rounded-lg transition-colors font-bold ${
+                    audience === 'child' ? 'text-slate-900 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {audience === 'child' && (
+                    <motion.div
+                      layoutId="activeAudiencePillMobile"
+                      className="absolute inset-0 bg-white rounded-lg shadow-sm -z-10"
+                      transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  {t.hero.audienceChild}
+                </button>
+              </div>
+
+              {/* Indicador de contexto pedagógico con micro-animación */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={audience}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.18 }}
+                  className="text-[11px] font-semibold text-center text-slate-600 bg-slate-50/80 py-1 px-2.5 rounded-lg border border-slate-200/60"
+                >
+                  {audience === 'self' 
+                    ? '🎯 Modalidad para Adultos, Jóvenes y Profesionales' 
+                    : '🧸 Modalidad para Niños y Teens con Pedagogía Lúdica'}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
-            {/* Contenido del formulario o estado exitoso */}
-            {submitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3 animate-fadeIn">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
-                </div>
-                <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
-                </p>
-                <div className="pt-2 space-y-2">
-                  <a
-                    href={getLeadWhatsAppUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Abrir chat de WhatsApp (Opcional)</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmitted(false);
-                      setFirstName('');
-                      setLastName('');
-                      setEmail('');
-                      setPhone('');
-                    }}
-                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
-                  >
-                    Registrar a otra persona
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-3">
-                {errorMessage && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
-                    {errorMessage}
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.firstName}</label>
-                    <input
-                      type="text"
-                      required
-                      autoComplete="given-name"
-                      disabled={isSubmitting}
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder="Nombre"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.lastName}</label>
-                    <input
-                      type="text"
-                      required
-                      autoComplete="family-name"
-                      disabled={isSubmitting}
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder="Apellido"
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.email}</label>
-                  <input
-                    type="email"
-                    required
-                    inputMode="email"
-                    autoComplete="email"
-                    disabled={isSubmitting}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.phone}</label>
-                  <input
-                    type="tel"
-                    required
-                    inputMode="tel"
-                    autoComplete="tel"
-                    disabled={isSubmitting}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+57 300 000 0000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                  />
-                </div>
-
-                {/* BOTÓN ROJO DE ALTO IMPACTO "COMENZAR AHORA" */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full min-h-[50px] bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 text-base uppercase tracking-wider transition-all active:scale-[0.98] mt-2 cursor-pointer"
+            {/* Contenido del formulario o estado exitoso con AnimatePresence */}
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="submitted"
+                  initial={{ opacity: 0, scale: 0.94, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  className="bg-emerald-50 border border-emerald-200 p-5 rounded-2xl text-center space-y-3"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>{t.hero.saving || 'Guardando...'}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{t.hero.ctaButton || 'Comienza ahora'}</span>
-                      <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                    </>
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                  </div>
+                  <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
+                  </p>
+                  <div className="pt-2 space-y-2">
+                    <motion.a
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      href={getLeadWhatsAppUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs uppercase tracking-wider"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Abrir chat de WhatsApp (Opcional)</span>
+                    </motion.a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubmitted(false);
+                        setFirstName('');
+                        setLastName('');
+                        setEmail('');
+                        setPhone('');
+                      }}
+                      className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
+                    >
+                      Registrar a otra persona
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-3"
+                >
+                  {errorMessage && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                      {errorMessage}
+                    </div>
                   )}
-                </button>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.firstName}</label>
+                      <input
+                        type="text"
+                        required
+                        autoComplete="given-name"
+                        disabled={isSubmitting}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Nombre"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.lastName}</label>
+                      <input
+                        type="text"
+                        required
+                        autoComplete="family-name"
+                        disabled={isSubmitting}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Apellido"
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                      />
+                    </div>
+                  </div>
 
-                <p className="text-[10px] text-slate-400 text-center font-medium pt-0.5">
-                  {t.hero.habeasData}
-                </p>
-              </form>
-            )}
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.email}</label>
+                    <input
+                      type="email"
+                      required
+                      inputMode="email"
+                      autoComplete="email"
+                      disabled={isSubmitting}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-700 mb-0.5">{t.hero.phone}</label>
+                    <input
+                      type="tel"
+                      required
+                      inputMode="tel"
+                      autoComplete="tel"
+                      disabled={isSubmitting}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+57 300 000 0000"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                    />
+                  </div>
+
+                  {/* BOTÓN ROJO DE ALTO IMPACTO CON MICROINTERACCIÓN SPRING Y SHIMMER TIPO 21st.dev */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="relative overflow-hidden w-full min-h-[50px] bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 text-base uppercase tracking-wider transition-all mt-2 cursor-pointer"
+                  >
+                    {/* Haz de luz líquido brillante (Shimmer sweep 21st.dev) */}
+                    <motion.span
+                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+                      animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                      transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut', repeatDelay: 1 }}
+                    />
+
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t.hero.saving || 'Guardando...'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="relative z-10">{t.hero.ctaButton || 'Comienza ahora'}</span>
+                        <ArrowRight className="w-5 h-5 stroke-[2.5] relative z-10" />
+                      </>
+                    )}
+                  </motion.button>
+
+                  <p className="text-[10px] text-slate-400 text-center font-medium pt-0.5">
+                    {t.hero.habeasData}
+                  </p>
+                </motion.form>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Opciones y canales secundarios */}
           <div className="space-y-2.5 pt-1">
-            {/* Botón WhatsApp directo de apoyo */}
-            <a
+            {/* Botón WhatsApp directo de apoyo con rebote spring */}
+            <motion.a
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.98 }}
               href={whatsappContextUrl}
               target="_blank"
               rel="noopener noreferrer"
@@ -350,27 +410,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   action: 'hablar_con_profe_anthony'
                 });
               }}
-              className="w-full py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-2xl flex items-center justify-center space-x-2 text-xs font-bold transition-all shadow-2xs active:scale-[0.98]"
+              className="w-full py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/80 rounded-2xl flex items-center justify-center space-x-2 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <MessageCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
               <span>¿Prefieres chatear antes de registrarte? WhatsApp</span>
-            </a>
+            </motion.a>
 
-            {/* Accesos rápidos: Becas y Sede Presencial */}
+            {/* Accesos rápidos: Becas y Sede Presencial con física táctil */}
             <div className="grid grid-cols-2 gap-2 text-center">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
                 type="button"
                 onClick={onOpenDonation}
-                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs"
               >
                 🎁 Fondo de Becas
-              </button>
-              <a
+              </motion.button>
+              <motion.a
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.96 }}
                 href="/como-llegar"
-                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                className="py-2.5 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shadow-2xs flex items-center justify-center"
               >
                 📍 Sede Presencial
-              </a>
+              </motion.a>
             </div>
 
             {/* Enlace para alumnos existentes */}
@@ -476,16 +540,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
           {/* Botones de acción rápida: Becas & Cómo Llegar */}
           <div className="pt-1 flex flex-wrap items-center gap-2">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.04, y: -1 }}
+              whileTap={{ scale: 0.96 }}
               type="button"
               onClick={onOpenDonation}
-              className="inline-flex items-center space-x-1.5 text-xs text-slate-500 hover:text-slate-800 transition-colors font-medium bg-slate-100/80 hover:bg-slate-200/80 px-3 py-1.5 rounded-full border border-slate-200"
+              className="inline-flex items-center space-x-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors font-medium bg-slate-100/90 hover:bg-slate-200/90 px-3.5 py-1.5 rounded-full border border-slate-200/80 cursor-pointer shadow-2xs"
             >
               <span>{t.hero.scholarshipPrompt}</span>
               <span className="text-red-600 font-bold hover:underline">{t.hero.scholarshipLink}</span>
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
               type="button"
               onClick={() => {
                 if (onOpenLocation) {
@@ -495,10 +563,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }
               }}
-              className="inline-flex items-center space-x-1.5 text-xs text-blue-700 hover:text-blue-900 transition-all font-bold bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-full border border-blue-200 shadow-2xs hover:scale-105 active:scale-95 cursor-pointer"
+              className="inline-flex items-center space-x-1.5 text-xs text-blue-700 hover:text-blue-900 transition-all font-bold bg-blue-50/90 hover:bg-blue-100 px-3.5 py-1.5 rounded-full border border-blue-200 shadow-2xs cursor-pointer"
             >
               <span>📍 {t.nav.howToGetThere}</span>
-            </button>
+            </motion.button>
           </div>
 
         </div>
@@ -515,164 +583,219 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Audience Switch Pills */}
-            <div className="bg-slate-100 p-1 rounded-full flex items-center text-xs font-bold border border-slate-200">
-              <button
-                type="button"
-                onClick={() => setAudience('self')}
-                className={`flex-1 py-1.5 text-center rounded-full transition-all ${
-                  audience === 'self'
-                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {t.hero.audienceSelf}
-              </button>
-              <button
-                type="button"
-                onClick={() => setAudience('child')}
-                className={`flex-1 py-1.5 text-center rounded-full transition-all ${
-                  audience === 'child'
-                    ? 'bg-white text-navy-900 shadow-sm font-extrabold'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {t.hero.audienceChild}
-              </button>
+            <div className="space-y-2">
+              <div className="relative bg-slate-100 p-1 rounded-full flex items-center text-xs font-bold border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setAudience('self')}
+                  className={`relative z-10 flex-1 py-2 text-center rounded-full transition-colors font-bold ${
+                    audience === 'self' ? 'text-slate-900 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {audience === 'self' && (
+                    <motion.div
+                      layoutId="activeAudiencePillDesktop"
+                      className="absolute inset-0 bg-white rounded-full shadow-sm -z-10"
+                      transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  {t.hero.audienceSelf}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAudience('child')}
+                  className={`relative z-10 flex-1 py-2 text-center rounded-full transition-colors font-bold ${
+                    audience === 'child' ? 'text-slate-900 font-extrabold' : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  {audience === 'child' && (
+                    <motion.div
+                      layoutId="activeAudiencePillDesktop"
+                      className="absolute inset-0 bg-white rounded-full shadow-sm -z-10"
+                      transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                    />
+                  )}
+                  {t.hero.audienceChild}
+                </button>
+              </div>
+
+              {/* Indicador de contexto pedagógico con micro-animación desktop */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={audience}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 4 }}
+                  transition={{ duration: 0.18 }}
+                  className="text-xs font-semibold text-center text-slate-600 bg-slate-50/90 py-1.5 px-3 rounded-xl border border-slate-200/60"
+                >
+                  {audience === 'self' 
+                    ? '🎯 Modalidad para Adultos, Universitarios y Profesionales' 
+                    : '🧸 Modalidad para Niños y Teens con Pedagogía Lúdica'}
+                </motion.div>
+              </AnimatePresence>
             </div>
 
-            {/* Form Content */}
-            {submitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3 animate-fadeIn">
-                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-                  <CheckCircle2 className="w-7 h-7 text-emerald-600" />
-                </div>
-                <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
-                </p>
-                <div className="pt-2 space-y-2">
-                  <a
-                    href={getLeadWhatsAppUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all active:scale-95 text-xs uppercase tracking-wider"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    <span>Abrir chat de WhatsApp (Opcional)</span>
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSubmitted(false);
-                      setFirstName('');
-                      setLastName('');
-                      setEmail('');
-                      setPhone('');
-                    }}
-                    className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
-                  >
-                    Registrar a otra persona
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-3">
-                {errorMessage && (
-                  <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
-                    {errorMessage}
-                  </div>
-                )}
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.firstName}</label>
-                    <input
-                      id="primer-campo-nombre"
-                      type="text"
-                      required
-                      disabled={isSubmitting}
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      placeholder={t.hero.firstName.replace('*', '').trim()}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.lastName}</label>
-                    <input
-                      type="text"
-                      required
-                      disabled={isSubmitting}
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      placeholder={t.hero.lastName.replace('*', '').trim()}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.email}</label>
-                  <input
-                    type="email"
-                    required
-                    disabled={isSubmitting}
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="email@example.com"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.phone}</label>
-                  <input
-                    type="tel"
-                    required
-                    disabled={isSubmitting}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+57 300 000 0000"
-                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60"
-                  />
-                </div>
-
-                {/* Massive Official Crimson Red CTA Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-extrabold py-3.5 rounded-full shadow-lg w-full text-base tracking-wide transition-all transform hover:scale-[1.01] active:scale-[0.99] mt-2 flex items-center justify-center space-x-2"
+            {/* Form Content con AnimatePresence */}
+            <AnimatePresence mode="wait">
+              {submitted ? (
+                <motion.div
+                  key="submitted"
+                  initial={{ opacity: 0, scale: 0.94, y: 8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>{t.hero.saving}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{t.hero.ctaButton}</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                  </div>
+                  <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
+                  </p>
+                  <div className="pt-2 space-y-2">
+                    <motion.a
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.97 }}
+                      href={getLeadWhatsAppUrl()}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs uppercase tracking-wider"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Abrir chat de WhatsApp (Opcional)</span>
+                    </motion.a>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSubmitted(false);
+                        setFirstName('');
+                        setLastName('');
+                        setEmail('');
+                        setPhone('');
+                      }}
+                      className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 text-slate-700 font-bold border border-slate-200 rounded-xl text-xs transition-colors"
+                    >
+                      Registrar a otra persona
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onSubmit={handleSubmit}
+                  className="space-y-3"
+                >
+                  {errorMessage && (
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl font-medium text-center animate-fadeIn">
+                      {errorMessage}
+                    </div>
                   )}
-                </button>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.firstName}</label>
+                      <input
+                        id="primer-campo-nombre"
+                        type="text"
+                        required
+                        disabled={isSubmitting}
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder={t.hero.firstName.replace('*', '').trim()}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.lastName}</label>
+                      <input
+                        type="text"
+                        required
+                        disabled={isSubmitting}
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder={t.hero.lastName.replace('*', '').trim()}
+                        className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                      />
+                    </div>
+                  </div>
 
-                <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
-                  {t.hero.habeasData}
-                </p>
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.email}</label>
+                    <input
+                      type="email"
+                      required
+                      disabled={isSubmitting}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="email@example.com"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                    />
+                  </div>
 
-                {/* Enlace sutil para becas / donaciones */}
-                <div className="pt-2 text-center border-t border-slate-100">
-                  <button
-                    type="button"
-                    onClick={onOpenDonation}
-                    className="text-[11px] text-slate-500 hover:text-orange-600 transition-colors font-medium inline-flex items-center justify-center space-x-1"
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-0.5">{t.hero.phone}</label>
+                    <input
+                      type="tel"
+                      required
+                      disabled={isSubmitting}
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+57 300 000 0000"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 disabled:opacity-60 transition-shadow focus:bg-white"
+                    />
+                  </div>
+
+                  {/* Massive Official Crimson Red CTA Button con Microinteracción Spring y Shimmer 21st.dev */}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-extrabold py-3.5 rounded-full shadow-lg shadow-red-600/30 w-full text-base tracking-wide transition-all mt-2 flex items-center justify-center space-x-2 cursor-pointer"
                   >
-                    <span>{t.hero.scholarshipApply}</span>
-                  </button>
-                </div>
+                    {/* Haz de luz líquido brillante (Shimmer sweep 21st.dev) */}
+                    <motion.span
+                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+                      animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                      transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut', repeatDelay: 1 }}
+                    />
 
-              </form>
-            )}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>{t.hero.saving}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="relative z-10">{t.hero.ctaButton}</span>
+                        <ArrowRight className="w-5 h-5 relative z-10" />
+                      </>
+                    )}
+                  </motion.button>
+
+                  <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
+                    {t.hero.habeasData}
+                  </p>
+
+                  {/* Enlace sutil para becas / donaciones */}
+                  <div className="pt-2 text-center border-t border-slate-100">
+                    <button
+                      type="button"
+                      onClick={onOpenDonation}
+                      className="text-[11px] text-slate-500 hover:text-orange-600 transition-colors font-medium inline-flex items-center justify-center space-x-1"
+                    >
+                      <span>{t.hero.scholarshipApply}</span>
+                    </button>
+                  </div>
+
+                </motion.form>
+              )}
+            </AnimatePresence>
 
           </div>
         </div>

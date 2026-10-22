@@ -1,6 +1,7 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
+import { motion } from 'framer-motion'
 import { Wifi } from 'lucide-react'
 
 export interface InteractiveCard3DProps {
@@ -31,6 +32,26 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
   className = '',
 }) => {
   const brand = getCardBrand(cardNumber)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+  const [tilt, setTilt] = useState({ rotateX: 0, rotateY: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+
+    const rotateX = -((y - centerY) / centerY) * 14
+    const rotateY = ((x - centerX) / centerX) * 14
+
+    setMousePos({ x, y })
+    setTilt({ rotateX, rotateY })
+  }
+
+  const handleMouseLeave = () => {
+    setTilt({ rotateX: 0, rotateY: 0 })
+  }
 
   // Formateador visual del número (rellena con bullets si está incompleto)
   const formatDisplayNumber = () => {
@@ -44,8 +65,11 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
   const displayCvc = cvc.replace(/\D/g, '').slice(0, 4) || '•••'
 
   return (
-    <div className={`group w-full max-w-[360px] sm:max-w-[400px] aspect-[1.586/1] mx-auto select-none [perspective:1000px] transition-transform duration-300 hover:scale-[1.02] ${className}`}>
-      
+    <div 
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`group w-full max-w-[360px] sm:max-w-[400px] aspect-[1.586/1] mx-auto select-none [perspective:1000px] cursor-pointer ${className}`}
+    >
       {/* Estilos de vibración háptica y halo de iluminación */}
       <style jsx>{`
         @keyframes subtleVibrate {
@@ -68,20 +92,30 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
         }
       `}</style>
 
-      {/* 3D Flipping Container */}
+      {/* 3D Flipping & Tilt Container (21st.dev / Aceternity style) */}
       <div
-        className={`relative w-full h-full rounded-2xl sm:rounded-3xl transition-all duration-700 [transform-style:preserve-3d] shadow-[0_20px_40px_-15px_rgba(30,64,175,0.35),0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_25px_55px_-10px_rgba(30,64,175,0.55),0_0_35px_rgba(59,130,246,0.4)] ${
+        style={{
+          transform: isFlipped
+            ? `rotateY(${180 + tilt.rotateY}deg) rotateX(${-tilt.rotateX}deg)`
+            : `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg)`,
+        }}
+        className={`relative w-full h-full rounded-2xl sm:rounded-3xl transition-transform duration-200 ease-out [transform-style:preserve-3d] shadow-[0_20px_40px_-15px_rgba(30,64,175,0.35),0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_25px_55px_-10px_rgba(30,64,175,0.55),0_0_35px_rgba(59,130,246,0.4)] ${
           isProcessing ? 'card-vibrating ring-4 ring-blue-400/80' : ''
-        } ${
-          isFlipped ? '[transform:rotateY(180deg)]' : '[transform:rotateY(0deg)]'
         }`}
       >
-        
         {/* ========================================================= */}
         {/* CARA FRONTAL (FRONT VIEW)                                 */}
         {/* ========================================================= */}
         <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col justify-between [backface-visibility:hidden] overflow-hidden border border-white/50 bg-gradient-to-br from-[#E0F2FE] via-[#BAE6FD] to-[#3B82F6] text-slate-900 shadow-inner group-hover:border-white/80 transition-colors">
           
+          {/* Spotlight Radial Glow que sigue al cursor (21st.dev) */}
+          <div
+            className="absolute -inset-px pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl sm:rounded-3xl z-20"
+            style={{
+              background: `radial-gradient(280px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.45), transparent 70%)`
+            }}
+          />
+
           {/* Destello de luz / Hover Sheen Sweep */}
           <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/35 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none -skew-x-25" />
           
@@ -129,7 +163,6 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
 
           {/* Fila 3: Titular, Expiración y Franquicia */}
           <div className="relative z-10 flex items-end justify-between text-slate-900">
-            
             <div className="flex gap-6 sm:gap-8 min-w-0">
               {/* Cardholder */}
               <div className="min-w-0">
@@ -176,7 +209,6 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
                 </span>
               )}
             </div>
-
           </div>
 
         </div>
@@ -186,6 +218,14 @@ export const InteractiveCard3D: React.FC<InteractiveCard3DProps> = ({
         {/* ========================================================= */}
         <div className="absolute inset-0 w-full h-full rounded-2xl sm:rounded-3xl py-5 sm:py-6 flex flex-col justify-between [backface-visibility:hidden] [transform:rotateY(180deg)] overflow-hidden border border-white/50 bg-gradient-to-br from-[#CBD5E1] via-[#94A3B8] to-[#475569] text-slate-900 shadow-inner group-hover:border-white/80 transition-colors">
           
+          {/* Spotlight Radial Glow que sigue al cursor en la parte trasera */}
+          <div
+            className="absolute -inset-px pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl sm:rounded-3xl z-20"
+            style={{
+              background: `radial-gradient(280px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.4), transparent 70%)`
+            }}
+          />
+
           {/* Destello de luz / Hover Sheen Sweep */}
           <div className="absolute inset-0 w-[200%] h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out pointer-events-none -skew-x-25" />
           

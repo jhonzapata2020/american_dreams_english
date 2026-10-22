@@ -1,4 +1,7 @@
+'use client';
+
 import React from 'react';
+import { motion } from 'framer-motion';
 import { 
   ShieldCheck, 
   MapPin, 
@@ -31,11 +34,16 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
         {/* HEADER DEL COMPONENTE */}
         <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 mb-12">
           <div className="space-y-2">
-            <div className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+            <motion.div 
+              initial={{ opacity: 0, y: -4 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="inline-flex items-center space-x-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-2xs"
+            >
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               <span>{t.impact.badge}</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
+            </motion.div>
+            <h2 className="text-3xl sm:text-4xl font-black text-navy-900 tracking-tight">
               {t.impact.title}
             </h2>
             <p className="text-slate-600 text-sm max-w-3xl leading-relaxed">
@@ -43,69 +51,93 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
             </p>
           </div>
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
             onClick={onOpenDonation}
-            className="bg-crimson-600 hover:bg-crimson-700 text-white font-bold px-6 py-3.5 rounded-xl shadow-md transition-all text-xs flex items-center space-x-2 flex-shrink-0"
+            className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold px-6 py-3.5 rounded-2xl shadow-md transition-all text-xs flex items-center space-x-2 flex-shrink-0 cursor-pointer"
           >
-            <Heart className="w-4 h-4 fill-white/20" />
-            <span>{t.impact.ctaButton}</span>
-          </button>
+            {/* Shimmer sweep */}
+            <motion.span
+              className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+              animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+              transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 1.5 }}
+            />
+            <Heart className="w-4 h-4 fill-white/20 relative z-10" />
+            <span className="relative z-10">{t.impact.ctaButton}</span>
+          </motion.button>
         </div>
 
-        {/* BLOQUE SUPERIOR: MÉTRICAS CONSOLIDADAS DE IMPACTO (4 CARDS) */}
+        {/* BLOQUE SUPERIOR: MÉTRICAS CONSOLIDADAS DE IMPACTO (4 CARDS CON SPRING HOVER) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow space-y-2 cursor-default"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricScholars}</span>
-              <div className="p-2 bg-blue-50 text-blue-700 rounded-xl">
+              <div className="p-2.5 bg-blue-50 text-blue-700 rounded-2xl border border-blue-100">
                 <Users className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-navy-900">
-              {metrics.totalActiveScholars} <span className="text-crimson-600 text-xl">+</span>
+            <div className="text-3xl font-black text-navy-900 tracking-tight">
+              {metrics.totalActiveScholars} <span className="text-red-600 text-xl font-black">+</span>
             </div>
             <p className="text-xs text-slate-500 font-medium">{t.impact.metricScholarsSub}</p>
-          </div>
+          </motion.div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow space-y-2 cursor-default"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricHours}</span>
-              <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl">
+              <div className="p-2.5 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100">
                 <Clock className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-navy-900">
-              {metrics.totalFundedHours.toLocaleString()} <span className="text-emerald-600 text-xl">Hrs</span>
+            <div className="text-3xl font-black text-navy-900 tracking-tight">
+              {metrics.totalFundedHours.toLocaleString()} <span className="text-emerald-600 text-xl font-bold">Hrs</span>
             </div>
             <p className="text-xs text-slate-500 font-medium">{t.impact.metricHoursSub}</p>
-          </div>
+          </motion.div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow space-y-2 cursor-default"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricRetention}</span>
-              <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
+              <div className="p-2.5 bg-indigo-50 text-indigo-700 rounded-2xl border border-indigo-100">
                 <UserCheck className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-navy-900">
+            <div className="text-3xl font-black text-navy-900 tracking-tight">
               {metrics.completionRate}
             </div>
             <p className="text-xs text-slate-500 font-medium">{t.impact.metricRetentionSub}</p>
-          </div>
+          </motion.div>
 
-          <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+          <motion.div 
+            whileHover={{ y: -4, scale: 1.01 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow space-y-2 cursor-default"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{t.impact.metricCerts}</span>
-              <div className="p-2 bg-amber-50 text-amber-700 rounded-xl">
+              <div className="p-2.5 bg-amber-50 text-amber-700 rounded-2xl border border-amber-100">
                 <Award className="w-5 h-5" />
               </div>
             </div>
-            <div className="text-3xl font-black text-navy-900">
+            <div className="text-3xl font-black text-navy-900 tracking-tight">
               {metrics.certifiedStudentsMCER}
             </div>
             <p className="text-xs text-slate-500 font-medium">{t.impact.metricCertsSub}</p>
-          </div>
+          </motion.div>
 
         </div>
 
@@ -125,15 +157,17 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
               const progressPercent = Math.round((rec.accumulatedHours / rec.targetHours) * 100);
 
               return (
-                <div
+                <motion.div
                   key={rec.id}
-                  className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                  whileHover={{ y: -5 }}
+                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                  className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all flex flex-col justify-between space-y-4"
                 >
                   <div className="space-y-4">
                     
                     {/* Header de Tarjeta */}
                     <div className="flex items-center justify-between">
-                      <span className="bg-navy-900 text-white text-[11px] font-extrabold px-3 py-1 rounded-full font-mono">
+                      <span className="bg-[#002B49] text-white text-[11px] font-extrabold px-3 py-1 rounded-full font-mono">
                         {rec.anonymizedCode}
                       </span>
                       <span className="bg-emerald-100 text-emerald-800 text-[10px] font-extrabold px-2.5 py-1 rounded-full border border-emerald-300">
@@ -143,7 +177,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
 
                     {/* Avatar Abstracto & Categoría Unificada */}
                     <div className="flex items-center space-x-3 bg-slate-50 p-3 rounded-2xl border border-slate-100">
-                      <div className="w-12 h-12 rounded-2xl bg-navy-900 text-amber-400 flex items-center justify-center font-black text-sm shadow-sm flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl bg-[#002B49] text-amber-400 flex items-center justify-center font-black text-sm shadow-sm flex-shrink-0">
                         <GraduationCap className="w-6 h-6" />
                       </div>
                       <div>
@@ -151,7 +185,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                           {rec.programCategory}
                         </span>
                         <span className="text-[11px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
-                          <MapPin className="w-3 h-3 text-crimson-600" /> {rec.location}
+                          <MapPin className="w-3 h-3 text-red-600" /> {rec.location}
                         </span>
                       </div>
                     </div>
@@ -160,7 +194,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                     <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
                       <div className="flex items-center justify-between text-xs font-bold text-slate-700">
                         <span className="text-slate-500">{language === 'en' ? 'CEFR Level:' : 'Nivel MCER:'}</span>
-                        <span className="text-navy-900 font-extrabold">{rec.currentCycle}</span>
+                        <span className="text-[#002B49] font-extrabold">{rec.currentCycle}</span>
                       </div>
 
                       <div className="space-y-1">
@@ -169,16 +203,19 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                           <span className="font-mono text-navy-900">{rec.accumulatedHours} / {rec.targetHours} Hrs ({progressPercent}%)</span>
                         </div>
                         <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-navy-900 h-full transition-all duration-500"
-                            style={{ width: `${progressPercent}%` }}
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${progressPercent}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1.2, ease: 'easeOut' }}
+                            className="bg-[#002B49] h-full rounded-full"
                           />
                         </div>
                       </div>
                     </div>
 
                     {/* Testimonio de Meta Profesional */}
-                    <p className="text-xs text-slate-600 italic bg-white p-3.5 rounded-2xl border border-slate-200 leading-relaxed">
+                    <p className="text-xs text-slate-600 italic bg-white p-3.5 rounded-2xl border border-slate-200/80 leading-relaxed shadow-2xs">
                       "{rec.impactAchievementQuote}"
                     </p>
 
@@ -191,7 +228,7 @@ export const ImpactDashboardPreview: React.FC<ImpactDashboardPreviewProps> = ({
                     </span>
                   </div>
 
-                </div>
+                </motion.div>
               );
             })}
           </div>

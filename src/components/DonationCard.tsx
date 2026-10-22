@@ -1,4 +1,7 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
   Heart, 
   ShieldCheck, 
@@ -56,10 +59,15 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       
       {/* SECTION HEADER */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-3">
-        <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider">
+        <motion.span 
+          initial={{ opacity: 0, y: -4 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-extrabold px-3.5 py-1 rounded-full uppercase tracking-wider shadow-2xs"
+        >
           <Heart className="w-3.5 h-3.5 fill-red-600" /> {t.donation.badge}
-        </span>
-        <h2 className="text-3xl sm:text-4xl font-black text-navy-900">
+        </motion.span>
+        <h2 className="text-3xl sm:text-4xl font-black text-navy-900 tracking-tight">
           {t.donation.title}
         </h2>
         <p className="text-slate-600 text-base leading-relaxed">
@@ -68,60 +76,84 @@ export const DonationCard: React.FC<DonationCardProps> = ({
       </div>
 
       {/* MAIN DONATION CARD CONTAINER */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden">
         
         {/* TOP TOGGLE BAR (FREQUENCY & CURRENCY) */}
         <div className="bg-slate-50 border-b border-slate-200 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           
-          {/* Frequency Toggle */}
+          {/* Frequency Toggle con Cápsula Deslizante LayoutId */}
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.donation.frequencyLabel}</span>
-            <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-sm text-xs font-bold">
+            <div className="relative bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-bold">
               <button
                 type="button"
                 onClick={() => setFrequency('monthly')}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  frequency === 'monthly'
-                    ? 'bg-red-600 text-white shadow'
-                    : 'text-slate-600 hover:text-navy-900'
+                className={`relative z-10 px-4 py-2 rounded-lg transition-colors font-bold cursor-pointer ${
+                  frequency === 'monthly' ? 'text-white font-extrabold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
+                {frequency === 'monthly' && (
+                  <motion.div
+                    layoutId="activeDonationFreqPill"
+                    className="absolute inset-0 bg-red-600 rounded-lg shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 {t.donation.monthly}
               </button>
               <button
                 type="button"
                 onClick={() => setFrequency('one_time')}
-                className={`px-4 py-2 rounded-lg transition-all ${
-                  frequency === 'one_time'
-                    ? 'bg-navy-900 text-white shadow'
-                    : 'text-slate-600 hover:text-navy-900'
+                className={`relative z-10 px-4 py-2 rounded-lg transition-colors font-bold cursor-pointer ${
+                  frequency === 'one_time' ? 'text-white font-extrabold' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
+                {frequency === 'one_time' && (
+                  <motion.div
+                    layoutId="activeDonationFreqPill"
+                    className="absolute inset-0 bg-[#002B49] rounded-lg shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 {t.donation.oneTime}
               </button>
             </div>
           </div>
 
-          {/* Currency Toggle */}
+          {/* Currency Toggle con Cápsula Deslizante LayoutId */}
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.donation.currencyLabel}</span>
-            <div className="bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-sm text-xs font-bold">
+            <div className="relative bg-white border border-slate-200 p-1 rounded-xl flex items-center shadow-2xs text-xs font-bold">
               <button
                 type="button"
                 onClick={() => setCurrency('USD')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  currency === 'USD' ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500'
+                className={`relative z-10 px-3.5 py-1.5 rounded-lg transition-colors font-bold cursor-pointer ${
+                  currency === 'USD' ? 'text-white font-extrabold' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
+                {currency === 'USD' && (
+                  <motion.div
+                    layoutId="activeDonationCurrencyPill"
+                    className="absolute inset-0 bg-[#002B49] rounded-lg shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 USD / EUR
               </button>
               <button
                 type="button"
                 onClick={() => setCurrency('COP')}
-                className={`px-3 py-1.5 rounded-lg transition-all ${
-                  currency === 'COP' ? 'bg-navy-900 text-white shadow-sm' : 'text-slate-500'
+                className={`relative z-10 px-3.5 py-1.5 rounded-lg transition-colors font-bold cursor-pointer ${
+                  currency === 'COP' ? 'text-white font-extrabold' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
+                {currency === 'COP' && (
+                  <motion.div
+                    layoutId="activeDonationCurrencyPill"
+                    className="absolute inset-0 bg-[#002B49] rounded-lg shadow-sm -z-10"
+                    transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                  />
+                )}
                 COP (Colombia)
               </button>
             </div>
@@ -146,13 +178,15 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                   : `$${formatCOPK(tier.copAmount)}k COP`;
 
                 return (
-                  <div
+                  <motion.div
                     key={tier.id}
+                    whileHover={{ y: -4, scale: 1.01 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => { setSelectedTierId(tier.id); setCustomAmount(''); }}
                     className={`p-5 rounded-2xl border-2 cursor-pointer transition-all relative flex flex-col justify-between ${
                       isSelected
-                        ? 'bg-navy-900 text-white border-red-600 shadow-xl'
-                        : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-navy-900 hover:bg-white'
+                        ? 'bg-[#002B49] text-white border-red-600 shadow-xl'
+                        : 'bg-slate-50 text-slate-800 border-slate-200 hover:border-slate-300 hover:bg-white hover:shadow-md'
                     }`}
                   >
                     {tier.badge && (
@@ -167,7 +201,7 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                       <span className={`text-xs font-bold block mb-1 ${isSelected ? 'text-amber-300' : 'text-slate-500'}`}>
                         {tier.subtitle}
                       </span>
-                      <div className="text-2xl font-black mb-2" suppressHydrationWarning>
+                      <div className="text-2xl font-black mb-2 tracking-tight" suppressHydrationWarning>
                         {isMounted ? displayPrice : `$${formatCOPK(tier.copAmount)}k COP`}
                       </div>
                       <h4 className="text-sm font-bold mb-2">
@@ -179,12 +213,12 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                     </div>
 
                     <div className="pt-4 mt-4 border-t border-slate-200/40 text-[11px] font-bold flex items-center justify-between">
-                      <span className={isSelected ? 'text-red-400' : 'text-navy-900'}>
+                      <span className={isSelected ? 'text-red-400 font-extrabold' : 'text-slate-700'}>
                         {isSelected ? (language === 'en' ? 'Selected' : 'Seleccionado') : (language === 'en' ? 'Select Tier' : 'Elegir Nivel')}
                       </span>
-                      <ArrowRight className={`w-3.5 h-3.5 ${isSelected ? 'text-red-400' : 'text-slate-400'}`} />
+                      <ArrowRight className={`w-3.5 h-3.5 ${isSelected ? 'text-red-400 translate-x-0.5' : 'text-slate-400'}`} />
                     </div>
-                  </div>
+                  </motion.div>
                 );
               })}
             </div>
@@ -202,13 +236,13 @@ export const DonationCard: React.FC<DonationCardProps> = ({
                 value={customAmount}
                 onChange={(e) => setCustomAmount(e.target.value)}
                 placeholder={t.donation.customAmountPlaceholder}
-                className="px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 w-full sm:w-48"
+                className="px-3.5 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-red-600 w-full sm:w-48 transition-shadow"
               />
             </div>
           </div>
 
-          {/* ACTION BUTTON & SUMMARY BAR */}
-          <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          {/* ACTION BUTTON & SUMMARY BAR CON SHIMMER 21st.dev */}
+          <div className="bg-slate-50 border border-slate-200/90 p-6 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <span className="text-xs text-slate-500 font-bold block uppercase tracking-wider">
                 {language === 'en' ? 'Selected Contribution:' : 'Aporte Seleccionado:'}
@@ -225,17 +259,26 @@ export const DonationCard: React.FC<DonationCardProps> = ({
               </p>
             </div>
 
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
               type="button"
               onClick={() => setIsModalOpen(true)}
-              className="bg-red-600 hover:bg-red-700 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2.5 text-sm w-full sm:w-auto"
+              className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-extrabold py-3.5 px-6 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2.5 text-sm w-full sm:w-auto cursor-pointer"
             >
-              <Heart className="w-4 h-4 fill-white/20" />
-              <span suppressHydrationWarning>
+              {/* Haz de luz Shimmer sweep */}
+              <motion.span
+                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
+                animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                transition={{ repeat: Infinity, duration: 2.7, ease: 'easeInOut', repeatDelay: 1.2 }}
+              />
+
+              <Heart className="w-4 h-4 fill-white/20 relative z-10" />
+              <span className="relative z-10" suppressHydrationWarning>
                 {language === 'en' ? `Proceed to Donate ${formatMoney(baseAmount, currency)}` : `Proceder a Donar ${formatMoney(baseAmount, currency)}`}
               </span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+              <ArrowRight className="w-4 h-4 relative z-10" />
+            </motion.button>
           </div>
 
           {/* TRANSPARENCY & AUDIT FOOTNOTE */}
