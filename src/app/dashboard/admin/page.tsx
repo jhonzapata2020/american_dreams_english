@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '../../../utils/supabase/client'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { StudentsCrudTable, StudentRecord } from '../../../components/dashboard/StudentsCrudTable'
@@ -2018,262 +2019,312 @@ export default function AdminDashboardPage() {
         {activeTab === 'overview' && (
           <div className="space-y-4 animate-fadeIn">
             
-            {/* BENTO GRID: HEADER & TOP METRIC CARDS (ESTILO SOFT 3D NEUMORPHIC PRO) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 relative z-10">
+            {/* BENTO GRID: HEADER & TOP METRIC CARDS (EXECUTIVE EDTECH 21ST.DEV STYLE) */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4.5 relative z-10">
               
               {/* BENTO WIDGET 1: WELCOME & SYSTEM STATUS (3D Executive Card) */}
-              <div className="col-span-2 lg:col-span-1 bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] border border-white/90 rounded-2xl sm:rounded-[28px] p-4 sm:p-6 text-slate-800 flex flex-col justify-between relative overflow-hidden group hover:-translate-y-0.5 transition-all duration-300">
-                <div>
+              <motion.div 
+                whileHover={{ y: -4, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 25 }}
+                className="col-span-2 lg:col-span-1 bg-gradient-to-br from-white via-slate-50/80 to-blue-50/40 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.15)] border border-slate-200/90 hover:border-blue-300 rounded-3xl p-5 sm:p-6 text-slate-800 flex flex-col justify-between relative overflow-hidden group transition-all duration-300"
+              >
+                {/* Halo ambiental suave */}
+                <div className="absolute -top-12 -right-12 w-36 h-36 bg-blue-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+
+                <div className="relative z-10">
                   <div className="flex items-center justify-between gap-2 flex-wrap mb-2 sm:mb-3">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] sm:text-[11px] font-bold border border-blue-200/60 shadow-2xs">
-                      <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-[10px] sm:text-[11px] font-bold border border-blue-200/70 shadow-2xs">
+                      <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
                       <span>Panel Directivo</span>
                     </div>
 
-                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-emerald-50 text-emerald-800 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border border-emerald-200/60 shadow-2xs">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-full text-[10px] sm:text-[11px] font-mono font-bold border border-emerald-200/70 shadow-2xs">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span>{currentTime || 'En vivo'}</span>
                     </div>
                   </div>
 
-                  <h1 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 mt-1 sm:mt-2">
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-2">
                     American Dream
                   </h1>
-                  <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 sm:mt-1 font-medium leading-relaxed">
+                  <p className="text-[11px] sm:text-xs text-slate-500 mt-1 font-medium leading-relaxed">
                     Control Maestro RBAC · Sede Urabá.
                   </p>
                 </div>
 
-                <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-200/60 flex items-center justify-between text-xs text-slate-600">
-                  <span className="flex items-center gap-1.5 text-[10px] sm:text-[11px] font-bold text-slate-700">
-                    <Building2 className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-blue-600" />
+                <div className="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs text-slate-600 relative z-10">
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+                    <Building2 className="w-3.5 h-3.5 text-blue-600" />
                     Turbo, Antioquia
                   </span>
-                  <span className="text-[9px] sm:text-[10px] font-mono font-bold text-blue-600 bg-blue-50 px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-md border border-blue-100">
+                  <span className="text-[10px] font-mono font-bold text-blue-600 bg-blue-50/90 px-2 py-0.5 rounded-md border border-blue-200/60">
                     v2.4 Live
                   </span>
                 </div>
-              </div>
+              </motion.div>
 
-              {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS (Soft 3D Card) */}
-              <button 
+              {/* BENTO WIDGET 2: ESTUDIANTES ACTIVOS */}
+              <motion.button 
+                whileHover={{ y: -4, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 25 }}
                 type="button"
                 onClick={() => setActiveTab('estudiantes')}
-                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(16,185,129,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-2xl sm:rounded-[28px] p-3.5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 active:scale-[0.98] select-none"
+                className="bg-gradient-to-br from-white via-slate-50/80 to-emerald-50/40 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(16,185,129,0.18)] border border-slate-200/90 hover:border-emerald-300 rounded-3xl p-4 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left select-none overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                {/* Halo ambiental esmeralda */}
+                <div className="absolute -top-12 -right-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+
+                <div className="flex items-center justify-between mb-2 relative z-10">
                   <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">Estudiantes</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70 shadow-2xs">
                     Activos
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 sm:gap-4 my-1.5 sm:my-2">
-                  {/* Cápsula 3D del Icono */}
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-b from-emerald-50 to-teal-100/70 border border-emerald-200/60 shadow-[0_4px_10px_rgba(16,185,129,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <GraduationCap className="w-5 h-5 sm:w-7 sm:h-7 text-emerald-600 drop-shadow-xs" />
+                <div className="flex items-center gap-3 sm:gap-4 my-2 relative z-10">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-100/80 border border-emerald-200/70 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-600 drop-shadow-xs" />
                   </div>
 
                   <div>
-                    <p className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
                       {studentsCount}
                     </p>
-                    <p className="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 sm:mt-1 font-medium">En Campus</p>
+                    <p className="text-[11px] text-slate-500 mt-1 font-medium">En Campus</p>
                   </div>
                 </div>
 
-                <div className="pt-2 sm:pt-3 border-t border-slate-200/60 flex items-center justify-between text-[10px] sm:text-[11px]">
-                  <span className="text-emerald-700 font-bold flex items-center gap-1 sm:gap-1.5">
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] relative z-10">
+                  <span className="text-emerald-700 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     Supabase
                   </span>
-                  <span className="text-slate-500 font-bold group-hover:text-emerald-700 transition-colors">
-                    Ver →
+                  <span className="text-slate-500 font-bold group-hover:text-emerald-700 flex items-center gap-1 transition-colors">
+                    <span>Ver</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
-              </button>
+              </motion.button>
 
-              {/* BENTO WIDGET 3: EQUIPO DOCENTE TITULAR (Soft 3D Card) */}
-              <button 
+              {/* BENTO WIDGET 3: EQUIPO DOCENTE TITULAR */}
+              <motion.button 
+                whileHover={{ y: -4, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 25 }}
                 type="button"
                 onClick={() => setActiveTab('docentes')}
-                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(37,99,235,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-2xl sm:rounded-[28px] p-3.5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 active:scale-[0.98] select-none"
+                className="bg-gradient-to-br from-white via-slate-50/80 to-indigo-50/40 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(79,70,229,0.18)] border border-slate-200/90 hover:border-indigo-300 rounded-3xl p-4 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left select-none overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                {/* Halo ambiental índigo */}
+                <div className="absolute -top-12 -right-12 w-36 h-36 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+
+                <div className="flex items-center justify-between mb-2 relative z-10">
                   <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">Docentes</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/70 shadow-2xs">
                     Titulares
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 sm:gap-4 my-1.5 sm:my-2">
-                  {/* Cápsula 3D del Icono */}
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-b from-blue-50 to-indigo-100/70 border border-blue-200/60 shadow-[0_4px_10px_rgba(37,99,235,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <UserCheck className="w-5 h-5 sm:w-7 sm:h-7 text-blue-600 drop-shadow-xs" />
+                <div className="flex items-center gap-3 sm:gap-4 my-2 relative z-10">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-100/80 border border-indigo-200/70 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <UserCheck className="w-6 h-6 sm:w-7 sm:h-7 text-indigo-600 drop-shadow-xs" />
                   </div>
 
                   <div>
-                    <p className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
                       {teachersCount}
                     </p>
-                    <p className="text-[10px] sm:text-[11px] text-blue-700 mt-0.5 sm:mt-1 font-bold">Profesores</p>
+                    <p className="text-[11px] text-indigo-700 mt-1 font-bold">Profesores</p>
                   </div>
                 </div>
 
-                <div className="pt-2 sm:pt-3 border-t border-slate-200/60 flex items-center justify-between text-[10px] sm:text-[11px]">
-                  <span className="text-blue-700 font-bold flex items-center gap-1 sm:gap-1.5">
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 animate-pulse" />
+                <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] relative z-10">
+                  <span className="text-indigo-700 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
                     Planta
                   </span>
-                  <span className="text-slate-500 font-bold group-hover:text-blue-700 transition-colors">
-                    Ver →
+                  <span className="text-slate-500 font-bold group-hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                    <span>Ver</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
-              </button>
+              </motion.button>
 
-              {/* BENTO WIDGET 4: BECAS URABÁ (Soft 3D Card) */}
-              <button 
+              {/* BENTO WIDGET 4: BECAS URABÁ */}
+              <motion.button 
+                whileHover={{ y: -4, scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: 'spring', stiffness: 380, damping: 25 }}
                 type="button"
                 onClick={() => setActiveTab('becas')}
-                className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.22),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] hover:shadow-[0_16px_36px_rgba(217,119,6,0.25),inset_0_1.5px_1px_rgba(255,255,255,1)] border border-white/90 rounded-2xl sm:rounded-[28px] p-3.5 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left hover:-translate-y-0.5 active:scale-[0.98] select-none"
+                className="bg-gradient-to-br from-white via-slate-50/80 to-amber-50/40 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.06)] hover:shadow-[0_20px_40px_-12px_rgba(217,119,6,0.18)] border border-slate-200/90 hover:border-amber-300 rounded-3xl p-4 sm:p-6 text-slate-800 transition-all duration-300 flex flex-col justify-between relative group cursor-pointer text-left select-none overflow-hidden"
               >
-                <div className="flex items-center justify-between mb-1 sm:mb-2">
+                {/* Halo ambiental ámbar */}
+                <div className="absolute -top-12 -right-12 w-36 h-36 bg-amber-500/10 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+
+                <div className="flex items-center justify-between mb-2 relative z-10">
                   <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-wider">Becas Urabá</span>
-                  <span className="text-[9px] sm:text-[10px] font-mono font-bold px-1.5 py-0.2 sm:px-2 sm:py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/60">
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200/70 shadow-2xs">
                     2026
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5 sm:gap-4 my-1.5 sm:my-2">
-                  {/* Cápsula 3D del Icono */}
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-b from-amber-50 to-orange-100/70 border border-amber-200/60 shadow-[0_4px_10px_rgba(217,119,6,0.2),inset_0_1.5px_1px_rgba(255,255,255,0.9)] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Heart className="w-5 h-5 sm:w-7 sm:h-7 text-amber-600 drop-shadow-xs" />
+                <div className="flex items-center gap-3 sm:gap-4 my-2 relative z-10">
+                  <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-100/80 border border-amber-200/70 shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Heart className="w-6 h-6 sm:w-7 sm:h-7 text-amber-600 drop-shadow-xs" />
                   </div>
 
                   <div>
-                    <p className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
+                    <p className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 leading-none">
                       {pendingBecasCount}
                     </p>
-                    <p className="text-[10px] sm:text-[11px] text-amber-800 mt-0.5 sm:mt-1 font-bold">Por Aprobar</p>
+                    <p className="text-[11px] text-amber-800 mt-1 font-bold">Por Aprobar</p>
                   </div>
                 </div>
 
-                <div className="pt-2 sm:pt-3 border-t border-slate-200/60 flex items-center justify-between text-[10px] sm:text-[11px]">
-                  <span className="text-amber-800 font-bold flex items-center gap-1 sm:gap-1.5">
-                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 animate-pulse" />
+                <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] relative z-10">
+                  <span className="text-amber-800 font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
                     Impacto
                   </span>
-                  <span className="text-slate-500 font-bold group-hover:text-amber-800 transition-colors">
-                    Revisar →
+                  <span className="text-slate-500 font-bold group-hover:text-amber-800 flex items-center gap-1 transition-colors">
+                    <span>Revisar</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </div>
-              </button>
+              </motion.button>
 
             </div>
 
-            {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (TECLAS FÍSICAS 3D SOFT TÁCTILES) */}
-            <div className="bg-gradient-to-b from-white via-[#FAFBFD] to-[#F1F4F9] shadow-[0_12px_28px_rgba(166,180,200,0.2),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.8)] border border-white/90 rounded-2xl sm:rounded-[28px] p-4 sm:p-6 text-slate-800 relative z-10">
-              <div className="flex items-center justify-between mb-3 px-1">
-                <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-2">
+            {/* BENTO GRID: QUICK ACTIONS SHORTCUTS (ACCIONES RÁPIDAS 21ST.DEV STYLE) */}
+            <div className="bg-white/95 backdrop-blur-md shadow-sm border border-slate-200/90 rounded-3xl p-5 sm:p-6 text-slate-800 relative z-10">
+              <div className="flex items-center justify-between mb-3.5 px-1">
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-blue-600" />
-                  <span>Accesos Rápidos</span>
+                  <span>Accesos Rápidos del Administrador</span>
                 </h3>
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/60">
-                  Bento 3D
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200">
+                  Control Directivo
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
                 {/* Button 1: Agregar Estudiante */}
-                <button
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={() => setIsAddStudentOpen(true)}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(239,68,68,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-slate-50/90 hover:bg-rose-50/50 border border-slate-200/80 hover:border-red-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-rose-50 to-red-100/80 border border-red-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-rose-50 to-red-100/90 border border-red-200/70 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight group-hover:text-red-600 transition-colors">+ Estudiante</p>
+                    <p className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight group-hover:text-red-600 transition-colors">+ Estudiante</p>
                     <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">Crear perfil</p>
                   </div>
-                </button>
+                </motion.button>
 
-                {/* Button 2: Registrar Docente */}
-                <button
+                {/* Button 2: Registrar Docente (Con Shimmer Beam) */}
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={() => setIsAddTeacherOpen(true)}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-blue-200 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(37,99,235,0.2)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group relative overflow-hidden flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-md shadow-blue-600/20 transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-blue-600 to-indigo-600 text-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  {/* Haz de luz líquido */}
+                  <motion.span
+                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none"
+                    animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                    transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut', repeatDelay: 1 }}
+                  />
+
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform relative z-10">
                     <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-black text-blue-900 leading-tight group-hover:text-blue-700 transition-colors">+ Docente</p>
-                    <p className="text-[9px] sm:text-[10px] text-blue-600 mt-0.5 line-clamp-1 font-bold">Alta y Acceso</p>
+                  <div className="min-w-0 flex-1 relative z-10">
+                    <p className="text-[11px] sm:text-xs font-black text-white leading-tight">+ Docente</p>
+                    <p className="text-[9px] sm:text-[10px] text-blue-200 mt-0.5 line-clamp-1 font-medium">Alta y Acceso</p>
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Button 3: Ver Docentes */}
-                <button
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={() => setActiveTab('docentes')}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(14,165,233,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-slate-50/90 hover:bg-sky-50/50 border border-slate-200/80 hover:border-sky-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-sky-50 to-blue-100/80 border border-sky-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-sky-50 to-blue-100/90 border border-sky-200/70 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <UserCheck className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">Docentes</p>
+                    <p className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight group-hover:text-sky-600 transition-colors">Docentes</p>
                     <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{teachersCount} activos</p>
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Button 4: Ver Estudiantes */}
-                <button
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={() => setActiveTab('estudiantes')}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(16,185,129,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-slate-50/90 hover:bg-emerald-50/50 border border-slate-200/80 hover:border-emerald-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-emerald-50 to-teal-100/80 border border-emerald-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-100/90 border border-emerald-200/70 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight group-hover:text-emerald-700 transition-colors">Estudiantes</p>
+                    <p className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight group-hover:text-emerald-700 transition-colors">Estudiantes</p>
                     <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{studentsCount} en aula</p>
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Button 5: Prospectos Web */}
-                <button
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={() => setActiveTab('leads')}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(99,102,241,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-slate-50/90 hover:bg-indigo-50/50 border border-slate-200/80 hover:border-indigo-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-indigo-50 to-purple-100/80 border border-indigo-200/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-purple-100/90 border border-indigo-200/70 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Inbox className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Prospectos</p>
+                    <p className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors">Prospectos</p>
                     <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">{leadsCount} registros</p>
                   </div>
-                </button>
+                </motion.button>
 
                 {/* Button 6: Sincronizar Base de Datos */}
-                <button
+                <motion.button
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   type="button"
                   onClick={fetchAdminData}
                   disabled={refreshing}
-                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-2.5 sm:p-3.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200/90 shadow-[0_4px_10px_rgba(0,0,0,0.04),inset_0_1.5px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(226,232,240,0.7)] hover:shadow-[0_8px_18px_rgba(37,99,235,0.18)] hover:-translate-y-0.5 active:translate-y-0.5 transition-all text-left cursor-pointer select-none"
+                  className="group flex flex-row items-center gap-2.5 sm:gap-3 p-3 rounded-2xl bg-slate-50/90 hover:bg-slate-100 border border-slate-200/80 hover:border-slate-300 shadow-2xs hover:shadow-md transition-all text-left cursor-pointer select-none disabled:opacity-60"
                 >
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-b from-slate-100 to-slate-200/80 border border-slate-300/60 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200/90 border border-slate-300/70 shadow-2xs flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-700 ${refreshing ? 'animate-spin text-blue-600' : ''}`} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] sm:text-xs font-bold text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">Sincronizar</p>
+                    <p className="text-[11px] sm:text-xs font-black text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">Sincronizar</p>
                     <p className="text-[9px] sm:text-[10px] text-slate-500 mt-0.5 line-clamp-1 font-medium">Refrescar BD</p>
                   </div>
-                </button>
+                </motion.button>
               </div>
             </div>
 
@@ -2284,13 +2335,19 @@ export default function AdminDashboardPage() {
         {/* VISTA: EQUIPO DOCENTE & TUTORES                                           */}
         {/* ========================================================================= */}
         {activeTab === 'docentes' && (
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0"
+          >
             
             {/* ENCABEZADO DE SECCIÓN DOCENTE */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5 shrink-0">
               <div>
-                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200/70 uppercase tracking-wider mb-1.5">
-                  <ShieldCheck className="w-3 h-3 text-blue-600" />
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-50/90 text-blue-700 text-[10px] font-bold border border-blue-200/70 uppercase tracking-wider mb-1.5 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
                   <span>Facultad Bilingüe · Periodo 2026-I</span>
                 </div>
                 <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
@@ -2303,76 +2360,102 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5">
-                <Link
-                  href="/campus/docente"
-                  target="_blank"
-                  className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-all border border-slate-200 flex items-center justify-center gap-1.5"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  <span>Ver Portal Docente</span>
-                </Link>
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Link
+                    href="/campus/docente"
+                    target="_blank"
+                    className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200/80 text-slate-700 font-semibold text-xs rounded-xl transition-all border border-slate-200/90 flex items-center justify-center gap-1.5 shadow-2xs"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Ver Portal Docente</span>
+                  </Link>
+                </motion.div>
 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -1 }}
+                  whileTap={{ scale: 0.98 }}
                   type="button"
                   onClick={() => setIsAddTeacherOpen(true)}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl shadow-sm shadow-blue-200 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-sm shadow-blue-500/20 transition-all flex items-center justify-center gap-2 cursor-pointer flex-shrink-0"
                 >
                   <UserPlus className="w-4 h-4" />
                   <span>+ Registrar Nuevo Docente</span>
-                </button>
+                </motion.button>
               </div>
             </div>
 
             {/* KPI STATS ROW (2x2 on Mobile, 4-col on Desktop) */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 shrink-0">
-              <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 shrink-0">
+              <motion.div 
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-blue-50/30 border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-2xs hover:shadow-sm transition-all"
+              >
                 <div>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Docentes</p>
+                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Docentes</p>
                   <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">{teachersList.length}</p>
-                  <p className="text-[9px] sm:text-[10px] text-emerald-600 font-semibold mt-0.5">● 100% activa</p>
+                  <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    100% activa
+                  </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-blue-50 text-blue-600 rounded-xl sm:rounded-2xl border border-blue-100">
-                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="p-2.5 sm:p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100 shadow-2xs">
+                  <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between">
+              <motion.div 
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-amber-50/30 border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-2xs hover:shadow-sm transition-all"
+              >
                 <div>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Niveles</p>
+                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Niveles</p>
                   <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">4 de 4</p>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 font-semibold mt-0.5">A1-B2 MCER</p>
+                  <p className="text-[9px] sm:text-[10px] text-amber-700 font-bold mt-0.5">A1-B2 MCER</p>
                 </div>
-                <div className="p-2 sm:p-3 bg-amber-50 text-amber-600 rounded-xl sm:rounded-2xl border border-amber-100">
-                  <Award className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="p-2.5 sm:p-3 bg-amber-50 text-amber-600 rounded-2xl border border-amber-100 shadow-2xs">
+                  <Award className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between">
+              <motion.div 
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-emerald-50/30 border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-2xs hover:shadow-sm transition-all"
+              >
                 <div>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Salas Teams</p>
+                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Salas Teams</p>
                   <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">4 Salas</p>
-                  <p className="text-[9px] sm:text-[10px] text-blue-600 font-semibold mt-0.5">En vivo</p>
+                  <p className="text-[9px] sm:text-[10px] text-emerald-600 font-bold mt-0.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    En vivo
+                  </p>
                 </div>
-                <div className="p-2 sm:p-3 bg-emerald-50 text-emerald-600 rounded-xl sm:rounded-2xl border border-emerald-100">
-                  <Video className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="p-2.5 sm:p-3 bg-emerald-50 text-emerald-600 rounded-2xl border border-emerald-100 shadow-2xs">
+                  <Video className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="bg-slate-50/70 border border-slate-200/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 flex items-center justify-between">
+              <motion.div 
+                whileHover={{ y: -2 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-purple-50/30 border border-slate-200/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-2xs hover:shadow-sm transition-all"
+              >
                 <div>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 uppercase tracking-wider">Seguimiento</p>
+                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">Seguimiento</p>
                   <p className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">Al Día</p>
-                  <p className="text-[9px] sm:text-[10px] text-slate-500 font-semibold mt-0.5">Calificaciones</p>
+                  <p className="text-[9px] sm:text-[10px] text-purple-700 font-bold mt-0.5">Calificaciones</p>
                 </div>
-                <div className="p-2 sm:p-3 bg-purple-50 text-purple-600 rounded-xl sm:rounded-2xl border border-purple-100">
-                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                <div className="p-2.5 sm:p-3 bg-purple-50 text-purple-600 rounded-2xl border border-purple-100 shadow-2xs">
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-              </div>
+              </motion.div>
             </div>
 
-            {/* CONTROLES: BÚSQUEDA Y FILTRO POR NIVEL MCER */}
+            {/* CONTROLES: BÚSQUEDA Y FILTRO POR NIVEL MCER CON LAYOUTID SLIDING PILL */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 shrink-0">
-              <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60 text-xs font-semibold overflow-x-auto no-scrollbar w-full sm:w-fit">
+              <div className="flex items-center gap-1 p-1 bg-slate-100/90 rounded-2xl border border-slate-200/80 text-xs font-semibold overflow-x-auto no-scrollbar w-full sm:w-fit relative">
                 {teacherFilterTabs.map((tab) => {
                   const isActive = teacherFilterLevel === tab.id
                   return (
@@ -2380,14 +2463,21 @@ export default function AdminDashboardPage() {
                       key={tab.id}
                       type="button"
                       onClick={() => setTeacherFilterLevel(tab.id)}
-                      className={`px-3 py-1.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer text-xs shrink-0 ${
+                      className={`relative px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer text-xs shrink-0 z-10 ${
                         isActive
-                          ? 'bg-white text-blue-900 shadow-sm font-bold'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+                          ? 'text-blue-900 font-bold'
+                          : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeTeacherFilterTab"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                          className="absolute inset-0 bg-white rounded-xl shadow-sm border border-slate-200/70 -z-10"
+                        />
+                      )}
                       <span>{tab.label}</span>
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full transition-colors ${
                         isActive ? 'bg-blue-100 text-blue-800' : 'bg-slate-200/80 text-slate-500'
                       }`}>
                         {tab.count}
@@ -2404,7 +2494,7 @@ export default function AdminDashboardPage() {
                   placeholder="Buscar docente o cédula..."
                   value={teacherSearchTerm}
                   onChange={(e) => setTeacherSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className="w-full bg-slate-50/80 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-2xs"
                 />
               </div>
             </div>
@@ -2416,10 +2506,10 @@ export default function AdminDashboardPage() {
                   {filteredTeachers.map((teacher) => {
                     const level = teacher.mcer_level.toUpperCase()
                     const levelColor = 
-                      level === 'A1' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                      level === 'A2' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                      level === 'B1' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                      level === 'B2' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                      level === 'A1' ? 'bg-amber-50 text-amber-700 border-amber-200/80' :
+                      level === 'A2' ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80' :
+                      level === 'B1' ? 'bg-blue-50 text-blue-700 border-blue-200/80' :
+                      level === 'B2' ? 'bg-purple-50 text-purple-700 border-purple-200/80' :
                       'bg-slate-100 text-slate-700 border-slate-200'
 
                     const initials = teacher.full_name
@@ -2431,29 +2521,34 @@ export default function AdminDashboardPage() {
                       .toUpperCase() || 'TC'
 
                     return (
-                      <div
+                      <motion.div
                         key={teacher.id}
-                        className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between hover:shadow-md group overflow-hidden relative"
+                        whileHover={{ y: -4, scale: 1.01 }}
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        className="bg-white border border-slate-200/90 hover:border-blue-300 rounded-3xl p-5 shadow-sm hover:shadow-[0_12px_28px_-8px_rgba(37,99,235,0.12)] transition-all duration-300 flex flex-col justify-between group overflow-hidden relative"
                       >
-                        <div className="space-y-4 min-w-0 w-full">
+                        {/* Halo ambiental suave en hover */}
+                        <div className="absolute -top-12 -right-12 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none group-hover:scale-125 transition-transform" />
+
+                        <div className="space-y-4 min-w-0 w-full relative z-10">
                           
                           {/* TOP CARD: AVATAR + BADGE */}
                           <div className="flex items-start justify-between gap-2.5 min-w-0 w-full">
                             <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
-                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#0B1B3D] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-md border border-white/20 shrink-0">
+                              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-br from-[#0B1B3D] via-[#162a56] to-[#1e3a8a] text-white flex items-center justify-center font-bold text-sm shadow-md border border-white/20 shrink-0 group-hover:scale-105 transition-transform">
                                 {initials}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug line-clamp-2 break-words" title={teacher.full_name}>
                                   {teacher.full_name}
                                 </h3>
-                                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1 break-words" title={teacher.specialty || `Docente Titular Nivel ${level}`}>
+                                <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-1 break-words font-medium" title={teacher.specialty || `Docente Titular Nivel ${level}`}>
                                   {teacher.specialty || `Docente Titular Nivel ${level}`}
                                 </p>
                               </div>
                             </div>
 
-                            <span className={`px-2 py-0.5 text-[10px] font-bold rounded-lg border whitespace-nowrap shrink-0 mt-0.5 ${levelColor}`}>
+                            <span className={`px-2.5 py-0.5 text-[10px] font-bold rounded-lg border whitespace-nowrap shrink-0 mt-0.5 shadow-2xs ${levelColor}`}>
                               Nivel {level}
                             </span>
                           </div>
@@ -2461,7 +2556,7 @@ export default function AdminDashboardPage() {
                           {/* INFORMACIÓN DE CONTACTO Y CÉDULA */}
                           <div className="bg-slate-50/70 rounded-2xl p-3 space-y-2 border border-slate-100 text-xs min-w-0">
                             <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
-                              <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                              <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0 font-medium">
                                 <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                 Correo:
                               </span>
@@ -2472,11 +2567,11 @@ export default function AdminDashboardPage() {
 
                             {teacher.phone && (
                               <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
-                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0 font-medium">
                                   <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   WhatsApp:
                                 </span>
-                                <span className="font-mono text-slate-800 text-[11px] truncate text-right">
+                                <span className="font-mono text-slate-800 text-[11px] truncate text-right font-medium">
                                   {teacher.phone}
                                 </span>
                               </div>
@@ -2484,11 +2579,11 @@ export default function AdminDashboardPage() {
 
                             {teacher.document_number && (
                               <div className="flex items-center justify-between text-slate-600 gap-2 min-w-0">
-                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0">
+                                <span className="flex items-center gap-1.5 text-slate-500 text-[11px] shrink-0 font-medium">
                                   <KeyRound className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                                   Identificación:
                                 </span>
-                                <span className="font-mono text-slate-800 text-[11px] truncate text-right">
+                                <span className="font-mono text-slate-800 text-[11px] truncate text-right font-medium">
                                   {teacher.document_type || 'C.C.'} {teacher.document_number}
                                 </span>
                               </div>
@@ -2497,11 +2592,11 @@ export default function AdminDashboardPage() {
 
                           {/* PERMISOS Y ESTADO OPERATIVO */}
                           <div className="flex items-center justify-between text-[11px] px-1 pt-1 border-t border-slate-100">
-                            <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                            <span className="inline-flex items-center gap-1.5 text-emerald-600 font-bold">
                               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                               Rol Docente Activo
                             </span>
-                            <span className="text-slate-400 font-mono text-[10px]">
+                            <span className="text-slate-400 font-mono text-[10px] bg-slate-100 px-1.5 py-0.5 rounded-md">
                               RBAC: teacher
                             </span>
                           </div>
@@ -2509,19 +2604,23 @@ export default function AdminDashboardPage() {
                         </div>
 
                         {/* ACCIONES DEL DOCENTE */}
-                        <div className="grid grid-cols-3 gap-2 pt-4 border-t border-slate-100 mt-4">
-                          <button
+                        <div className="grid grid-cols-3 gap-2 pt-3.5 border-t border-slate-100 mt-4 relative z-10">
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
                             type="button"
                             onClick={() => handleCopyCredentials(teacher)}
-                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold transition-colors border border-slate-200 cursor-pointer"
+                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-slate-100 hover:bg-slate-200/80 text-slate-700 text-[11px] font-semibold transition-colors border border-slate-200/80 cursor-pointer shadow-2xs"
                             title="Copiar credenciales de acceso"
                           >
-                            <Copy className="w-3.5 h-3.5" />
+                            <Copy className="w-3.5 h-3.5 text-slate-500" />
                             <span>Accesos</span>
-                          </button>
+                          </motion.button>
 
                           {teacher.phone ? (
-                            <button
+                            <motion.button
+                              whileHover={{ scale: 1.03 }}
+                              whileTap={{ scale: 0.97 }}
                               type="button"
                               onClick={() => {
                                 const pass = (teacher.document_number && teacher.document_number.length >= 6 ? `Docente2026* (o ${teacher.document_number})` : 'Docente2026*')
@@ -2538,36 +2637,40 @@ export default function AdminDashboardPage() {
                                 )
                                 window.open(`https://wa.me/${cleanPhone}?text=${msg}`, '_blank')
                               }}
-                              className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[11px] font-semibold transition-colors border border-emerald-200 cursor-pointer"
+                              className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 text-[11px] font-semibold transition-colors border border-emerald-200/80 cursor-pointer shadow-2xs"
                               title="Enviar credenciales por WhatsApp"
                             >
                               <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                               <span>WhatsApp</span>
-                            </button>
+                            </motion.button>
                           ) : (
-                            <Link
-                              href="/campus/docente"
-                              target="_blank"
-                              className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold transition-colors border border-blue-200"
-                              title="Abrir aula del docente"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
-                              <span>Ver Aula</span>
-                            </Link>
+                            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                              <Link
+                                href="/campus/docente"
+                                target="_blank"
+                                className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-[11px] font-semibold transition-colors border border-blue-200/80 shadow-2xs w-full"
+                                title="Abrir aula del docente"
+                              >
+                                <ExternalLink className="w-3.5 h-3.5 text-blue-600" />
+                                <span>Ver Aula</span>
+                              </Link>
+                            </motion.div>
                           )}
 
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
                             type="button"
                             onClick={() => setTeacherToDelete(teacher)}
-                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-semibold transition-colors border border-red-200 cursor-pointer"
+                            className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-red-50 hover:bg-red-100/80 text-red-600 text-[11px] font-semibold transition-colors border border-red-200/80 cursor-pointer shadow-2xs"
                             title="Remover docente"
                           >
-                            <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                            <Trash2 className="w-3.5 h-3.5 text-red-500" />
                             <span>Remover</span>
-                          </button>
+                          </motion.button>
                         </div>
 
-                      </div>
+                      </motion.div>
                     )
                   })}
                 </div>
@@ -2586,7 +2689,7 @@ export default function AdminDashboardPage() {
                       setTeacherSearchTerm('')
                       setTeacherFilterLevel('all')
                     }}
-                    className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50"
+                    className="px-3.5 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-semibold hover:bg-slate-50 cursor-pointer shadow-2xs"
                   >
                     Restablecer Filtros
                   </button>
@@ -2594,7 +2697,7 @@ export default function AdminDashboardPage() {
               )}
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {/* ========================================================================= */}
@@ -2673,12 +2776,22 @@ export default function AdminDashboardPage() {
         {/* VISTA 3: PROSPECTOS & LEADS WEB                                            */}
         {/* ========================================================================= */}
         {activeTab === 'leads' && (
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0"
+          >
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5 shrink-0">
               <div>
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-indigo-50/90 text-indigo-700 text-[10px] font-bold border border-indigo-200/70 uppercase tracking-wider mb-1.5 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <span>Pipeline Web & Admisiones</span>
+                </div>
                 <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                  <Inbox className="w-5 h-5 text-slate-700" />
+                  <Inbox className="w-5 h-5 text-indigo-600" />
                   <span>Gestión de Prospectos & Leads Web</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-0.5">
@@ -2687,30 +2800,30 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-60">
+                <div className="relative flex-1 sm:w-64">
                   <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="text"
                     placeholder="Buscar prospecto o email..."
                     value={leadSearchTerm}
                     onChange={(e) => setLeadSearchTerm(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
+                    className="w-full bg-slate-50/80 border border-slate-200/90 rounded-2xl py-2 pl-9 pr-4 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-2xs"
                   />
                 </div>
 
-                <span className="px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full border border-slate-200 whitespace-nowrap">
+                <span className="px-3.5 py-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-2xl border border-indigo-200/80 whitespace-nowrap shadow-2xs">
                   {filteredLeads.length} Leads
                 </span>
               </div>
             </div>
 
             {loading ? (
-              <div className="p-8 text-center text-slate-500 text-xs">
-                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-slate-400" />
+              <div className="p-12 text-center text-slate-500 text-xs">
+                <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-500" />
                 Cargando prospectos web desde Supabase...
               </div>
             ) : filteredLeads.length === 0 ? (
-              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-8 sm:p-10 text-center space-y-2">
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-3xl p-8 sm:p-12 text-center space-y-2">
                 <Inbox className="w-10 h-10 text-slate-400 mx-auto" />
                 <h4 className="font-bold text-slate-700 text-sm">No se encontraron prospectos web</h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -2726,9 +2839,10 @@ export default function AdminDashboardPage() {
                   {filteredLeads.map((lead) => {
                     const fullName = `${lead.first_name} ${lead.last_name}`.trim()
                     return (
-                      <div 
+                      <motion.div 
                         key={lead.id}
-                        className="bg-white border border-slate-200/90 rounded-2xl p-3.5 space-y-2.5 shadow-2xs"
+                        whileHover={{ y: -2 }}
+                        className="bg-white border border-slate-200/90 hover:border-indigo-200 rounded-2xl p-3.5 space-y-2.5 shadow-2xs hover:shadow-sm transition-all"
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div>
@@ -2748,32 +2862,36 @@ export default function AdminDashboardPage() {
                         </div>
 
                         <div className="flex items-center justify-end gap-2 pt-1">
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
                             onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                            className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-2 px-3 rounded-xl transition-colors inline-flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-2xs active:scale-95"
+                            className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 font-bold py-2 px-3 rounded-xl transition-colors inline-flex items-center justify-center gap-1.5 text-xs cursor-pointer shadow-2xs"
                           >
                             <MessageCircle className="w-4 h-4 text-emerald-600" />
                             <span>Contactar WhatsApp</span>
-                          </button>
+                          </motion.button>
 
-                          <button
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                             onClick={() => setLeadToDelete(lead)}
                             title="Eliminar prospecto"
-                            className="p-2 rounded-xl border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors cursor-pointer active:scale-95"
+                            className="p-2 rounded-xl border border-slate-200 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button>
+                          </motion.button>
                         </div>
-                      </div>
+                      </motion.div>
                     )
                   })}
                 </div>
 
                 {/* VISTA DESKTOP: TABLA CON SCROLL (hidden md:block) */}
-                <div className="hidden md:block overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <div className="hidden md:block overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/80 p-1 bg-slate-50/30">
                   <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                     <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
-                      <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                      <tr className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">
                         <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Prospecto</th>
                         <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Contacto</th>
                         <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Interés</th>
@@ -2789,37 +2907,41 @@ export default function AdminDashboardPage() {
                             key={lead.id} 
                             className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/80 cursor-pointer"
                           >
-                            <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white font-bold text-slate-900 text-xs sm:text-sm transition-colors">
+                            <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-indigo-200 bg-white font-bold text-slate-900 text-xs sm:text-sm transition-colors">
                               {fullName}
                             </td>
-                            <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white space-y-0.5 transition-colors">
+                            <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-indigo-200 bg-white space-y-0.5 transition-colors">
                               <p className="text-slate-800 font-medium text-xs truncate">{lead.email}</p>
-                              <p className="text-[10px] text-slate-500">{lead.phone}</p>
+                              <p className="text-[10px] text-slate-500 font-mono">{lead.phone}</p>
                             </td>
-                            <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
+                            <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-indigo-200 bg-white transition-colors">
                               {renderAudienceBadge(lead.audience)}
                             </td>
-                            <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-500 text-[10px] whitespace-nowrap transition-colors">
+                            <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-indigo-200 bg-white text-slate-500 text-[10px] whitespace-nowrap transition-colors">
                               {lead.created_at ? new Date(lead.created_at).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' }) : 'Reciente'}
                             </td>
-                            <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right transition-colors">
-                              <div className="inline-flex items-center justify-end gap-1">
-                                <button
+                            <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-indigo-200 bg-white text-right transition-colors">
+                              <div className="inline-flex items-center justify-end gap-1.5">
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
                                   onClick={() => handleContactWhatsApp(lead.phone, fullName, `Hola ${fullName}, te escribimos de American Dream English respecto a tu solicitud de información.`)}
-                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-semibold py-1 px-2 rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] cursor-pointer shadow-2xs"
+                                  className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 font-bold py-1.5 px-2.5 rounded-xl transition-colors inline-flex items-center gap-1.5 text-[10px] cursor-pointer shadow-2xs"
                                   title="Contactar vía WhatsApp"
                                 >
                                   <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                                   <span>WhatsApp</span>
-                                </button>
+                                </motion.button>
 
-                                <button
+                                <motion.button
+                                  whileHover={{ scale: 1.05 }}
+                                  whileTap={{ scale: 0.95 }}
                                   onClick={() => setLeadToDelete(lead)}
                                   title="Eliminar prospecto"
-                                  className="p-1.5 rounded-lg border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                                  className="p-1.5 rounded-xl border border-slate-200/80 hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-slate-400 inline-flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                                </motion.button>
                               </div>
                             </td>
                           </tr>
@@ -2831,17 +2953,27 @@ export default function AdminDashboardPage() {
               </>
             )}
 
-          </div>
+          </motion.div>
         )}
 
         {/* ========================================================================= */}
         {/* VISTA 4: POSTULACIONES BECAS URABÁ                                        */}
         {/* ========================================================================= */}
         {activeTab === 'becas' && (
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0"
+          >
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-100 pb-4 sm:pb-5 shrink-0">
               <div>
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-50/90 text-amber-800 text-[10px] font-bold border border-amber-200/70 uppercase tracking-wider mb-1.5 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  <span>Fondo Social & Becas Urabá</span>
+                </div>
                 <h2 className="text-lg sm:text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
                   <Heart className="w-5 h-5 text-amber-600" />
                   <span>Postulaciones Pendientes al Fondo de Becas Urabá</span>
@@ -2851,21 +2983,21 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
 
-              <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 w-fit">
+              <span className="px-3.5 py-1.5 bg-amber-50 text-amber-800 text-xs font-bold rounded-2xl border border-amber-200/80 w-fit shadow-2xs">
                 {pendingBecasCount} Pendiente(s)
               </span>
             </div>
 
             {loading ? (
-              <div className="p-8 text-center text-slate-500 text-xs">
+              <div className="p-12 text-center text-slate-500 text-xs">
                 <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-500" />
                 Cargando postulaciones a becas desde Supabase...
               </div>
             ) : applications.length === 0 ? (
-              <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-8 sm:p-10 text-center space-y-2">
+              <div className="bg-slate-50/80 border border-slate-200/80 rounded-3xl p-8 sm:p-12 text-center space-y-2">
                 <Heart className="w-10 h-10 text-slate-400 mx-auto" />
                 <h4 className="font-bold text-slate-700 text-sm">No hay postulaciones pendientes en Supabase</h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 max-w-sm mx-auto">
                   Todas las solicitudes del Fondo Social Urabá han sido procesadas o están al día.
                 </p>
               </div>
@@ -2874,9 +3006,10 @@ export default function AdminDashboardPage() {
                 {/* VISTA MÓVIL: TARJETAS DE BECAS (md:hidden) */}
                 <div className="md:hidden space-y-2.5">
                   {applications.map((app) => (
-                    <div 
+                    <motion.div 
                       key={app.id}
-                      className="bg-white border border-slate-200/90 rounded-2xl p-3.5 space-y-2.5 shadow-2xs"
+                      whileHover={{ y: -2 }}
+                      className="bg-white border border-slate-200/90 hover:border-amber-200 rounded-2xl p-3.5 space-y-2.5 shadow-2xs hover:shadow-sm transition-all"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -2887,10 +3020,10 @@ export default function AdminDashboardPage() {
                             {app.phone}
                           </span>
                         </div>
-                        <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border ${
+                        <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border shadow-2xs ${
                           app.status === 'approved'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
+                            : 'bg-amber-50 text-amber-800 border-amber-200/80'
                         }`}>
                           {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                         </span>
@@ -2898,11 +3031,11 @@ export default function AdminDashboardPage() {
 
                       <div className="bg-slate-50/80 rounded-xl p-2.5 space-y-1 text-[11px] border border-slate-100">
                         <div className="flex items-center justify-between text-slate-600">
-                          <span className="text-slate-400">Municipio:</span>
+                          <span className="text-slate-400 font-medium">Municipio:</span>
                           <span className="font-semibold text-slate-800">{app.municipality}</span>
                         </div>
                         <div className="flex items-center justify-between text-slate-600">
-                          <span className="text-slate-400">Nivel Escolar:</span>
+                          <span className="text-slate-400 font-medium">Nivel Escolar:</span>
                           <span className="font-medium text-slate-800">{app.academic_level}</span>
                         </div>
                       </div>
@@ -2910,43 +3043,49 @@ export default function AdminDashboardPage() {
                       <div className="flex items-center gap-1.5 pt-1">
                         {app.status !== 'approved' && (
                           <>
-                            <button
+                            <motion.button
+                              whileHover={{ scale: 1.02 }}
+                              whileTap={{ scale: 0.98 }}
                               onClick={() => handleApproveApplication(app.id, app.full_name)}
-                              className="flex-1 inline-flex items-center justify-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition shadow-2xs active:scale-95 cursor-pointer"
+                              className="flex-1 inline-flex items-center justify-center gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-2 px-3 rounded-xl transition shadow-2xs cursor-pointer"
                               title="Aprobar beca"
                             >
                               <Check className="w-3.5 h-3.5" />
                               <span>Aprobar</span>
-                            </button>
+                            </motion.button>
 
-                            <button
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
                               onClick={() => handleRejectApplication(app.id, app.full_name)}
                               title="Descartar postulación"
-                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition-colors cursor-pointer active:scale-95"
+                              className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
                             >
                               <X className="w-4 h-4" />
-                            </button>
+                            </motion.button>
                           </>
                         )}
 
-                        <button
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                          className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-bold py-2 px-3 rounded-xl transition-colors inline-flex items-center justify-center gap-1 text-xs cursor-pointer shadow-2xs active:scale-95"
+                          className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 font-bold py-2 px-3 rounded-xl transition-colors inline-flex items-center justify-center gap-1 text-xs cursor-pointer shadow-2xs"
                           title="WhatsApp"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                           <span>WhatsApp</span>
-                        </button>
+                        </motion.button>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
 
                 {/* VISTA DESKTOP: TABLA CON SCROLL (hidden md:block) */}
-                <div className="hidden md:block overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/70 p-1">
+                <div className="hidden md:block overflow-y-auto overflow-x-auto no-scrollbar max-h-[calc(100vh-320px)] rounded-2xl border border-slate-200/80 p-1 bg-slate-50/30">
                   <table className="w-full text-left text-xs border-separate border-spacing-y-2 font-sans">
                     <thead className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
-                      <tr className="text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                      <tr className="text-slate-400 font-bold uppercase tracking-wider text-[10px]">
                         <th className="py-2.5 px-3 sm:px-4 bg-slate-50/90 border-b border-slate-200/80 rounded-l-xl">Postulante</th>
                         <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Municipio</th>
                         <th className="py-2.5 px-3 bg-slate-50/90 border-b border-slate-200/80">Estudios</th>
@@ -2960,59 +3099,65 @@ export default function AdminDashboardPage() {
                           key={app.id} 
                           className="group relative bg-white transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-slate-200/80 cursor-pointer"
                         >
-                          <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-slate-300/80 bg-white transition-colors">
+                          <td className="py-2.5 px-3 sm:px-4 border-y first:border-l border-slate-200/70 first:rounded-l-2xl group-hover:border-amber-200 bg-white transition-colors">
                             <p className="font-bold text-slate-900 text-xs sm:text-sm">{app.full_name}</p>
-                            <p className="text-[10px] text-slate-500">{app.phone}</p>
+                            <p className="text-[10px] text-slate-500 font-mono">{app.phone}</p>
                           </td>
-                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white transition-colors">
-                            <span className="px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-semibold rounded-md border border-amber-200 inline-flex items-center gap-1">
+                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-amber-200 bg-white transition-colors">
+                            <span className="px-2 py-0.5 bg-amber-50 text-amber-800 text-[10px] font-bold rounded-md border border-amber-200/80 inline-flex items-center gap-1 shadow-2xs">
                               <Building2 className="w-3 h-3 text-amber-600" />
                               <span>{app.municipality}</span>
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-slate-700 text-xs font-medium transition-colors">
+                          <td className="py-2.5 px-3 border-y border-slate-200/70 group-hover:border-amber-200 bg-white text-slate-700 text-xs font-medium transition-colors">
                             {app.academic_level}
                           </td>
-                          <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-slate-300/80 bg-white text-center transition-colors">
-                            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border ${
+                          <td className="py-2.5 px-2 border-y border-slate-200/70 group-hover:border-amber-200 bg-white text-center transition-colors">
+                            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-full uppercase border shadow-2xs ${
                               app.status === 'approved'
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200/80'
+                                : 'bg-amber-50 text-amber-800 border-amber-200/80'
                             }`}>
                               {app.status === 'approved' ? '✓ Aprobada' : '● Pendiente'}
                             </span>
                           </td>
-                          <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-slate-300/80 bg-white text-right transition-colors">
-                            <div className="inline-flex items-center justify-end gap-1">
+                          <td className="py-2.5 px-3 sm:px-4 border-y last:border-r border-slate-200/70 last:rounded-r-2xl group-hover:border-amber-200 bg-white text-right transition-colors">
+                            <div className="inline-flex items-center justify-end gap-1.5">
                               {app.status !== 'approved' && (
                                 <>
-                                  <button
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => handleApproveApplication(app.id, app.full_name)}
-                                    className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-[10px] px-2 py-1 rounded-lg transition shadow-2xs cursor-pointer"
+                                    className="inline-flex items-center gap-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-[10px] px-2.5 py-1.5 rounded-xl transition shadow-2xs cursor-pointer"
                                     title="Aprobar beca"
                                   >
                                     <Check className="w-3.5 h-3.5" />
                                     <span>Aprobar</span>
-                                  </button>
+                                  </motion.button>
 
-                                  <button
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
                                     onClick={() => handleRejectApplication(app.id, app.full_name)}
                                     title="Descartar postulación"
-                                    className="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition-colors cursor-pointer"
+                                    className="p-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200/80 transition-colors cursor-pointer shadow-2xs"
                                   >
                                     <X className="w-3.5 h-3.5" />
-                                  </button>
+                                  </motion.button>
                                 </>
                               )}
 
-                              <button
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                                 onClick={() => handleContactWhatsApp(app.phone, app.full_name, `Hola ${app.full_name}, te escribimos de la Dirección Académica respecto a tu postulación de beca en ${app.municipality}.`)}
-                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 font-medium py-1 px-2 rounded-lg transition-colors inline-flex items-center gap-1 text-[10px] cursor-pointer shadow-2xs"
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200/80 font-bold py-1.5 px-2.5 rounded-xl transition-colors inline-flex items-center gap-1 text-[10px] cursor-pointer shadow-2xs"
                                 title="WhatsApp"
                               >
                                 <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
                                 <span>WhatsApp</span>
-                              </button>
+                              </motion.button>
                             </div>
                           </td>
                         </tr>
@@ -3023,19 +3168,29 @@ export default function AdminDashboardPage() {
               </>
             )}
 
-          </div>
+          </motion.div>
         )}
 
         {/* ========================================================================= */}
         {/* VISTA 5: FONDOS & DONACIONES COLECTIVAS                                   */}
         {/* ========================================================================= */}
         {activeTab === 'donaciones' && (
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0"
+          >
             
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5 shrink-0">
               <div>
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200/70 uppercase tracking-wider mb-1.5 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                  <span>Fondo Filantrópico Urabá</span>
+                </div>
                 <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                  <Heart className="w-5 h-5 text-red-600" />
+                  <Heart className="w-5 h-5 text-rose-600" />
                   <span>Fondos & Donaciones Colectivas Urabá</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-1">
@@ -3044,109 +3199,144 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="px-3.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-                  Fondo Social Activo
+                <span className="px-3.5 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-2xl border border-emerald-200/80 shadow-2xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>Fondo Social Activo</span>
                 </span>
               </div>
             </div>
 
             {/* DONATIONS METRIC CARDS */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 shrink-0">
-              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Recaudado</p>
-                <p className="text-3xl font-black text-slate-900">
-                  ${totalDonationsAmount.toLocaleString('es-CO')} <span className="text-xs font-normal text-slate-500">COP</span>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 shrink-0">
+              <motion.div 
+                whileHover={{ y: -3 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-emerald-50/40 border border-slate-200/90 hover:border-emerald-200/80 p-5 rounded-2xl sm:rounded-3xl space-y-2 shadow-2xs hover:shadow-sm transition-all"
+              >
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Recaudado</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">
+                  ${totalDonationsAmount.toLocaleString('es-CO')} <span className="text-xs font-bold text-slate-400">COP</span>
                 </p>
-                <p className="text-[11px] text-emerald-600 font-medium">Reconciliado en public.donations</p>
-              </div>
+                <p className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Reconciliado en public.donations</span>
+                </p>
+              </motion.div>
 
-              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Becas Financiadas</p>
-                <p className="text-3xl font-black text-slate-900">
-                  {Math.max(1, Math.floor(studentsCount * 0.4))} <span className="text-xs font-normal text-slate-500">Becarios</span>
+              <motion.div 
+                whileHover={{ y: -3 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-amber-50/40 border border-slate-200/90 hover:border-amber-200/80 p-5 rounded-2xl sm:rounded-3xl space-y-2 shadow-2xs hover:shadow-sm transition-all"
+              >
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Becas Financiadas</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">
+                  {Math.max(1, Math.floor(studentsCount * 0.4))} <span className="text-xs font-bold text-slate-400">Becarios</span>
                 </p>
-                <p className="text-[11px] text-slate-500 font-medium">Estudiantes de la región Urabá</p>
-              </div>
+                <p className="text-[11px] text-amber-800 font-bold">Estudiantes de la subregión de Urabá</p>
+              </motion.div>
 
-              <div className="bg-slate-50/80 border border-slate-200/80 p-5 rounded-2xl space-y-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Aporte Promedio</p>
-                <p className="text-3xl font-black text-slate-900">
-                  $120.000 <span className="text-xs font-normal text-slate-500">COP</span>
+              <motion.div 
+                whileHover={{ y: -3 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                className="bg-gradient-to-br from-white to-blue-50/40 border border-slate-200/90 hover:border-blue-200/80 p-5 rounded-2xl sm:rounded-3xl space-y-2 shadow-2xs hover:shadow-sm transition-all"
+              >
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Aporte Promedio</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">
+                  $120.000 <span className="text-xs font-bold text-slate-400">COP</span>
                 </p>
-                <p className="text-[11px] text-slate-500 font-medium">Campaña Bilingüe 2026</p>
-              </div>
+                <p className="text-[11px] text-blue-700 font-bold">Campaña Bilingüe 2026-I</p>
+              </motion.div>
             </div>
 
             {/* DONATIONS ACTION BANNER */}
-            <div className="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0">
-              <div className="space-y-1 text-center md:text-left">
+            <div className="bg-gradient-to-r from-[#0B1B3D] via-[#162a56] to-[#1e3a8a] text-white rounded-3xl p-6 sm:p-7 flex flex-col md:flex-row items-center justify-between gap-6 shrink-0 shadow-lg border border-white/10 relative overflow-hidden">
+              <div className="absolute -top-12 -right-12 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="space-y-1.5 text-center md:text-left relative z-10">
                 <h3 className="text-base font-bold text-white flex items-center gap-2 justify-center md:justify-start">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <Sparkles className="w-4.5 h-4.5 text-amber-400" />
                   <span>Campaña de Becas Bilingües Urabá</span>
                 </h3>
-                <p className="text-xs text-slate-300 max-w-lg">
-                  Los fondos recaudados financian directamente el 100% de la matrícula, materiales en inglés y certificación MCER para estudiantes de Urabá.
+                <p className="text-xs text-slate-300 max-w-lg leading-relaxed">
+                  Los fondos recaudados financian directamente el 100% de la matrícula, materiales en inglés y certificación MCER para jóvenes de Urabá.
                 </p>
               </div>
 
-              <button
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 type="button"
                 onClick={fetchAdminData}
-                className="px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs rounded-xl transition shadow-md whitespace-nowrap flex items-center gap-2"
+                className="px-5 py-2.5 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs rounded-xl transition-all shadow-md whitespace-nowrap flex items-center gap-2 cursor-pointer relative z-10"
               >
                 <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                 <span>Actualizar Recaudación</span>
-              </button>
+              </motion.button>
             </div>
 
-          </div>
+          </motion.div>
         )}
 
         {/* ========================================================================= */}
         {/* VISTA 6: CATÁLOGO DE CURSOS                                               */}
         {/* ========================================================================= */}
         {activeTab === 'products' && (
-          <div className="bg-white shadow-sm border border-slate-200/90 rounded-3xl p-6 space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0 animate-fadeIn">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-5 shrink-0">
+          <motion.div 
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="bg-white shadow-[0_10px_35px_-10px_rgba(0,0,0,0.05)] border border-slate-200/90 rounded-2xl sm:rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-6 text-slate-800 relative z-10 flex-1 flex flex-col min-h-0"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-5 shrink-0">
               <div>
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 text-[10px] font-bold border border-purple-200/70 uppercase tracking-wider mb-1.5 shadow-2xs">
+                  <span>Plataforma & Pensum</span>
+                </div>
                 <h2 className="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2.5">
-                  <Package className="w-5 h-5 text-slate-700" />
+                  <Package className="w-5 h-5 text-purple-600" />
                   <span>Catálogo de Cursos & Precios</span>
                 </h2>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 mt-0.5">
                   Mapeo de cursos, niveles MCER, horas académicas y tarifas en COP/USD.
                 </p>
               </div>
 
-              <Link
-                href="/dashboard/admin/products"
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium text-xs rounded-xl shadow-sm transition-all flex items-center gap-2"
-              >
-                <span>Ir al Catálogo Completo</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Link
+                  href="/dashboard/admin/products"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-all flex items-center gap-2 shadow-purple-500/20"
+                >
+                  <span>Ir al Catálogo Completo</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </motion.div>
             </div>
 
-            <div className="bg-slate-50/80 border border-slate-200/80 rounded-2xl p-8 text-center space-y-4">
-              <Package className="w-12 h-12 text-slate-400 mx-auto" />
+            <div className="bg-gradient-to-br from-slate-50/90 to-purple-50/30 border border-slate-200/90 rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-2xs">
+              <div className="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 mx-auto flex items-center justify-center shadow-2xs">
+                <Package className="w-7 h-7 text-purple-600" />
+              </div>
               <div className="space-y-1">
                 <h3 className="text-base font-bold text-slate-800">Gestión de Catálogo & Aulas Virtuales</h3>
                 <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-                  Accede al catálogo interactivo completo para configurar la visibilidad de cursos, modalidades presenciales/virtuales y planes de financiamiento.
+                  Configura la visibilidad pública de cursos, cupos disponibles, modalidades presenciales/virtuales y pasarelas de pago integradas.
                 </p>
               </div>
 
               <div className="pt-2">
-                <Link
-                  href="/dashboard/admin/products"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow-md"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  <span>Abrir Administrador de Productos</span>
-                </Link>
+                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }} className="inline-block">
+                  <Link
+                    href="/dashboard/admin/products"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all shadow-md"
+                  >
+                    <ExternalLink className="w-4 h-4 text-slate-300" />
+                    <span>Abrir Administrador de Productos</span>
+                  </Link>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
       </div>

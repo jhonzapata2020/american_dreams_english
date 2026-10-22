@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Search, 
   Filter, 
@@ -326,25 +327,29 @@ export function StudentsCrudTable({
           {/* Botones de acción derecha */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 justify-between sm:justify-end">
             {onRefresh && (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={onRefresh}
-                className="p-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-2xl text-slate-600 hover:text-slate-900 shadow-sm transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
+                className="p-2.5 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-2xl text-slate-600 hover:text-slate-900 shadow-2xs hover:shadow-sm transition-all cursor-pointer"
                 title="Actualizar lista de estudiantes"
               >
                 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin text-blue-600' : ''}`} />
-              </button>
+              </motion.button>
             )}
 
             {/* Botón Principal "+ Matricular Estudiante" estilo Figma Blue */}
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
               type="button"
               onClick={onOpenCreateModal}
-              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] transition-all cursor-pointer"
             >
               <UserPlus className="w-4 h-4 text-blue-100" />
               <span>+ Matricular Estudiante</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { DashboardLayout } from '../../../components/dashboard/DashboardLayout'
 import { createClient } from '../../../utils/supabase/client'
 import { 
@@ -483,13 +484,15 @@ export default function AdminEstudiantesPage() {
           </div>
 
           <div className="flex items-center gap-3 w-full sm:w-auto">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleOpenModal}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.35)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] transition-all cursor-pointer"
             >
               <UserPlus className="w-4 h-4 text-blue-100" />
               <span>+ Matricular Estudiante</span>
-            </button>
+            </motion.button>
           </div>
         </div>
 
@@ -498,7 +501,11 @@ export default function AdminEstudiantesPage() {
         {/* ========================================================================= */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <motion.div 
+            whileHover={{ y: -3 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Matriculados</span>
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner">
@@ -509,9 +516,13 @@ export default function AdminEstudiantesPage() {
             <span className="text-[10px] sm:text-[11px] text-emerald-600 font-bold flex items-center gap-1 mt-1">
               <CheckCircle2 className="w-3.5 h-3.5" /> 100% Activos
             </span>
-          </div>
+          </motion.div>
 
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <motion.div 
+            whileHover={{ y: -3 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Nivel 1 (A1)</span>
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center shadow-inner">
@@ -524,9 +535,13 @@ export default function AdminEstudiantesPage() {
             <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-1 block">
               Iniciación oral
             </span>
-          </div>
+          </motion.div>
 
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <motion.div 
+            whileHover={{ y: -3 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">A2 y Superior</span>
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
@@ -539,9 +554,13 @@ export default function AdminEstudiantesPage() {
             <span className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-1 block">
               Pre-intermedio+
             </span>
-          </div>
+          </motion.div>
 
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/80 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300">
+          <motion.div 
+            whileHover={{ y: -3 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            className="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-md transition-all duration-300"
+          >
             <div className="flex items-center justify-between">
               <span className="text-slate-400 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider">Seguridad</span>
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shadow-inner">
@@ -555,7 +574,7 @@ export default function AdminEstudiantesPage() {
             <span className="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 block">
               Acceso simplificado
             </span>
-          </div>
+          </motion.div>
         </div>
 
         {/* ========================================================================= */}

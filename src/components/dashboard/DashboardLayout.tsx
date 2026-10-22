@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import { createClient } from '../../utils/supabase/client'
 import { 
   LayoutDashboard, 
@@ -413,72 +414,86 @@ export function DashboardLayout({
                 }
 
                 return (
-                  <Link
+                  <motion.div 
                     key={item.label}
-                    href={item.href}
-                    onClick={(e) => {
-                      setMobileMenuOpen(false)
-                      if (onTabChange && item.id && item.href.startsWith('/dashboard/admin') && !item.href.includes('/products')) {
-                        e.preventDefault()
-                        onTabChange(item.id)
-                      }
-                    }}
-                    className={`group relative flex items-center ${
-                      isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
-                    } rounded-2xl transition-all duration-200 cursor-pointer select-none ${
-                      isActive
-                        ? 'bg-white text-slate-900 shadow-[0_4px_14px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(203,213,225,0.7)] border border-slate-200/90 font-black'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-white/70 hover:shadow-2xs font-semibold'
-                    }`}
+                    whileHover={{ x: isCollapsed ? 0 : 2 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 25 }}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      {/* Cápsula del Icono 3D Llamativo */}
-                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                    <Link
+                      href={item.href}
+                      onClick={(e) => {
+                        setMobileMenuOpen(false)
+                        if (onTabChange && item.id && item.href.startsWith('/dashboard/admin') && !item.href.includes('/products')) {
+                          e.preventDefault()
+                          onTabChange(item.id)
+                        }
+                      }}
+                      className={`group relative flex items-center ${
+                        isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
+                      } rounded-2xl transition-colors cursor-pointer select-none ${
                         isActive
-                          ? 'bg-blue-600 text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)]'
-                          : `${item.iconBg || 'bg-slate-100 text-slate-600'} group-hover:bg-blue-50 group-hover:text-blue-600 border border-slate-200/50 shadow-2xs`
-                      }`}>
-                        <Icon className="w-4 h-4" />
-                      </div>
-
-                      {/* Texto de la opción (sólo si no está colapsado) */}
-                      {!isCollapsed && (
-                        <span className="text-xs truncate tracking-tight">
-                          {item.label}
-                        </span>
+                          ? 'text-slate-900 font-black'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold'
+                      }`}
+                    >
+                      {/* Píldora Deslizante LayoutId con Sombra Volumétrica Suave */}
+                      {isActive && (
+                        <motion.div
+                          layoutId="activeAdminNavPill"
+                          className="absolute inset-0 bg-white rounded-2xl shadow-[0_4px_14px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(203,213,225,0.7)] border border-slate-200/90 -z-10"
+                          transition={{ type: 'spring', stiffness: 450, damping: 30 }}
+                        />
                       )}
-                    </div>
 
-                    {/* Badge numérico o etiqueta (sólo expandido) */}
-                    {!isCollapsed && (
-                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                        {item.badge && (
-                          <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md font-mono ${
-                            isActive 
-                              ? 'bg-blue-50 text-blue-700 border border-blue-200/60' 
-                              : 'bg-slate-200/70 text-slate-600'
-                          }`}>
-                            {item.badge}
-                          </span>
-                        )}
-                        {isActive && (
-                          <ChevronRight className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                        )}
-                      </div>
-                    )}
+                      <div className="flex items-center gap-3 min-w-0 relative z-10">
+                        {/* Cápsula del Icono 3D */}
+                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
+                          isActive
+                            ? 'bg-blue-600 text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)]'
+                            : `${item.iconBg || 'bg-slate-100 text-slate-600'} group-hover:bg-blue-50 group-hover:text-blue-600 border border-slate-200/50 shadow-2xs`
+                        }`}>
+                          <Icon className="w-4 h-4" />
+                        </div>
 
-                    {/* TOOLTIP FLOTANTE EN MODO COLAPSADO (ESTILO VS CODE) */}
-                    {isCollapsed && (
-                      <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
-                        <span>{item.label}</span>
-                        {item.badge && (
-                          <span className="px-1.5 py-0.2 bg-blue-500 text-white rounded text-[10px] font-mono">
-                            {item.badge}
+                        {/* Texto de la opción (sólo si no está colapsado) */}
+                        {!isCollapsed && (
+                          <span className="text-xs truncate tracking-tight">
+                            {item.label}
                           </span>
                         )}
                       </div>
-                    )}
-                  </Link>
+
+                      {/* Badge numérico o etiqueta (sólo expandido) */}
+                      {!isCollapsed && (
+                        <div className="flex items-center gap-1.5 shrink-0 ml-2 relative z-10">
+                          {item.badge && (
+                            <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md font-mono ${
+                              isActive 
+                                ? 'bg-blue-50 text-blue-700 border border-blue-200/60' 
+                                : 'bg-slate-200/70 text-slate-600'
+                            }`}>
+                              {item.badge}
+                            </span>
+                          )}
+                          {isActive && (
+                            <ChevronRight className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                          )}
+                        </div>
+                      )}
+
+                      {/* TOOLTIP FLOTANTE EN MODO COLAPSADO (ESTILO VS CODE) */}
+                      {isCollapsed && (
+                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
+                          <span>{item.label}</span>
+                          {item.badge && (
+                            <span className="px-1.5 py-0.2 bg-blue-500 text-white rounded text-[10px] font-mono">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </Link>
+                  </motion.div>
                 )
               })}
             </nav>
