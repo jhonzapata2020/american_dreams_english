@@ -42,7 +42,8 @@ import { MarketingMetricsView } from '../../../components/dashboard/MarketingMet
 import { 
   subscribeToLeadNotifications, 
   playLeadChimeSound, 
-  triggerLeadDesktopNotification 
+  triggerLeadDesktopNotification,
+  triggerCatchupLeadsNotification
 } from '../../../lib/marketingTelemetry'
 
 export interface TeacherItem {
@@ -689,6 +690,21 @@ export default function AdminDashboardPage() {
           created_at: l.created_at
         }))
         setLeadsList(mappedLeads)
+
+        // Smart Catchup Notification: alert about leads received while away
+        try {
+          const lastCheck = localStorage.getItem('ade_last_lead_check')
+          const nowStr = new Date().toISOString()
+          localStorage.setItem('ade_last_lead_check', nowStr)
+
+          if (lastCheck) {
+            const lastTime = new Date(lastCheck).getTime()
+            const freshLeads = mappedLeads.filter(l => l.created_at && new Date(l.created_at).getTime() > lastTime)
+            if (freshLeads.length > 0) {
+              triggerCatchupLeadsNotification(freshLeads)
+            }
+          }
+        } catch (e) {}
       } else {
         setLeadsList([])
       }
@@ -771,7 +787,8 @@ export default function AdminDashboardPage() {
         phone: lead.phone || '',
         email: lead.email,
         audience: lead.audience,
-        source: 'cross_tab_sync'
+        source: 'cross_tab_sync',
+        onlyIfHidden: true
       })
       setToast({
         title: '¡Nuevo Lead Capturado en el Hero!',
@@ -798,7 +815,8 @@ export default function AdminDashboardPage() {
             phone: newLead.phone || '',
             email: newLead.email,
             audience: newLead.audience,
-            source: 'supabase_realtime'
+            source: 'supabase_realtime',
+            onlyIfHidden: true
           })
           setToast({
             title: '¡Nuevo Lead Registrado en Supabase!',

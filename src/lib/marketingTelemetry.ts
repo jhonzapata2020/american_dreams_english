@@ -103,7 +103,16 @@ export function playLeadChimeSound(): void {
 }
 
 /**
+ * Checks if the user is actively viewing and interacting with the current browser tab.
+ */
+export function isTabActive(): boolean {
+  if (typeof document === 'undefined') return false
+  return document.visibilityState === 'visible' && document.hasFocus()
+}
+
+/**
  * Triggers a native OS desktop notification ("globito") via Web Notification API.
+ * Supports smart routing: can be configured to fire ONLY when tab is minimized/in background.
  */
 export function triggerLeadDesktopNotification(data: {
   name: string
@@ -111,8 +120,15 @@ export function triggerLeadDesktopNotification(data: {
   email?: string
   audience?: string
   source?: string
+  onlyIfHidden?: boolean
+  force?: boolean
 }): void {
   if (typeof window === 'undefined' || !('Notification' in window)) return
+
+  // Smart Context Routing: if tab is active and onlyIfHidden is set, let in-app Dynamic Island handle it
+  if (data.onlyIfHidden && isTabActive() && !data.force) {
+    return
+  }
 
   const audienceLabel = data.audience === 'para_mi_hijo' ? 'Niños & Teens (Hijo/a)' : 'Adulto / Jóvenes'
   const title = `🚀 ¡Nuevo Lead Registrado en el Hero!`
@@ -147,6 +163,42 @@ export function triggerLeadDesktopNotification(data: {
     Notification.requestPermission().then((perm) => {
       if (perm === 'granted') fire()
     })
+  }
+}
+
+/**
+ * Summary notification when the admin turns on their PC or refreshes the platform:
+ * Notifies about pending leads accumulated since last session ("¡Uy, plata, plata!").
+ */
+export function triggerCatchupLeadsNotification(leads: Array<{ name?: string; first_name?: string; last_name?: string; phone?: string }>): void {
+  if (typeof window === 'undefined' || !('Notification' in window) || leads.length === 0) return
+
+  const count = leads.length
+  const names = leads.slice(0, 3).map(l => l.name || `${l.first_name || ''} ${l.last_name || ''}`.trim() || 'Prospecto').join(', ')
+  const title = count === 1 
+    ? `💰 ¡1 Nuevo Lead Esperándote!` 
+    : `💰 ¡${count} Nuevos Leads Esperando tu Contacto!`
+  const body = count === 1
+    ? `${names} se registró recientemente. ¡Abre el panel para cerrar su matrícula!`
+    : `${names} y otros se registraron mientras no estabas. ¡Abre el Pipeline para contactarlos!`
+
+  const fire = () => {
+    try {
+      const notif = new Notification(title, {
+        body,
+        icon: '/teacher-anthony-avatar.jpg',
+        badge: '/favicon.ico',
+        tag: `ade-catchup-${Date.now()}`,
+      })
+      notif.onclick = () => {
+        window.focus()
+        window.location.href = '/dashboard/admin'
+      }
+    } catch (e) {}
+  }
+
+  if (Notification.permission === 'granted') {
+    fire()
   }
 }
 
