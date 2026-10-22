@@ -8,6 +8,10 @@ export interface StoreProduct {
   usdPrice: number
   description: string
   thumbnail: string
+  images?: string[]
+  features?: string[]
+  rating?: number
+  reviewsCount?: number
   fileType?: 'PDF' | 'Audio MP3' | 'Video Pack' | 'Físico'
   downloadUrl?: string
   popular?: boolean
@@ -212,6 +216,17 @@ export function resolveProductThumbnail(item: {
   const title = (item.title || item.name || '').toLowerCase()
   const cat = (item.category || '').toLowerCase()
 
+  // Si tiene la imagen personalizada local de turismo, entrevistas o mensualidad:
+  if (title.includes('turismo') || title.includes('gestores') || title.includes('santa marta')) {
+    return '/images/guia-turismo-cover.jpg'
+  }
+  if (title.includes('entrevista') || title.includes('job interview') || title.includes('masterclass: entrevista')) {
+    return '/images/masterclass-entrevistas-cover.jpg'
+  }
+  if (title.includes('mensualidad') || title.includes('jóvenes') || title.includes('jovenes')) {
+    return '/images/mensualidad-jovenes-cover.jpg'
+  }
+
   // Si tiene una imagen configurada específica que no sea el fallback genérico de la camiseta:
   if (currentImg && currentImg.trim() !== '' && currentImg !== '/images/camiseta-oficial-ade.png') {
     return currentImg
@@ -229,7 +244,7 @@ export function resolveProductThumbnail(item: {
 
   // Si es Masterclass / Video:
   if (title.includes('masterclass') || title.includes('video') || cat === 'masterclass') {
-    return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=600'
+    return '/images/masterclass-entrevistas-cover.jpg'
   }
 
   // Si son Audios / Listening / MP3:
@@ -274,10 +289,256 @@ export function resolveProductThumbnail(item: {
 
   // Si es un Curso / Mensualidad / Semestre / Programa / Presencial / Virtual:
   if (title.includes('curso') || title.includes('mensualidad') || title.includes('semestre') || title.includes('programa') || title.includes('b1') || title.includes('b2') || title.includes('a1') || title.includes('a2') || title.includes('clase') || cat === 'presencial' || cat === 'virtual') {
-    return 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=600'
+    return '/images/mensualidad-jovenes-cover.jpg'
   }
 
   // Default educativo
   return 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600'
 }
+
+/**
+ * Retorna una galería de múltiples imágenes en alta definición para el producto
+ */
+export function resolveProductImages(product: Partial<StoreProduct>): string[] {
+  if (product.images && product.images.length > 1) {
+    return product.images
+  }
+
+  const title = (product.title || '').toLowerCase()
+  const cat = (product.category || '').toLowerCase()
+
+  // 1. Guía Bilingüe para Gestores de Turismo (Santa Marta / Cruceros / Caribe)
+  if (title.includes('turismo') || title.includes('gestores') || title.includes('santa marta')) {
+    return [
+      '/images/guia-turismo-cover.jpg',
+      '/images/guia-turismo-interior.jpg',
+      'https://images.unsplash.com/photo-1548574505-5e239809ee19?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 2. Masterclass: Entrevistas de Trabajo y Negocios en Inglés
+  if (title.includes('entrevista') || title.includes('job interview') || title.includes('entrevistas')) {
+    return [
+      '/images/masterclass-entrevistas-cover.jpg',
+      '/images/masterclass-entrevistas-interior.jpg',
+      'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 3. Mensualidad Jóvenes y Adultos / Programas Presenciales o Virtuales
+  if (title.includes('mensualidad') || title.includes('jóvenes') || title.includes('jovenes') || title.includes('adultos') || title.includes('semestre')) {
+    return [
+      '/images/mensualidad-jovenes-cover.jpg',
+      '/images/mensualidad-jovenes-campus.jpg',
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 4. Camiseta Oficial ADE
+  if (title.includes('camiseta') || title.includes('t-shirt') || cat === 'uniformes') {
+    return [
+      '/images/camiseta-oficial-ade.png',
+      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 5. Hoodie Bilingüe American Dream English
+  if (title.includes('hoodie') || title.includes('saco') || title.includes('buzo') || cat === 'merch') {
+    return [
+      'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 6. E-Books / Guías generales
+  if (cat === 'ebooks' || cat === 'libros' || title.includes('guia') || title.includes('guía') || title.includes('ebook') || title.includes('libro')) {
+    const thumb = resolveProductThumbnail(product)
+    return [
+      thumb,
+      'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // 7. Masterclasses / Video Packs
+  if (cat === 'masterclass' || cat === 'audios' || title.includes('masterclass') || title.includes('video')) {
+    return [
+      '/images/masterclass-entrevistas-cover.jpg',
+      'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=1000'
+    ]
+  }
+
+  // Default educativo de alta resolución
+  const defaultThumb = resolveProductThumbnail(product)
+  return [
+    defaultThumb,
+    'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=1000',
+    'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=1000',
+    'https://images.unsplash.com/photo-1577896851231-70ef18881754?auto=format&fit=crop&q=80&w=1000'
+  ]
+}
+
+/**
+ * Retorna las características clave detalladas para el producto
+ */
+export function resolveProductFeatures(product: Partial<StoreProduct>): string[] {
+  if (product.features && product.features.length > 0) {
+    return product.features
+  }
+
+  const title = (product.title || '').toLowerCase()
+  const cat = (product.category || '').toLowerCase()
+
+  if (title.includes('turismo') || title.includes('gestores') || title.includes('santa marta')) {
+    return [
+      'Manual bilingüe especializado con más de 80 diálogos reales de atención turística y protocolos de crucero',
+      'Glosario técnico de hospitalidad: hotelería, aeropuertos, transporte marítimo, restaurantes y primeros auxilios',
+      'Guión de resolución de quejas y negociación en inglés con acento nativo claro y cordial',
+      'Pack de audios fonéticos descargables (MP3 320kbps) para entrenar pronunciación y oído en el celular',
+      'Edición digital en PDF de alta fidelidad, 100% imprimible y optimizada para Smartphone, Tablet y PC'
+    ]
+  }
+
+  if (title.includes('entrevista') || title.includes('job interview') || title.includes('entrevistas')) {
+    return [
+      'Taller intensivo en video 4K con simulación 1-a-1 de las 30 preguntas trampa más comunes en empresas multinacionales',
+      'Estructura STAR (Situation, Task, Action, Result) explicada con ejemplos bilingües aprobados por reclutadores',
+      'Plantillas editables de Elevator Pitch de 60 segundos y guion estratégico de negociación salarial en dólares',
+      'Workbook digital descargable con ejercicios prácticos y preguntas de práctica con respuestas comentadas',
+      'Acceso vitalicio ilimitado desde tu cuenta del Campus Virtual American Dream English'
+    ]
+  }
+
+  if (title.includes('mensualidad') || title.includes('jóvenes') || title.includes('jovenes') || title.includes('adultos')) {
+    return [
+      'Clases sincrónicas en vivo por Microsoft Teams con docentes bilingües certificados y profesores nativos',
+      'Grupos reducidos de máximo 15 estudiantes para garantizar participación oral y corrección fonética en cada clase',
+      'Acceso 24/7 a la plataforma Campus Virtual con grabaciones completas, biblioteca digital y laboratorios de audio',
+      'Material pedagógico oficial incluido (Student Workbook digital + guías prácticas semanales de inmersión)',
+      'Certificación oficial por niveles MCER (A1 a B2) con aval pedagógico y Registro Institucional Res. 2471 SED'
+    ]
+  }
+
+  if (title.includes('gramática') || title.includes('grammar')) {
+    return [
+      '120 lecciones prácticas explicadas de forma visual y directa sin tecnicismos innecesarios',
+      'Tablas comparativas de tiempos verbales (Present Perfect vs Past Simple, Conditionals, Modals)',
+      'Más de 400 ejercicios prácticos con hoja de respuestas y explicaciones paso a paso',
+      'Formato PDF interactivo para rellenar desde la Tablet o imprimir en alta resolución',
+      'Acceso permanente con derecho a futuras actualizaciones pedagógicas'
+    ]
+  }
+
+  if (title.includes('phrasal') || title.includes('verbs')) {
+    return [
+      'Los 500 verbos compuestos más frecuentes del inglés cotidiano agrupados por partículas y contexto de uso',
+      'Trucos mnemotécnicos y ejemplos de conversaciones reales en series y películas para memorizar sin esfuerzo',
+      'Flashcards imprimibles y digitales para repaso rápido desde el smartphone',
+      'Pruebas cortas de autoevaluación para medir tu retención semanal',
+      'Descarga inmediata al correo tras confirmar el pago con Wompi'
+    ]
+  }
+
+  if (title.includes('camiseta') || title.includes('t-shirt') || cat === 'uniformes') {
+    return [
+      'Confección en 100% algodón peinado premium (180 gr/m²), ultra suave al tacto y fresco para el clima cálido',
+      'Estampado en serigrafía de alta densidad con el escudo oficial de American Dream English',
+      'Costuras reforzadas en hombros y cuello para máxima durabilidad tras múltiples lavadas',
+      'Disponible en tallas unisex: S, M, L, XL, XXL con horma estándar nacional',
+      'Envío nacional asegurado a tu domicilio con guía de rastreo Servientrega o Interrapidísimo'
+    ]
+  }
+
+  if (title.includes('hoodie') || title.includes('saco') || cat === 'merch') {
+    return [
+      'Tejido de algodón perchado pesado (280 gr/m²) con forro interior térmico ultra suave',
+      'Escudo institucional bordado con hilo de alta precisión y bolsillo delantero tipo canguro',
+      'Capota doble tela con cordón de ajuste grueso y ojales metálicos inoxidables',
+      'Diseño exclusivo de la colección oficial 2026 de American Dream English',
+      'Despacho inmediato a toda Colombia con empaque de regalo institucional'
+    ]
+  }
+
+  // Default educativo
+  return [
+    'Material pedagógico diseñado y respaldado por la Dirección Académica de American Dream English',
+    'Enfoque 100% práctico y orientado a la fluidez comunicativa real',
+    'Compatible con cualquier dispositivo móvil, tablet o computador',
+    'Garantía de satisfacción y soporte académico directo por WhatsApp',
+    'Entrega inmediata tras la confirmación de tu compra'
+  ]
+}
+
+/**
+ * Retorna las especificaciones técnicas estructuradas para el producto
+ */
+export function resolveProductSpecs(product: Partial<StoreProduct>): { label: string; value: string }[] {
+  const isDigital = product.type === 'digital'
+  const title = (product.title || '').toLowerCase()
+  const cat = (product.category || '').toLowerCase()
+
+  if (title.includes('turismo') || title.includes('gestores')) {
+    return [
+      { label: 'Formato', value: 'E-Book PDF Interactivo + Audios MP3' },
+      { label: 'Idioma', value: 'Bilingüe (Español / Inglés Técnico)' },
+      { label: 'Nivel recomendado', value: 'A2 a B2 (Principiante a Intermedio Alto)' },
+      { label: 'Páginas / Contenido', value: '148 páginas + 42 audios fonéticos' },
+      { label: 'Entrega', value: 'Descarga Inmediata al Correo Electrónico' },
+      { label: 'Licencia', value: 'Uso personal vitalicio sin caducidad' }
+    ]
+  }
+
+  if (title.includes('entrevista') || title.includes('job interview')) {
+    return [
+      { label: 'Formato', value: 'Masterclass en Video 4K + Workbook PDF' },
+      { label: 'Duración', value: '3 horas de entrenamiento intensivo' },
+      { label: 'Idioma', value: 'Inglés con soporte y explicaciones en Español' },
+      { label: 'Nivel recomendado', value: 'B1 a B2 (Pre-intermedio a Avanzado)' },
+      { label: 'Certificación', value: 'Certificado de Asistencia Business English' },
+      { label: 'Plataforma', value: 'Campus Virtual 24/7 de American Dream English' }
+    ]
+  }
+
+  if (title.includes('mensualidad') || title.includes('jóvenes') || title.includes('jovenes')) {
+    return [
+      { label: 'Modalidad', value: 'Presencial (Sedes Urabá) o Virtual Sincrónico (Teams)' },
+      { label: 'Intensidad horaria', value: '8 a 16 horas académicas al mes' },
+      { label: 'Niveles', value: 'A1, A2, B1 o B2 según prueba de nivelación' },
+      { label: 'Docentes', value: 'Profesores Titulares Bilingües y Tutores Nativos' },
+      { label: 'Material de estudio', value: 'Guías semanales + Campus Virtual incluido' },
+      { label: 'Registro Oficial', value: 'Resolución 2471 Secretaría de Educación' }
+    ]
+  }
+
+  if (isDigital) {
+    return [
+      { label: 'Formato de entrega', value: 'Descarga Digital Inmediata (PDF / MP3)' },
+      { label: 'Compatibilidad', value: 'iOS, Android, Windows, macOS, Kindle' },
+      { label: 'Idioma', value: 'Inglés con explicaciones en Español' },
+      { label: 'Imprimible', value: 'Sí, optimizado a 300 DPI alta resolución' },
+      { label: 'Soporte', value: 'Línea de consultas académica por WhatsApp' },
+      { label: 'Garantía', value: '100% Garantía de Satisfacción American Dreams' }
+    ]
+  }
+
+  return [
+    { label: 'Tipo de producto', value: 'Artículo Físico Oficial ADE' },
+    { label: 'Material', value: 'Algodón peinado premium de alta densidad' },
+    { label: 'Cobertura de envío', value: 'Toda Colombia (urbano y regional)' },
+    { label: 'Tiempo de entrega', value: '2 a 4 días hábiles con guía Servientrega' },
+    { label: 'Garantía', value: 'Cambio de talla gratuito en los primeros 15 días' },
+    { label: 'Autenticidad', value: '100% Producto Oficial American Dream English' }
+  ]
+}
+
 
