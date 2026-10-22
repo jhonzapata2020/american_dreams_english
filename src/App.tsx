@@ -171,7 +171,14 @@ export function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-sans selection:bg-crimson-600 selection:text-white relative">
+      {/* MOTIONSITE.AI AMBIENT FLUID BACKGROUND MESH (ORGANIC LUXURY LIGHTING) */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-blue-400/8 via-indigo-400/5 to-transparent rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -left-32 w-[550px] h-[550px] bg-gradient-to-tr from-rose-400/8 via-amber-300/5 to-transparent rounded-full blur-3xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:28px_28px] opacity-35" />
+      </div>
+
       {/* Telemetry & Analytics Tracker */}
       <MarketingTelemetryTracker />
       

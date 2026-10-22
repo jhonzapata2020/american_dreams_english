@@ -214,26 +214,65 @@ export const MarketingMetricsView: React.FC<MarketingMetricsViewProps> = ({ onOp
   return (
     <div className="space-y-6">
       
-      {/* FLOATING SUCCESS TOAST FOR SIMULATED LEAD */}
+      {/* ULTRA-LUXURY DYNAMIC ISLAND TOAST (TOP-CENTER - ZERO OS OVERLAP) */}
       <AnimatePresence>
         {simulatedToast && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 450, damping: 28 }}
-            className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-gradient-to-r from-indigo-700 via-indigo-800 to-purple-900 text-white rounded-2xl p-4 shadow-2xl border-2 border-indigo-400/40 flex items-start gap-3.5"
+            initial={{ opacity: 0, y: -40, scale: 0.9, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+            exit={{ opacity: 0, y: -30, scale: 0.9, x: '-50%' }}
+            transition={{ type: 'spring', stiffness: 480, damping: 28 }}
+            className="fixed top-6 left-1/2 z-[100] w-[94vw] sm:w-auto sm:min-w-[460px] max-w-lg select-none pointer-events-auto"
           >
-            <div className="w-10 h-10 rounded-xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0">
-              <Zap className="w-5 h-5 text-amber-300 animate-bounce" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-indigo-200 font-bold">¡Lead en Vivo!</span>
-                <span className="text-[10px] text-indigo-300">{simulatedToast.time}</span>
+            <div className="relative overflow-hidden rounded-3xl p-4 bg-slate-950/92 backdrop-blur-2xl border border-white/20 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85),0_0_40px_rgba(244,63,94,0.25)] text-white flex items-center justify-between gap-3.5 group">
+              {/* Shimmer laser sweep along top border */}
+              <motion.span
+                className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-rose-400 via-amber-300 to-transparent -translate-x-full pointer-events-none"
+                animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                transition={{ repeat: Infinity, duration: 2.2, ease: 'easeInOut' }}
+              />
+
+              {/* Pulsing radar icon */}
+              <div className="relative flex-shrink-0">
+                <span className="absolute -inset-1 rounded-2xl bg-rose-500/30 blur-md animate-pulse" />
+                <div className="relative w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-500 to-amber-500 flex items-center justify-center text-white shadow-md">
+                  <Zap className="w-5 h-5 text-white animate-bounce" />
+                </div>
               </div>
-              <h5 className="font-extrabold text-white text-sm truncate mt-0.5">{simulatedToast.name}</h5>
-              <p className="text-xs text-indigo-200 font-mono">{simulatedToast.phone}</p>
+
+              {/* Lead content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[9px] font-mono font-bold tracking-wider uppercase border border-rose-500/30">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    Nuevo Lead Capturado
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">{simulatedToast.time}</span>
+                </div>
+                <h5 className="font-extrabold text-white text-sm truncate mt-1">{simulatedToast.name}</h5>
+                <p className="text-xs text-rose-200 font-mono truncate">{simulatedToast.phone} · Hero Landing</p>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <a
+                  href={`https://wa.me/${simulatedToast.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Hola ${simulatedToast.name}, te escribimos de American Dream English para entregarte tu oferta especial.`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center gap-1 transition-all"
+                >
+                  <MessageCircle className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">WhatsApp</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSimulatedToast(null)}
+                  className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors cursor-pointer"
+                  title="Cerrar"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </motion.div>
         )}

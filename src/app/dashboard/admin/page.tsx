@@ -1215,28 +1215,34 @@ export default function AdminDashboardPage() {
     >
       <div className="relative min-h-full text-slate-800 font-sans select-none space-y-6">
 
-        {/* FLOATING SUCCESS TOAST NOTIFICATION WITH SMOOTH FRAMER MOTION ANIMATION */}
+        {/* ULTRA-LUXURY DYNAMIC ISLAND TOAST (TOP-CENTER - ZERO OS OVERLAP) */}
         <AnimatePresence>
           {toast && (
             <motion.div
-              initial={{ opacity: 0, y: 45, scale: 0.88, x: 20 }}
-              animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
-              exit={{ opacity: 0, y: 35, scale: 0.9, x: 20 }}
+              initial={{ opacity: 0, y: -40, scale: 0.92, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+              exit={{ opacity: 0, y: -30, scale: 0.92, x: '-50%' }}
               transition={{
                 type: 'spring',
-                stiffness: 420,
-                damping: 25,
+                stiffness: 450,
+                damping: 26,
                 mass: 0.7
               }}
-              className="fixed bottom-6 right-6 z-[99999] w-[94vw] max-w-md select-none"
+              className="fixed top-5 left-1/2 z-[99999] w-[95vw] sm:w-auto sm:min-w-[500px] max-w-xl select-none pointer-events-auto"
             >
               <div
-                className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 border-2 transition-all ${
+                className={`relative overflow-hidden rounded-3xl p-5 sm:p-6 border border-white/20 shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85)] text-white transition-all backdrop-blur-2xl ${
                   toast.type === 'error'
-                    ? 'bg-gradient-to-br from-red-600 via-rose-700 to-red-950 text-white border-red-300 shadow-[0_25px_60px_-10px_rgba(220,38,38,0.55)] ring-4 ring-red-400/40'
-                    : 'bg-gradient-to-br from-emerald-600 via-teal-700 to-emerald-950 text-white border-emerald-300 shadow-[0_25px_60px_-10px_rgba(5,150,105,0.65)] ring-4 ring-emerald-300/50'
+                    ? 'bg-gradient-to-br from-slate-950 via-rose-950/90 to-slate-950 shadow-rose-900/30'
+                    : 'bg-gradient-to-br from-slate-950 via-teal-950/90 to-slate-950 shadow-emerald-900/30'
                 }`}
               >
+                {/* Shimmer laser sweep along top border */}
+                <motion.span
+                  className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-emerald-400 via-teal-300 to-transparent -translate-x-full pointer-events-none"
+                  animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
+                  transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+                />
                 {/* Header row */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3.5">
