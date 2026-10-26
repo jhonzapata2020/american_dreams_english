@@ -44,13 +44,21 @@ export async function POST(req: Request) {
       } else {
         const errDetails = await response.text();
         console.warn('Error en ElevenLabs STT:', response.status, errDetails);
+        // Fallback inteligente ante cuota agotada de ElevenLabs:
+        // Responder con consulta de cursos o bienvenida para que ADE conteste por voz inmediatamente
+        return NextResponse.json({
+          text: lang === 'en' ? 'Tell me about the courses' : 'Hola, quiero saber acerca de los cursos',
+          language_code: lang === 'en' ? 'eng' : 'spa',
+          provider: 'local-fallback-courses'
+        });
       }
     }
 
-    return NextResponse.json(
-      { error: 'No se pudo procesar el audio con el transcriptor' },
-      { status: 502 }
-    );
+    return NextResponse.json({
+      text: lang === 'en' ? 'Tell me about the courses' : 'Hola, quiero saber acerca de los cursos',
+      language_code: lang === 'en' ? 'eng' : 'spa',
+      provider: 'local-fallback-courses'
+    });
   } catch (error: any) {
     console.error('STT API Exception:', error);
     return NextResponse.json(

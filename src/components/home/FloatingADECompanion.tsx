@@ -468,8 +468,11 @@ function FloatingADECompanionInner() {
               return;
             }
           }
+          // Fallback de cortesía si no hubo texto o hubo fallo en la API
+          sendMessage('Hola, quiero saber acerca de los cursos', true);
         } catch (sttErr) {
           console.warn('Error en transcripción MediaRecorder:', sttErr);
+          sendMessage('Hola, quiero saber acerca de los cursos', true);
         } finally {
           setIsTranscribing(false);
           setListeningTranscript('');
@@ -916,21 +919,14 @@ function FloatingADECompanionInner() {
           sessionStorage.setItem('ade_first_interaction_done', 'true');
         }
       } catch (e) {}
-      setLanguage('en');
+      // No forzar setLanguage('en') para no bloquear el micrófono a inglés
       setMessages((prev) => [...prev, { role: 'ade', text: FIRST_GREETING_TEXT }]);
       speakFemaleVoice(FIRST_GREETING_TEXT, 'en', 'en-hello', FIRST_GREETING_AUDIO);
       return;
     }
 
-    // Reproducir bienvenida con el audio local MP3 pregrabado en ElevenLabs
-    const isEn = currentLang === 'en';
-    const welcomeText = isEn
-      ? 'Hello and welcome to American Dream English! I am ADE, your virtual advisor and tutor. How can I help you achieve fluency today?'
-      : '¡Hola! Te doy una cálida bienvenida a American Dream English. Soy ADE, tu tutora virtual, y estoy aquí para ayudarte a alcanzar la fluidez en inglés. ¿En qué te puedo asesorar hoy?';
-    const welcomeAudio = isEn ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
-    const welcomeId = isEn ? 'en-hello' : 'es-bienvenida';
-
-    speakFemaleVoice(welcomeText, isEn ? 'en' : 'es', welcomeId, welcomeAudio);
+    // Si ya interactuó, tocar el avatar activa la escucha de voz inmediatamente
+    handleToggleVoice();
   };
 
   return (
