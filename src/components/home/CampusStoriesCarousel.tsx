@@ -65,14 +65,6 @@ const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
       tag: 'INFRAESTRUCTURA',
       title: 'Espacios de Alto Rendimiento',
       description: 'Ambientes diseñados para aprender con total enfoque y comodidad.'
-    },
-    {
-      id: 6,
-      src: '/images/campus/ade-estudiantes-american-dream.png',
-      category: 'Estudiantes Reales',
-      tag: 'ORGULLO BILINGÜE',
-      title: 'Soñadores en Acción',
-      description: 'Nuestros estudiantes viviendo la experiencia bilingüe con pasión y dedicación.'
     }
   ],
   en: [
@@ -115,14 +107,6 @@ const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
       tag: 'CAMPUS SPACES',
       title: 'High-Performance Facilities',
       description: 'Designed for deep focus, comfort, and interactive engagement.'
-    },
-    {
-      id: 6,
-      src: '/images/campus/ade-estudiantes-american-dream.png',
-      category: 'Real Students',
-      tag: 'BILINGUAL PRIDE',
-      title: 'Dreamers in Action',
-      description: 'Our students living the bilingual experience with passion and dedication.'
     }
   ]
 };
