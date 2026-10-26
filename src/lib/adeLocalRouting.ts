@@ -206,7 +206,9 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'es',
     audioUrl: '/audio/ade/es-ubicacion.mp3',
     text: 'Nuestra sede presencial principal está ubicada estratégicamente en Turbo, Urabá, sobre la Troncal, con aulas dinámicas y laboratorio de inmersión en inglés. ¡Ven a visitarnos!',
-    triggers: [/\bcomo llegar\b/i, /\bdonde estan\b/i, /\bdonde quedan\b/i, /\bdonde es\b/i, /\bubicacion\b/i, /\bdireccion\b/i, /\bsede\b/i, /\bsedes\b/i, /\btroncal\b/i, /\ben donde estan\b/i]
+    triggers: [
+      /\b(como llegar|donde estan ubicados|donde estan|donde quedan|donde queda|donde es|ubicacion|direccion|sede|sedes|troncal|en donde estan|en donde queda|en que ciudad)\b/i
+    ]
   },
   {
     id: 'es-campus-virtual',
@@ -214,7 +216,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     audioUrl: '/audio/ade/es-campus-virtual.mp3',
     text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
     triggers: [
-      /\b(cursos?|clases?|programas?|niveles?|saber de los cursos|hablame (de|sobre) los cursos|informacion de los cursos|que cursos|cuales cursos|oferta academica|estudiar ingles|aprender ingles|clases de ingles|cursos de ingles)\b/i,
+      /\b(cursos?|clases?|programas?|niveles?|saber de los cursos|hablame (de|sobre) los cursos|dime los cursos|cuales son los cursos|informacion de los cursos|que cursos|cuales cursos|oferta academica|estudiar ingles|aprender ingles|clases de ingles|cursos de ingles)\b/i,
       /\b(campus virtual|clases virtuales|teams|microsoft teams|zoom)\b/i
     ]
   },
@@ -291,11 +293,33 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
   {
     id: 'es-cambio-idioma',
     lang: 'es',
-    audioUrl: '/audio/ade/es-bienvenida.mp3',
+    audioUrl: '/audio/ade/es-switch-espanol.mp3',
     text: '¡Por supuesto! Hablemos en español. Con gusto te asesoro sobre nuestros cursos, horarios, facilidades de pago y matrícula. ¿Qué te gustaría consultar?',
     triggers: [
-      /\b(hablemos en espanol|hablemos en español|en espanol por favor|en español por favor|cambia a espanol|cambia a español|ya no quiero practicar|no mas ingles|no se ingles|no sé ingles|no hablo ingles|en espanol|en español|hablemos espanol|hablemos español)\b/i
+      /\b(hablemos en espanol|hablemos en español|en espanol por favor|en español por favor|cambia a espanol|cambia a español|ya no quiero practicar|no mas ingles|no se ingles|no sé ingles|no hablo ingles|en espanol|en español|hablemos espanol|hablemos español)\b/i,
+      /\b(por favor habla en espanol|por favor habla en español|habla en espanol|habla en español|por favor en espanol|por favor en español|contestame en espanol|contestame en español|responde en espanol|responde en español|hablar en espanol|hablar en español|solo espanol|solo español)\b/i
     ]
+  },
+  {
+    id: 'es-info-sede',
+    lang: 'es',
+    audioUrl: '/audio/ade/es-info-sede.mp3',
+    text: 'Nuestra sede presencial principal está ubicada estratégicamente en Turbo, Urabá, sobre la Troncal, con aulas dinámicas y laboratorio de inmersión en inglés. ¡Ven a visitarnos!',
+    triggers: [/\b(informacion de la sede|info sede|sede presencial|sede fisica|instalaciones|aulas|troncal uraba|sede de turbo|sede uraba)\b/i]
+  },
+  {
+    id: 'es-matricula-rapida',
+    lang: 'es',
+    audioUrl: '/audio/ade/es-matricula-rapida.mp3',
+    text: '¡Es muy sencillo! Para matricularte hoy y asegurar tu cupo con tarifa preferencial, haz clic en el botón "Matricúlate". Puedes completar tu pago de forma 100% segura mediante Wompi.',
+    triggers: [/\b(matricula rapida|inscripcion rapida|inscribirme ya|matricularme ya|pasos para matricularme|como es el proceso de matricula)\b/i]
+  },
+  {
+    id: 'es-no-entiendo-fallback',
+    lang: 'es',
+    audioUrl: '/audio/ade/es-no-entiendo-fallback.mp3',
+    text: 'Disculpa, no alcancé a escucharte bien. ¿Podrías repetirme tu consulta o indicarme si deseas saber sobre cursos, precios, horarios o matrícula?',
+    triggers: [/\b(no te entendi|no te entiendo|no te escuche|no te escucho|repite|repitelo|como dijiste|que dijiste)\b/i]
   },
 
   // ==========================================

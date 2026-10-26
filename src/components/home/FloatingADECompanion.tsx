@@ -587,16 +587,16 @@ function FloatingADECompanionInner() {
       // Idioma de reconocimiento universal:
       // Español estándar ('es-419' / 'es-ES' / locale nativo) que comprende de forma nativa español
       // y términos comunes de inglés. Si el usuario está en práctica activa de inglés, usa 'en-US'.
-      const navLocale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-419';
+      const navLocale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-CO';
       const isSpanishLocale = navLocale.toLowerCase().startsWith('es');
       recognition.lang =
         lastResolvedIntentRef.current?.startsWith('en-practice')
           ? 'en-US'
           : isSpanishLocale
           ? navLocale
-          : 'es-419';
+          : 'es-CO';
 
-      recognition.continuous = false;
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
@@ -629,7 +629,7 @@ function FloatingADECompanionInner() {
           finalTranscriptRef.current = fullAccumulated || currentSaid;
           setListeningTranscript(currentSaid);
 
-          // Si hay detección de silencio VAD (2.5s tras hablar), cortar y enviar
+          // Si hay detección de silencio VAD (1.8s tras hablar), cortar y enviar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -644,7 +644,7 @@ function FloatingADECompanionInner() {
                 sendMessage(textToSend, true);
               }
             }
-          }, 2500);
+          }, 1800);
         }
       };
 
@@ -686,12 +686,16 @@ function FloatingADECompanionInner() {
           setListeningTranscript('');
           sendMessage(textCaptured, true);
         } else if (shouldListenRef.current) {
-          try {
-            recognition.start();
-          } catch (e) {
-            shouldListenRef.current = false;
-            setIsListening(false);
-          }
+          setTimeout(() => {
+            if (shouldListenRef.current) {
+              try {
+                recognition.start();
+              } catch (e) {
+                shouldListenRef.current = false;
+                setIsListening(false);
+              }
+            }
+          }, 150);
         } else {
           setIsListening(false);
         }
@@ -749,21 +753,8 @@ function FloatingADECompanionInner() {
       return;
     }
 
-    // Si es la PRIMERA VEZ que el usuario interactúa, saludar obligatoriamente en inglés nativo
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      try {
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('ade_first_interaction_done', 'true');
-        }
-      } catch (e) {}
-      // No cambiar el idioma global de la app a inglés para que el usuario pueda responder en español
-      setMessages((prev) => [...prev, { role: 'ade', text: FIRST_GREETING_TEXT }]);
-      speakFemaleVoice(FIRST_GREETING_TEXT, 'en', 'en-hello', FIRST_GREETING_AUDIO);
-      return;
-    }
-
-    // Estado Inactivo: Un solo clic arranca el micrófono inmediatamente
+    // Activar escucha de voz inmediatamente al hacer clic
+    setHasInteracted(true);
     startVoiceInput();
   };
 
@@ -813,13 +804,13 @@ function FloatingADECompanionInner() {
     // Comodín garantizado por voz para que ADE JAMÁS se quede callada
     if (isVoice && !staticMatch) {
       staticMatch = {
-        id: effectiveMsgLang === 'en' ? 'en-hello' : 'es-bienvenida',
+        id: effectiveMsgLang === 'en' ? 'en-hello' : 'es-no-entiendo-fallback',
         lang: effectiveMsgLang,
-        audioUrl: effectiveMsgLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3',
+        audioUrl: effectiveMsgLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-no-entiendo-fallback.mp3',
         text:
           effectiveMsgLang === 'en'
             ? 'Hello and welcome to American Dream English! I am ADE, your virtual advisor and tutor. How can I help you achieve fluency today?'
-            : '¡Hola! Te doy una cálida bienvenida a American Dream English. Soy ADE, tu tutora virtual, y estoy aquí para ayudarte a alcanzar la fluidez en inglés. ¿En qué te puedo asesorar hoy?',
+            : 'Disculpa, no alcancé a escucharte bien. ¿Podrías repetirme tu consulta o indicarme si deseas saber sobre cursos, precios, horarios o matrícula?',
         matchedTrigger: 'fallback-comodin',
         cached: true
       };
@@ -911,21 +902,8 @@ function FloatingADECompanionInner() {
       return;
     }
 
-    // Si es la PRIMERA VEZ que el usuario interactúa, saludar obligatoriamente en inglés nativo
-    if (!hasInteracted) {
-      setHasInteracted(true);
-      try {
-        if (typeof window !== 'undefined') {
-          sessionStorage.setItem('ade_first_interaction_done', 'true');
-        }
-      } catch (e) {}
-      // No forzar setLanguage('en') para no bloquear el micrófono a inglés
-      setMessages((prev) => [...prev, { role: 'ade', text: FIRST_GREETING_TEXT }]);
-      speakFemaleVoice(FIRST_GREETING_TEXT, 'en', 'en-hello', FIRST_GREETING_AUDIO);
-      return;
-    }
-
-    // Si ya interactuó, tocar el avatar activa la escucha de voz inmediatamente
+    // Activar escucha de voz inmediatamente al tocar el avatar
+    setHasInteracted(true);
     handleToggleVoice();
   };
 
