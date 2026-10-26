@@ -22,6 +22,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { trackEvent } from '../lib/analytics';
 import { getWhatsAppUrl } from '../config/contact';
 import { notifyLeadCaptured } from '../lib/marketingTelemetry';
+import CampusStoriesCarousel from './home/CampusStoriesCarousel';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -43,6 +44,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const check = () => setIsDesktop(window.innerWidth >= 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const getLeadWhatsAppUrl = () => {
     const audienceText = audience === 'self' ? 'Para mí' : 'Para mi hijo/a';
@@ -124,56 +134,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* ========================================================= */}
         {/* VISTA MÓVIL MOBILE-FIRST (Primer pliegue utilitario y rápido) */}
         {/* ========================================================= */}
-        <div className="block lg:hidden space-y-5">
+        <div className="block lg:hidden space-y-4">
           
-          {/* Eyebrow de campaña / tráfico social */}
-          <div className="space-y-2 pt-1 text-left">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-black tracking-wide">
-              <Sparkles className="w-3.5 h-3.5 text-red-600" />
-              <span>{t.hero.badge || 'Abre las puertas del mundo al dominar el inglés'}</span>
-            </div>
-
-            {/* Titular contundente de conversión */}
-            <h1 className="text-2xl min-[380px]:text-[26px] sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-              Logra la <span className="text-red-600">fluidez en inglés</span> con American Dream English
-            </h1>
-          </div>
-
-          {/* Tarjeta de autoridad y credenciales: Teacher Anthony */}
-          <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs">
-            <div className="relative flex-shrink-0">
-              <img
-                src="/teacher-anthony-avatar.jpg"
-                alt="Teacher Anthony"
-                className="w-12 h-12 rounded-full object-cover object-top border-2 border-red-600 shadow-sm"
-              />
-              <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5">
-                <h4 className="font-extrabold text-slate-900 text-xs truncate">Teacher Anthony</h4>
-                <span className="bg-red-100 text-red-700 text-[10px] font-black px-1.5 py-0.5 rounded-md">Bilingüe C1/C2</span>
-              </div>
-              <p className="text-[11px] text-slate-500 font-medium truncate">
-                Director Académico • Clases Online & Presencial Urabá
-              </p>
-            </div>
-          </div>
-
-          {/* Beneficios directos con checks verdes */}
-          <div className="space-y-2 text-xs sm:text-sm font-bold text-slate-800">
-            <div className="flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
-              <span>{t.hero.bullet1}</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
-              <span>{t.hero.bullet2}</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
-              <span>{t.hero.bullet3}</span>
-            </div>
+          {/* 1° y 2°: Pantalla de TV interactiva ('CAMPUS LIVE • CANAL ADE') y Avatar 3D de ADE */}
+          <div className="w-full max-w-[340px] sm:max-w-[360px] mx-auto pt-0 pb-1">
+            <CampusStoriesCarousel showADE={true} />
           </div>
 
           {/* FORMULARIO OFICIAL DE CAPTACIÓN DE LEADS EN MÓVIL (OPEN ENGLISH STYLE) */}
@@ -399,6 +364,60 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </AnimatePresence>
           </div>
 
+          {/* 4°: AL FINAL: TITULAR PRINCIPAL SECUNDARIO, BENEFICIOS Y AUTORIDAD */}
+          <div className="space-y-4 pt-3">
+            
+            {/* Eyebrow de campaña / tráfico social */}
+            <div className="space-y-2 text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 border border-red-200 text-red-700 text-xs font-black tracking-wide">
+                <Sparkles className="w-3.5 h-3.5 text-red-600" />
+                <span>{t.hero.badge || 'Abre las puertas del mundo al dominar el inglés'}</span>
+              </div>
+
+              {/* Titular contundente de conversión */}
+              <h2 className="text-xl min-[380px]:text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                Logra la <span className="text-red-600">fluidez en inglés</span> con American Dream English
+              </h2>
+            </div>
+
+            {/* Tarjeta de autoridad y credenciales: Teacher Anthony */}
+            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs">
+              <div className="relative flex-shrink-0">
+                <img
+                  src="/teacher-anthony-avatar.jpg"
+                  alt="Teacher Anthony"
+                  className="w-12 h-12 rounded-full object-cover object-top border-2 border-red-600 shadow-sm"
+                />
+                <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <h4 className="font-extrabold text-slate-900 text-xs truncate">Teacher Anthony</h4>
+                  <span className="bg-red-100 text-red-700 text-[10px] font-black px-1.5 py-0.5 rounded-md">Bilingüe C1/C2</span>
+                </div>
+                <p className="text-[11px] text-slate-500 font-medium truncate">
+                  Director Académico • Clases Online & Presencial Urabá
+                </p>
+              </div>
+            </div>
+
+            {/* Beneficios directos con checks verdes */}
+            <div className="space-y-2 text-xs sm:text-sm font-bold text-slate-800">
+              <div className="flex items-center gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+                <span>{t.hero.bullet1}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+                <span>{t.hero.bullet2}</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">✓</span>
+                <span>{t.hero.bullet3}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Opciones y canales secundarios */}
           <div className="space-y-2.5 pt-1">
             {/* Botón WhatsApp directo de apoyo con rebote spring */}
@@ -462,44 +481,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* ========================================================= */}
         <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-start">
         
-        {/* COLUMNA 1: ELEMENTO HUMANO & AUTORIDAD (4 COLS - lg:col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0 pt-0">
-          <div className="relative w-full max-w-sm">
-            
-            {/* Main Instructor Photo Frame */}
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-100">
-              <img
-                src="/teacher-anthony.jpg"
-                alt="Teacher Anthony - Director Académico"
-                className="w-full h-[480px] sm:h-[540px] md:h-[570px] object-cover object-top transform hover:scale-[1.02] transition-transform duration-500"
-              />
-
-              {/* Gradient Overlay bottom */}
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-transparent pointer-events-none" />
-
-              {/* Floating Badge Bottom Left */}
-              <div className="absolute bottom-3 left-3 right-3 sm:bottom-4 sm:left-4 sm:right-4 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 rounded-2xl border border-slate-200 shadow-lg flex items-center space-x-3">
-                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-navy-900 text-amber-400 flex items-center justify-center font-bold flex-shrink-0 shadow-sm">
-                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5" />
-                </div>
-                <div>
-                  <h4 className="font-extrabold text-navy-900 text-xs">{t.hero.teacherName}</h4>
-                  <p className="text-[10px] text-slate-500 font-semibold">{t.hero.teacherRole}</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Overlay Circular Secondary Badge Top Right */}
-            <div className="absolute top-3 right-3 sm:-top-3 sm:-right-3 bg-gradient-to-r from-red-600 to-red-700 text-white px-2.5 py-1 sm:p-3 rounded-xl sm:rounded-2xl shadow-xl border-2 border-white flex items-center space-x-1.5 text-[11px] sm:text-xs font-black">
-              <UserCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
-              <span>{t.hero.oneOnOne}</span>
-            </div>
-
-          </div>
+        {/* COLUMNA 1: ELEMENTO HUMANO, VIDA EN EL CAMPUS & ASISTENTE VIRTUAL (4 COLS - lg:col-span-4) */}
+        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0 pt-0 px-2 sm:px-3 lg:px-4">
+          <CampusStoriesCarousel showADE={isDesktop} />
         </div>
 
         {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-start) */}
-        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-5 mt-0 pt-0">
+        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-4 mt-0 pt-0 max-w-[375px] mx-auto">
           
           {/* Eyebrow tag */}
           <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">

@@ -174,6 +174,37 @@ VALUES
   ('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14', 'Guía Rápida de Conectores y Fluidez B1-B2', 'Resumen estructurado de conectores gramaticales para desenvolverte en debates y entrevistas.', 'ebooks', 'PDF Descargable', 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=400', 36000, 9, true)
 ON CONFLICT (id) DO NOTHING;
 
+-- 8. SISTEMA DE GESTIÓN DE VOZ E IA PARA ADE (CONTROL FREEMIUM Y CACHÉ CERO CONSUMO)
+CREATE TABLE IF NOT EXISTS public.guest_ade_usage (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    session_token TEXT UNIQUE NOT NULL,
+    voice_turns_count INT DEFAULT 0,
+    max_free_turns INT DEFAULT 4,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    last_interaction TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS public.ade_audio_cache (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    intent_key TEXT UNIQUE NOT NULL, -- ej: 'metodo_novedoso', 'ebooks_tienda', 'campus_virtual', 'precios_matricula', 'certificacion_mcer', 'becas_turbo'
+    text_response TEXT NOT NULL,
+    audio_url TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Seed de audios y respuestas institucionales precargadas (Cero consumo de ElevenLabs)
+INSERT INTO public.ade_audio_cache (intent_key, text_response, audio_url)
+VALUES
+  ('metodo_novedoso', 'A diferencia de plataformas con videos pregrabados en soledad, aquí hablas en vivo con docentes C1/C2. ¡Conoce nuestro Campus Virtual o matricúlate hoy!', '/audio/ade/metodo_novedoso.mp3'),
+  ('ebooks_tienda', 'En nuestra Tienda Digital encuentras e-books y guías descargables con audios para acelerar tu fluidez. ¡Visita la sección Tienda y descárgalos ya!', '/audio/ade/ebooks_tienda.mp3'),
+  ('campus_virtual', 'Nuestro Campus y Sala de Cómputo Virtual te dan acceso a clases en directo las 24 horas y tutorías personalizadas. ¡Revisa los horarios y matricúlate!', '/audio/ade/campus_virtual.mp3'),
+  ('precios_matricula', 'Tenemos matrículas virtuales accesibles y becas parciales con nuestro Fondo Social de Urabá. ¡Haz clic en ''Matricúlate'' y congela tu cupo promocional!', '/audio/ade/precios_matricula.mp3'),
+  ('certificacion_mcer', 'Te preparamos con simulaciones reales para certificar tu nivel B2 y C1 internacional según el marco MCER. ¡Inicia tu diagnóstico gratis en Matrícula!', '/audio/ade/certificacion_mcer.mp3'),
+  ('becas_turbo', 'El Fondo Social de Urabá otorga subsidios del 50% para soñadores comprometidos. ¡Postúlate hoy mismo en la sección Becas antes de que cierren cupos!', '/audio/ade/becas_turbo.mp3')
+ON CONFLICT (intent_key) DO UPDATE
+SET text_response = EXCLUDED.text_response,
+    audio_url = EXCLUDED.audio_url;
+
 -- ====================================================================
 -- END OF SCHEMA
 -- ====================================================================

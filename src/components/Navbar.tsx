@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Currency } from '../types';
-import { Menu, X, GraduationCap, MapPin, Sparkles, ShieldCheck } from 'lucide-react';
+import { Menu, X, GraduationCap, MapPin, Sparkles, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -123,13 +123,17 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span>{language === 'en' ? 'Location' : 'Cómo llegar'}</span>
             </motion.a>
             <motion.a 
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.05, y: -1 }}
               whileTap={{ scale: 0.95 }}
               href="/tienda"
-              className="hover:text-slate-900 transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1 font-bold text-slate-800 bg-amber-50 hover:bg-amber-100/90 px-3 py-1 rounded-full border border-amber-200/80 shadow-2xs"
+              className="hover:text-slate-900 transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-slate-800 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 px-3.5 py-1.5 rounded-full border border-amber-300/80 shadow-xs group"
+              title="Tienda & Recursos Oficiales"
             >
-              <span className="text-[11px]">🛒</span>
-              <span>Tienda</span>
+              <div className="relative">
+                <ShoppingBag className="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform" />
+                <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-red-600 ring-1 ring-white animate-pulse" />
+              </div>
+              <span className="text-xs font-black tracking-wide text-slate-800">Tienda</span>
             </motion.a>
           </nav>
 
@@ -270,7 +274,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="py-2.5 px-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200/80 flex items-center justify-between text-left w-full text-amber-950 font-bold transition-colors cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <span>🛒</span>
+                    <ShoppingBag className="w-4 h-4 text-amber-700" />
                     <span>Tienda Oficial</span>
                   </span>
                   <span className="text-xs text-amber-700 font-bold">→</span>

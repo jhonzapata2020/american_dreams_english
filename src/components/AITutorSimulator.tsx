@@ -49,12 +49,10 @@ export const AITutorSimulator: React.FC = () => {
   const handlePlayAudio = () => {
     if (isPlayingAudio) return;
     setIsPlayingAudio(true);
-    const utterance = new SpeechSynthesisUtterance(current.aiQuestion);
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9;
-    utterance.onend = () => setIsPlayingAudio(false);
-    utterance.onerror = () => setIsPlayingAudio(false);
-    window.speechSynthesis.speak(utterance);
+    const audio = new Audio('/audio/ade/en-practice.mp3');
+    audio.onended = () => setIsPlayingAudio(false);
+    audio.onerror = () => setIsPlayingAudio(false);
+    audio.play().catch(() => setIsPlayingAudio(false));
   };
 
   return (

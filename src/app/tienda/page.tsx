@@ -52,6 +52,7 @@ export default function TiendaPage() {
   const [cart, setCart] = useState<CartItem[]>([])
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [cartBounce, setCartBounce] = useState(false)
+  const [isCartPopoverOpen, setIsCartPopoverOpen] = useState(false)
   
   // Product Detail Modal state
   const [selectedModalProduct, setSelectedModalProduct] = useState<StoreProduct | null>(null)
@@ -345,45 +346,47 @@ export default function TiendaPage() {
               />
             </Link>
 
-            {/* BOTÓN DEL CARRITO REDISEÑADO CON ACABADO GLASS LUXURY & BADGE RESORTADO */}
+            {/* BOTÓN DEL CARRITO DE LUJO (CLICK ABRE SLIDE-OVER DRAWER DE CLASE MUNDIAL) */}
             <motion.button
               type="button"
-              animate={cartBounce ? { scale: [1, 1.15, 0.95, 1.05, 1] } : { scale: 1 }}
+              animate={cartBounce ? { scale: [1, 1.12, 0.95, 1.04, 1] } : { scale: 1 }}
               transition={{ type: 'spring', stiffness: 500, damping: 15 }}
               onClick={() => {
                 storeAudio.playDrawerOpen()
                 setIsDrawerOpen(true)
               }}
-              className="relative min-h-[44px] px-3.5 sm:px-4 py-2 bg-white hover:bg-slate-50 active:scale-95 rounded-2xl transition-all flex items-center gap-2.5 select-none border border-slate-200/90 shadow-sm hover:shadow-md cursor-pointer group"
+              whileHover={{ scale: 1.03, y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              className="relative min-h-[46px] px-4 py-2 bg-slate-900 hover:bg-slate-950 text-white rounded-2xl transition-all flex items-center gap-2.5 sm:gap-3 select-none border border-slate-800 shadow-sm hover:shadow-xl cursor-pointer group"
               aria-label="Abrir carrito de compras"
             >
               <div className="relative">
-                <ShoppingBag className="w-5 h-5 text-slate-800 group-hover:text-blue-600 transition-colors" />
-                {totalItemsCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-gradient-to-r from-red-600 to-rose-600 text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center shadow-md ring-2 ring-white animate-pulse">
+                <div className="w-8 h-8 rounded-xl bg-white/10 group-hover:bg-blue-600 transition-colors flex items-center justify-center text-white">
+                  <ShoppingBag className="w-4 h-4 stroke-[2.5]" />
+                </div>
+                {totalItemsCount > 0 ? (
+                  <span className="absolute -top-1.5 -right-2 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[10px] font-black min-w-[20px] h-5 px-1 rounded-full flex items-center justify-center shadow-md ring-2 ring-slate-900 animate-pulse">
                     {totalItemsCount}
                   </span>
+                ) : (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-slate-600 ring-2 ring-slate-900" />
                 )}
               </div>
 
-              <div className="hidden sm:flex flex-col text-left leading-none">
-                <span className="text-[11px] font-black text-slate-800 group-hover:text-blue-600 transition-colors">
-                  Carrito
+              <div className="flex flex-col text-left leading-none pr-1">
+                <span className="text-[11px] font-black text-slate-200 group-hover:text-white transition-colors uppercase tracking-wider">
+                  Mi Carrito
                 </span>
                 {totalAmountCop > 0 ? (
-                  <span className="text-[10px] font-extrabold text-emerald-600 font-mono mt-0.5">
+                  <span className="text-[11px] font-black text-amber-400 font-mono mt-0.5">
                     {formatCop(totalAmountCop)}
                   </span>
                 ) : (
-                  <span className="text-[10px] font-medium text-slate-400 mt-0.5">
-                    Vacío
+                  <span className="text-[10px] font-bold text-slate-400 mt-0.5">
+                    0 artículos
                   </span>
                 )}
               </div>
-
-              {totalItemsCount > 0 && (
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping sm:hidden" />
-              )}
             </motion.button>
 
           </div>
@@ -656,11 +659,11 @@ export default function TiendaPage() {
       )}
 
       {/* ========================================================================= */}
-      {/* 4. DRAWER MODAL DE CHECKOUT ÁGIL CON WOMPI & WHATSAPP                    */}
+      {/* 4. DRAWER SLIDE-OVER DE CHECKOUT ÁGIL CON WOMPI & WHATSAPP                */}
       {/* ========================================================================= */}
       <AnimatePresence>
         {isDrawerOpen && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+          <div className="fixed inset-0 z-50 flex justify-end overflow-hidden">
             
             {/* Backdrop */}
             <motion.div
@@ -677,27 +680,37 @@ export default function TiendaPage() {
               className="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity"
             />
 
-            {/* Drawer Window */}
+            {/* Slide-Over Drawer Window */}
             <motion.div
-              initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 350 }}
-              className="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden z-10 text-slate-900"
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+              className="relative bg-white w-full sm:max-w-md h-full shadow-[0_0_80px_rgba(0,0,0,0.4)] border-l border-slate-200/90 flex flex-col overflow-hidden z-10 text-slate-900"
             >
+              {/* Top Accent Gradient Line */}
+              <div className="h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-500 w-full shrink-0" />
               
               {/* Drawer Header */}
-              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-red-50 text-red-600 flex items-center justify-center font-bold">
-                    <ShoppingBag className="w-5 h-5 text-red-600" />
+              <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-950 text-white flex items-center justify-center font-bold shadow-sm">
+                    <ShoppingBag className="w-5 h-5 stroke-[2.5]" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-900">
-                      {purchaseSuccess ? '¡Pedido Confirmado!' : `Tu Carrito (${totalItemsCount})`}
-                    </h3>
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      Pago seguro cifrado por Wompi Bancolombia
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight">
+                        {purchaseSuccess ? '¡Pedido Confirmado!' : 'Bolsa de Compras'}
+                      </h3>
+                      {!purchaseSuccess && totalItemsCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black">
+                          {totalItemsCount}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[10px] text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                      <Lock className="w-3 h-3 text-emerald-600 shrink-0" />
+                      <span>Pago protegido Wompi Bancolombia</span>
                     </p>
                   </div>
                 </div>
@@ -711,9 +724,10 @@ export default function TiendaPage() {
                       setCart([])
                     }
                   }}
-                  className="p-2 rounded-full hover:bg-slate-200 text-slate-500 transition-colors cursor-pointer"
+                  className="p-2.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-900 hover:rotate-90 transition-all cursor-pointer"
+                  title="Cerrar Carrito"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5 stroke-[2.5]" />
                 </button>
               </div>
 
@@ -802,27 +816,111 @@ export default function TiendaPage() {
                     </div>
                   </div>
                 ) : cart.length === 0 ? (
-                  <div className="py-12 text-center space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-                      <ShoppingBag className="w-8 h-8" />
+                  /* ESTADO VACÍO PRO DE ALTO IMPACTO VISUAL */
+                  <div className="py-12 sm:py-16 text-center space-y-5 my-auto">
+                    {/* Contenedor Gráfico con Glow Suave & Animación Flotante */}
+                    <div className="relative mx-auto w-28 h-28 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/15 via-indigo-500/15 to-amber-500/20 rounded-full blur-xl animate-pulse" />
+                      <motion.div
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
+                        className="relative z-10 w-24 h-24 bg-gradient-to-b from-white to-slate-50 rounded-3xl flex items-center justify-center text-slate-900 shadow-xl border border-slate-200/80"
+                      >
+                        <ShoppingBag className="w-11 h-11 text-slate-800 stroke-[1.8]" />
+                        <span className="absolute top-2 right-2 w-3 h-3 rounded-full bg-amber-400 ring-2 ring-white animate-ping" />
+                      </motion.div>
                     </div>
-                    <p className="text-sm font-bold text-slate-700">Tu carrito está vacío.</p>
-                    <p className="text-xs text-slate-400">Selecciona algún E-Book, Masterclass o producto físico para comenzar.</p>
+
+                    <div className="space-y-1.5 px-4">
+                      <h4 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                        Tu carrito está esperando tus favoritos
+                      </h4>
+                      <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">
+                        Aún no tienes productos agregados. Explora nuestras guías fonéticas, masterclasses interactivas y material oficial.
+                      </p>
+                    </div>
+
+                    {/* Chips de Categorías Rápidas para descubrir recursos */}
+                    <div className="pt-1">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-2">
+                        Explora por categoría:
+                      </span>
+                      <div className="flex flex-wrap justify-center gap-2 max-w-xs mx-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveSegment('digital')
+                            setIsDrawerOpen(false)
+                            storeAudio.playPop()
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                        >
+                          📚 E-Books
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveSegment('digital')
+                            setIsDrawerOpen(false)
+                            storeAudio.playPop()
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                        >
+                          🎥 Masterclasses
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveSegment('fisico')
+                            setIsDrawerOpen(false)
+                            storeAudio.playPop()
+                          }}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                        >
+                          👕 Uniformes & Merch
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Botón Principal Explorar Catálogo */}
+                    <button
+                      type="button"
+                      onClick={() => setIsDrawerOpen(false)}
+                      className="px-7 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-500/25 active:scale-95 cursor-pointer inline-flex items-center gap-2"
+                    >
+                      <span>Ver Catálogo Completo</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
                   </div>
                 ) : (
                   <div className="space-y-3">
+                    
+                    {/* Free shipping / Immediate access notice */}
+                    <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200/80 flex items-center gap-2 text-xs text-blue-900 font-bold">
+                      <Zap className="w-4 h-4 text-blue-600 shrink-0" />
+                      <span>{hasPhysicalItems ? '📦 Despacho asegurado por transportadora' : '⚡ Entrega digital inmediata a tu correo'}</span>
+                    </div>
+
                     <div className="space-y-2">
                       {cart.map((item) => (
                         <div 
                           key={item.product.id}
-                          className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-3"
+                          className="p-3 bg-slate-50/90 rounded-2xl border border-slate-200/90 flex items-center gap-3 group hover:border-slate-300 transition-colors"
                         >
-                          <div className="flex-1 text-left">
-                            <h4 className="text-xs font-black text-slate-900 line-clamp-1">
+                          <img
+                            src={resolveProductThumbnail(item.product)}
+                            alt={item.product.title}
+                            className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-200 shrink-0"
+                          />
+                          <div className="flex-1 min-w-0 text-left">
+                            <span className="text-[9px] font-black uppercase tracking-wider text-blue-600 block">
+                              {item.product.type === 'digital' ? 'Digital • Descarga' : 'Físico • Envío'}
+                            </span>
+                            <h4 className="text-xs font-black text-slate-900 truncate">
                               {item.product.title}
                             </h4>
                             <div className="flex items-center gap-2 mt-0.5">
-                              <span className="text-xs font-bold text-slate-600">
+                              <span className="text-xs font-extrabold text-slate-900">
                                 {formatCop(item.product.copPrice * item.quantity)}
                               </span>
                               {item.selectedSize && (
@@ -834,13 +932,14 @@ export default function TiendaPage() {
                           </div>
 
                           {/* Control de cantidad */}
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1">
                             <button
                               type="button"
                               onClick={() => updateQuantity(item.product.id, -1)}
                               className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95 cursor-pointer hover:bg-slate-100"
+                              title="Disminuir"
                             >
-                              <Minus className="w-3.5 h-3.5" />
+                              <Minus className="w-3 h-3" />
                             </button>
                             <span className="text-xs font-black w-5 text-center">
                               {item.quantity}
@@ -849,13 +948,15 @@ export default function TiendaPage() {
                               type="button"
                               onClick={() => updateQuantity(item.product.id, 1)}
                               className="w-7 h-7 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold active:scale-95 cursor-pointer hover:bg-slate-100"
+                              title="Aumentar"
                             >
-                              <Plus className="w-3.5 h-3.5" />
+                              <Plus className="w-3 h-3" />
                             </button>
                             <button
                               type="button"
                               onClick={() => removeFromCart(item.product.id)}
-                              className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer"
+                              className="p-1.5 text-slate-400 hover:text-red-600 cursor-pointer ml-1"
+                              title="Eliminar producto"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

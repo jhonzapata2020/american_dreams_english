@@ -3,7 +3,6 @@ import { Navbar } from './components/Navbar';
 import { HeroSection } from './components/HeroSection';
 import { TrustLogos } from './components/TrustLogos';
 import { BusinessSegments } from './components/BusinessSegments';
-import { AITutorSimulator } from './components/AITutorSimulator';
 import { DonationCard } from './components/DonationCard';
 import { ImpactDashboardPreview } from './components/ImpactDashboardPreview';
 import { Footer } from './components/Footer';
@@ -217,10 +216,7 @@ export function App() {
           onOpenPresencial={handleOpenComoLlegar}
         />
 
-        {/* 5. JennySection */}
-        <AITutorSimulator />
-
-        {/* 6. DonationSection */}
+        {/* 5. DonationSection */}
         <section className="bg-slate-50 py-16 border-b border-slate-200">
           <DonationCard initialCurrency={selectedCurrency} forcedTierId={forcedTierId} />
         </section>

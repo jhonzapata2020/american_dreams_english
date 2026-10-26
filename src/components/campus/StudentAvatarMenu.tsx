@@ -187,11 +187,13 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
                 </p>
                 <div className="flex items-center gap-1.5 mt-1">
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    effectiveIsTeacher 
-                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/30' 
-                      : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                    student.role === 'admin'
+                      ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30'
+                      : effectiveIsTeacher 
+                        ? 'bg-amber-400/20 text-amber-300 border-amber-400/30' 
+                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
                   }`}>
-                    {effectiveIsTeacher ? 'Docente Titular' : `Nivel ${student.currentLevel}`}
+                    {student.role === 'admin' ? 'Administrador' : (effectiveIsTeacher ? 'Docente Titular' : `Nivel ${student.currentLevel}`)}
                   </span>
                   <span className="text-[10px] text-amber-300 font-mono">
                     {student.studentCode}
@@ -204,8 +206,25 @@ export const StudentAvatarMenu: React.FC<StudentAvatarMenuProps> = ({
           {/* Opciones del Menú */}
           <div className="p-2 text-xs divide-y divide-slate-100">
             
+            {/* Acceso Rápido al Dashboard para Administrador */}
+            {student.role === 'admin' && (
+              <div className="pb-1.5">
+                <Link
+                  href="/dashboard/admin"
+                  onClick={() => setIsOpen(false)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 rounded-xl transition-all font-bold text-left border border-indigo-200/80 shadow-2xs group"
+                >
+                  <ShieldCheck className="w-4 h-4 text-indigo-600 shrink-0 group-hover:scale-110 transition-transform" />
+                  <div className="flex-1">
+                    <strong className="block leading-tight text-indigo-950 font-black">🛡️ Panel Administrador</strong>
+                    <span className="text-[10px] text-indigo-800/80 font-normal">Volver al panel general de gestión</span>
+                  </div>
+                </Link>
+              </div>
+            )}
+
             {/* Acceso Rápido al Portal Docente para Profesores */}
-            {effectiveIsTeacher && (
+            {effectiveIsTeacher && student.role !== 'admin' && (
               <div className="pb-1.5">
                 <Link
                   href="/campus/docente"

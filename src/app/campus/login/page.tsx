@@ -552,7 +552,7 @@ export default function CampusLoginPage() {
                 </label>
 
                 <a 
-                  href="https://wa.me/573104567890?text=Hola,%20necesito%20ayuda%20para%20recuperar%20mi%20contrase%C3%B1a%20de%20ADE" 
+                  href="https://wa.me/573127459728?text=Hola%20Anthony,%20necesito%20ayuda%20para%20recuperar%20mi%20contrase%C3%B1a%20del%20Campus%20de%20American%20Dream%20English" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="text-xs text-blue-700 hover:text-blue-900 font-bold hover:underline"

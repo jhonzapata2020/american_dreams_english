@@ -835,7 +835,7 @@ export const IsometricNotFound: React.FC = () => {
 
           <div className="flex items-center gap-4">
             <a
-              href="https://wa.me/573105988565?text=Hola%20American%20Dreams,%20me%20encontré%20con%20un%20error%20404%20en%20la%20plataforma%20y%20necesito%20ayuda"
+              href="https://wa.me/573127459728?text=Hola%20Anthony,%20vengo%20de%20la%20p%C3%A1gina%20web%20de%20American%20Dream%20English%20y%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20cursos."
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 text-emerald-600 hover:text-emerald-500 font-bold transition-colors"
@@ -856,7 +856,7 @@ export const IsometricNotFound: React.FC = () => {
 
       {/* Floating WhatsApp Quick Action Button */}
       <a
-        href="https://wa.me/573105988565?text=Hola%20American%20Dreams,%20me%20encontré%20con%20un%20error%20404%20y%20necesito%20asistencia"
+        href="https://wa.me/573127459728?text=Hola%20Anthony,%20vengo%20de%20la%20p%C3%A1gina%20web%20de%20American%20Dream%20English%20y%20quiero%20m%C3%A1s%20informaci%C3%B3n%20sobre%20los%20cursos."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 left-6 z-40 px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold transition-all hover:scale-105 cursor-pointer"

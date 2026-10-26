@@ -100,6 +100,23 @@ const TRUST_ITEMS: TrustItem[] = [
       { label: 'Enfoque de Impacto:', value: 'Formación para el empleo, turismo internacional y comercio portuario' },
       { label: 'Fondo de Subvenciones:', value: 'Subsidios educativos orientados a población vulnerable' }
     ]
+  },
+  {
+    id: 'pisingo-de-oro',
+    title: 'Galardón Distrital Pisingo de Oro',
+    shortLabel: 'Galardón Pisingo de Oro',
+    icon: Award,
+    iconColor: 'text-amber-500',
+    tag: 'Máxima Distinción Cívica',
+    subtitle: 'Condecoración Oficial a la Excelencia Educativa y Social en Urabá',
+    description: 'Máxima distinción al mérito cívico y educativo otorgada por la Alcaldía Distrital y el Concejo de Turbo a American Dream English, exaltando su sobresaliente trayectoria pedagógica, labor social y liderazgo en la formación bilingüe en Urabá.',
+    image: '/images/pisingo-de-oro.jpg',
+    details: [
+      { label: 'Distinción:', value: 'Medalla Oficial de Honor "Pisingo de Oro"' },
+      { label: 'Entidad Otorgante:', value: 'Alcaldía Mayor y Concejo Distrital de Turbo' },
+      { label: 'Mérito Reconocido:', value: 'Trayectoria, liderazgo pedagógico y labor comunitaria en Urabá' },
+      { label: 'Simbolismo Histórico:', value: 'Insignia distrital en honor al ave emblemática Pisingo' }
+    ]
   }
 ]
 

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CIPAS UNAD - Desarrollo de Aplicaciones Modernas | Semillero GRUSLIN</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .slide-enter { animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.99); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    pre, code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans select-none antialiased">
+
+  <!-- TOP HEADER INSTITUCIONAL UNAD / GRUSLIN -->
+  <header class="w-full bg-slate-900/90 border-b border-slate-800/80 px-6 py-3 flex items-center justify-between backdrop-blur-md sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center font-black text-slate-950 text-sm shadow-md">
+        U
+      </div>
+      <div>
+        <h1 class="text-xs font-black uppercase tracking-wider text-slate-200">
+          UNAD · ECBTI · Semillero GRUSLIN
+        </h1>
+        <p class="text-[11px] text-amber-400 font-bold">
+          CIPAS: Fundamentos de Programación · Sesión Magistral
+        </p>
+      </div>
+    </div>
+
+    <!-- Timer y Contador de Diapositivas -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-800/80 border border-slate-700/80 text-xs font-mono font-bold text-slate-300">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="sessionTimer">00:00</span>
+      </div>
+      <div class="text-xs font-mono font-black text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
+        Slide <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">12</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL DE DIAPOSITIVAS -->
+  <main class="flex-1 flex items-center justify-center p-4 sm:p-8 max-w-5xl mx-auto w-full">
+    <div id="slideContent" class="w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-6 sm:p-10 shadow-2xl min-h-[520px] flex flex-col justify-between slide-enter">
+      <!-- Se inyecta dinámicamente con JavaScript -->
+    </div>
+  </main>
+
+  <!-- BOTTOM CONTROLS & DOCK DE NAVEGACIÓN -->
+  <footer class="w-full bg-slate-900/80 border-t border-slate-800 px-6 py-3.5 flex items-center justify-between backdrop-blur-md">
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-semibold text-slate-400">Atajos:</span>
+      <kbd class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700 text-[11px] font-mono text-slate-300">← Ant</kbd>
+      <kbd class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700 text-[11px] font-mono text-slate-300">Sig →</kbd>
+      <kbd class="px-2 py-0.5 bg-slate-800 rounded border border-slate-700 text-[11px] font-mono text-slate-300">Espacio</kbd>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <button 
+        id="btnPrev" 
+        onclick="prevSlide()" 
+        class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-black transition-all cursor-pointer border border-slate-700"
+      >
+        ← Anterior
+      </button>
+      <button 
+        id="btnNext" 
+        onclick="nextSlide()" 
+        class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 text-xs font-black transition-all shadow-md cursor-pointer"
+      >
+        Siguiente →
+      </button>
+    </div>
+  </footer>
+
+  <script>
+    const slides = [
+      // SLIDE 1: PORTADA
+      {
+        badge: "CIPAS Oficial · Octubre 2026",
+        title: "Desarrollo de Aplicaciones Modernas",
+        subtitle: "Integración de tecnologías en la nube, Inteligencia Artificial y Buenas Prácticas de Programación",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center my-auto">
+            <div class="space-y-4">
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold">
+                🚀 Sesión Práctica en Vivo (Live Demo)
+              </div>
+              <p class="text-sm text-slate-300 leading-relaxed">
+                De los <strong>Fundamentos de Programación</strong> (variables, condicionales y funciones) hacia la construcción de soluciones Full-Stack reales conectadas a bases de datos PostgreSQL en la nube.
+              </p>
+              <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/80 space-y-1">
+                <span class="text-[11px] font-black uppercase text-amber-400">Mediado por:</span>
+                <p class="text-xs font-bold text-slate-200">H-Estudiante · Semillero de Investigación GRUSLIN</p>
+                <p class="text-[11px] text-slate-400">Escuela de Ciencias Básicas, Tecnología e Ingeniería (ECBTI - UNAD)</p>
+              </div>
+            </div>
+            <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-800 space-y-3">
+              <h4 class="text-xs font-black text-amber-400 uppercase tracking-wider">¿Qué aprenderás hoy?</h4>
+              <ul class="space-y-2 text-xs text-slate-300">
+                <li class="flex items-center gap-2">✅ Arquitectura moderna: Cliente, Backend y Base de Datos</li>
+                <li class="flex items-center gap-2">✅ Creación y modelado de datos en <strong>Supabase</strong></li>
+                <li class="flex items-center gap-2">✅ Ingeniería de Prompts con IA como copiloto senior</li>
+                <li class="flex items-center gap-2">✅ Buenas prácticas: Clean Code, TypeScript y Seguridad RLS</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 2: DE FUNDAMENTOS AL MUNDO REAL
+      {
+        badge: "Fundamentos vs. Producción",
+        title: "¿Cómo se conecta lo que vemos en clase con el mundo real?",
+        subtitle: "La evolución natural del programador de la UNAD",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-2">
+              <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-xs">1</div>
+              <h4 class="text-xs font-black text-slate-200">En la Materia</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Variables, estructuras condicionales (if/else), bucles (for/while), funciones y arreglos en consola.
+              </p>
+              <span class="text-[10px] text-blue-400 font-mono block">Lógica Algorítmica Pura</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-2">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">2</div>
+              <h4 class="text-xs font-black text-slate-200">El Puente</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Empaquetar la lógica en componentes visuales interactivos y persistir los datos de forma permanente.
+              </p>
+              <span class="text-[10px] text-amber-400 font-mono block">Frontend React + APIs</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-2">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">3</div>
+              <h4 class="text-xs font-black text-slate-200">En Producción</h4>
+              <p class="text-xs text-slate-400 leading-relaxed">
+                Aplicaciones web accesibles desde el celular, con autenticación de usuarios y base de datos en la nube.
+              </p>
+              <span class="text-[10px] text-emerald-400 font-mono block">Full-Stack Cloud App</span>
+            </div>
+          </div>
+          <div class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-center text-xs text-amber-300 font-bold mt-4">
+            💡 Mensaje clave: "Los fundamentos de lógica que aprendes hoy son el motor exacto de las inteligencias artificiales y los frameworks modernos."
+          </div>
+        `
+      },
+
+      // SLIDE 3: ARQUITECTURA MODERNA
+      {
+        badge: "Arquitectura de Software",
+        title: "La Tríada de una Aplicación Web Moderna",
+        subtitle: "Frontend, Base de Datos en la Nube y Copiloto de Inteligencia Artificial",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-auto">
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <span class="text-[11px] font-black uppercase text-blue-400">1. Frontend React / Next.js</span>
+              <p class="text-xs text-slate-300">
+                La interfaz gráfica interactiva que ve el usuario. Maneja el estado, renderiza datos y captura acciones.
+              </p>
+              <ul class="text-[11px] text-slate-400 space-y-1">
+                <li>• Componentes modulares</li>
+                <li>• TypeScript (Tipado seguro)</li>
+                <li>• Tailwind CSS (Diseño ágil)</li>
+              </ul>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <span class="text-[11px] font-black uppercase text-emerald-400">2. Supabase (BaaS Cloud)</span>
+              <p class="text-xs text-slate-300">
+                PostgreSQL en la nube de alta disponibilidad. Gestiona datos relacionales, autenticación y API REST automática.
+              </p>
+              <ul class="text-[11px] text-slate-400 space-y-1">
+                <li>• Tablas y llaves foráneas</li>
+                <li>• Row Level Security (RLS)</li>
+                <li>• Base de datos en tiempo real</li>
+              </ul>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+              <span class="text-[11px] font-black uppercase text-orange-400">3. IA Copilot (Antigravity/Gemini)</span>
+              <p class="text-xs text-slate-300">
+                Acelerador de productividad. Genera el código boilerplate, valida sintaxis y aplica buenas prácticas.
+              </p>
+              <ul class="text-[11px] text-slate-400 space-y-1">
+                <li>• Gemini: Arquitecto & SQL</li>
+                <li>• Antigravity: Pair Programmer</li>
+                <li>• Tú: El Director & Validador</li>
+              </ul>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 4: BUENAS PRÁCTICAS
+      {
+        badge: "Ingeniería de Software",
+        title: "4 Buenas Prácticas Innegociables para Desarrolladores",
+        subtitle: "La diferencia entre un código de estudiante novato y un código profesional",
+        content: `
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-auto text-left">
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/80">
+              <h4 class="text-xs font-black text-amber-400 uppercase">1. Tipado Estricto (TypeScript)</h4>
+              <p class="text-xs text-slate-300 mt-1">
+                Nunca uses <code class="text-red-400">any</code>. Si defines los tipos de datos (<code class="text-emerald-400">string, number, boolean, interface</code>), TypeScript atrapará el 90% de tus errores antes de ejecutar el código.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/80">
+              <h4 class="text-xs font-black text-amber-400 uppercase">2. Variables de Entorno (.env.local)</h4>
+              <p class="text-xs text-slate-300 mt-1">
+                <strong>Jamás quemes contraseñas o llaves API en el código fuente.</strong> Todo lo sensible se almacena en variables de entorno y se ignora en Git con <code class="text-blue-400">.gitignore</code>.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/80">
+              <h4 class="text-xs font-black text-amber-400 uppercase">3. Modularidad y Componentes Limpios</h4>
+              <p class="text-xs text-slate-300 mt-1">
+                Principio de Responsabilidad Única (SRP): una función o componente debe hacer una sola cosa y hacerla bien. Archivos pequeños y reutilizables.
+              </p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700/80">
+              <h4 class="text-xs font-black text-amber-400 uppercase">4. Seguridad en BD (Row Level Security)</h4>
+              <p class="text-xs text-slate-300 mt-1">
+                La seguridad no solo se pone en el frontend; se blinda en la base de datos para que ningún usuario malicioso pueda leer o modificar datos ajenos.
+              </p>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 5: EL ROL DE LA IA
+      {
+        badge: "Inteligencia Artificial",
+        title: "¿Cómo trabajar con IA como un Ingeniero Senior?",
+        subtitle: "Del 'Copy-Paste' ciego a la 'Orquestación de Agentes'",
+        content: `
+          <div class="space-y-4 my-auto">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="p-4 rounded-2xl bg-red-950/30 border border-red-500/30 text-left">
+                <span class="text-xs font-black text-red-400 uppercase block mb-1">❌ El error común del novato:</span>
+                <p class="text-xs text-slate-300">
+                  <em>"Hazme una app de tareas completa"</em> → La IA entrega código desordenado, sin tipos, lleno de bugs y sin base de datos real. El estudiante no entiende qué pasó ni cómo arreglarlo.
+                </p>
+              </div>
+
+              <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-left">
+                <span class="text-xs font-black text-emerald-400 uppercase block mb-1">✅ El método profesional UNAD:</span>
+                <p class="text-xs text-slate-300">
+                  <strong>1. Arquitectura previa:</strong> Tú defines los requerimientos.<br>
+                  <strong>2. Script SQL primero:</strong> Creas la base de datos en Supabase.<br>
+                  <strong>3. Prompt de Ingeniería:</strong> Instruyes a la IA con stack exacto, tipos y validaciones.
+                </p>
+              </div>
+            </div>
+
+            <div class="p-3.5 bg-slate-800/80 border border-slate-700 rounded-2xl text-xs text-slate-300 text-center font-mono">
+              "La IA no te reemplaza; un programador que sabe orquestar la IA te reemplaza a ti."
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 6: CASO PRÁCTICO EN VIVO
+      {
+        badge: "Live Coding Demonstration",
+        title: "Caso Práctico: UNAD DevTrack",
+        subtitle: "Construiremos en vivo un Gestor de Proyectos Estudiantiles con Supabase Cloud",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3 my-auto">
+            <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-left">
+              <span class="text-amber-400 font-black text-xs block">PASO 1</span>
+              <h5 class="text-xs font-bold text-slate-200 mt-1">Crear Proyecto Supabase</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Acceder a supabase.com y crear base de datos PostgreSQL gratuita.</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-left">
+              <span class="text-amber-400 font-black text-xs block">PASO 2</span>
+              <h5 class="text-xs font-bold text-slate-200 mt-1">Generar Script SQL</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Correr el script SQL en el SQL Editor para crear tablas e índices.</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-left">
+              <span class="text-amber-400 font-black text-xs block">PASO 3</span>
+              <h5 class="text-xs font-bold text-slate-200 mt-1">Prompt de Ingeniería</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Entregar las credenciales seguras y el prompt detallado a Antigravity.</p>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800 border border-slate-700 text-left">
+              <span class="text-amber-400 font-black text-xs block">PASO 4</span>
+              <h5 class="text-xs font-bold text-slate-200 mt-1">Prueba en Vivo</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Crear tareas, cambiar estados y ver cómo se actualiza en la nube.</p>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 7: SCRIPT SQL DE SUPABASE
+      {
+        badge: "Base de Datos en la Nube",
+        title: "Script SQL para Supabase (Copiar y Ejecutar)",
+        subtitle: "Tabla de tareas con validaciones, valores por defecto y marcas de tiempo",
+        content: `
+          <div class="space-y-2 text-left my-auto">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-slate-400">supabase_schema.sql</span>
+              <button 
+                onclick="copySqlScript()" 
+                class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer"
+              >
+                📋 Copiar Script SQL
+              </button>
+            </div>
+            <pre id="sqlCodeBlock" class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-emerald-400 text-[11px] leading-relaxed overflow-x-auto max-h-64 no-scrollbar">
+-- 1. Crear la tabla de proyectos/tareas UNAD
+CREATE TABLE IF NOT EXISTS public.unad_tasks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    description TEXT,
+    category TEXT DEFAULT 'Programación',
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+    priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 2. Habilitar seguridad por fila (Row Level Security)
+ALTER TABLE public.unad_tasks ENABLE ROW LEVEL SECURITY;
+
+-- 3. Crear política para permitir lectura y escritura pública para el CIPAS
+CREATE POLICY "Permitir acceso publico para demo CIPAS"
+ON public.unad_tasks
+FOR ALL
+USING (true)
+WITH CHECK (true);
+            </pre>
+            <p class="text-[11px] text-slate-400">
+              💡 Este script crea una tabla con validaciones estrictas tipo <code class="text-amber-400">CHECK</code> para evitar estados corruptos.
+            </p>
+          </div>
+        `
+      },
+
+      // SLIDE 8: EL PROMPT MAESTRO DE GEMINI
+      {
+        badge: "Prompt Engineering",
+        title: "El Prompt Maestro para el Asistente de Código",
+        subtitle: "Cómo redactar una especificación técnica de nivel senior",
+        content: `
+          <div class="space-y-2 text-left my-auto">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-slate-400">prompt_para_antigravity.txt</span>
+              <button 
+                onclick="copyPromptMaster()" 
+                class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-slate-950 text-[11px] font-black rounded-lg transition-colors cursor-pointer"
+              >
+                📋 Copiar Prompt
+              </button>
+            </div>
+            <pre id="promptCodeBlock" class="p-4 bg-slate-950 rounded-2xl border border-slate-800 text-amber-300 text-[11px] leading-relaxed overflow-x-auto max-h-64 no-scrollbar">
+"Actúa como un Ingeniero de Software Full-Stack Senior.
+Necesito que construyas un módulo en React/Next.js con TypeScript y Tailwind CSS llamado 'UNAD DevTrack'.
+La aplicación se conectará a mi base de datos en Supabase a través del cliente oficial '@supabase/supabase-js'.
+
+Requerimientos:
+1. Conectar con process.env.NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY.
+2. Listar las tareas de la tabla 'unad_tasks' ordenadas por created_at descendente.
+3. Permitir agregar una nueva tarea con título, categoría y prioridad.
+4. Permitir cambiar el estado entre 'pending', 'in_progress' y 'completed' con 1 clic.
+5. Permitir eliminar tareas con confirmación.
+6. Diseño moderno, minimalista, modo oscuro y badge oficial de la UNAD ECBTI."
+            </pre>
+          </div>
+        `
+      },
+
+      // SLIDE 9: EJECUCIÓN Y PRUEBA EN VIVO
+      {
+        badge: "Resultados en Tiempo Real",
+        title: "Verificación y Despliegue en Vivo",
+        subtitle: "¿Qué hace que esta integración sea tan poderosa?",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-auto text-left">
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+              <h4 class="text-xs font-black text-emerald-400 uppercase">Persistencia Inmediata</h4>
+              <p class="text-xs text-slate-300">
+                Al crear una tarea en el frontend, viaja por HTTPS seguro a Supabase. Si recargas la página o abres la app desde tu celular, los datos persisten intactos.
+              </p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+              <h4 class="text-xs font-black text-blue-400 uppercase">Cero Servidores Físicos</h4>
+              <p class="text-xs text-slate-300">
+                No tuvimos que instalar Apache, MySQL ni configurar puertos en Linux. Supabase provee la infraestructura Serverless en segundos.
+              </p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+              <h4 class="text-xs font-black text-amber-400 uppercase">Velocidad de Iteración</h4>
+              <p class="text-xs text-slate-300">
+                Lo que antes tomaba 3 semanas de configuración manual, hoy se construye en 10 minutos con buenas prácticas y herramientas modernas.
+              </p>
+            </div>
+            <div class="p-4 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-2">
+              <h4 class="text-xs font-black text-purple-400 uppercase">Control Total del Ingeniero</h4>
+              <p class="text-xs text-slate-300">
+                La IA escribe el código, pero tú sabes qué significa cada línea, cómo funciona la arquitectura y cómo resolver incidencias.
+              </p>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 10: CONSEJOS DE ORO
+      {
+        badge: "Para los 350 Estudiantes",
+        title: "Consejos de Oro para tu Carrera en Tecnología",
+        subtitle: "Lo que todo estudiante de Fundamentos de Programación debe saber hoy",
+        content: `
+          <div class="space-y-3 my-auto text-left">
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700 flex items-start gap-3">
+              <span class="text-lg">🧠</span>
+              <div>
+                <h5 class="text-xs font-black text-slate-200">1. Domina la lógica básica primero</h5>
+                <p class="text-xs text-slate-400">Si entiendes cómo piensa un algoritmo, aprenderás cualquier lenguaje nuevo en 3 días.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700 flex items-start gap-3">
+              <span class="text-lg">🛠️</span>
+              <div>
+                <h5 class="text-xs font-black text-slate-200">2. Aprende Git y GitHub desde el primer semestre</h5>
+                <p class="text-xs text-slate-400">Tu repositorio de GitHub es tu verdadero currículum y carta de presentación ante la industria global.</p>
+              </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-800/70 border border-slate-700 flex items-start gap-3">
+              <span class="text-lg">🤝</span>
+              <div>
+                <h5 class="text-xs font-black text-slate-200">3. Únete a semilleros de investigación como GRUSLIN</h5>
+                <p class="text-xs text-slate-400">El trabajo en equipo, las publicaciones y los proyectos reales te abrirán puertas antes de graduarte.</p>
+              </div>
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 11: SESIÓN DE PREGUNTAS
+      {
+        badge: "Participación & Diálogo",
+        title: "Sesión de Preguntas y Respuestas (Q&A)",
+        subtitle: "Resolvamos inquietudes sobre la materia y el desarrollo moderno",
+        content: `
+          <div class="text-center my-auto space-y-4">
+            <div class="w-20 h-20 mx-auto rounded-3xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-3xl">
+              💬
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-lg font-black text-slate-100">¡Micrófonos y Chat Abiertos!</h4>
+              <p class="text-xs text-slate-400 max-w-md mx-auto">
+                Levanta tu mano en Teams o deja tu pregunta en el chat sobre la asignatura Fundamentos de Programación, Supabase o buenas prácticas.
+              </p>
+            </div>
+            <div class="p-3 bg-slate-800/60 rounded-xl inline-block text-xs font-mono text-amber-400 border border-slate-700">
+              Teams: 350 Estudiantes Conectados
+            </div>
+          </div>
+        `
+      },
+
+      // SLIDE 12: CIERRE Y DESPEDIDA
+      {
+        badge: "Cierre de la Sesión",
+        title: "¡Gracias por su Participación!",
+        subtitle: "Universidad Nacional Abierta y a Distancia · UNAD ECBTI",
+        content: `
+          <div class="text-center my-auto space-y-5">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-slate-950 font-black text-2xl shadow-xl">
+              UNAD
+            </div>
+            <div class="space-y-1">
+              <h4 class="text-base sm:text-xl font-black text-slate-100">
+                "La tecnología también construye un mejor mañana"
+              </h4>
+              <p class="text-xs text-slate-400">
+                Semillero de Investigación GRUSLIN · Dirección de Curso Fundamentos de Programación
+              </p>
+            </div>
+            <div class="p-4 bg-slate-950 border border-slate-800 rounded-2xl max-w-sm mx-auto text-xs text-slate-300 space-y-1">
+              <p class="font-bold text-amber-400">H-Estudiante · Facilitador CIPAS</p>
+              <p class="text-[11px] text-slate-500">Ciencia que transforma realidades</p>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    let currentSlide = 0;
+    let timerSeconds = 0;
+
+    // Cronómetro de la sesión
+    setInterval(() => {
+      timerSeconds++;
+      const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+      const secs = (timerSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('sessionTimer').textContent = `${mins}:${secs}`;
+    }, 1000);
+
+    function renderSlide() {
+      const slide = slides[currentSlide];
+      document.getElementById('currentSlideNum').textContent = currentSlide + 1;
+      document.getElementById('totalSlidesNum').textContent = slides.length;
+
+      const container = document.getElementById('slideContent');
+      container.classList.remove('slide-enter');
+      void container.offsetWidth; // Trigger reflow
+      container.classList.add('slide-enter');
+
+      container.innerHTML = `
+        <div class="space-y-1 text-left">
+          <span class="inline-block px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] font-black uppercase tracking-wider">
+            ${slide.badge}
+          </span>
+          <h2 class="text-xl sm:text-3xl font-black text-slate-100 tracking-tight leading-tight mt-1">
+            ${slide.title}
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-400 font-medium">
+            ${slide.subtitle}
+          </p>
+        </div>
+
+        <div class="my-auto py-2">
+          ${slide.content}
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+          <span>Semillero GRUSLIN · ECBTI</span>
+          <span>Presiona [Espacio] o flechas para avanzar</span>
+        </div>
+      `;
+
+      document.getElementById('btnPrev').disabled = currentSlide === 0;
+      document.getElementById('btnNext').textContent = currentSlide === slides.length - 1 ? 'Finalizar' : 'Siguiente →';
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        renderSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        renderSlide();
+      }
+    }
+
+    function copySqlScript() {
+      const code = document.getElementById('sqlCodeBlock').innerText;
+      navigator.clipboard.writeText(code);
+      alert('¡Script SQL copiado al portapapeles!');
+    }
+
+    function copyPromptMaster() {
+      const code = document.getElementById('promptCodeBlock').innerText;
+      navigator.clipboard.writeText(code);
+      alert('¡Prompt copiado al portapapeles!');
+    }
+
+    // Atajos de teclado
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      }
+    });
+
+    renderSlide();
+  </script>
+</body>
+</html>

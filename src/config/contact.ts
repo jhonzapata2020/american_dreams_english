@@ -20,7 +20,7 @@ export const CONTACT_CONFIG = {
  * Genera una URL directa de WhatsApp con mensaje codificado
  */
 export function getWhatsAppUrl(customMessage?: string): string {
-  const defaultMsg = 'Hola American Dream English, quisiera recibir información sobre los programas y matrículas.';
+  const defaultMsg = 'Hola Anthony, vengo de la página web de American Dream English y quiero más información sobre los cursos.';
   const message = encodeURIComponent(customMessage || defaultMsg);
   return `https://wa.me/${CONTACT_CONFIG.whatsappRaw}?text=${message}`;
 }
