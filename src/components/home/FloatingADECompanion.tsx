@@ -581,17 +581,19 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      // Detección de idioma universal: si está practicando en inglés, 'en-US'; de lo contrario, el locale nativo o 'es-419'
-      const navLang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-419';
-      const isSpanishNav = navLang.toLowerCase().startsWith('es');
+      // Idioma de reconocimiento universal:
+      // Español estándar ('es-419' / 'es-ES' / locale nativo) que comprende de forma nativa español
+      // y términos comunes de inglés. Si el usuario está en práctica activa de inglés, usa 'en-US'.
+      const navLocale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-419';
+      const isSpanishLocale = navLocale.toLowerCase().startsWith('es');
       recognition.lang =
-        currentLang === 'en' && hasInteracted && lastResolvedIntentRef.current?.startsWith('en-practice')
+        lastResolvedIntentRef.current?.startsWith('en-practice')
           ? 'en-US'
-          : isSpanishNav
-          ? navLang
+          : isSpanishLocale
+          ? navLocale
           : 'es-419';
 
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
@@ -606,24 +608,25 @@ function FloatingADECompanionInner() {
 
       recognition.onresult = (event: any) => {
         let interim = '';
-        let final = '';
-        if (event.results && event.results.length > 0) {
-          for (let i = 0; i < event.results.length; i++) {
-            const item = event.results[i];
-            if (item.isFinal) {
-              final += item[0]?.transcript || '';
-            } else {
-              interim += item[0]?.transcript || '';
-            }
+        let fullAccumulated = '';
+
+        for (let i = 0; i < event.results.length; i++) {
+          const result = event.results[i];
+          const text = result[0]?.transcript || '';
+          if (result.isFinal) {
+            fullAccumulated += (fullAccumulated ? ' ' : '') + text;
+          } else {
+            interim += text;
           }
         }
-        const fullTranscript = (final + ' ' + interim).trim().replace(/\s+/g, ' ');
-        if (fullTranscript) {
-          console.log('>>> [ADE TEXT DETECTED]:', fullTranscript);
-          finalTranscriptRef.current = fullTranscript;
-          setListeningTranscript(fullTranscript);
 
-          // Si hay detección de silencio VAD (2.5s tras la última captura de voz), cortar y enviar
+        const currentSaid = (fullAccumulated || interim).trim();
+        if (currentSaid) {
+          console.log('>>> [ADE TEXT DETECTED]:', currentSaid);
+          finalTranscriptRef.current = fullAccumulated || currentSaid;
+          setListeningTranscript(currentSaid);
+
+          // Si hay detección de silencio VAD (2.5s tras hablar), cortar y enviar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -632,9 +635,9 @@ function FloatingADECompanionInner() {
               shouldListenRef.current = false;
               stopVoiceInput();
               const textToSend = finalTranscriptRef.current.trim();
-              finalTranscriptRef.current = '';
-              setListeningTranscript('');
               if (textToSend) {
+                finalTranscriptRef.current = '';
+                setListeningTranscript('');
                 sendMessage(textToSend, true);
               }
             }
@@ -657,8 +660,7 @@ function FloatingADECompanionInner() {
         }
 
         if (event?.error === 'no-speech') {
-          // En Windows Chrome/Edge, 'no-speech' se dispara si hay un segundo de silencio inicial.
-          // NO abortar la escucha; mantener el micrófono abierto esperando la voz del usuario.
+          // Silencio inicial en Windows Chrome: mantener micrófono abierto esperando la voz del usuario
           return;
         }
 
@@ -674,13 +676,13 @@ function FloatingADECompanionInner() {
       recognition.onend = () => {
         const textCaptured = finalTranscriptRef.current.trim();
         if (textCaptured) {
+          console.log('>>> [ADE ONEND SENDING]:', textCaptured);
           shouldListenRef.current = false;
           setIsListening(false);
           finalTranscriptRef.current = '';
           setListeningTranscript('');
           sendMessage(textCaptured, true);
         } else if (shouldListenRef.current) {
-          // En Windows Chrome/Edge, si el stream se cerró por inactividad pero el usuario aún desea hablar
           try {
             recognition.start();
           } catch (e) {
@@ -694,19 +696,13 @@ function FloatingADECompanionInner() {
 
       recognition.start();
 
-      // Temporizador maestro de inactividad de 7 segundos si el usuario nunca habló
+      // Temporizador maestro de cortesía de 6 segundos si no hubo habla
       silenceTimerRef.current = setTimeout(() => {
-        if (shouldListenRef.current) {
+        if (shouldListenRef.current && !finalTranscriptRef.current.trim()) {
           shouldListenRef.current = false;
           stopVoiceInput();
-          const textCaptured = finalTranscriptRef.current.trim();
-          finalTranscriptRef.current = '';
-          setListeningTranscript('');
-          if (textCaptured) {
-            sendMessage(textCaptured, true);
-          }
         }
-      }, 7000);
+      }, 6000);
 
     } catch (err) {
       console.warn('Fallback a MediaRecorder tras error en SpeechRec:', err);
@@ -758,7 +754,7 @@ function FloatingADECompanionInner() {
           sessionStorage.setItem('ade_first_interaction_done', 'true');
         }
       } catch (e) {}
-      setLanguage('en');
+      // No cambiar el idioma global de la app a inglés para que el usuario pueda responder en español
       setMessages((prev) => [...prev, { role: 'ade', text: FIRST_GREETING_TEXT }]);
       speakFemaleVoice(FIRST_GREETING_TEXT, 'en', 'en-hello', FIRST_GREETING_AUDIO);
       return;
