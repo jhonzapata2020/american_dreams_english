@@ -167,49 +167,56 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'es',
     audioUrl: '/audio/ade/es-bienvenida.mp3',
     text: '¡Hola! Te doy una cálida bienvenida a American Dream English. Soy ADE, tu tutora virtual, y estoy aquí para ayudarte a alcanzar la fluidez en inglés. ¿En qué te puedo asesorar hoy?',
-    triggers: [/\bhola\b/i, /\bbuenos dias\b/i, /\btardes\b/i, /\bnoches\b/i, /\bque tal\b/i]
+    triggers: [/^(hola|buenos dias|buenas tardes|buenas noches|que tal|saludos|hey|alo|hola ade)$/i, /\b(hola|buenos dias|buenas tardes|buenas noches|que tal|saludos)\b/i]
   },
   {
     id: 'es-matricula',
     lang: 'es',
     audioUrl: '/audio/ade/es-matricula.mp3',
     text: '¡Es muy sencillo! Para matricularte hoy y asegurar tu cupo con tarifa preferencial, haz clic en el botón "Matricúlate". Puedes completar tu pago de forma 100% segura mediante Wompi.',
-    triggers: [/\bmatricul/i, /\binscri/i, /\bseparar cupo\b/i, /\breservar cupo\b/i, /\bwompi\b/i, /\bcomo me matriculo\b/i]
+    triggers: [/\bmatricul/i, /\binscri/i, /\bseparar cupo\b/i, /\breservar cupo\b/i, /\bwompi\b/i, /\bcomo me matriculo\b/i, /\bcomo me inscribo\b/i, /\bquiero matricularme\b/i, /\bquiero inscribirme\b/i]
   },
   {
     id: 'es-precios',
     lang: 'es',
     audioUrl: '/audio/ade/es-precios.mp3',
     text: 'Nuestros programas cuentan con facilidades de pago mensual y subsidios a través del Fondo Social. Puedes consultar todos los planes y valores actualizados en nuestra sección de Matrícula.',
-    triggers: [/\bprecio/i, /\bcuanto cuestan\b/i, /\bcuanto cuesta\b/i, /\bcuanto valen\b/i, /\bcuanto vale\b/i, /\bcosto/i, /\bcostos\b/i, /\bmensualidad\b/i, /\bvalor\b/i, /\btarifa/i, /\bcuanto cobran\b/i]
+    triggers: [
+      /\b(precios?|costos?|tarifas?|valores?|mensualidad|mensualidades|cuanto cobran?)\b/i,
+      /\b(cuanto cuesta|cuanto cuestan|que cuesta|que cuestan|cuanto vale|cuanto valen|que vale|que valen|a como|a como esta|a como sale)\b/i,
+      /\b(cuanto cobran por mes|planes de pago|formas de pago|cuanto hay que pagar|cuanto es el valor)\b/i
+    ]
   },
   {
     id: 'es-cuotas',
     lang: 'es',
     audioUrl: '/audio/ade/es-cuotas.mp3',
     text: 'Contamos con opciones de financiación flexibles y pago en cuotas mensuales para que puedas estudiar sin preocuparte. ¡Pregúntanos por nuestros planes diferidos!',
-    triggers: [/\bcuota/i, /\bfinanciar\b/i, /\ba plazos\b/i, /\bfacilidad/i, /\babono/i]
+    triggers: [/\bcuota/i, /\bcuotas\b/i, /\bfinanciar\b/i, /\bfinanciacion\b/i, /\ba plazos\b/i, /\bfacilidad/i, /\bfacilidades de pago\b/i, /\babono/i, /\bpago diferido\b/i]
   },
   {
     id: 'es-horarios',
     lang: 'es',
     audioUrl: '/audio/ade/es-horarios.mp3',
     text: 'Ofrecemos horarios con máxima flexibilidad en jornadas de mañana, tarde, noche y fines de semana, adaptándonos completamente a tu trabajo o estudio.',
-    triggers: [/\bhorario/i, /\bque dias\b/i, /\ba que hora\b/i, /\bjornada/i, /\btarde/i]
+    triggers: [/\bhorario/i, /\bhorarios\b/i, /\bque dias\b/i, /\ba que hora\b/i, /\bque horas\b/i, /\bjornada/i, /\bjornadas\b/i, /\bfines de semana\b/i, /\bsabados\b/i, /\bdomingos\b/i, /\bhoras de clase\b/i]
   },
   {
     id: 'es-ubicacion',
     lang: 'es',
     audioUrl: '/audio/ade/es-ubicacion.mp3',
     text: 'Nuestra sede presencial principal está ubicada estratégicamente en Turbo, Urabá, sobre la Troncal, con aulas dinámicas y laboratorio de inmersión en inglés. ¡Ven a visitarnos!',
-    triggers: [/\bcomo llegar\b/i, /\bdonde estan\b/i, /\bubicacion\b/i, /\bdireccion\b/i, /\bsede\b/i, /\btroncal\b/i]
+    triggers: [/\bcomo llegar\b/i, /\bdonde estan\b/i, /\bdonde quedan\b/i, /\bdonde es\b/i, /\bubicacion\b/i, /\bdireccion\b/i, /\bsede\b/i, /\bsedes\b/i, /\btroncal\b/i, /\ben donde estan\b/i]
   },
   {
     id: 'es-campus-virtual',
     lang: 'es',
     audioUrl: '/audio/ade/es-campus-virtual.mp3',
     text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
-    triggers: [/\bcampus virtual\b/i, /\bclases virtuales\b/i, /\bteams\b/i, /\bmicrosoft teams\b/i, /\bzoom\b/i]
+    triggers: [
+      /\b(cursos?|clases?|programas?|niveles?|saber de los cursos|hablame (de|sobre) los cursos|informacion de los cursos|que cursos|cuales cursos|oferta academica|estudiar ingles|aprender ingles|clases de ingles|cursos de ingles)\b/i,
+      /\b(campus virtual|clases virtuales|teams|microsoft teams|zoom)\b/i
+    ]
   },
   {
     id: 'es-portal-estudiante',
@@ -448,27 +455,49 @@ export function matchStaticResponse(
     for (const trigger of route.triggers) {
       let isMatch = false;
       let triggerSource = '';
+      let matchedText = '';
 
       if (trigger instanceof RegExp) {
         triggerSource = trigger.source;
         // Evaluar en texto normalizado sin acentos, texto ligero con acentos y texto crudo
-        isMatch = trigger.test(normalizedInput) || trigger.test(lightInput) || trigger.test(rawInput);
+        const m = normalizedInput.match(trigger) || lightInput.match(trigger) || rawInput.match(trigger);
+        if (m) {
+          isMatch = true;
+          matchedText = m[0] || '';
+        }
       } else if (typeof trigger === 'string') {
         triggerSource = trigger;
         const normTrig = normalizeText(trigger);
         if (normTrig) {
           const escaped = normTrig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
           const boundRegex = new RegExp(`(?:^|\\s)${escaped}(?:\\s|$)`, 'i');
-          isMatch = normalizedInput === normTrig || boundRegex.test(normalizedInput);
+          if (normalizedInput === normTrig || boundRegex.test(normalizedInput)) {
+            isMatch = true;
+            matchedText = trigger;
+          }
         }
       }
 
       if (isMatch) {
-        // Prioridad: expresiones regulares o triggers más largos y específicos ganan
-        const baseScore = triggerSource.replace(/[\\^$bB]/g, '').length;
-        const exactMatchBonus = (normalizedInput === triggerSource.toLowerCase()) ? 500 : 0;
+        // Prioridad: el fragmento de texto coincidente más largo y específico gana
+        const baseScore = matchedText.length * 10;
+        const exactMatchBonus = (normalizedInput === triggerSource.toLowerCase() || normalizedInput === matchedText.toLowerCase()) ? 500 : 0;
         const langBonus = (isEnglishDetected && route.lang === 'en') || (!isEnglishDetected && route.lang === 'es') ? 20 : 0;
-        const score = baseScore + exactMatchBonus + langBonus;
+
+        // Si la frase tiene preguntas específicas (cursos, precios, horarios, etc.), penalizar el saludo genérico
+        const isGreetingRoute = route.id === 'es-bienvenida' || route.id === 'en-hello';
+        const hasSpecificInquiry = /\b(curso|cursos|clase|clases|precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|matricul|inscrib|horario|horarios|donde|sede|metodo|profesor|profesores|certific|tienda|libro|libros)\b/i.test(normalizedInput);
+        const specificityBonus = (!isGreetingRoute && hasSpecificInquiry) ? 80 : 0;
+        const greetingPenalty = (isGreetingRoute && hasSpecificInquiry) ? -80 : 0;
+
+        // Prioridad semántica: preguntas de precios/costos/matrícula tienen mayor peso que solo mencionar "curso"
+        const isPricingInquiry = /\b(precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|cuotas|tarifa|valores|mensualidad|planes de pago)\b/i.test(normalizedInput);
+        const pricingBonus = (isPricingInquiry && (route.id === 'es-precios' || route.id === 'es-cuotas' || route.id === 'en-pricing')) ? 150 : 0;
+
+        const isMatriculaInquiry = /\b(matricul|inscrib|inscri|separar cupo|reservar cupo)\b/i.test(normalizedInput);
+        const matriculaBonus = (isMatriculaInquiry && route.id === 'es-matricula') ? 150 : 0;
+
+        const score = baseScore + exactMatchBonus + langBonus + specificityBonus + greetingPenalty + pricingBonus + matriculaBonus;
 
         if (score > highestScore) {
           highestScore = score;
