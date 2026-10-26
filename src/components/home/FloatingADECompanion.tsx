@@ -581,13 +581,17 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      // Idioma de reconocimiento: 'es-CO' captura español nativo y términos básicos en inglés.
-      // Si el usuario ya está conversando en inglés activo (en-practice), usar 'en-US'.
+      // Detección de idioma universal: si está practicando en inglés, 'en-US'; de lo contrario, el locale nativo o 'es-419'
+      const navLang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-419';
+      const isSpanishNav = navLang.toLowerCase().startsWith('es');
       recognition.lang =
         currentLang === 'en' && hasInteracted && lastResolvedIntentRef.current?.startsWith('en-practice')
           ? 'en-US'
-          : 'es-CO';
-      recognition.continuous = false;
+          : isSpanishNav
+          ? navLang
+          : 'es-419';
+
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
@@ -601,19 +605,25 @@ function FloatingADECompanionInner() {
       };
 
       recognition.onresult = (event: any) => {
-        let transcript = '';
+        let interim = '';
+        let final = '';
         if (event.results && event.results.length > 0) {
           for (let i = 0; i < event.results.length; i++) {
-            transcript += event.results[i][0]?.transcript || '';
+            const item = event.results[i];
+            if (item.isFinal) {
+              final += item[0]?.transcript || '';
+            } else {
+              interim += item[0]?.transcript || '';
+            }
           }
         }
-        transcript = transcript.trim();
-        if (transcript) {
-          console.log('>>> [ADE TEXT DETECTED]:', transcript);
-          finalTranscriptRef.current = transcript;
-          setListeningTranscript(transcript);
+        const fullTranscript = (final + ' ' + interim).trim().replace(/\s+/g, ' ');
+        if (fullTranscript) {
+          console.log('>>> [ADE TEXT DETECTED]:', fullTranscript);
+          finalTranscriptRef.current = fullTranscript;
+          setListeningTranscript(fullTranscript);
 
-          // Si hay detección de silencio VAD (2.5s tras hablar), cortar y enviar
+          // Si hay detección de silencio VAD (2.5s tras la última captura de voz), cortar y enviar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -641,30 +651,50 @@ function FloatingADECompanionInner() {
               : '⚠️ Micrófono bloqueado. Haz clic en el candado en la barra de URL para permitirlo.'
           );
           setTimeout(() => setVoiceStatusMessage(''), 6000);
+          shouldListenRef.current = false;
+          setIsListening(false);
+          return;
         }
-        // Fallback limpio en caso de error o no-speech: simplemente reiniciar botón a estado inactivo
-        shouldListenRef.current = false;
-        setIsListening(false);
-        setListeningTranscript('');
-        if (silenceTimerRef.current) {
-          clearTimeout(silenceTimerRef.current);
-          silenceTimerRef.current = null;
+
+        if (event?.error === 'no-speech') {
+          // En Windows Chrome/Edge, 'no-speech' se dispara si hay un segundo de silencio inicial.
+          // NO abortar la escucha; mantener el micrófono abierto esperando la voz del usuario.
+          return;
+        }
+
+        if (event?.error === 'network' || event?.error === 'service-not-allowed') {
+          console.warn('Fallo de red en SpeechRecognition, activando MediaRecorder fallback');
+          shouldListenRef.current = false;
+          setIsListening(false);
+          startMediaRecorderFallback();
+          return;
         }
       };
 
       recognition.onend = () => {
-        setIsListening(false);
         const textCaptured = finalTranscriptRef.current.trim();
-        finalTranscriptRef.current = '';
-        setListeningTranscript('');
         if (textCaptured) {
+          shouldListenRef.current = false;
+          setIsListening(false);
+          finalTranscriptRef.current = '';
+          setListeningTranscript('');
           sendMessage(textCaptured, true);
+        } else if (shouldListenRef.current) {
+          // En Windows Chrome/Edge, si el stream se cerró por inactividad pero el usuario aún desea hablar
+          try {
+            recognition.start();
+          } catch (e) {
+            shouldListenRef.current = false;
+            setIsListening(false);
+          }
+        } else {
+          setIsListening(false);
         }
       };
 
       recognition.start();
 
-      // Temporizador de inactividad de 6 segundos máximo si no hubo habla o silencio continuo
+      // Temporizador maestro de inactividad de 7 segundos si el usuario nunca habló
       silenceTimerRef.current = setTimeout(() => {
         if (shouldListenRef.current) {
           shouldListenRef.current = false;
@@ -676,7 +706,7 @@ function FloatingADECompanionInner() {
             sendMessage(textCaptured, true);
           }
         }
-      }, 6000);
+      }, 7000);
 
     } catch (err) {
       console.warn('Fallback a MediaRecorder tras error en SpeechRec:', err);
@@ -966,9 +996,9 @@ function FloatingADECompanionInner() {
           {/* Sombra de suelo difuminada */}
           <div className="w-16 sm:w-28 h-2 bg-black/25 rounded-full blur-xs -mt-1 pointer-events-none" />
 
-          {/* DOCK DE ACCIONES EXCLUSIVO (Centrado, amplio, limpio y SIN botón de matrícula) */}
+          {/* DOCK DE ACCIONES EXCLUSIVO (Centrado, limpio, un solo botón sutil) */}
           <div className="mt-3 flex items-center justify-center space-x-2 w-full max-w-[280px] sm:max-w-[320px]">
-            {/* Botón principal de voz: Sistema toggle de un solo clic con 4 estados */}
+            {/* Botón principal de voz: Sistema toggle de un solo clic con 3 estados sutiles */}
             <button
               type="button"
               onClick={handleToggleVoice}
@@ -979,14 +1009,14 @@ function FloatingADECompanionInner() {
                   : voiceState === 'processing'
                   ? 'bg-slate-800 text-amber-300 border-slate-700 shadow-slate-900/40 cursor-wait'
                   : voiceState === 'speaking'
-                  ? 'bg-gradient-to-r from-slate-900 via-emerald-950 to-slate-900 text-emerald-300 border-emerald-500/40 shadow-emerald-900/30'
+                  ? 'bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white shadow-emerald-500/50 ring-2 ring-emerald-400 animate-pulse border-white/40'
                   : 'bg-gradient-to-r from-blue-700 via-navy-900 to-blue-600 hover:from-blue-800 hover:to-navy-950 text-white shadow-blue-900/40 hover:shadow-blue-800/60 border-white/30 hover:scale-[1.02] active:scale-[0.98]'
               }`}
               title={
                 voiceState === 'listening'
                   ? (currentLang === 'en' ? 'Click to stop and send' : 'Clic para parar y enviar')
                   : voiceState === 'speaking'
-                  ? (currentLang === 'en' ? 'ADE is speaking...' : 'ADE está hablando...')
+                  ? (currentLang === 'en' ? 'ADE is speaking...' : 'ADE está respondiendo...')
                   : voiceState === 'processing'
                   ? (currentLang === 'en' ? 'Thinking...' : 'Pensando...')
                   : (currentLang === 'en' ? 'Click to talk with ADE' : 'Clic para hablar con ADE')
@@ -999,7 +1029,7 @@ function FloatingADECompanionInner() {
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-white"></span>
                   </span>
                   <span className="font-extrabold tracking-tight">
-                    {currentLang === 'en' ? '🔴 Listening... Click to stop' : '🔴 Te escucho... Clic para parar'}
+                    {currentLang === 'en' ? '🔴 Listening...' : '🔴 Escuchando...'}
                   </span>
                 </>
               ) : voiceState === 'processing' ? (
@@ -1011,9 +1041,9 @@ function FloatingADECompanionInner() {
                 </>
               ) : voiceState === 'speaking' ? (
                 <>
-                  <Volume2 className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-                  <span className="font-semibold text-emerald-300">
-                    {currentLang === 'en' ? 'ADE is speaking...' : 'ADE está hablando...'}
+                  <Volume2 className="w-3.5 h-3.5 text-white animate-bounce" />
+                  <span className="font-extrabold tracking-tight text-white">
+                    {currentLang === 'en' ? '🔊 ADE speaking...' : '🔊 ADE respondiendo...'}
                   </span>
                 </>
               ) : (
@@ -1037,25 +1067,6 @@ function FloatingADECompanionInner() {
               <MessageCircle className="w-4 h-4 text-blue-600" />
             </button>
           </div>
-
-          {/* Pill animado de transcripción en tiempo real cuando escucha */}
-          {isListening && (
-            <motion.div
-              initial={{ opacity: 0, y: 4, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.95 }}
-              className="mt-2 px-3 py-1 bg-gradient-to-r from-red-600 to-rose-600 text-white rounded-full text-[10.5px] font-bold tracking-tight shadow-lg border border-white/40 flex items-center space-x-1.5 max-w-[290px] animate-pulse"
-            >
-              <span className="w-2 h-2 rounded-full bg-white shrink-0" />
-              <span className="truncate">
-                {listeningTranscript
-                  ? `"${listeningTranscript}"`
-                  : currentLang === 'en'
-                  ? 'Listening... say "Hello" or ask ADE'
-                  : 'Escuchando... di "Hola" o haz una pregunta'}
-              </span>
-            </motion.div>
-          )}
 
           {/* Mensaje de aviso o diagnóstico de micrófono */}
           {voiceStatusMessage && (
