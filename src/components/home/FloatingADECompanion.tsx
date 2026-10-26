@@ -213,8 +213,13 @@ function FloatingADECompanionInner() {
       }
 
       // 1. Audio local estático pregrabado (/audio/ade/*.mp3) - Cero consumo, voz de alta fidelidad
+      if (!finalAudioUrl) {
+        finalAudioUrl = langToUse === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
+      }
+
       if (finalAudioUrl) {
         try {
+          console.log('>>> [ADE PLAYING AUDIO]:', finalAudioUrl);
           const audio = new Audio(finalAudioUrl);
           currentAudioRef.current = audio;
           audio.onended = () => setIsSpeaking(false);
@@ -261,6 +266,7 @@ function FloatingADECompanionInner() {
         if (res.ok && contentType.includes('application/json')) {
           const jsonData = await res.json();
           if (jsonData.cachedAudioUrl) {
+            console.log('>>> [ADE PLAYING AUDIO]:', jsonData.cachedAudioUrl);
             const audio = new Audio(jsonData.cachedAudioUrl);
             currentAudioRef.current = audio;
             audio.onended = () => setIsSpeaking(false);
@@ -277,6 +283,7 @@ function FloatingADECompanionInner() {
         if (res.ok && contentType.includes('audio/mpeg')) {
           const audioBlob = await res.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
+          console.log('>>> [ADE PLAYING AUDIO]: (ElevenLabs stream)');
           const audio = new Audio(audioUrl);
           currentAudioRef.current = audio;
 
@@ -296,12 +303,21 @@ function FloatingADECompanionInner() {
           return;
         }
       } catch (err) {
-        // Fallback silencioso: responder únicamente en texto sin activar voz robótica
+        console.warn('Fallback en TTS:', err);
       }
 
-      // 3. Prohibición total de voz sintética robótica del sistema operativo.
-      // Si no hay MP3 pregrabado ni respuesta de ElevenLabs, ADE responde solo en texto.
-      setIsSpeaking(false);
+      // 3. Fallback comodín garantizado para que jamás se quede callada
+      try {
+        const comodinAudio = langToUse === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
+        console.log('>>> [ADE PLAYING AUDIO]:', comodinAudio);
+        const audio = new Audio(comodinAudio);
+        currentAudioRef.current = audio;
+        audio.onended = () => setIsSpeaking(false);
+        audio.onerror = () => setIsSpeaking(false);
+        audio.play().catch(() => setIsSpeaking(false));
+      } catch (e) {
+        setIsSpeaking(false);
+      }
     } catch (e) {
       setIsSpeaking(false);
     }
@@ -445,6 +461,7 @@ function FloatingADECompanionInner() {
             const data = await res.json();
             const text = (data?.text || '').trim();
             if (text) {
+              console.log('>>> [ADE TEXT DETECTED]:', text);
               setListeningTranscript('');
               setIsTranscribing(false);
               sendMessage(text, true);
@@ -564,7 +581,12 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      recognition.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+      // Idioma de reconocimiento: 'es-CO' captura español nativo y términos básicos en inglés.
+      // Si el usuario ya está conversando en inglés activo (en-practice), usar 'en-US'.
+      recognition.lang =
+        currentLang === 'en' && hasInteracted && lastResolvedIntentRef.current?.startsWith('en-practice')
+          ? 'en-US'
+          : 'es-CO';
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
@@ -579,25 +601,19 @@ function FloatingADECompanionInner() {
       };
 
       recognition.onresult = (event: any) => {
-        let interim = '';
-        let fullAccumulated = '';
-
-        for (let i = 0; i < event.results.length; i++) {
-          const result = event.results[i];
-          const text = result[0]?.transcript || '';
-          if (result.isFinal) {
-            fullAccumulated += (fullAccumulated ? ' ' : '') + text;
-          } else {
-            interim += text;
+        let transcript = '';
+        if (event.results && event.results.length > 0) {
+          for (let i = 0; i < event.results.length; i++) {
+            transcript += event.results[i][0]?.transcript || '';
           }
         }
+        transcript = transcript.trim();
+        if (transcript) {
+          console.log('>>> [ADE TEXT DETECTED]:', transcript);
+          finalTranscriptRef.current = transcript;
+          setListeningTranscript(transcript);
 
-        const currentSaid = (fullAccumulated || interim).trim();
-        if (currentSaid) {
-          finalTranscriptRef.current = fullAccumulated || currentSaid;
-          setListeningTranscript(currentSaid);
-
-          // DETECCIÓN AUTOMÁTICA DE SILENCIO (VAD cortesía 2.5s)
+          // Si hay detección de silencio VAD (2.5s tras hablar), cortar y enviar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -606,9 +622,9 @@ function FloatingADECompanionInner() {
               shouldListenRef.current = false;
               stopVoiceInput();
               const textToSend = finalTranscriptRef.current.trim();
+              finalTranscriptRef.current = '';
+              setListeningTranscript('');
               if (textToSend) {
-                finalTranscriptRef.current = '';
-                setListeningTranscript('');
                 sendMessage(textToSend, true);
               }
             }
@@ -617,56 +633,32 @@ function FloatingADECompanionInner() {
       };
 
       recognition.onerror = (event: any) => {
-        console.warn('SpeechRecognition error:', event.error);
-        if (event.error === 'not-allowed') {
-          shouldListenRef.current = false;
-          setIsListening(false);
+        console.warn('SpeechRecognition error:', event?.error);
+        if (event?.error === 'not-allowed') {
           setVoiceStatusMessage(
             currentLang === 'en'
               ? '⚠️ Microphone blocked. Click the lock icon in the URL bar to allow it.'
               : '⚠️ Micrófono bloqueado. Haz clic en el candado en la barra de URL para permitirlo.'
           );
           setTimeout(() => setVoiceStatusMessage(''), 6000);
-          return;
         }
-
-        if (event.error === 'audio-capture') {
-          shouldListenRef.current = false;
-          setIsListening(false);
-          setVoiceStatusMessage(
-            currentLang === 'en'
-              ? '⚠️ No microphone found. Please connect a headset or mic.'
-              : '⚠️ No se encontró micrófono conectado en tu equipo.'
-          );
-          setTimeout(() => setVoiceStatusMessage(''), 6000);
-          return;
-        }
-
-        if (event.error === 'network') {
-          shouldListenRef.current = false;
-          setIsListening(false);
-          startMediaRecorderFallback();
-          return;
+        // Fallback limpio en caso de error o no-speech: simplemente reiniciar botón a estado inactivo
+        shouldListenRef.current = false;
+        setIsListening(false);
+        setListeningTranscript('');
+        if (silenceTimerRef.current) {
+          clearTimeout(silenceTimerRef.current);
+          silenceTimerRef.current = null;
         }
       };
 
       recognition.onend = () => {
+        setIsListening(false);
         const textCaptured = finalTranscriptRef.current.trim();
+        finalTranscriptRef.current = '';
+        setListeningTranscript('');
         if (textCaptured) {
-          shouldListenRef.current = false;
-          setIsListening(false);
-          finalTranscriptRef.current = '';
-          setListeningTranscript('');
           sendMessage(textCaptured, true);
-        } else if (shouldListenRef.current) {
-          try {
-            recognition.start();
-          } catch (e) {
-            shouldListenRef.current = false;
-            setIsListening(false);
-          }
-        } else {
-          setIsListening(false);
         }
       };
 
@@ -678,9 +670,9 @@ function FloatingADECompanionInner() {
           shouldListenRef.current = false;
           stopVoiceInput();
           const textCaptured = finalTranscriptRef.current.trim();
+          finalTranscriptRef.current = '';
+          setListeningTranscript('');
           if (textCaptured) {
-            finalTranscriptRef.current = '';
-            setListeningTranscript('');
             sendMessage(textCaptured, true);
           }
         }
@@ -747,37 +739,63 @@ function FloatingADECompanionInner() {
   };
 
   const sendMessage = async (textToSend: string, isVoice: boolean = false) => {
-    if (!textToSend.trim() || isLoading) return;
-
-    // FILTRO DE SILENCIO / RUIDO / AUDIO NO RECONOCIDO (< 3 caracteres legibles)
-    const legibleChars = textToSend.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '');
-    if (legibleChars.length < 3) {
-      if (isVoice) {
-        const notice =
-          currentLang === 'en'
-            ? "I couldn't hear you clearly, please try speaking again."
-            : 'No te alcancé a escuchar con claridad, por favor intenta de nuevo.';
-        setMessages((prev) => [...prev, { role: 'ade', text: notice }]);
-        setVoiceStatusMessage(notice);
-        setTimeout(() => setVoiceStatusMessage(''), 4000);
-      }
-      setIsLoading(false);
-      return;
-    }
-
     const userMsg = textToSend.trim();
+    if (!userMsg || isLoading) return;
+
     setInputText('');
     setMessages((prev) => [...prev, { role: 'user', text: userMsg }]);
 
-    // 1. EVALUAR PRIMERO CON matchStaticResponse (COSTO CERO - OMISIÓN 100% DE APIS EXTERNAS)
+    // Detectar si el mensaje es en inglés o español
     const detectedEnglish = isLikelyEnglish(userMsg);
-    const hasSpanishHints = Boolean(userMsg.match(/[¿¡áéíóúñ]/i));
+    const hasSpanishHints =
+      Boolean(userMsg.match(/[¿¡áéíóúñ]/i)) ||
+      /\b(hablemos|hablar|espanol|español|necesito|saber|cursos|clases|precio|costo|matricula|hola|buenos|gracias)\b/i.test(userMsg);
     const effectiveMsgLang: 'en' | 'es' = detectedEnglish && !hasSpanishHints ? 'en' : 'es';
     if (effectiveMsgLang !== currentLang) {
       setLanguage(effectiveMsgLang);
     }
 
-    const staticMatch = matchStaticResponse(userMsg, effectiveMsgLang, lastResolvedIntentRef.current, lastAudioPlayedRef.current);
+    // 1. EVALUAR PRIMERO CON matchStaticResponse (COSTO CERO - OMISIÓN 100% DE APIS EXTERNAS)
+    let staticMatch = matchStaticResponse(userMsg, effectiveMsgLang, lastResolvedIntentRef.current, lastAudioPlayedRef.current);
+
+    // Coincidencia rápida para consultas frecuentes sobre cursos o costos en español
+    if (!staticMatch && effectiveMsgLang === 'es') {
+      if (/\b(curso|cursos|clase|clases|programa|programas|nivel|niveles|saber de|saber acerca)\b/i.test(userMsg)) {
+        staticMatch = {
+          id: 'es-campus-virtual',
+          lang: 'es',
+          audioUrl: '/audio/ade/es-campus-virtual.mp3',
+          text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
+          matchedTrigger: 'cursos',
+          cached: true
+        };
+      } else if (/\b(precio|precios|costo|costos|cuanto|valor|tarifa|matricula)\b/i.test(userMsg)) {
+        staticMatch = {
+          id: 'es-precios',
+          lang: 'es',
+          audioUrl: '/audio/ade/es-precios.mp3',
+          text: 'Nuestros programas cuentan con facilidades de pago mensual y subsidios a través del Fondo Social. Puedes consultar todos los planes y valores actualizados en nuestra sección de Matrícula.',
+          matchedTrigger: 'precios',
+          cached: true
+        };
+      }
+    }
+
+    // Comodín garantizado por voz para que ADE JAMÁS se quede callada
+    if (isVoice && !staticMatch) {
+      staticMatch = {
+        id: effectiveMsgLang === 'en' ? 'en-hello' : 'es-bienvenida',
+        lang: effectiveMsgLang,
+        audioUrl: effectiveMsgLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3',
+        text:
+          effectiveMsgLang === 'en'
+            ? 'Hello and welcome to American Dream English! I am ADE, your virtual advisor and tutor. How can I help you achieve fluency today?'
+            : '¡Hola! Te doy una cálida bienvenida a American Dream English. Soy ADE, tu tutora virtual, y estoy aquí para ayudarte a alcanzar la fluidez en inglés. ¿En qué te puedo asesorar hoy?',
+        matchedTrigger: 'fallback-comodin',
+        cached: true
+      };
+    }
+
     if (staticMatch) {
       lastResolvedIntentRef.current = staticMatch.id;
       lastAudioPlayedRef.current = staticMatch.audioUrl;
