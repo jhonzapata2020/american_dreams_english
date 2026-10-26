@@ -219,19 +219,19 @@ function FloatingADECompanionInner() {
           currentAudioRef.current = audio;
           audio.onended = () => setIsSpeaking(false);
           audio.onerror = (e) => {
-            console.warn('Error reproduciendo audio local:', finalAudioUrl, e);
+            console.warn('[ADE AUDIO ERROR]: Error reproduciendo audio local:', finalAudioUrl, e);
             setIsSpeaking(false);
           };
           const playPromise = audio.play();
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
-              console.warn('Play promise rejected en audio local:', err);
+              console.warn('[ADE AUDIO PLAY PROMISE REJECTED]:', err);
               setIsSpeaking(false);
             });
           }
           return;
         } catch (err) {
-          console.warn('Fallo inicializando Audio local:', err);
+          console.error('[ADE ERROR]: Fallo inicializando Audio local:', err);
           setIsSpeaking(false);
         }
       }
@@ -296,13 +296,28 @@ function FloatingADECompanionInner() {
           return;
         }
       } catch (err) {
-        // Fallback silencioso: responder únicamente en texto sin activar voz robótica
+        console.warn('[ADE TTS FETCH WARNING]:', err);
       }
 
-      // 3. Prohibición total de voz sintética robótica del sistema operativo.
-      // Si no hay MP3 pregrabado ni respuesta de ElevenLabs, ADE responde solo en texto.
-      setIsSpeaking(false);
+      // 3. FALLBACK LOCAL ROBUSTO: NUNCA QUEDARSE EN SILENCIO TRAS INTERACCIÓN DE VOZ
+      // Si no hay MP3 específico ni respuesta de ElevenLabs, reproducir audio local seguro
+      try {
+        const fallbackAudioUrl =
+          langToUse === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-fallback-natural.mp3';
+        const fallbackAudio = new Audio(fallbackAudioUrl);
+        currentAudioRef.current = fallbackAudio;
+        fallbackAudio.onended = () => setIsSpeaking(false);
+        fallbackAudio.onerror = () => setIsSpeaking(false);
+        const playPromise = fallbackAudio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => setIsSpeaking(false));
+        }
+      } catch (fallbackErr) {
+        console.error('[ADE ERROR]: Fallback audio error:', fallbackErr);
+        setIsSpeaking(false);
+      }
     } catch (e) {
+      console.error('[ADE ERROR]: Excepción general en speakFemaleVoice:', e);
       setIsSpeaking(false);
     }
   };
@@ -373,7 +388,13 @@ function FloatingADECompanionInner() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       mediaStreamRef.current = stream;
 
       let mimeType = 'audio/webm';
@@ -432,9 +453,13 @@ function FloatingADECompanionInner() {
         );
 
         try {
+          const sttLang =
+            currentLang === 'en' && lastResolvedIntentRef.current?.startsWith('en-practice')
+              ? 'en'
+              : 'es';
           const formData = new FormData();
           formData.append('file', audioBlob, 'recording.webm');
-          formData.append('lang', currentLang);
+          formData.append('lang', sttLang);
 
           const res = await fetch('/api/stt', {
             method: 'POST',
@@ -445,14 +470,29 @@ function FloatingADECompanionInner() {
             const data = await res.json();
             const text = (data?.text || '').trim();
             if (text) {
+              console.log('[ADE INPUT CAPTURED (MediaRecorder)]:', text);
               setListeningTranscript('');
               setIsTranscribing(false);
               sendMessage(text, true);
               return;
             }
           }
+
+          // Si no hubo transcripción legible
+          setVoiceStatusMessage(
+            currentLang === 'en'
+              ? "I couldn't hear you clearly, please try again or type your message."
+              : 'No te alcancé a escuchar con claridad, por favor intenta de nuevo o escríbeme.'
+          );
+          setTimeout(() => setVoiceStatusMessage(''), 5000);
         } catch (sttErr) {
-          console.warn('Error en transcripción MediaRecorder:', sttErr);
+          console.warn('[ADE STT ERROR]:', sttErr);
+          setVoiceStatusMessage(
+            currentLang === 'en'
+              ? 'Voice connection issue. You can also write your question in the chat.'
+              : 'Detalle de conexión de voz. También puedes escribir tu consulta en el chat.'
+          );
+          setTimeout(() => setVoiceStatusMessage(''), 5000);
         } finally {
           setIsTranscribing(false);
           setListeningTranscript('');
@@ -467,7 +507,7 @@ function FloatingADECompanionInner() {
           : 'Te escucho... Habla ahora, clic para parar'
       );
 
-      // VAD (Detección de voz y silencio) con Web Audio API para Firefox y Safari
+      // VAD (Detección de voz y silencio) con Web Audio API para Firefox, Safari y Windows
       const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
       if (AudioCtx) {
         try {
@@ -495,8 +535,8 @@ function FloatingADECompanionInner() {
             }
             const avg = sum / dataArray.length;
 
-            // Umbral de habla
-            if (avg > 14) {
+            // Umbral de habla sensible para micrófonos de portátiles y PCs
+            if (avg > 10) {
               hasDetectedSpeech = true;
               lastSpeechTime = Date.now();
             } else if (hasDetectedSpeech) {
@@ -516,7 +556,7 @@ function FloatingADECompanionInner() {
         stopVoiceInput();
       }, 6000);
     } catch (err: any) {
-      console.warn('Error al iniciar MediaRecorder en Firefox:', err);
+      console.warn('Error al iniciar MediaRecorder en navegador:', err);
       setIsListening(false);
       setIsTranscribing(false);
       setVoiceStatusMessage(
@@ -564,7 +604,16 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      recognition.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+      // En Windows PC y navegadores de escritorio:
+      // Si recognition.lang se fija estrictamente en 'en-US', el modelo en la nube de Google en Windows
+      // descarta frases legítimas en español (como "Hablemos en español, necesito saber acerca de los cursos").
+      // Al usar 'es-CO', el motor reconoce 100% de consultas en español Y TAMBIÉN saludos comunes en inglés ('Hello', 'Hi', 'Practice').
+      // Si el usuario ya está conversando activamente en inglés (en-practice), se mantiene 'en-US'.
+      const preferredLangCode =
+        currentLang === 'en' && lastResolvedIntentRef.current?.startsWith('en-practice')
+          ? 'en-US'
+          : 'es-CO';
+      recognition.lang = preferredLangCode;
       recognition.continuous = false;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
@@ -607,6 +656,7 @@ function FloatingADECompanionInner() {
               stopVoiceInput();
               const textToSend = finalTranscriptRef.current.trim();
               if (textToSend) {
+                console.log('[ADE INPUT CAPTURED (VAD)]:', textToSend);
                 finalTranscriptRef.current = '';
                 setListeningTranscript('');
                 sendMessage(textToSend, true);
@@ -618,6 +668,10 @@ function FloatingADECompanionInner() {
 
       recognition.onerror = (event: any) => {
         console.warn('SpeechRecognition error:', event.error);
+        if (event.error === 'no-speech') {
+          // Silencio temporal en Windows: no abortar sesión bruscamente
+          return;
+        }
         if (event.error === 'not-allowed') {
           shouldListenRef.current = false;
           setIsListening(false);
@@ -642,7 +696,7 @@ function FloatingADECompanionInner() {
           return;
         }
 
-        if (event.error === 'network') {
+        if (event.error === 'network' || event.error === 'service-not-allowed') {
           shouldListenRef.current = false;
           setIsListening(false);
           startMediaRecorderFallback();
@@ -653,18 +707,25 @@ function FloatingADECompanionInner() {
       recognition.onend = () => {
         const textCaptured = finalTranscriptRef.current.trim();
         if (textCaptured) {
+          console.log('[ADE INPUT CAPTURED]:', textCaptured);
           shouldListenRef.current = false;
           setIsListening(false);
           finalTranscriptRef.current = '';
           setListeningTranscript('');
           sendMessage(textCaptured, true);
         } else if (shouldListenRef.current) {
-          try {
-            recognition.start();
-          } catch (e) {
-            shouldListenRef.current = false;
-            setIsListening(false);
-          }
+          // En Windows Chrome/Edge, reiniciar con delay para evitar InvalidStateError
+          setTimeout(() => {
+            if (shouldListenRef.current && recognitionRef.current) {
+              try {
+                recognitionRef.current.start();
+              } catch (e) {
+                console.warn('[ADE RESTART ERROR ON WINDOWS]:', e);
+                shouldListenRef.current = false;
+                setIsListening(false);
+              }
+            }
+          }, 200);
         } else {
           setIsListening(false);
         }
@@ -679,6 +740,7 @@ function FloatingADECompanionInner() {
           stopVoiceInput();
           const textCaptured = finalTranscriptRef.current.trim();
           if (textCaptured) {
+            console.log('[ADE INPUT CAPTURED (Timeout)]:', textCaptured);
             finalTranscriptRef.current = '';
             setListeningTranscript('');
             sendMessage(textCaptured, true);
@@ -747,51 +809,45 @@ function FloatingADECompanionInner() {
   };
 
   const sendMessage = async (textToSend: string, isVoice: boolean = false) => {
-    if (!textToSend.trim() || isLoading) return;
+    if (!textToSend || !textToSend.trim() || isLoading) return;
 
-    // FILTRO DE SILENCIO / RUIDO / AUDIO NO RECONOCIDO (< 3 caracteres legibles)
-    const legibleChars = textToSend.trim().replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ]/g, '');
-    if (legibleChars.length < 3) {
-      if (isVoice) {
-        const notice =
-          currentLang === 'en'
-            ? "I couldn't hear you clearly, please try speaking again."
-            : 'No te alcancé a escuchar con claridad, por favor intenta de nuevo.';
-        setMessages((prev) => [...prev, { role: 'ade', text: notice }]);
-        setVoiceStatusMessage(notice);
-        setTimeout(() => setVoiceStatusMessage(''), 4000);
-      }
-      setIsLoading(false);
-      return;
-    }
+    console.log('[ADE INPUT CAPTURED]:', textToSend);
 
     const userMsg = textToSend.trim();
     setInputText('');
     setMessages((prev) => [...prev, { role: 'user', text: userMsg }]);
 
-    // 1. EVALUAR PRIMERO CON matchStaticResponse (COSTO CERO - OMISIÓN 100% DE APIS EXTERNAS)
-    const detectedEnglish = isLikelyEnglish(userMsg);
-    const hasSpanishHints = Boolean(userMsg.match(/[¿¡áéíóúñ]/i));
-    const effectiveMsgLang: 'en' | 'es' = detectedEnglish && !hasSpanishHints ? 'en' : 'es';
-    if (effectiveMsgLang !== currentLang) {
-      setLanguage(effectiveMsgLang);
-    }
-
-    const staticMatch = matchStaticResponse(userMsg, effectiveMsgLang, lastResolvedIntentRef.current, lastAudioPlayedRef.current);
-    if (staticMatch) {
-      lastResolvedIntentRef.current = staticMatch.id;
-      lastAudioPlayedRef.current = staticMatch.audioUrl;
-      setLastResolvedIntent(staticMatch.id);
-      setLastAudioPlayed(staticMatch.audioUrl);
-      setMessages((prev) => [...prev, { role: 'ade', text: staticMatch.text }]);
-      speakFemaleVoice(staticMatch.text, staticMatch.lang, staticMatch.id, staticMatch.audioUrl);
-      return;
-    }
-
-    // 2. SI NO COINCIDE: CONTINÚA CON EL FLUJO DINÁMICO RESPETANDO EL LÍMITE DE 4 TURNOS
-    setIsLoading(true);
-
     try {
+      // 1. EVALUAR PRIMERO CON matchStaticResponse (COSTO CERO - OMISIÓN 100% DE APIS EXTERNAS)
+      const detectedEnglish = isLikelyEnglish(userMsg);
+      const hasSpanishHints =
+        Boolean(userMsg.match(/[¿¡áéíóúñ]/i)) ||
+        /\b(hablemos|hablar|espanol|español|necesito|saber|acerca|cursos|clases|precio|costo|matricula|hola|buenos|gracias)\b/i.test(userMsg);
+      const effectiveMsgLang: 'en' | 'es' = detectedEnglish && !hasSpanishHints ? 'en' : 'es';
+      if (effectiveMsgLang !== currentLang) {
+        setLanguage(effectiveMsgLang);
+      }
+
+      const staticMatch = matchStaticResponse(
+        userMsg,
+        effectiveMsgLang,
+        lastResolvedIntentRef.current,
+        lastAudioPlayedRef.current
+      );
+
+      if (staticMatch) {
+        lastResolvedIntentRef.current = staticMatch.id;
+        lastAudioPlayedRef.current = staticMatch.audioUrl;
+        setLastResolvedIntent(staticMatch.id);
+        setLastAudioPlayed(staticMatch.audioUrl);
+        setMessages((prev) => [...prev, { role: 'ade', text: staticMatch.text }]);
+        speakFemaleVoice(staticMatch.text, staticMatch.lang, staticMatch.id, staticMatch.audioUrl);
+        return;
+      }
+
+      // 2. SI NO COINCIDE: CONTINÚA CON EL FLUJO DINÁMICO RESPETANDO EL LÍMITE DE 4 TURNOS
+      setIsLoading(true);
+
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -839,16 +895,15 @@ function FloatingADECompanionInner() {
         }
       }
     } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'ade',
-          text:
-            effectiveMsgLang === 'en'
-              ? 'At American Dream English you speak in real-time with certified live C1 teachers. Tell me, what would you like to achieve today?'
-              : 'En American Dream English aprendes con docentes C1 en vivo y seguimiento personalizado. ¡Haz clic en "Matricúlate" para asegurar tu cupo!'
-        }
-      ]);
+      console.error('[ADE ERROR]:', err);
+      const fallbackReply =
+        currentLang === 'en'
+          ? 'At American Dream English you speak in real-time with certified live C1 teachers. Tell me, what would you like to achieve today?'
+          : 'En American Dream English aprendes con docentes C1 en vivo y seguimiento personalizado. ¡Haz clic en "Matricúlate" para asegurar tu cupo!';
+      setMessages((prev) => [...prev, { role: 'ade', text: fallbackReply }]);
+      if (isVoice) {
+        speakFemaleVoice(fallbackReply, currentLang, 'es-fallback-natural', '/audio/ade/es-fallback-natural.mp3');
+      }
     } finally {
       setIsLoading(false);
     }

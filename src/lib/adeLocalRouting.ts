@@ -209,7 +209,14 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'es',
     audioUrl: '/audio/ade/es-campus-virtual.mp3',
     text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
-    triggers: [/\bcampus virtual\b/i, /\bclases virtuales\b/i, /\bteams\b/i, /\bmicrosoft teams\b/i, /\bzoom\b/i]
+    triggers: [
+      /\bcampus virtual\b/i,
+      /\bclases virtuales\b/i,
+      /\bteams\b/i,
+      /\bmicrosoft teams\b/i,
+      /\bzoom\b/i,
+      /\b(cursos|clases|programas|niveles|saber acerca de los cursos|informacion de los cursos|acerca de los cursos|saber de los cursos|que cursos tienen|que cursos ofrecen|de los cursos)\b/i
+    ]
   },
   {
     id: 'es-portal-estudiante',
@@ -230,7 +237,16 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'es',
     audioUrl: '/audio/ade/es-metodologia.mp3',
     text: 'A diferencia de plataformas convencionales de videos pregrabados en soledad, en American Dream English practicas conversación en tiempo real con docentes certificados y grupos interactivos guiados.',
-    triggers: [/\bmetodologia\b/i, /\bcomo enseñan\b/i, /\bcomo ensenan\b/i, /\bprofesores\b/i, /\bdocentes\b/i, /\ben vivo\b/i]
+    triggers: [
+      /\bmetodologia\b/i,
+      /\bcomo enseñan\b/i,
+      /\bcomo ensenan\b/i,
+      /\bprofesores\b/i,
+      /\bdocentes\b/i,
+      /\ben vivo\b/i,
+      /\bmetodo de estudio\b/i,
+      /\bmetodo\b/i
+    ]
   },
   {
     id: 'es-certificacion',
@@ -287,7 +303,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     audioUrl: '/audio/ade/es-bienvenida.mp3',
     text: '¡Por supuesto! Hablemos en español. Con gusto te asesoro sobre nuestros cursos, horarios, facilidades de pago y matrícula. ¿Qué te gustaría consultar?',
     triggers: [
-      /\b(hablemos en espanol|hablemos en español|en espanol por favor|en español por favor|cambia a espanol|cambia a español|ya no quiero practicar|no mas ingles|no se ingles|no sé ingles|no hablo ingles|en espanol|en español|hablemos espanol|hablemos español)\b/i
+      /\b(hablemos en espanol|hablemos en español|en espanol por favor|en español por favor|cambia a espanol|cambia a español|ya no quiero practicar|no mas ingles|no se ingles|no sé ingles|no hablo ingles|en espanol|en español|hablemos espanol|hablemos español|hablar en espanol|hablar en español|quiero hablar en espanol|quiero hablar en español|hablame en espanol|háblame en español|espanol|español)\b/i
     ]
   },
 
@@ -411,123 +427,118 @@ export function matchStaticResponse(
   lastIntentKey?: string | null,
   lastAudioPlayed?: string | null
 ): StaticAudioMatch | null {
-  if (!userInput || typeof userInput !== 'string') return null;
+  try {
+    if (!userInput || typeof userInput !== 'string') return null;
 
-  const rawInput = userInput.trim();
-  const normalizedInput = normalizeText(userInput);
-  const lightInput = normalizeLight(userInput);
+    const rawInput = userInput.trim();
+    const normalizedInput = normalizeText(userInput);
+    const lightInput = normalizeLight(userInput);
 
-  if (!normalizedInput && !rawInput) return null;
+    if (!normalizedInput && !rawInput) return null;
 
-  // 1. FILTRO DE IDIOMA DINÁMICO (Language Guard con Conmutación Limpia)
-  // Determinar idioma prioritario según el contenido real del mensaje actual
-  const isEnglishDetected = isLikelyEnglish(userInput);
-  const hasSpanishIndicators = Boolean(userInput.match(/[¿¡áéíóúñ]/i));
+    // 1. FILTRO DE IDIOMA DINÁMICO (Language Guard con Conmutación Limpia)
+    const isEnglishDetected = isLikelyEnglish(userInput);
+    const hasSpanishIndicators =
+      Boolean(userInput.match(/[¿¡áéíóúñ]/i)) ||
+      /\b(hablemos|hablar|espanol|español|necesito|saber|acerca|cursos|clases|precio|costo|matricula|hola|buenos|gracias)\b/i.test(normalizedInput);
 
-  let candidateRoutes: StaticAudioRoute[];
-  if (isEnglishDetected && !hasSpanishIndicators) {
-    candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
-  } else if (hasSpanishIndicators || preferredLang === 'es') {
-    candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es');
-  } else if (preferredLang === 'en') {
-    // Si venía en inglés pero la frase no tiene palabras inglesas, revisar si coincide con rutas en español
-    const matchesSpanish = LOCAL_ADE_ROUTES.filter(r => r.lang === 'es').some(r =>
-      r.triggers.some(t => t instanceof RegExp ? t.test(normalizedInput) : normalizedInput.includes(normalizeText(t)))
-    );
-    candidateRoutes = matchesSpanish 
-      ? LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es')
-      : LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
-  } else {
-    candidateRoutes = LOCAL_ADE_ROUTES;
-  }
-
-  let bestMatch: { route: StaticAudioRoute; triggerStr: string } | null = null;
-  let highestScore = 0;
-
-  for (const route of candidateRoutes) {
-    for (const trigger of route.triggers) {
-      let isMatch = false;
-      let triggerSource = '';
-
-      if (trigger instanceof RegExp) {
-        triggerSource = trigger.source;
-        // Evaluar en texto normalizado sin acentos, texto ligero con acentos y texto crudo
-        isMatch = trigger.test(normalizedInput) || trigger.test(lightInput) || trigger.test(rawInput);
-      } else if (typeof trigger === 'string') {
-        triggerSource = trigger;
-        const normTrig = normalizeText(trigger);
-        if (normTrig) {
-          const escaped = normTrig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const boundRegex = new RegExp(`(?:^|\\s)${escaped}(?:\\s|$)`, 'i');
-          isMatch = normalizedInput === normTrig || boundRegex.test(normalizedInput);
-        }
-      }
-
-      if (isMatch) {
-        // Prioridad: expresiones regulares o triggers más largos y específicos ganan
-        const baseScore = triggerSource.replace(/[\\^$bB]/g, '').length;
-        const exactMatchBonus = (normalizedInput === triggerSource.toLowerCase()) ? 500 : 0;
-        const langBonus = (isEnglishDetected && route.lang === 'en') || (!isEnglishDetected && route.lang === 'es') ? 20 : 0;
-        const score = baseScore + exactMatchBonus + langBonus;
-
-        if (score > highestScore) {
-          highestScore = score;
-          bestMatch = { route, triggerStr: triggerSource };
-        }
-      }
+    let candidateRoutes: StaticAudioRoute[];
+    if (isEnglishDetected && !hasSpanishIndicators) {
+      candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
+    } else if (hasSpanishIndicators || preferredLang === 'es') {
+      candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es');
+    } else if (preferredLang === 'en') {
+      const matchesSpanish = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es').some((r) =>
+        r.triggers.some((t) => (t instanceof RegExp ? t.test(normalizedInput) : normalizedInput.includes(normalizeText(t))))
+      );
+      candidateRoutes = matchesSpanish
+        ? LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es')
+        : LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
+    } else {
+      candidateRoutes = LOCAL_ADE_ROUTES;
     }
-  }
 
-  if (bestMatch) {
-    let resolvedRoute = bestMatch.route;
+    let bestMatch: { route: StaticAudioRoute; triggerStr: string } | null = null;
+    let highestScore = 0;
 
-    // ANTI-REPETICIÓN CONSECUTIVA DE INTENT / AUDIO (CORTESÍA, AGRADECIMIENTOS Y CIERRES)
-    const isConsecutiveRepeat = Boolean(
-      (lastIntentKey && (lastIntentKey === resolvedRoute.id || (resolvedRoute.id.includes('thanks') && lastIntentKey.includes('thanks')))) ||
-      (lastAudioPlayed && lastAudioPlayed.includes(resolvedRoute.audioUrl))
-    );
+    for (const route of candidateRoutes) {
+      for (const trigger of route.triggers) {
+        let isMatch = false;
+        let triggerSource = '';
 
-    if (isConsecutiveRepeat) {
-      // 1. Agradecimiento consecutivo en inglés ("thank you" -> "thank you so much")
-      if (resolvedRoute.id === 'en-thanks-farewell') {
-        const alternate = candidateRoutes.find((r) => r.id === 'en-goodbye-nice') ||
-                          candidateRoutes.find((r) => r.id === 'en-bye');
-        if (alternate) {
-          resolvedRoute = alternate;
+        if (trigger instanceof RegExp) {
+          triggerSource = trigger.source;
+          isMatch = trigger.test(normalizedInput) || trigger.test(lightInput) || trigger.test(rawInput);
+        } else if (typeof trigger === 'string') {
+          triggerSource = trigger;
+          const normTrig = normalizeText(trigger);
+          if (normTrig) {
+            const escaped = normTrig.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const boundRegex = new RegExp(`(?:^|\\s)${escaped}(?:\\s|$)`, 'i');
+            isMatch = normalizedInput === normTrig || boundRegex.test(normalizedInput);
+          }
         }
-      }
-      // 2. Agradecimiento consecutivo en español ("gracias" -> "muchas gracias")
-      else if (resolvedRoute.id === 'es-gracias-despedida') {
-        const alternate = candidateRoutes.find((r) => r.id === 'es-fallback-natural') ||
-                          candidateRoutes.find((r) => r.id === 'es-charla-informal');
-        if (alternate) {
-          resolvedRoute = alternate;
-        }
-      }
-      // 3. Saludo consecutivo ("hello" -> "hi", "hola" -> "buenas")
-      else if (resolvedRoute.id === 'en-hello') {
-        const alternate = candidateRoutes.find((r) => r.id === 'en-practice');
-        if (alternate) {
-          resolvedRoute = alternate;
-        }
-      } else if (resolvedRoute.id === 'es-bienvenida') {
-        const alternate = candidateRoutes.find((r) => r.id === 'es-charla-informal') ||
-                          candidateRoutes.find((r) => r.id === 'es-metodologia');
-        if (alternate) {
-          resolvedRoute = alternate;
+
+        if (isMatch) {
+          const baseScore = triggerSource.replace(/[\\^$bB]/g, '').length;
+          const exactMatchBonus = (normalizedInput === triggerSource.toLowerCase()) ? 500 : 0;
+          const langBonus = (isEnglishDetected && route.lang === 'en') || (!isEnglishDetected && route.lang === 'es') ? 20 : 0;
+          const score = baseScore + exactMatchBonus + langBonus;
+
+          if (score > highestScore) {
+            highestScore = score;
+            bestMatch = { route, triggerStr: triggerSource };
+          }
         }
       }
     }
 
-    return {
-      id: resolvedRoute.id,
-      lang: resolvedRoute.lang,
-      audioUrl: resolvedRoute.audioUrl,
-      text: resolvedRoute.text,
-      matchedTrigger: bestMatch.triggerStr,
-      cached: true
-    };
-  }
+    if (bestMatch && bestMatch.route) {
+      let resolvedRoute = bestMatch.route;
 
-  return null;
+      // ANTI-REPETICIÓN CONSECUTIVA DE INTENT / AUDIO (CORTESÍA, AGRADECIMIENTOS Y CIERRES)
+      const hasLastIntent = typeof lastIntentKey === 'string' && Boolean(lastIntentKey);
+      const hasLastAudio = typeof lastAudioPlayed === 'string' && Boolean(lastAudioPlayed);
+      const isConsecutiveRepeat = Boolean(
+        (hasLastIntent && (lastIntentKey === resolvedRoute.id || (resolvedRoute.id.includes('thanks') && lastIntentKey.includes('thanks')))) ||
+        (hasLastAudio && Boolean(resolvedRoute.audioUrl) && lastAudioPlayed.includes(resolvedRoute.audioUrl))
+      );
+
+      if (isConsecutiveRepeat) {
+        if (resolvedRoute.id === 'en-thanks-farewell') {
+          const alternate = LOCAL_ADE_ROUTES.find((r) => r.id === 'en-goodbye-nice') ||
+                            LOCAL_ADE_ROUTES.find((r) => r.id === 'en-bye');
+          if (alternate) resolvedRoute = alternate;
+        } else if (resolvedRoute.id === 'es-gracias-despedida') {
+          const alternate = LOCAL_ADE_ROUTES.find((r) => r.id === 'es-fallback-natural') ||
+                            LOCAL_ADE_ROUTES.find((r) => r.id === 'es-charla-informal');
+          if (alternate) resolvedRoute = alternate;
+        } else if (resolvedRoute.id === 'en-hello') {
+          const alternate = LOCAL_ADE_ROUTES.find((r) => r.id === 'en-practice');
+          if (alternate) resolvedRoute = alternate;
+        } else if (resolvedRoute.id === 'es-bienvenida') {
+          const alternate = LOCAL_ADE_ROUTES.find((r) => r.id === 'es-charla-informal') ||
+                            LOCAL_ADE_ROUTES.find((r) => r.id === 'es-metodologia');
+          if (alternate) resolvedRoute = alternate;
+        }
+      }
+
+      console.log('[ADE RESOLVED INTENT]:', resolvedRoute.id, resolvedRoute.audioUrl);
+
+      return {
+        id: resolvedRoute.id,
+        lang: resolvedRoute.lang,
+        audioUrl: resolvedRoute.audioUrl,
+        text: resolvedRoute.text,
+        matchedTrigger: bestMatch.triggerStr,
+        cached: true
+      };
+    }
+
+    console.log('[ADE NO STATIC ROUTE MATCHED]:', userInput);
+    return null;
+  } catch (err) {
+    console.error('[ADE ROUTING ERROR]:', err);
+    return null;
+  }
 }
