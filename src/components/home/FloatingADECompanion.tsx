@@ -99,6 +99,7 @@ function FloatingADECompanionInner() {
   const [lastAudioPlayed, setLastAudioPlayed] = useState<string | null>(null);
   const lastResolvedIntentRef = useRef<string | null>(null);
   const lastAudioPlayedRef = useRef<string | null>(null);
+  const lastVoiceToggleClickRef = useRef<number>(0);
 
   // Reiniciar la sesión de práctica sin necesidad de abrir F12 ni borrar manualmente
   const handleResetSession = () => {
@@ -343,6 +344,7 @@ function FloatingADECompanionInner() {
   // RECONOCIMIENTO DE VOZ UNIVERSAL Y VAD (CHROME, EDGE, FIREFOX, SAFARI, MÓVIL)
   // =========================================================================
   const stopVoiceInput = () => {
+    console.log('>>> [ADE STOP VOICE INPUT CALLED]');
     shouldListenRef.current = false;
     if (silenceTimerRef.current) {
       clearTimeout(silenceTimerRef.current);
@@ -355,7 +357,9 @@ function FloatingADECompanionInner() {
     if (audioContextRef.current) {
       try {
         audioContextRef.current.close();
-      } catch (e) {}
+      } catch (e) {
+        console.error('>>> [ADE AUDIO CONTEXT CLOSE ERROR]:', e);
+      }
       audioContextRef.current = null;
     }
 
@@ -363,14 +367,29 @@ function FloatingADECompanionInner() {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       try {
         mediaRecorderRef.current.stop();
-      } catch (e) {}
+      } catch (e) {
+        console.error('>>> [ADE MEDIA RECORDER STOP ERROR]:', e);
+      }
     }
 
-    // Detener SpeechRecognition nativo si estaba activo
+    // Detener SpeechRecognition nativo si estaba activo anulando listeners para evitar disparos fantasma
     if (recognitionRef.current) {
       try {
-        recognitionRef.current.stop();
-      } catch (e) {}
+        recognitionRef.current.onstart = null;
+        recognitionRef.current.onaudiostart = null;
+        recognitionRef.current.onsoundstart = null;
+        recognitionRef.current.onspeechstart = null;
+        recognitionRef.current.onspeechend = null;
+        recognitionRef.current.onsoundend = null;
+        recognitionRef.current.onaudioend = null;
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current.abort();
+      } catch (e) {
+        console.error('>>> [ADE SPEECH REC STOP ERROR]:', e);
+      }
+      recognitionRef.current = null;
     }
 
     setIsListening(false);
@@ -563,9 +582,17 @@ function FloatingADECompanionInner() {
   };
 
   const startVoiceInput = () => {
+    console.log('>>> [ADE START VOICE INPUT CALLED]', {
+      isListening,
+      isTranscribing,
+      isLoading,
+      currentLang
+    });
+
     if (isTranscribing) return;
 
     if (isListening) {
+      console.log('>>> [ADE START VOICE INPUT] Was already listening, stopping and sending captured text');
       stopVoiceInput();
       const captured = finalTranscriptRef.current.trim();
       if (captured) {
@@ -581,9 +608,15 @@ function FloatingADECompanionInner() {
     stopSpeaking();
     setVoiceStatusMessage('');
 
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRec) {
+      console.warn('>>> [ADE SPEECH REC NOT SUPPORTED] Using MediaRecorder fallback');
       startMediaRecorderFallback();
       return;
     }
@@ -591,8 +624,21 @@ function FloatingADECompanionInner() {
     try {
       if (recognitionRef.current) {
         try {
+          recognitionRef.current.onstart = null;
+          recognitionRef.current.onaudiostart = null;
+          recognitionRef.current.onsoundstart = null;
+          recognitionRef.current.onspeechstart = null;
+          recognitionRef.current.onspeechend = null;
+          recognitionRef.current.onsoundend = null;
+          recognitionRef.current.onaudioend = null;
+          recognitionRef.current.onresult = null;
+          recognitionRef.current.onerror = null;
+          recognitionRef.current.onend = null;
           recognitionRef.current.abort();
-        } catch (e) {}
+        } catch (e) {
+          console.error('>>> [ADE ERROR ABORTING PREVIOUS RECOGNITION]:', e);
+        }
+        recognitionRef.current = null;
       }
 
       const recognition = new SpeechRec();
@@ -620,8 +666,28 @@ function FloatingADECompanionInner() {
       setListeningTranscript('');
       setIsListening(true);
 
+      let hasDetectedSpeech = false;
+
       recognition.onstart = () => {
+        console.log('>>> [ADE RECOGNITION ONSTART] Mic successfully opened and listening in lang:', recognition.lang);
         setIsListening(true);
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('>>> [ADE RECOGNITION ONAUDIOSTART] Audio hardware capturing stream');
+      };
+
+      recognition.onsoundstart = () => {
+        console.log('>>> [ADE RECOGNITION ONSOUNDSTART] Sound activity detected');
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('>>> [ADE RECOGNITION ONSPEECHSTART] Human speech start detected by browser');
+        hasDetectedSpeech = true;
+      };
+
+      recognition.onspeechend = () => {
+        console.log('>>> [ADE RECOGNITION ONSPEECHEND] Human speech pause detected by browser');
       };
 
       recognition.onresult = (event: any) => {
@@ -641,15 +707,17 @@ function FloatingADECompanionInner() {
 
         const fullTranscript = (final || interim).trim();
         if (fullTranscript) {
+          hasDetectedSpeech = true;
           console.log('>>> [ADE TEXT DETECTED]:', fullTranscript);
           finalTranscriptRef.current = fullTranscript;
           setListeningTranscript(fullTranscript);
 
-          // Si hay detección de silencio VAD (2 segundos tras hablar), enviar automáticamente
+          // VAD estricto: El temporizador de silencio SOLO se activa DESPUÉS de que el usuario haya comenzado a hablar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
           silenceTimerRef.current = setTimeout(() => {
+            console.log('>>> [ADE VAD SILENCE TRIGGERED (2s after speech)] text:', finalTranscriptRef.current);
             if (shouldListenRef.current && finalTranscriptRef.current.trim()) {
               shouldListenRef.current = false;
               stopVoiceInput();
@@ -665,7 +733,13 @@ function FloatingADECompanionInner() {
       };
 
       recognition.onerror = (event: any) => {
-        console.warn('SpeechRecognition error:', event?.error);
+        console.error('>>> [ADE RECOGNITION ONERROR]:', {
+          error: event?.error,
+          message: event?.message,
+          type: event?.type,
+          event
+        });
+
         if (event?.error === 'not-allowed') {
           setVoiceStatusMessage(
             currentLang === 'en'
@@ -679,18 +753,32 @@ function FloatingADECompanionInner() {
         }
 
         if (event?.error === 'no-speech') {
+          console.log('>>> [ADE RECOGNITION ONERROR no-speech] Ignored initial silence, keeping mic open');
           // En Windows Chrome/Edge, no-speech salta por silencio breve inicial; NO abortar la escucha
           return;
         }
 
+        if (event?.error === 'aborted') {
+          console.log('>>> [ADE RECOGNITION ONERROR aborted] Intentional abort');
+          return;
+        }
+
         if (event?.error === 'network' || event?.error === 'service-not-allowed') {
+          console.error('>>> [ADE RECOGNITION NETWORK ERROR] Web Speech API network drop, switching to MediaRecorder fallback');
           shouldListenRef.current = false;
           setIsListening(false);
+          startMediaRecorderFallback();
           return;
         }
       };
 
       recognition.onend = () => {
+        console.log('>>> [ADE RECOGNITION ONEND]:', {
+          shouldListen: shouldListenRef.current,
+          hasDetectedSpeech,
+          capturedText: finalTranscriptRef.current
+        });
+
         const textCaptured = finalTranscriptRef.current.trim();
         if (textCaptured) {
           console.log('>>> [ADE ONEND SENDING]:', textCaptured);
@@ -701,9 +789,11 @@ function FloatingADECompanionInner() {
           sendMessage(textCaptured, true);
         } else if (shouldListenRef.current) {
           // Si el stream se cerró por breve pausa pero el usuario aún desea hablar, reanudar suavemente
+          console.log('>>> [ADE RECOGNITION ONEND] Ended without speech, restarting stream for user');
           try {
             recognition.start();
           } catch (e) {
+            console.error('>>> [ADE RECOGNITION RESTART ERROR]:', e);
             shouldListenRef.current = false;
             setIsListening(false);
           }
@@ -714,22 +804,17 @@ function FloatingADECompanionInner() {
 
       recognition.start();
 
-      // Temporizador maestro de inactividad de 7 segundos si el usuario nunca habló
+      // Temporizador maestro de inactividad de 12 segundos SOLO si el usuario nunca llegó a hablar
       silenceTimerRef.current = setTimeout(() => {
-        if (shouldListenRef.current) {
-          const textCaptured = finalTranscriptRef.current.trim();
+        console.log('>>> [ADE MASTER TIMEOUT (12s)] hasDetectedSpeech:', hasDetectedSpeech);
+        if (shouldListenRef.current && !hasDetectedSpeech) {
           shouldListenRef.current = false;
           stopVoiceInput();
-          if (textCaptured) {
-            finalTranscriptRef.current = '';
-            setListeningTranscript('');
-            sendMessage(textCaptured, true);
-          }
         }
-      }, 7000);
+      }, 12000);
 
     } catch (err) {
-      console.warn('Fallback a MediaRecorder tras error en SpeechRec:', err);
+      console.error('>>> [ADE SPEECH REC EXCEPTION]:', err);
       shouldListenRef.current = false;
       setIsListening(false);
       startMediaRecorderFallback();
@@ -747,8 +832,22 @@ function FloatingADECompanionInner() {
     ? 'speaking'
     : 'idle';
 
-  // Toggle de un solo clic: Clic para hablar / Clic para detener
+  // Toggle de un solo clic: Clic para hablar / Clic para detener con debouncing estricto
   const handleToggleVoice = () => {
+    const now = Date.now();
+    if (now - lastVoiceToggleClickRef.current < 350) {
+      console.warn('>>> [ADE TOGGLE VOICE DEBOUNCED] Ignored rapid double-click within 350ms');
+      return;
+    }
+    lastVoiceToggleClickRef.current = now;
+
+    console.log('>>> [ADE TOGGLE VOICE CLICKED] Current state:', {
+      voiceState,
+      isListening,
+      isSpeaking,
+      shouldListen: shouldListenRef.current
+    });
+
     // Si ADE está hablando, un clic detiene el sonido
     if (voiceState === 'speaking') {
       stopSpeaking();
