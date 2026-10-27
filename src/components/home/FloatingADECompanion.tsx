@@ -468,11 +468,25 @@ function FloatingADECompanionInner() {
               return;
             }
           }
-          // Fallback de cortesía si no hubo texto o hubo fallo en la API
-          sendMessage('Hola, quiero saber acerca de los cursos', true);
+          // Si no hubo texto capturado con claridad, reproducir fallback natural sin inventar intenciones
+          const fallbackNotice = currentLang === 'en'
+            ? "I couldn't hear you clearly, please try speaking again."
+            : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo.';
+          setVoiceStatusMessage(fallbackNotice);
+          setTimeout(() => setVoiceStatusMessage(''), 5000);
+          speakFemaleVoice(
+            fallbackNotice,
+            currentLang === 'en' ? 'en' : 'es',
+            currentLang === 'en' ? 'en-hello' : 'es-no-entiendo-fallback',
+            currentLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-no-entiendo-fallback.mp3'
+          );
         } catch (sttErr) {
           console.warn('Error en transcripción MediaRecorder:', sttErr);
-          sendMessage('Hola, quiero saber acerca de los cursos', true);
+          const fallbackNotice = currentLang === 'en'
+            ? "I couldn't hear you clearly, please try speaking again."
+            : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo.';
+          setVoiceStatusMessage(fallbackNotice);
+          setTimeout(() => setVoiceStatusMessage(''), 5000);
         } finally {
           setIsTranscribing(false);
           setListeningTranscript('');
@@ -548,7 +562,7 @@ function FloatingADECompanionInner() {
     }
   };
 
-  const startVoiceInput = () => {
+  const startVoiceInput = async () => {
     if (isTranscribing) return;
 
     if (isListening) {
@@ -567,6 +581,23 @@ function FloatingADECompanionInner() {
     stopSpeaking();
     setVoiceStatusMessage('');
 
+    // Desbloquear permisos de micrófono explícitamente en Chrome/Windows
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop());
+      } catch (permErr) {
+        console.warn('Microphone permission check failed:', permErr);
+        setVoiceStatusMessage(
+          currentLang === 'en'
+            ? '⚠️ Microphone blocked. Click the lock icon in the URL bar to allow it.'
+            : '⚠️ Micrófono bloqueado. Haz clic en el candado en la barra de URL para permitirlo.'
+        );
+        setTimeout(() => setVoiceStatusMessage(''), 6000);
+        return;
+      }
+    }
+
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRec) {
@@ -584,19 +615,8 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      // Idioma de reconocimiento universal:
-      // Español estándar ('es-419' / 'es-ES' / locale nativo) que comprende de forma nativa español
-      // y términos comunes de inglés. Si el usuario está en práctica activa de inglés, usa 'en-US'.
-      const navLocale = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-CO';
-      const isSpanishLocale = navLocale.toLowerCase().startsWith('es');
-      recognition.lang =
-        lastResolvedIntentRef.current?.startsWith('en-practice')
-          ? 'en-US'
-          : isSpanishLocale
-          ? navLocale
-          : 'es-CO';
-
-      recognition.continuous = true;
+      recognition.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
+      recognition.continuous = false;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
@@ -629,7 +649,7 @@ function FloatingADECompanionInner() {
           finalTranscriptRef.current = fullAccumulated || currentSaid;
           setListeningTranscript(currentSaid);
 
-          // Si hay detección de silencio VAD (1.8s tras hablar), cortar y enviar
+          // Si hay detección de silencio VAD (1.5s tras hablar), cortar y enviar
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -644,7 +664,7 @@ function FloatingADECompanionInner() {
                 sendMessage(textToSend, true);
               }
             }
-          }, 1800);
+          }, 1500);
         }
       };
 
@@ -663,15 +683,20 @@ function FloatingADECompanionInner() {
         }
 
         if (event?.error === 'no-speech') {
-          // Silencio inicial en Windows Chrome: mantener micrófono abierto esperando la voz del usuario
+          shouldListenRef.current = false;
+          setIsListening(false);
           return;
         }
 
         if (event?.error === 'network' || event?.error === 'service-not-allowed') {
-          console.warn('Fallo de red en SpeechRecognition, activando MediaRecorder fallback');
           shouldListenRef.current = false;
           setIsListening(false);
-          startMediaRecorderFallback();
+          setVoiceStatusMessage(
+            currentLang === 'en'
+              ? '⚠️ Voice connection glitch. Click again to speak.'
+              : '⚠️ Conexión de voz reconectando. Haz clic para hablar de nuevo.'
+          );
+          setTimeout(() => setVoiceStatusMessage(''), 5000);
           return;
         }
       };
@@ -685,18 +710,8 @@ function FloatingADECompanionInner() {
           finalTranscriptRef.current = '';
           setListeningTranscript('');
           sendMessage(textCaptured, true);
-        } else if (shouldListenRef.current) {
-          setTimeout(() => {
-            if (shouldListenRef.current) {
-              try {
-                recognition.start();
-              } catch (e) {
-                shouldListenRef.current = false;
-                setIsListening(false);
-              }
-            }
-          }, 150);
         } else {
+          shouldListenRef.current = false;
           setIsListening(false);
         }
       };

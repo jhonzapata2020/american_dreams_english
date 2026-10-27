@@ -288,7 +288,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'es',
     audioUrl: '/audio/ade/es-charla-informal.mp3',
     text: '¡Me alegra muchísimo conversar contigo! Si deseas practicar o conocer nuestras clases en vivo con profesores C1, aquí estaré siempre disponible.',
-    triggers: [/\b(conversar|hablar un rato|como vas|todo bien)\b/i]
+    triggers: [/\b(conversar|hablar un rato|como vas|como estas|como te va|como te encuentras|todo bien)\b/i]
   },
   {
     id: 'es-cambio-idioma',
@@ -344,7 +344,10 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'en',
     audioUrl: '/audio/ade/en-practice.mp3',
     text: "Sure! Let's practice. What would you like to talk about today?",
-    triggers: [/\btalk in english\b/i, /\bpractice english\b/i, /\bspeak english\b/i, /\bwith you\b/i, /\blet's practice\b/i, /\blets practice\b/i]
+    triggers: [
+      /\b(practice|practice (my )?english|i need (to )?practice|i want to practice|let's practice|lets practice|speak (in )?english|talk in english|with you)\b/i,
+      /\bneed practice\b/i
+    ]
   },
   {
     id: 'en-origin',
