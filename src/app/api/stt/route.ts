@@ -44,19 +44,29 @@ export async function POST(req: Request) {
       } else {
         const errDetails = await response.text();
         console.warn('Error en ElevenLabs STT:', response.status, errDetails);
-        return NextResponse.json({
-          text: '',
-          error: 'stt_quota_exceeded',
-          provider: 'none'
-        });
+        const isQuotaExceeded =
+          response.status === 401 &&
+          (errDetails.includes('quota_exceeded') || errDetails.includes('credits remaining'));
+
+        return NextResponse.json(
+          {
+            text: '',
+            error: isQuotaExceeded ? 'quota_exceeded' : 'stt_upstream_error',
+            provider: 'elevenlabs-scribe'
+          },
+          { status: isQuotaExceeded ? 402 : 502 }
+        );
       }
     }
 
-    return NextResponse.json({
-      text: '',
-      error: 'stt_not_configured',
-      provider: 'none'
-    });
+    return NextResponse.json(
+      {
+        text: '',
+        error: 'stt_not_configured',
+        provider: 'none'
+      },
+      { status: 503 }
+    );
   } catch (error: any) {
     console.error('STT API Exception:', error);
     return NextResponse.json(

@@ -100,6 +100,23 @@ function FloatingADECompanionInner() {
   const lastResolvedIntentRef = useRef<string | null>(null);
   const lastAudioPlayedRef = useRef<string | null>(null);
   const lastVoiceToggleClickRef = useRef<number>(0);
+  const isTransitioningToFallbackRef = useRef<boolean>(false);
+  const masterTimeoutRef = useRef<any>(null);
+
+  const clearAllVoiceTimers = () => {
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+    if (masterTimeoutRef.current) {
+      clearTimeout(masterTimeoutRef.current);
+      masterTimeoutRef.current = null;
+    }
+    if (vadIntervalRef.current) {
+      clearInterval(vadIntervalRef.current);
+      vadIntervalRef.current = null;
+    }
+  };
 
   // Reiniciar la sesión de práctica sin necesidad de abrir F12 ni borrar manualmente
   const handleResetSession = () => {
@@ -214,35 +231,36 @@ function FloatingADECompanionInner() {
       }
 
       // 1. Audio local estático pregrabado (/audio/ade/*.mp3) - Cero consumo, voz de alta fidelidad
-      if (!finalAudioUrl) {
-        finalAudioUrl = langToUse === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
-      }
-
       if (finalAudioUrl) {
         try {
-          console.log('>>> [ADE PLAYING AUDIO]:', finalAudioUrl);
+          console.log('>>> [ADE VOICE] Playing pre-recorded static audio:', finalAudioUrl);
           const audio = new Audio(finalAudioUrl);
           currentAudioRef.current = audio;
-          audio.onended = () => setIsSpeaking(false);
+          audio.onended = () => {
+            console.log('>>> [ADE VOICE] Static audio playback finished');
+            setIsSpeaking(false);
+          };
           audio.onerror = (e) => {
-            console.warn('Error reproduciendo audio local:', finalAudioUrl, e);
+            console.warn('>>> [ADE VOICE] Error playing static audio:', finalAudioUrl, e);
             setIsSpeaking(false);
           };
           const playPromise = audio.play();
           if (playPromise !== undefined) {
             playPromise.catch((err) => {
-              console.warn('Play promise rejected en audio local:', err);
+              console.warn('>>> [ADE VOICE] Play promise rejected:', finalAudioUrl, err);
               setIsSpeaking(false);
             });
           }
           return;
         } catch (err) {
-          console.warn('Fallo inicializando Audio local:', err);
+          console.error('>>> [ADE VOICE] Failure initializing audio:', err);
           setIsSpeaking(false);
+          return;
         }
       }
 
-      // 2. Si no es un audio estático local, consultar /api/tts (ElevenLabs / Cache backend)
+      // 2. Si no es un audio estático local, sintetizar dinámicamente mediante /api/tts
+      console.log('>>> [ADE VOICE] Synthesizing dynamic audio via /api/tts for text:', text.slice(0, 70));
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 7000);
@@ -267,10 +285,13 @@ function FloatingADECompanionInner() {
         if (res.ok && contentType.includes('application/json')) {
           const jsonData = await res.json();
           if (jsonData.cachedAudioUrl) {
-            console.log('>>> [ADE PLAYING AUDIO]:', jsonData.cachedAudioUrl);
+            console.log('>>> [ADE VOICE] TTS returned cached audio URL:', jsonData.cachedAudioUrl);
             const audio = new Audio(jsonData.cachedAudioUrl);
             currentAudioRef.current = audio;
-            audio.onended = () => setIsSpeaking(false);
+            audio.onended = () => {
+              console.log('>>> [ADE VOICE] TTS audio playback completed');
+              setIsSpeaking(false);
+            };
             audio.onerror = () => setIsSpeaking(false);
             const playPromise = audio.play();
             if (playPromise !== undefined) {
@@ -280,15 +301,16 @@ function FloatingADECompanionInner() {
           }
         }
 
-        // Si el backend devuelve el MP3 binario directo de ElevenLabs
+        // Si el backend devuelve el MP3 binario directo de ElevenLabs / Azure / OpenAI
         if (res.ok && contentType.includes('audio/mpeg')) {
           const audioBlob = await res.blob();
           const audioUrl = URL.createObjectURL(audioBlob);
-          console.log('>>> [ADE PLAYING AUDIO]: (ElevenLabs stream)');
+          console.log('>>> [ADE VOICE] Dynamic TTS audio stream received, starting playback');
           const audio = new Audio(audioUrl);
           currentAudioRef.current = audio;
 
           audio.onended = () => {
+            console.log('>>> [ADE VOICE] Stream playback completed');
             setIsSpeaking(false);
             URL.revokeObjectURL(audioUrl);
           };
@@ -304,22 +326,12 @@ function FloatingADECompanionInner() {
           return;
         }
       } catch (err) {
-        console.warn('Fallback en TTS:', err);
+        console.warn('>>> [ADE VOICE] Exception in dynamic TTS:', err);
       }
 
-      // 3. Fallback comodín garantizado para que jamás se quede callada
-      try {
-        const comodinAudio = langToUse === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
-        console.log('>>> [ADE PLAYING AUDIO]:', comodinAudio);
-        const audio = new Audio(comodinAudio);
-        currentAudioRef.current = audio;
-        audio.onended = () => setIsSpeaking(false);
-        audio.onerror = () => setIsSpeaking(false);
-        audio.play().catch(() => setIsSpeaking(false));
-      } catch (e) {
-        setIsSpeaking(false);
-      }
+      setIsSpeaking(false);
     } catch (e) {
+      console.error('>>> [ADE VOICE] Critical error in speakFemaleVoice:', e);
       setIsSpeaking(false);
     }
   };
@@ -467,6 +479,7 @@ function FloatingADECompanionInner() {
         );
 
         try {
+          console.log('>>> [ADE VOICE] Sending audio blob to /api/stt, size:', audioBlob.size, 'bytes');
           const formData = new FormData();
           formData.append('file', audioBlob, 'recording.webm');
           formData.append('lang', currentLang);
@@ -476,34 +489,41 @@ function FloatingADECompanionInner() {
             body: formData
           });
 
-          if (res.ok) {
-            const data = await res.json();
-            const text = (data?.text || '').trim();
-            if (text) {
-              console.log('>>> [ADE TEXT DETECTED]:', text);
-              setListeningTranscript('');
-              setIsTranscribing(false);
-              sendMessage(text, true);
-              return;
-            }
+          let data: any = null;
+          try {
+            data = await res.json();
+          } catch (e) {}
+
+          const text = (data?.text || '').trim();
+          if (res.ok && text) {
+            console.log('>>> [ADE VOICE] STT text successfully transcribed:', text);
+            setListeningTranscript('');
+            setIsTranscribing(false);
+            sendMessage(text, true);
+            return;
           }
-          // Si no hubo texto capturado con claridad, reproducir fallback natural sin inventar intenciones
-          const fallbackNotice = currentLang === 'en'
-            ? "I couldn't hear you clearly, please try speaking again."
-            : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo.';
-          setVoiceStatusMessage(fallbackNotice);
-          setTimeout(() => setVoiceStatusMessage(''), 5000);
-          speakFemaleVoice(
-            fallbackNotice,
-            currentLang === 'en' ? 'en' : 'es',
-            currentLang === 'en' ? 'en-hello' : 'es-no-entiendo-fallback',
-            currentLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-no-entiendo-fallback.mp3'
-          );
+
+          // Distinguir explícitamente errores de cuota de otros errores de API
+          if (res.status === 402 || data?.error === 'quota_exceeded') {
+            console.warn('>>> [ADE VOICE] ElevenLabs STT quota exceeded (402)');
+            const quotaNotice = currentLang === 'en'
+              ? 'Voice quota limit reached. Please type your message in the chat.'
+              : 'Límite de voz alcanzado. Por favor escribe tu mensaje en el chat.';
+            setVoiceStatusMessage(quotaNotice);
+            setTimeout(() => setVoiceStatusMessage(''), 7000);
+          } else {
+            console.warn('>>> [ADE VOICE] STT audio uncaptured or service error:', res.status, data?.error);
+            const fallbackNotice = currentLang === 'en'
+              ? "I couldn't hear you clearly, please try speaking again or type in the chat."
+              : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo o escribe en el chat.';
+            setVoiceStatusMessage(fallbackNotice);
+            setTimeout(() => setVoiceStatusMessage(''), 5000);
+          }
         } catch (sttErr) {
-          console.warn('Error en transcripción MediaRecorder:', sttErr);
+          console.error('>>> [ADE VOICE] Exception communicating with /api/stt:', sttErr);
           const fallbackNotice = currentLang === 'en'
-            ? "I couldn't hear you clearly, please try speaking again."
-            : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo.';
+            ? "I couldn't hear you clearly, please try speaking again or type in the chat."
+            : 'Disculpa, no alcancé a escucharte bien, por favor intenta de nuevo o escribe en el chat.';
           setVoiceStatusMessage(fallbackNotice);
           setTimeout(() => setVoiceStatusMessage(''), 5000);
         } finally {
@@ -512,8 +532,11 @@ function FloatingADECompanionInner() {
         }
       };
 
+      isTransitioningToFallbackRef.current = false;
+      clearAllVoiceTimers();
       recorder.start(250);
       setIsListening(true);
+      console.log('>>> [ADE VOICE] MediaRecorder fallback recording started successfully');
       setListeningTranscript(
         currentLang === 'en'
           ? 'Listening... Speak now, tap to stop'
@@ -560,22 +583,25 @@ function FloatingADECompanionInner() {
             }
           }, 150);
         } catch (vadErr) {
-          console.warn('AudioContext VAD warning:', vadErr);
+          console.warn('>>> [ADE VOICE] AudioContext VAD warning:', vadErr);
         }
       }
 
-      // Temporizador de inactividad de 6 segundos máximo si nadie habló
-      silenceTimerRef.current = setTimeout(() => {
+      // Temporizador maestro de inactividad de 12 segundos si nadie habló
+      masterTimeoutRef.current = setTimeout(() => {
+        console.log('>>> [ADE VOICE] Fallback inactivity master timeout (12s) reached');
         stopVoiceInput();
-      }, 6000);
+      }, 12000);
     } catch (err: any) {
-      console.warn('Error al iniciar MediaRecorder en Firefox:', err);
+      console.error('>>> [ADE VOICE] Error starting MediaRecorder fallback:', err);
+      isTransitioningToFallbackRef.current = false;
+      clearAllVoiceTimers();
       setIsListening(false);
       setIsTranscribing(false);
       setVoiceStatusMessage(
         currentLang === 'en'
-          ? '⚠️ Microphone blocked. Please allow microphone access in your browser settings.'
-          : '⚠️ Micrófono bloqueado. Permite el acceso al micrófono en los permisos de tu navegador.'
+          ? '⚠️ Microphone access blocked. Please allow microphone permissions.'
+          : '⚠️ Acceso al micrófono bloqueado. Por favor permite los permisos de audio.'
       );
       setTimeout(() => setVoiceStatusMessage(''), 6000);
     }
@@ -764,9 +790,15 @@ function FloatingADECompanionInner() {
         }
 
         if (event?.error === 'network' || event?.error === 'service-not-allowed') {
-          console.error('>>> [ADE RECOGNITION NETWORK ERROR] Web Speech API network drop, switching to MediaRecorder fallback');
-          shouldListenRef.current = false;
-          setIsListening(false);
+          console.error('>>> [ADE VOICE] Web Speech API network drop, switching to MediaRecorder fallback');
+          isTransitioningToFallbackRef.current = true;
+          // Anular listeners para que su onend no apague el estado de escucha mientras inicia el fallback
+          recognition.onend = null;
+          recognition.onerror = null;
+          recognition.onresult = null;
+          try {
+            recognition.abort();
+          } catch (e) {}
           startMediaRecorderFallback();
           return;
         }
@@ -776,8 +808,14 @@ function FloatingADECompanionInner() {
         console.log('>>> [ADE RECOGNITION ONEND]:', {
           shouldListen: shouldListenRef.current,
           hasDetectedSpeech,
-          capturedText: finalTranscriptRef.current
+          capturedText: finalTranscriptRef.current,
+          isTransitioning: isTransitioningToFallbackRef.current
         });
+
+        if (isTransitioningToFallbackRef.current) {
+          console.log('>>> [ADE RECOGNITION ONEND] Handover to MediaRecorder in progress, preserving UI listening state');
+          return;
+        }
 
         const textCaptured = finalTranscriptRef.current.trim();
         if (textCaptured) {
@@ -805,7 +843,7 @@ function FloatingADECompanionInner() {
       recognition.start();
 
       // Temporizador maestro de inactividad de 12 segundos SOLO si el usuario nunca llegó a hablar
-      silenceTimerRef.current = setTimeout(() => {
+      masterTimeoutRef.current = setTimeout(() => {
         console.log('>>> [ADE MASTER TIMEOUT (12s)] hasDetectedSpeech:', hasDetectedSpeech);
         if (shouldListenRef.current && !hasDetectedSpeech) {
           shouldListenRef.current = false;
@@ -917,22 +955,8 @@ function FloatingADECompanionInner() {
       }
     }
 
-    // Comodín garantizado por voz para que ADE JAMÁS se quede callada
-    if (isVoice && !staticMatch) {
-      staticMatch = {
-        id: effectiveMsgLang === 'en' ? 'en-hello' : 'es-no-entiendo-fallback',
-        lang: effectiveMsgLang,
-        audioUrl: effectiveMsgLang === 'en' ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-no-entiendo-fallback.mp3',
-        text:
-          effectiveMsgLang === 'en'
-            ? 'Hello and welcome to American Dream English! I am ADE, your virtual advisor and tutor. How can I help you achieve fluency today?'
-            : 'Disculpa, no alcancé a escucharte bien. ¿Podrías repetirme tu consulta o indicarme si deseas saber sobre cursos, precios, horarios o matrícula?',
-        matchedTrigger: 'fallback-comodin',
-        cached: true
-      };
-    }
-
     if (staticMatch) {
+      console.log('>>> [ADE VOICE] Static route matched:', staticMatch.id, '| Audio:', staticMatch.audioUrl);
       lastResolvedIntentRef.current = staticMatch.id;
       lastAudioPlayedRef.current = staticMatch.audioUrl;
       setLastResolvedIntent(staticMatch.id);
@@ -942,7 +966,8 @@ function FloatingADECompanionInner() {
       return;
     }
 
-    // 2. SI NO COINCIDE: CONTINÚA CON EL FLUJO DINÁMICO RESPETANDO EL LÍMITE DE 4 TURNOS
+    // 2. SI NO COINCIDE: CONTINÚA CON EL FLUJO DINÁMICO CONVERSACIONAL HACIA /api/chat
+    console.log('>>> [ADE VOICE] No static match found. Forwarding query to /api/chat:', userMsg);
     setIsLoading(true);
 
     try {
