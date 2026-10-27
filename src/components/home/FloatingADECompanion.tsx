@@ -562,7 +562,7 @@ function FloatingADECompanionInner() {
     }
   };
 
-  const startVoiceInput = async () => {
+  const startVoiceInput = () => {
     if (isTranscribing) return;
 
     if (isListening) {
@@ -581,23 +581,6 @@ function FloatingADECompanionInner() {
     stopSpeaking();
     setVoiceStatusMessage('');
 
-    // Desbloquear permisos de micrófono explícitamente en Chrome/Windows
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach((track) => track.stop());
-      } catch (permErr) {
-        console.warn('Microphone permission check failed:', permErr);
-        setVoiceStatusMessage(
-          currentLang === 'en'
-            ? '⚠️ Microphone blocked. Click the lock icon in the URL bar to allow it.'
-            : '⚠️ Micrófono bloqueado. Haz clic en el candado en la barra de URL para permitirlo.'
-        );
-        setTimeout(() => setVoiceStatusMessage(''), 6000);
-        return;
-      }
-    }
-
     const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRec) {
@@ -615,8 +598,20 @@ function FloatingADECompanionInner() {
       const recognition = new SpeechRec();
       recognitionRef.current = recognition;
 
-      recognition.lang = currentLang === 'en' ? 'en-US' : 'es-ES';
-      recognition.continuous = false;
+      // Detección de idioma universal para máxima precisión en Windows y Android:
+      // Si el usuario está practicando activamente en inglés, usamos 'en-US'.
+      // De lo contrario, usamos el dialecto nativo o 'es-419' que reconoce español a la perfección
+      // y capta con soltura palabras en inglés como "courses", "practice", "hello".
+      const navLang = typeof navigator !== 'undefined' && navigator.language ? navigator.language : 'es-419';
+      const isSpanishNav = navLang.toLowerCase().startsWith('es');
+      recognition.lang =
+        currentLang === 'en' && hasInteracted && lastResolvedIntentRef.current?.startsWith('en-practice')
+          ? 'en-US'
+          : isSpanishNav
+          ? navLang
+          : 'es-419';
+
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.maxAlternatives = 1;
 
@@ -631,25 +626,26 @@ function FloatingADECompanionInner() {
 
       recognition.onresult = (event: any) => {
         let interim = '';
-        let fullAccumulated = '';
+        let final = '';
 
-        for (let i = 0; i < event.results.length; i++) {
-          const result = event.results[i];
-          const text = result[0]?.transcript || '';
-          if (result.isFinal) {
-            fullAccumulated += (fullAccumulated ? ' ' : '') + text;
-          } else {
-            interim += text;
+        if (event.results && event.results.length > 0) {
+          for (let i = 0; i < event.results.length; i++) {
+            const item = event.results[i];
+            if (item.isFinal) {
+              final += (final ? ' ' : '') + (item[0]?.transcript || '');
+            } else {
+              interim += (interim ? ' ' : '') + (item[0]?.transcript || '');
+            }
           }
         }
 
-        const currentSaid = (fullAccumulated || interim).trim();
-        if (currentSaid) {
-          console.log('>>> [ADE TEXT DETECTED]:', currentSaid);
-          finalTranscriptRef.current = fullAccumulated || currentSaid;
-          setListeningTranscript(currentSaid);
+        const fullTranscript = (final || interim).trim();
+        if (fullTranscript) {
+          console.log('>>> [ADE TEXT DETECTED]:', fullTranscript);
+          finalTranscriptRef.current = fullTranscript;
+          setListeningTranscript(fullTranscript);
 
-          // Si hay detección de silencio VAD (1.5s tras hablar), cortar y enviar
+          // Si hay detección de silencio VAD (2 segundos tras hablar), enviar automáticamente
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
           }
@@ -658,13 +654,13 @@ function FloatingADECompanionInner() {
               shouldListenRef.current = false;
               stopVoiceInput();
               const textToSend = finalTranscriptRef.current.trim();
+              finalTranscriptRef.current = '';
+              setListeningTranscript('');
               if (textToSend) {
-                finalTranscriptRef.current = '';
-                setListeningTranscript('');
                 sendMessage(textToSend, true);
               }
             }
-          }, 1500);
+          }, 2000);
         }
       };
 
@@ -683,20 +679,13 @@ function FloatingADECompanionInner() {
         }
 
         if (event?.error === 'no-speech') {
-          shouldListenRef.current = false;
-          setIsListening(false);
+          // En Windows Chrome/Edge, no-speech salta por silencio breve inicial; NO abortar la escucha
           return;
         }
 
         if (event?.error === 'network' || event?.error === 'service-not-allowed') {
           shouldListenRef.current = false;
           setIsListening(false);
-          setVoiceStatusMessage(
-            currentLang === 'en'
-              ? '⚠️ Voice connection glitch. Click again to speak.'
-              : '⚠️ Conexión de voz reconectando. Haz clic para hablar de nuevo.'
-          );
-          setTimeout(() => setVoiceStatusMessage(''), 5000);
           return;
         }
       };
@@ -710,21 +699,34 @@ function FloatingADECompanionInner() {
           finalTranscriptRef.current = '';
           setListeningTranscript('');
           sendMessage(textCaptured, true);
+        } else if (shouldListenRef.current) {
+          // Si el stream se cerró por breve pausa pero el usuario aún desea hablar, reanudar suavemente
+          try {
+            recognition.start();
+          } catch (e) {
+            shouldListenRef.current = false;
+            setIsListening(false);
+          }
         } else {
-          shouldListenRef.current = false;
           setIsListening(false);
         }
       };
 
       recognition.start();
 
-      // Temporizador maestro de cortesía de 6 segundos si no hubo habla
+      // Temporizador maestro de inactividad de 7 segundos si el usuario nunca habló
       silenceTimerRef.current = setTimeout(() => {
-        if (shouldListenRef.current && !finalTranscriptRef.current.trim()) {
+        if (shouldListenRef.current) {
+          const textCaptured = finalTranscriptRef.current.trim();
           shouldListenRef.current = false;
           stopVoiceInput();
+          if (textCaptured) {
+            finalTranscriptRef.current = '';
+            setListeningTranscript('');
+            sendMessage(textCaptured, true);
+          }
         }
-      }, 6000);
+      }, 7000);
 
     } catch (err) {
       console.warn('Fallback a MediaRecorder tras error en SpeechRec:', err);
@@ -795,22 +797,22 @@ function FloatingADECompanionInner() {
 
     // Coincidencia rápida para consultas frecuentes sobre cursos o costos en español
     if (!staticMatch && effectiveMsgLang === 'es') {
-      if (/\b(curso|cursos|clase|clases|programa|programas|nivel|niveles|saber de|saber acerca)\b/i.test(userMsg)) {
-        staticMatch = {
-          id: 'es-campus-virtual',
-          lang: 'es',
-          audioUrl: '/audio/ade/es-campus-virtual.mp3',
-          text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
-          matchedTrigger: 'cursos',
-          cached: true
-        };
-      } else if (/\b(precio|precios|costo|costos|cuanto|valor|tarifa|matricula)\b/i.test(userMsg)) {
+      if (/\b(precio|precios|costo|costos|cuanto|valor|tarifa|matricula|mensualidad)\b/i.test(userMsg)) {
         staticMatch = {
           id: 'es-precios',
           lang: 'es',
           audioUrl: '/audio/ade/es-precios.mp3',
           text: 'Nuestros programas cuentan con facilidades de pago mensual y subsidios a través del Fondo Social. Puedes consultar todos los planes y valores actualizados en nuestra sección de Matrícula.',
           matchedTrigger: 'precios',
+          cached: true
+        };
+      } else if (/\b(curso|cursos|clase|clases|programa|programas|nivel|niveles|saber de|saber acerca)\b/i.test(userMsg)) {
+        staticMatch = {
+          id: 'es-campus-virtual',
+          lang: 'es',
+          audioUrl: '/audio/ade/es-campus-virtual.mp3',
+          text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
+          matchedTrigger: 'cursos',
           cached: true
         };
       }
