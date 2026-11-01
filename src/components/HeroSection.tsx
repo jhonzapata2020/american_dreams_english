@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   CheckCircle2, 
@@ -17,12 +18,12 @@ import {
   MessageCircle,
   ChevronRight
 } from 'lucide-react';
-import { createClient } from '../utils/supabase/client';
 import { useLanguage } from '../context/LanguageContext';
 import { trackEvent } from '../lib/analytics';
 import { getWhatsAppUrl } from '../config/contact';
 import { notifyLeadCaptured } from '../lib/marketingTelemetry';
 import CampusStoriesCarousel from './home/CampusStoriesCarousel';
+import FloatingADECompanion from './home/FloatingADECompanion';
 
 interface HeroSectionProps {
   onOpenDonation: () => void;
@@ -41,6 +42,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -62,6 +64,12 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!acceptTerms) {
+      setErrorMessage('Debes aceptar la política de tratamiento de datos personales para continuar.');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -75,52 +83,29 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     };
 
     try {
-      // 1. Intentar registrar a través de /api/leads (guarda en Supabase y dispara notificación WhatsApp)
+      // Envío centralizado exclusivamente a través del endpoint oficial /api/leads
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && (res.status === 200 || res.status === 201) && data?.success !== false) {
         setSubmitted(true);
         notifyLeadCaptured(payload);
         trackEvent('lead_capture', {
           audience: audienceType,
           source: 'hero_form',
         });
-        setIsSubmitting(false);
-        return;
+      } else {
+        setErrorMessage('No se pudo registrar la solicitud. Por favor intenta de nuevo o escríbenos a WhatsApp.');
       }
-
-      // 2. Respaldo directo en cliente Supabase en caso de fallo en el endpoint
-      const supabase = createClient();
-      const { error: sbError } = await supabase.from('leads').insert([payload]);
-
-      if (sbError) {
-        console.error('Error al registrar prospecto en respaldo:', sbError);
-        setErrorMessage('No se pudieron enviar tus datos. Por favor intenta de nuevo.');
-        setIsSubmitting(false);
-        return;
-      }
-
-      setSubmitted(true);
-      notifyLeadCaptured(payload);
-      trackEvent('lead_capture', {
-        audience: audienceType,
-        source: 'hero_form_fallback',
-      });
-      setIsSubmitting(false);
     } catch (err) {
-      console.error('Error inesperado al registrar prospecto:', err);
-      try {
-        const supabase = createClient();
-        await supabase.from('leads').insert([payload]);
-        setSubmitted(true);
-        notifyLeadCaptured(payload);
-      } catch (fallbackErr) {
-        setErrorMessage('Ocurrió un error inesperado. Por favor intenta de nuevo.');
-      }
+      console.error('Error al registrar prospecto:', err);
+      setErrorMessage('No se pudo registrar la solicitud. Por favor intenta de nuevo o escríbenos a WhatsApp.');
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -128,7 +113,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const whatsappContextUrl = getWhatsAppUrl("Hola, quiero información sobre los cursos de ADE");
 
   return (
-    <section className="bg-white pt-4 sm:pt-8 pb-8 lg:py-14 border-b border-slate-100 font-sans">
+    <section className="bg-white py-2 lg:py-4 border-b border-slate-100 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         
         {/* ========================================================= */}
@@ -138,7 +123,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           
           {/* 1° y 2°: Pantalla de TV interactiva ('CAMPUS LIVE • CANAL ADE') y Avatar 3D de ADE */}
           <div className="w-full max-w-[340px] sm:max-w-[360px] mx-auto pt-0 pb-1">
-            <CampusStoriesCarousel showADE={true} />
+            <CampusStoriesCarousel showADE={!isDesktop} />
           </div>
 
           {/* FORMULARIO OFICIAL DE CAPTACIÓN DE LEADS EN MÓVIL (OPEN ENGLISH STYLE) */}
@@ -243,6 +228,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       type="button"
                       onClick={() => {
                         setSubmitted(false);
+                        setAcceptTerms(false);
                         setFirstName('');
                         setLastName('');
                         setEmail('');
@@ -328,33 +314,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     />
                   </div>
 
-                  {/* BOTÓN ROJO DE ALTO IMPACTO CON MICROINTERACCIÓN SPRING Y SHIMMER TIPO 21st.dev */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="relative overflow-hidden w-full min-h-[50px] bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-black py-3.5 px-6 rounded-2xl shadow-lg shadow-red-600/30 flex items-center justify-center space-x-2 text-base uppercase tracking-wider transition-all mt-2 cursor-pointer"
-                  >
-                    {/* Haz de luz líquido brillante (Shimmer sweep 21st.dev) */}
-                    <motion.span
-                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
-                      animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
-                      transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut', repeatDelay: 1 }}
+                  {/* CHECKBOX OBLIGATORIO HABEAS DATA */}
+                  <div className="flex items-start gap-2 pt-1 text-left">
+                    <input
+                      id="habeas-data-mobile"
+                      type="checkbox"
+                      required
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      disabled={isSubmitting}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
                     />
+                    <label htmlFor="habeas-data-mobile" className="text-[11px] text-slate-600 leading-tight cursor-pointer select-none font-medium">
+                      Acepto la política de tratamiento de datos personales (Habeas Data) y autorizo el contacto para fines informativos y de matrícula.
+                    </label>
+                  </div>
 
+                  {/* BOTÓN AZUL CORPORATIVO INSTITUCIONAL (MATCHING ADE & NAVBAR) */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !acceptTerms}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-base font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer mt-2"
+                  >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>{t.hero.saving || 'Guardando...'}</span>
+                        <Loader2 className="w-5 h-5 animate-spin text-white" />
+                        <span className="text-white">{t.hero.saving || 'Guardando...'}</span>
                       </>
                     ) : (
                       <>
-                        <span className="relative z-10">{t.hero.ctaButton || 'Comienza ahora'}</span>
-                        <ArrowRight className="w-5 h-5 stroke-[2.5] relative z-10" />
+                        <span className="text-white">{t.hero.ctaButton || 'Comienza ahora'}</span>
+                        <ArrowRight className="w-5 h-5 text-white stroke-[2.5]" />
                       </>
                     )}
-                  </motion.button>
+                  </button>
 
                   <p className="text-[10px] text-slate-400 text-center font-medium pt-0.5">
                     {t.hero.habeasData}
@@ -380,8 +373,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </h2>
             </div>
 
-            {/* Tarjeta de autoridad y credenciales: Teacher Anthony */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs">
+            {/* Tarjeta de autoridad y credenciales: Teacher Anthony con enlace a biografía */}
+            <Link
+              href="/nosotros/anthony-cortes"
+              className="group bg-slate-50 hover:bg-slate-100 border border-slate-200/90 rounded-2xl p-3 flex items-center gap-3 shadow-2xs transition-all cursor-pointer"
+            >
               <div className="relative flex-shrink-0">
                 <img
                   src="/teacher-anthony-avatar.jpg"
@@ -392,14 +388,18 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <h4 className="font-extrabold text-slate-900 text-xs truncate">Teacher Anthony</h4>
-                  <span className="bg-red-100 text-red-700 text-[10px] font-black px-1.5 py-0.5 rounded-md">Bilingüe C1/C2</span>
+                  <h4 className="font-extrabold text-slate-900 text-xs truncate group-hover:text-red-600 transition-colors">
+                    Teacher Anthony (CEO)
+                  </h4>
+                  <span className="bg-red-100 text-red-700 text-[10px] font-black px-1.5 py-0.5 rounded-md">
+                    Bilingüe C1/C2
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-500 font-medium truncate">
-                  Director Académico • Clases Online & Presencial Urabá
+                  Director Académico • Conoce su semblanza y credenciales →
                 </p>
               </div>
-            </div>
+            </Link>
 
             {/* Beneficios directos con checks verdes */}
             <div className="space-y-2 text-xs sm:text-sm font-bold text-slate-800">
@@ -479,59 +479,56 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         {/* ========================================================= */}
         {/* VISTA ESCRITORIO (3 Columnas con formulario y foto) */}
         {/* ========================================================= */}
-        <div className="hidden lg:grid lg:grid-cols-12 gap-8 items-start">
+        <div className="hidden lg:grid lg:grid-cols-12 gap-4 xl:gap-6 items-stretch">
         
-        {/* COLUMNA 1: ELEMENTO HUMANO, VIDA EN EL CAMPUS & ASISTENTE VIRTUAL (4 COLS - lg:col-span-4) */}
-        <div className="lg:col-span-4 flex flex-col items-center justify-start relative mt-0 pt-0 px-2 sm:px-3 lg:px-4">
-          <CampusStoriesCarousel showADE={isDesktop} />
-        </div>
+        {/* COLUMNA 1: LA PROMESA CENTRAL (4 COLS - lg:col-span-4) */}
+        <div className="lg:col-span-4 bg-white/80 backdrop-blur-md rounded-3xl p-8 border border-slate-100 shadow-xl shadow-slate-200/50 flex flex-col justify-between h-full text-left">
 
-        {/* COLUMNA 2: LA PROMESA CENTRAL (4 COLS - lg:col-span-4 flex flex-col justify-start) */}
-        <div className="lg:col-span-4 flex flex-col justify-start text-left space-y-4 mt-0 pt-0 max-w-[375px] mx-auto">
-          
-          {/* Eyebrow tag */}
-          <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
-            {t.hero.badge}
-          </span>
+          <div className="space-y-4">
+            {/* Eyebrow tag */}
+            <span className="inline-block bg-red-50 text-red-600 text-xs font-bold px-3.5 py-1 rounded-full border border-red-200 w-fit">
+              {t.hero.badge}
+            </span>
 
-          {/* H1 Headline */}
-          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
-            {t.hero.title1} <span className="text-red-600">{t.hero.titleHighlight}</span> {t.hero.title2}
-          </h1>
+            {/* H1 Headline */}
+            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+              {t.hero.title1} <span className="text-red-600">{t.hero.titleHighlight}</span> {t.hero.title2}
+            </h1>
 
-          {/* Direct Benefit Bullets */}
-          <div className="space-y-3 pt-1 text-sm font-bold text-slate-800">
-            <div className="flex items-center space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
-                ✓
-              </span>
-              <span>{t.hero.bullet1}</span>
-            </div>
+            {/* Direct Benefit Bullets */}
+            <div className="space-y-3 pt-2 text-sm font-bold text-slate-800">
+              <div className="flex items-center space-x-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                  ✓
+                </span>
+                <span>{t.hero.bullet1}</span>
+              </div>
 
-            <div className="flex items-center space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
-                ✓
-              </span>
-              <span>{t.hero.bullet2}</span>
-            </div>
+              <div className="flex items-center space-x-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                  ✓
+                </span>
+                <span>{t.hero.bullet2}</span>
+              </div>
 
-            <div className="flex items-center space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
-                ✓
-              </span>
-              <span>{t.hero.bullet3}</span>
-            </div>
+              <div className="flex items-center space-x-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                  ✓
+                </span>
+                <span>{t.hero.bullet3}</span>
+              </div>
 
-            <div className="flex items-center space-x-2.5">
-              <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
-                ✓
-              </span>
-              <span>{t.hero.bullet4}</span>
+              <div className="flex items-center space-x-2.5">
+                <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-black flex-shrink-0">
+                  ✓
+                </span>
+                <span>{t.hero.bullet4}</span>
+              </div>
             </div>
           </div>
 
           {/* Botones de acción rápida: Becas & Cómo Llegar */}
-          <div className="pt-1 flex flex-wrap items-center gap-2">
+          <div className="pt-4 flex flex-wrap items-center gap-2 border-t border-slate-100/90 mt-4">
             <motion.button
               whileHover={{ scale: 1.04, y: -1 }}
               whileTap={{ scale: 0.96 }}
@@ -559,13 +556,51 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             >
               <span>📍 {t.nav.howToGetThere}</span>
             </motion.button>
+
+            <Link
+              href="/nosotros/anthony-cortes"
+              className="inline-flex items-center space-x-1.5 text-xs text-slate-700 hover:text-red-700 transition-all font-bold bg-amber-50 hover:bg-amber-100 px-3.5 py-1.5 rounded-full border border-amber-200 shadow-2xs cursor-pointer"
+            >
+              <span>🎓 Teacher Anthony (CEO)</span>
+              <span className="text-red-600">→</span>
+            </Link>
           </div>
 
         </div>
 
+        {/* COLUMNA 2: CAMPUS LIVE & STORIES + FRANJA ULTRA-COMPACTA (4 COLS - lg:col-span-4) */}
+        <div className="lg:col-span-4 flex flex-col justify-center items-center self-center my-auto w-full">
+          <CampusStoriesCarousel />
+
+          {/* FRANJA ULTRA-COMPACTA (UNA SOLA LÍNEA) */}
+          <div className="mt-2 w-full max-w-[400px] sm:max-w-[430px] mx-auto bg-gradient-to-r from-orange-600 to-amber-600 rounded-lg py-2 px-3 text-white flex items-center justify-between gap-2 shadow-sm">
+            <div className="flex items-center gap-2 overflow-hidden min-w-0">
+              <span className="bg-black/30 text-amber-200 text-[10px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">
+                40% OFF
+              </span>
+              <p className="text-xs font-bold text-white truncate">
+                Matrícula Especial • Clases en Vivo 24/7 y Materiales
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const input = document.querySelector<HTMLInputElement>(
+                  '#primer-campo-nombre, input[name="firstName"], input[name="name"], #lead-name'
+                );
+                input?.focus();
+              }}
+              className="shrink-0 px-2.5 py-1 rounded bg-white hover:bg-orange-50 active:scale-95 text-orange-700 font-extrabold text-[11px] shadow transition-all whitespace-nowrap cursor-pointer"
+            >
+              Aprovechar →
+            </button>
+          </div>
+        </div>
+
         {/* COLUMNA 3: FORMULARIO FLOTANTE DE CONVERSIÓN (4 COLS - lg:col-span-4) */}
-        <div id="formulario-inscripcion" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24 mt-0 pt-0">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 p-6 md:p-8 space-y-4">
+        <div id="formulario-inscripcion" className="lg:col-span-4 scroll-mt-20 sm:scroll-mt-24 h-full">
+          <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-6 md:p-8 space-y-4 h-full flex flex-col justify-between">
             
             {/* Form Title */}
             <div className="text-center space-y-1">
@@ -610,58 +645,46 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   {t.hero.audienceChild}
                 </button>
               </div>
-
-              {/* Indicador de contexto pedagógico con micro-animación desktop */}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={audience}
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 4 }}
-                  transition={{ duration: 0.18 }}
-                  className="text-xs font-semibold text-center text-slate-600 bg-slate-50/90 py-1.5 px-3 rounded-xl border border-slate-200/60"
-                >
-                  {audience === 'self' 
-                    ? '🎯 Modalidad para Adultos, Universitarios y Profesionales' 
-                    : '🧸 Modalidad para Niños y Teens con Pedagogía Lúdica'}
-                </motion.div>
-              </AnimatePresence>
             </div>
 
-            {/* Form Content con AnimatePresence */}
+            {/* Form Fields & State */}
             <AnimatePresence mode="wait">
               {submitted ? (
                 <motion.div
-                  key="submitted"
-                  initial={{ opacity: 0, scale: 0.94, y: 8 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                  className="bg-emerald-50 border border-emerald-200 p-6 rounded-2xl text-center space-y-3"
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="py-6 text-center space-y-4"
                 >
-                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
-                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+                  <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
+                    <CheckCircle2 className="w-8 h-8" />
                   </div>
-                  <h4 className="font-extrabold text-navy-900 text-base">¡Registro Completado con Éxito!</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {firstName ? `¡Muchas gracias, ${firstName}! ` : '¡Muchas gracias! '}Tus datos quedaron guardados en nuestro sistema. El Profe Anthony ya tiene tu solicitud y se comunicará contigo vía WhatsApp para entregarte tu oferta especial.
-                  </p>
+                  <div>
+                    <h4 className="text-xl font-black text-slate-900 mb-1">
+                      {t.hero.successTitle || '¡Registro Completado con Éxito!'}
+                    </h4>
+                    <p className="text-xs text-slate-600 max-w-[280px] mx-auto">
+                      {t.hero.successMsg || 'Tus datos quedaron guardados. Nos comunicaremos contigo para entregarte tu oferta especial.'}
+                    </p>
+                  </div>
+
                   <div className="pt-2 space-y-2">
-                    <motion.a
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.97 }}
+                    <a
                       href={getLeadWhatsAppUrl()}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs uppercase tracking-wider"
+                      className="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/30 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Abrir chat de WhatsApp (Opcional)</span>
-                    </motion.a>
+                    </a>
+                    
                     <button
                       type="button"
                       onClick={() => {
                         setSubmitted(false);
+                        setAcceptTerms(false);
                         setFirstName('');
                         setLastName('');
                         setEmail('');
@@ -742,33 +765,40 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     />
                   </div>
 
-                  {/* Massive Official Crimson Red CTA Button con Microinteracción Spring y Shimmer 21st.dev */}
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="relative overflow-hidden bg-gradient-to-r from-red-600 via-red-600 to-red-700 hover:from-red-700 hover:to-red-800 disabled:opacity-75 text-white font-extrabold py-3.5 rounded-full shadow-lg shadow-red-600/30 w-full text-base tracking-wide transition-all mt-2 flex items-center justify-center space-x-2 cursor-pointer"
-                  >
-                    {/* Haz de luz líquido brillante (Shimmer sweep 21st.dev) */}
-                    <motion.span
-                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/25 to-transparent -translate-x-full pointer-events-none"
-                      animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
-                      transition={{ repeat: Infinity, duration: 2.6, ease: 'easeInOut', repeatDelay: 1 }}
+                  {/* CHECKBOX OBLIGATORIO HABEAS DATA */}
+                  <div className="flex items-start gap-2 pt-1 text-left">
+                    <input
+                      id="habeas-data-desktop"
+                      type="checkbox"
+                      required
+                      checked={acceptTerms}
+                      onChange={(e) => setAcceptTerms(e.target.checked)}
+                      disabled={isSubmitting}
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer shrink-0"
                     />
+                    <label htmlFor="habeas-data-desktop" className="text-[11px] text-slate-600 leading-tight cursor-pointer select-none font-medium">
+                      Acepto la política de tratamiento de datos personales (Habeas Data) y autorizo el contacto para fines informativos y de matrícula.
+                    </label>
+                  </div>
 
+                  {/* BOTÓN AZUL CORPORATIVO INSTITUCIONAL (MATCHING ADE & NAVBAR) */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || !acceptTerms}
+                    className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-base font-bold shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.99] transition-all duration-150 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 cursor-pointer mt-2"
+                  >
                     {isSubmitting ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        <span>{t.hero.saving}</span>
+                        <Loader2 className="w-5 h-5 animate-spin text-white" />
+                        <span className="text-white">{t.hero.saving}</span>
                       </>
                     ) : (
                       <>
-                        <span className="relative z-10">{t.hero.ctaButton}</span>
-                        <ArrowRight className="w-5 h-5 relative z-10" />
+                        <span className="text-white">{t.hero.ctaButton}</span>
+                        <ArrowRight className="w-5 h-5 text-white stroke-[2.5]" />
                       </>
                     )}
-                  </motion.button>
+                  </button>
 
                   <p className="text-[10px] text-slate-400 text-center font-medium pt-1">
                     {t.hero.habeasData}
@@ -794,6 +824,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
         </div>
       </div>
+      {/* Floating ADE Companion dock */} 
+      <FloatingADECompanion />
     </section>
   );
 };

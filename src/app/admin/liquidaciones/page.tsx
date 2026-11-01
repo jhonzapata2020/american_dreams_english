@@ -650,66 +650,52 @@ export default function LiquidacionesCorplexPage() {
     <DashboardLayout currentRole="admin" activeTab="liquidaciones">
       <div className="space-y-8 font-sans pb-16">
         
-        {/* CABECERA PRINCIPAL & METADATOS DE LA ALIANZA */}
-        <motion.div 
-          initial={{ opacity: 0, y: -12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5"
-        >
-          <div>
-            <div className="inline-flex items-center gap-2 text-[11px] font-black text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider mb-2 shadow-2xs">
-              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Alianza Tecnológica · CORPLEX SOLUTIONS S.A.S. (NIT 902.061.373-5)</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 flex-wrap">
-              <span>Informe de Ingresos y Liquidación CORPLEX</span>
-              <span className="text-xs font-bold font-mono px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
-                v2.8 Live Engine
+        {/* 1. HEADER ESTANDARIZADO DE LIQUIDACIONES */}
+        <header className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <Link href="/dashboard/admin" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <span>Dashboard</span>
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <span className="font-bold text-slate-900">Liquidaciones CORPLEX</span>
+            </nav>
+            <div className="flex items-center gap-2.5 pt-0.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                Liquidaciones y Recaudos CORPLEX
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase tracking-wider">
+                Alianza Tecnológica
               </span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1 leading-relaxed max-w-3xl">
-              Control automatizado de recaudos por pasarela Wompi Colombia, comisiones operativas por ingeniería y actas contables descargables e imprimibles.
+            </div>
+            <p className="text-xs text-slate-500 font-medium">
+              Control automatizado de recaudos por pasarela Wompi Colombia y comisiones operativas.
             </p>
           </div>
 
-          {/* Botones de Cabecera con animaciones */}
+          {/* Botones de Cabecera Estandarizados */}
           <div className="flex items-center gap-2.5 flex-wrap">
-            
-            {/* Botón Reporte Espectacular */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+            <button
+              type="button"
               onClick={() => setIsExecutiveReportOpen(true)}
-              className="inline-flex items-center gap-2 text-xs font-black text-white bg-gradient-to-r from-[#002B49] to-[#0A1A2F] hover:from-[#001728] hover:to-[#002B49] border border-slate-700 px-4 py-2.5 rounded-xl shadow-md transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs font-bold text-white bg-slate-900 hover:bg-black px-4 py-2.5 rounded-xl shadow-xs transition-all cursor-pointer"
               title="Abrir reporte ejecutivo para imprimir, descargar o enviar"
             >
-              <FileText className="w-4 h-4 text-amber-400 stroke-[2.5]" />
+              <FileText className="w-4 h-4 text-amber-400" />
               <span>Generar Reporte Oficial</span>
-            </motion.button>
+            </button>
 
-            {/* Botón Sincronizar Wompi */}
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+            <button
+              type="button"
               onClick={handleSyncWompi}
               disabled={loading}
-              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-300 px-3.5 py-2.5 rounded-xl shadow-2xs transition-all cursor-pointer"
-              title="Consultar transacciones recientes en Wompi API"
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 ${loading ? 'animate-spin' : ''}`} />
               <span>{loading ? 'Sincronizando...' : 'Sincronizar Wompi'}</span>
-            </motion.button>
-
-            <Link
-              href="/dashboard/admin"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3.5 py-2.5 rounded-xl transition-colors cursor-pointer"
-            >
-              <span>Panel General</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            </button>
           </div>
-        </motion.div>
+        </header>
 
         {/* BARRA DE HERRAMIENTAS: NOTIFICACIONES DE ESCRITORIO, AUDIO & SIMULADOR EN VIVO */}
         <motion.div 

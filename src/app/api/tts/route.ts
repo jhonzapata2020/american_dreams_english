@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PRECACHED_INTENTS } from '../../../utils/adeVoiceControl';
-import { matchStaticResponse } from '../../../lib/adeLocalRouting';
+import { matchStaticResponse, LOCAL_ADE_ROUTES, normalizeText } from '../../../lib/adeLocalRouting';
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +27,16 @@ export async function POST(req: Request) {
     if (intentKey && PRECACHED_INTENTS[intentKey]) {
       return NextResponse.json(
         { cachedAudioUrl: PRECACHED_INTENTS[intentKey].audioUrl, intentKey, provider: 'ade-cache' },
+        { status: 200 }
+      );
+    }
+
+    // Coincidencia directa por texto exacto o normalizado con el catálogo de 34 audios locales
+    const normText = normalizeText(text);
+    const directRouteMatch = LOCAL_ADE_ROUTES.find((r) => normalizeText(r.text) === normText);
+    if (directRouteMatch) {
+      return NextResponse.json(
+        { cachedAudioUrl: directRouteMatch.audioUrl, intentKey: directRouteMatch.id, provider: 'ade-local-direct-text' },
         { status: 200 }
       );
     }

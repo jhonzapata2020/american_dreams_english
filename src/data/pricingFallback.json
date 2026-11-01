@@ -1,0 +1,42 @@
+{
+  "presencial": {
+    "ninos": {
+      "matricula": 50000,
+      "mensualidad": 150000
+    },
+    "adultos": {
+      "matricula": 50000,
+      "mensualidad": 200000
+    },
+    "becaElegible": true
+  },
+  "virtual": {
+    "ninos": {
+      "matricula": 50000,
+      "mensualidad": 250000
+    },
+    "adultos": {
+      "matricula": 50000,
+      "mensualidad": 300000
+    },
+    "becaElegible": false
+  },
+  "becados": {
+    "ninos": {
+      "matricula": 25000,
+      "mensualidad": 75000
+    },
+    "adultos": {
+      "matricula": 25000,
+      "mensualidad": 200000
+    },
+    "porcentajeSubvencion": 50
+  },
+  "subvencionesInfo": {
+    "aplicaPara": "Sede Presencial Turbo - Urabá (Exclusivo)",
+    "titulo": "Subvenciones y Becas Sociales Comunitarias",
+    "descripcion": "El Fondo de Becas ADE está destinado con estricto sentido ético exclusivamente a niños, jóvenes y adultos de bajos recursos de la región de Urabá (Turbo, Apartadó, Carepa y Necoclí) que asisten presencialmente a nuestras instalaciones físicas. La modalidad virtual no aplica para subvenciones sociales comunitarias.",
+    "requisito": "Residencia comprobada en Urabá, estrato 1 o 2 / SISBÉN A o B y modalidad 100% presencial."
+  },
+  "updatedAt": "2026-10-31T20:25:03.616Z"
+}

@@ -72,7 +72,7 @@ export const TopSubheader: React.FC<TopSubheaderProps> = ({ onOpenStudentPortal 
 
           <div className="flex items-center gap-1 text-slate-800 font-bold bg-white px-3 py-1 rounded-full border border-slate-300 shadow-2xs">
             <Phone className="w-3 h-3 text-red-600" />
-            <span className="text-navy-900">+57 (604) 827-2471</span>
+            <span className="text-navy-900">+57 312 745 9728</span>
           </div>
 
           <a

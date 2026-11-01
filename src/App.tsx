@@ -41,6 +41,9 @@ import AulaVirtualPage from './app/campus/curso/[id]/page';
 import AdminLoginPage from './app/admin/login/page';
 import LiquidacionesCorplexPage from './app/admin/liquidaciones/page';
 import AdminEstudiantesPage from './app/admin/estudiantes/page';
+import AdminCarruselPage from './app/admin/carrusel/page';
+import AnthonyCortesPage from './app/nosotros/anthony-cortes/page';
+import ProgramasPage from './app/programas/page';
 
 export function App() {
   const { currency: selectedCurrency, setCurrency: setSelectedCurrency } = useCurrency();
@@ -105,6 +108,9 @@ export function App() {
   if (currentPath === '/matricula') {
     return <MatriculaPage />;
   }
+  if (currentPath === '/programas') {
+    return <ProgramasPage />;
+  }
   if (currentPath === '/dashboard/admin') {
     return <AdminDashboardPage />;
   }
@@ -113,6 +119,12 @@ export function App() {
   }
   if (currentPath === '/admin/estudiantes' || currentPath === '/dashboard/admin/estudiantes') {
     return <AdminEstudiantesPage />;
+  }
+  if (currentPath === '/admin/carrusel' || currentPath === '/dashboard/admin/carrusel') {
+    return <AdminCarruselPage />;
+  }
+  if (currentPath === '/nosotros/anthony-cortes') {
+    return <AnthonyCortesPage />;
   }
   if (currentPath === '/admin/tienda' || currentPath === '/dashboard/admin/tienda' || currentPath === '/dashboard/admin/products' || currentPath === '/admin/products') {
     return <AdminProductsPage />;
@@ -187,7 +199,7 @@ export function App() {
         onCurrencyChange={setSelectedCurrency}
         onOpenDonationModal={() => setScholarshipModalOpen(true)}
         onOpenStudentPortal={handleOpenStudentPortal}
-        onOpenProgramas={() => setPresencialOpen(true)}
+        onOpenProgramas={() => { window.location.href = '/programas'; }}
         onOpenCursosDigitales={() => setDigitalStoreOpen(true)}
         onOpenClasesEnVivo={() => setLiveClassesOpen(true)}
         onOpenLocation={handleOpenComoLlegar}
@@ -200,7 +212,7 @@ export function App() {
         {/* 2. HeroSection */}
         <HeroSection
           onOpenDonation={() => setScholarshipModalOpen(true)}
-          onExplorePrograms={() => scrollToSection('segmentos')}
+          onExplorePrograms={() => { window.location.href = '/programas'; }}
           onOpenLocation={handleOpenComoLlegar}
         />
 

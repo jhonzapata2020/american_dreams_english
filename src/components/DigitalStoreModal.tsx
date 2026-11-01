@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, 
-  CheckCircle2, 
   ShoppingBag,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  MessageCircle,
+  Sparkles,
+  Award,
+  BookOpen
 } from 'lucide-react';
-import { Currency, PaymentProvider } from '../types';
+import { Currency } from '../types';
 import { createClient } from '../utils/supabase/client';
-import { formatMoney } from '../utils/formatters';
 import { useCurrency } from '../context/CurrencyContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SoftSwitch3D } from './ui/SoftSwitch3D';
-
-// Cache en memoria para renderizado instantáneo (0ms)
-let cachedProducts: Product[] | null = null;
+import { getWhatsAppUrl } from '../config/contact';
 
 export interface Product {
   id: string;
@@ -26,7 +26,12 @@ export interface Product {
   description: string;
   thumbnail: string;
   active?: boolean;
+  mcerLevel?: string;
+  deliveryMode?: string;
 }
+
+// Cache en memoria para renderizado instantáneo (0ms)
+let cachedProducts: Product[] | null = null;
 
 const FALLBACK_PRODUCTS: Product[] = [
   {
@@ -34,6 +39,8 @@ const FALLBACK_PRODUCTS: Product[] = [
     title: 'Masterclass 4K: Fonética y Pronunciación Nativa',
     category: 'masterclass',
     formatBadge: 'Video 4K',
+    mcerLevel: 'A1 - B2 Todos los niveles',
+    deliveryMode: 'Acceso Campus',
     usdPrice: 19,
     copPrice: 75000,
     description: 'Aprende los 44 fonemas del inglés con explicaciones en video 4K de docentes bilingües certificados.',
@@ -44,7 +51,9 @@ const FALLBACK_PRODUCTS: Product[] = [
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12',
     title: 'E-Book: Inglés Práctico para Negocios y Comercio Marítimo',
     category: 'ebooks',
-    formatBadge: 'PDF Interactivo',
+    formatBadge: 'E-book PDF',
+    mcerLevel: 'B1 - B2 Intermedio',
+    deliveryMode: 'Descarga Inmediata',
     usdPrice: 12,
     copPrice: 48000,
     description: 'Guía con vocabulario clave para entrevistas, logística comercial y comercio en puertos internacionales.',
@@ -56,6 +65,8 @@ const FALLBACK_PRODUCTS: Product[] = [
     title: 'Pack Completo A1-A2: Guías + Audios de Inmersión',
     category: 'audios',
     formatBadge: 'Audios + PDF',
+    mcerLevel: 'A1 - A2 Principiante',
+    deliveryMode: 'Descarga Inmediata',
     usdPrice: 29,
     copPrice: 115000,
     description: 'Más de 50 archivos de audio fonético descargables para entrenar el oído desde el celular.',
@@ -66,7 +77,9 @@ const FALLBACK_PRODUCTS: Product[] = [
     id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a14',
     title: 'Guía Rápida de Conectores y Fluidez B1-B2',
     category: 'ebooks',
-    formatBadge: 'PDF Descargable',
+    formatBadge: 'E-book PDF',
+    mcerLevel: 'B1 - B2 Intermedio',
+    deliveryMode: 'Descarga Inmediata',
     usdPrice: 9,
     copPrice: 36000,
     description: 'Resumen estructurado de conectores gramaticales para desenvolverte en debates y entrevistas.',
@@ -74,6 +87,99 @@ const FALLBACK_PRODUCTS: Product[] = [
     active: true
   }
 ];
+
+const I18N = {
+  es: {
+    modalTitle: 'Cursos Digitales & Recursos de Inglés',
+    modalSubtitle: 'Masterclasses en video 4K, guías interactivas y audios fonéticos',
+    currencyLabel: 'Moneda:',
+    allCategories: 'Todos los Cursos',
+    masterclassCategory: 'Masterclasses 4K',
+    ebooksCategory: 'E-books en PDF',
+    audiosCategory: 'Audios Fonéticos',
+    loading: 'Cargando catálogo de cursos digitales...',
+    officialPrice: 'Precio Oficial:',
+    buyNow: 'Adquirir vía WhatsApp',
+    buyNowAria: 'Adquirir vía WhatsApp',
+    customizeOrder: 'Personalizar datos',
+    backToCatalog: '← Volver al Catálogo de Productos',
+    checkoutTitle: 'Adquisición Asistida Inmediata',
+    checkoutSubtitle: 'Envío de enlaces de descarga y credenciales de acceso vía WhatsApp oficial',
+    fullNameLabel: 'Nombre Completo (Opcional)',
+    fullNamePlaceholder: 'Ej. Andrés Felipe',
+    emailLabel: 'Correo Electrónico (para respaldo de descarga)',
+    emailPlaceholder: 'andres@correo.com',
+    paymentNotice: 'Pasarelas automáticas en mantenimiento preventivo. Tu pedido es atendido y entregado de inmediato por el equipo académico vía WhatsApp.',
+    confirmWhatsApp: 'Adquirir vía WhatsApp Oficial →',
+    directWhatsAppBadge: 'Atención Inmediata',
+    closeAria: 'Cerrar ventana de cursos digitales',
+    currencyAria: 'Alternar moneda (COP / USD)',
+    defaultMcer: 'A1 - B2 Todos los niveles',
+    defaultDelivery: 'Descarga Inmediata',
+  },
+  en: {
+    modalTitle: 'Digital Courses & Learning Resources',
+    modalSubtitle: '4K Video Masterclasses, Interactive Guides & Audio Labs',
+    currencyLabel: 'Currency:',
+    allCategories: 'All Courses',
+    masterclassCategory: '4K Masterclasses',
+    ebooksCategory: 'PDF E-Books',
+    audiosCategory: 'Phonetic Audios',
+    loading: 'Loading digital courses catalog...',
+    officialPrice: 'Official Price:',
+    buyNow: 'Order via WhatsApp',
+    buyNowAria: 'Order via WhatsApp',
+    customizeOrder: 'Customize details',
+    backToCatalog: '← Back to Products Catalog',
+    checkoutTitle: 'Instant Assisted Purchase',
+    checkoutSubtitle: 'Direct delivery of download links & credentials via official WhatsApp',
+    fullNameLabel: 'Full Name (Optional)',
+    fullNamePlaceholder: 'E.g., John Doe',
+    emailLabel: 'Email Address (for download backup)',
+    emailPlaceholder: 'john@example.com',
+    paymentNotice: 'Automatic gateways undergoing maintenance. Your order is processed and delivered immediately by our academic team via WhatsApp.',
+    confirmWhatsApp: 'Order via Official WhatsApp →',
+    directWhatsAppBadge: 'Immediate Assistance',
+    closeAria: 'Close digital courses dialog',
+    currencyAria: 'Toggle currency (COP / USD)',
+    defaultMcer: 'A1 - B2 All Levels',
+    defaultDelivery: 'Instant Download',
+  }
+};
+
+function resolveProductBadges(prod: Product, isEn: boolean) {
+  // 1. Nivel MCER
+  let mcer = prod.mcerLevel;
+  if (!mcer) {
+    const t = prod.title.toLowerCase();
+    if (t.includes('b1') || t.includes('b2')) {
+      mcer = isEn ? 'B1 - B2 Intermediate' : 'B1 - B2 Intermedio';
+    } else if (t.includes('a1') || t.includes('a2')) {
+      mcer = isEn ? 'A1 - A2 Beginner' : 'A1 - A2 Principiante';
+    } else {
+      mcer = isEn ? 'A1 - B2 All Levels' : 'A1 - B2 Todos los niveles';
+    }
+  }
+
+  // 2. Modo de Entrega
+  let delivery = prod.deliveryMode;
+  if (!delivery) {
+    delivery = prod.category === 'masterclass' 
+      ? (isEn ? 'Campus Access' : 'Acceso Campus') 
+      : (isEn ? 'Instant Download' : 'Descarga Inmediata');
+  }
+
+  // 3. Formato
+  let format = prod.formatBadge;
+  if (!format) {
+    if (prod.category === 'ebooks') format = 'E-book PDF';
+    else if (prod.category === 'masterclass') format = isEn ? 'Video 4K / Workshop' : 'Taller / Video 4K';
+    else if (prod.category === 'audios') format = 'Audios + PDF';
+    else format = 'Digital';
+  }
+
+  return { mcer, delivery, format };
+}
 
 interface DigitalStoreModalProps {
   isOpen: boolean;
@@ -87,6 +193,9 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 }) => {
   const { currency, setCurrency, formatPrice: formatCurrencyPrice } = useCurrency();
   const { language } = useLanguage();
+  const isEn = language === 'en';
+  const texts = isEn ? I18N.en : I18N.es;
+
   const [products, setProducts] = useState<Product[]>(cachedProducts || FALLBACK_PRODUCTS);
   const [loading, setLoading] = useState<boolean>(false);
   const [activeCategory, setActiveCategory] = useState<'all' | 'ebooks' | 'masterclass' | 'audios'>('all');
@@ -95,20 +204,14 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
   
   const [buyerName, setBuyerName] = useState('');
   const [buyerEmail, setBuyerEmail] = useState('');
-  const [selectedGateway, setSelectedGateway] = useState<PaymentProvider>('wompi');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [purchaseSuccess, setPurchaseSuccess] = useState(false);
 
-  const supabase = createClient();
-
-  // Consulta dinámica optimizada con cache en memoria y fallback instantáneo (0ms)
+  // Consulta dinámica optimizada con cache en memoria y fallback instantáneo
   const fetchActiveProducts = async () => {
-    // Si no hay productos en memoria en lo absoluto, mostramos el estado de carga
     if (!cachedProducts && products.length === 0) {
       setLoading(true);
     }
     try {
-      // Timeout de salvaguarda de 3.5s para no bloquear si Supabase tarda en responder
+      const supabase = createClient();
       const queryPromise = supabase
         .from('products')
         .select('*')
@@ -127,6 +230,8 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
           title: item.title,
           category: item.category || 'ebooks',
           formatBadge: item.format_badge || 'Digital 4K',
+          mcerLevel: item.mcer_level,
+          deliveryMode: item.delivery_mode,
           usdPrice: Number(item.price_usd) || 0,
           copPrice: Number(item.price_cop) || 0,
           description: item.description || '',
@@ -139,7 +244,7 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
         cachedProducts = FALLBACK_PRODUCTS;
         setProducts(FALLBACK_PRODUCTS);
       }
-    } catch (err) {
+    } catch {
       if (!cachedProducts) {
         cachedProducts = FALLBACK_PRODUCTS;
         setProducts(FALLBACK_PRODUCTS);
@@ -151,22 +256,28 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Si aún no hemos cacheado los productos de Supabase, consultamos en segundo plano
       if (!cachedProducts) {
         fetchActiveProducts();
       }
     }
   }, [isOpen]);
 
+  // Accesibilidad: Cierre con tecla Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        if (checkoutStep) {
+          setCheckoutStep(false);
+        } else {
+          onClose();
+        }
+      }
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, checkoutStep, onClose]);
 
   if (!isOpen) return null;
 
@@ -175,312 +286,327 @@ export const DigitalStoreModal: React.FC<DigitalStoreModalProps> = ({
     return p.category === activeCategory;
   });
 
-  const isUSD = currency === 'USD' || currency === 'EUR';
-
   const formatPrice = (prod: Product) => {
     return formatCurrencyPrice(prod.copPrice);
+  };
+
+  const buildWhatsAppUrl = (prod: Product, name?: string, email?: string) => {
+    const priceFormatted = formatPrice(prod);
+    const extraName = name?.trim() ? `\n*Nombre:* ${name.trim()}` : '';
+    const extraEmail = email?.trim() ? `\n*Correo de entrega:* ${email.trim()}` : '';
+
+    const message = isEn
+      ? `Hello American Dream English, I want to acquire the learning resource: "${prod.title}" for ${priceFormatted}.${extraName}${extraEmail}\n\nPlease share the payment instructions and instant access link.`
+      : `Hola American Dream English, quiero adquirir el recurso: "${prod.title}" por ${priceFormatted}.${extraName}${extraEmail}\n\nPor favor envíenme los datos de pago y el enlace de acceso inmediato.`;
+
+    return getWhatsAppUrl(message);
   };
 
   const handleStartCheckout = (product: Product) => {
     setSelectedProduct(product);
     setCheckoutStep(true);
-    setPurchaseSuccess(false);
-  };
-
-  const handleConfirmPurchase = (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-      setPurchaseSuccess(true);
-    }, 1500);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-sm animate-fadeIn">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fadeIn"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="digital-store-modal-title"
+    >
       
       {/* Backdrop Click Listener */}
-      <div className="absolute inset-0" onClick={onClose} />
+      <div 
+        className="absolute inset-0 cursor-pointer" 
+        onClick={onClose} 
+        aria-hidden="true"
+      />
 
-      {/* Modal Container */}
-      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 flex flex-col max-h-[90vh]">
+      {/* Modal Container: Flex Col + Max Height 90vh */}
+      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden z-10 flex flex-col max-h-[90vh] my-auto">
         
-        {/* MODAL HEADER */}
-        <div className="bg-navy-900 text-white p-6 flex items-center justify-between border-b border-navy-800">
+        {/* MODAL HEADER (Shrink-0 para no colapsar) */}
+        <div className="bg-[#002B49] text-white p-4 sm:p-5 flex items-center justify-between border-b border-[#001D33] shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-blue-600 rounded-xl text-white shadow-sm">
-              <ShoppingBag className="w-6 h-6" />
+            <div className="p-2 sm:p-2.5 bg-blue-600 rounded-xl text-white shadow-sm shrink-0">
+              <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <h3 className="font-extrabold text-lg text-white">
-                {language === 'en' ? 'Digital Courses & Learning Resources' : 'Cursos Digitales & Recursos de Inglés'}
+              <h3 id="digital-store-modal-title" className="font-extrabold text-base sm:text-lg text-white leading-tight">
+                {texts.modalTitle}
               </h3>
-              <p className="text-xs text-slate-300">
-                {language === 'en' 
-                  ? '4K Video Masterclasses, Interactive Guides & Audio Labs' 
-                  : 'Masterclasses en video 4K, guías interactivas y audios fonéticos'}
+              <p className="text-[11px] sm:text-xs text-slate-300">
+                {texts.modalSubtitle}
               </p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-navy-800 transition-colors"
+            aria-label={texts.closeAria}
+            className="p-1.5 sm:p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
 
-        {/* MODAL BODY */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        {/* MODAL BODY (Scroll interno flex-1 con padding inferior pb-6) */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 sm:space-y-5 pr-2 pb-6">
           
           {checkoutStep && selectedProduct ? (
-            /* CHECKOUT STEP VIEW */
-            <div className="space-y-6 max-w-xl mx-auto py-4">
+            /* CHECKOUT STEP VIEW: ATENCIÓN Y ENTREGA ASISTIDA POR WHATSAPP */
+            <div className="space-y-5 max-w-xl mx-auto py-2">
               
               <button
+                type="button"
                 onClick={() => setCheckoutStep(false)}
-                className="text-xs font-bold text-navy-900 hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-[#002B49] hover:underline flex items-center gap-1 cursor-pointer"
               >
-                ← Volver al Catálogo de Productos
+                {texts.backToCatalog}
               </button>
 
-              {purchaseSuccess ? (
-                <div className="bg-emerald-50 border border-emerald-200 p-8 rounded-3xl text-center space-y-4 animate-fadeIn">
-                  <CheckCircle2 className="w-14 h-14 text-emerald-600 mx-auto" />
-                  <h4 className="text-xl font-black text-navy-900">¡Compra Realizada con Éxito!</h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Hemos enviado el enlace de descarga directa de <strong>{selectedProduct.title}</strong> al correo electrónico <strong>{buyerEmail}</strong>.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setCheckoutStep(false);
-                      setSelectedProduct(null);
-                    }}
-                    className="bg-navy-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs"
-                  >
-                    Seguir Explorando Productos
-                  </button>
-                </div>
-              ) : (
-                <div className="bg-slate-50 border border-slate-200 p-6 rounded-3xl space-y-4">
-                  <div className="flex items-center space-x-4 border-b border-slate-200 pb-4">
-                    <img
-                      src={selectedProduct.thumbnail}
-                      alt={selectedProduct.title}
-                      className="w-16 h-16 rounded-xl object-cover"
-                    />
-                    <div>
-                      <span className="text-[10px] font-bold bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                        {selectedProduct.formatBadge}
+              <div className="bg-slate-50 border border-slate-200 p-5 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4">
+                
+                {/* Resumen del producto seleccionado con badges */}
+                <div className="flex items-center space-x-3.5 border-b border-slate-200 pb-4">
+                  <img
+                    src={selectedProduct.thumbnail}
+                    alt={selectedProduct.title}
+                    className="w-16 h-16 rounded-xl object-cover shrink-0 shadow-xs"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                      <span className="text-[9.5px] font-extrabold bg-blue-100 text-blue-900 px-2 py-0.5 rounded">
+                        {resolveProductBadges(selectedProduct, isEn).format}
                       </span>
-                      <h4 className="font-extrabold text-navy-900 text-sm mt-1">{selectedProduct.title}</h4>
-                      <p className="text-xs font-black text-crimson-600">{formatPrice(selectedProduct)}</p>
+                      <span className="text-[9.5px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
+                        {resolveProductBadges(selectedProduct, isEn).mcer}
+                      </span>
                     </div>
+                    <h4 className="font-extrabold text-slate-900 text-sm truncate">{selectedProduct.title}</h4>
+                    <p className="text-sm font-black text-red-600 mt-0.5">{formatPrice(selectedProduct)}</p>
+                  </div>
+                </div>
+
+                {/* Formulario informativo para WhatsApp */}
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {texts.fullNameLabel}
+                    </label>
+                    <input
+                      type="text"
+                      value={buyerName}
+                      onChange={(e) => setBuyerName(e.target.value)}
+                      placeholder={texts.fullNamePlaceholder}
+                      className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#002B49]"
+                    />
                   </div>
 
-                  <form onSubmit={handleConfirmPurchase} className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Nombre Completo *</label>
-                      <input
-                        type="text"
-                        required
-                        value={buyerName}
-                        onChange={(e) => setBuyerName(e.target.value)}
-                        placeholder="Ej. Andrés Felipe"
-                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                      />
-                    </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">
+                      {texts.emailLabel}
+                    </label>
+                    <input
+                      type="email"
+                      value={buyerEmail}
+                      onChange={(e) => setBuyerEmail(e.target.value)}
+                      placeholder={texts.emailPlaceholder}
+                      className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#002B49]"
+                    />
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Correo Electrónico (para envío de link) *</label>
-                      <input
-                        type="email"
-                        required
-                        value={buyerEmail}
-                        onChange={(e) => setBuyerEmail(e.target.value)}
-                        placeholder="andres@correo.com"
-                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-navy-900"
-                      />
-                    </div>
+                  {/* Aviso de atención directa y segura */}
+                  <div className="p-3 bg-emerald-50/80 border border-emerald-200/90 rounded-xl flex items-start gap-2.5">
+                    <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-emerald-900 leading-relaxed font-medium">
+                      {texts.paymentNotice}
+                    </p>
+                  </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Pasarela de Pago Segura</label>
-                      <div className="grid grid-cols-2 gap-2 text-xs font-bold">
-                        {isUSD ? (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedGateway('stripe')}
-                              className={`p-3 rounded-xl border transition-all text-center ${
-                                selectedGateway === 'stripe' ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-slate-700 border-slate-300'
-                              }`}
-                            >
-                              Stripe (USD)
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedGateway('paypal')}
-                              className={`p-3 rounded-xl border transition-all text-center ${
-                                selectedGateway === 'paypal' ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-slate-700 border-slate-300'
-                              }`}
-                            >
-                              PayPal (USD)
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedGateway('wompi')}
-                              className={`p-3 rounded-xl border transition-all text-center ${
-                                selectedGateway === 'wompi' ? 'bg-crimson-600 text-white border-crimson-600' : 'bg-white text-slate-700 border-slate-300'
-                              }`}
-                            >
-                              Wompi (PSE / Nequi)
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setSelectedGateway('redeban')}
-                              className={`p-3 rounded-xl border transition-all text-center ${
-                                selectedGateway === 'redeban' ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-slate-700 border-slate-300'
-                              }`}
-                            >
-                              Redeban (Tarjetas COP)
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isProcessing}
-                      className="w-full bg-crimson-600 hover:bg-crimson-700 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md transition-all text-xs uppercase tracking-wider flex items-center justify-center space-x-2 mt-4"
-                    >
-                      <span>{isProcessing ? 'Procesando Pago Seguro...' : `Pagar ${formatPrice(selectedProduct)}`}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </form>
+                  {/* Botón directo de redirección a WhatsApp */}
+                  <a
+                    href={buildWhatsAppUrl(selectedProduct, buyerName, buyerEmail)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3.5 px-6 rounded-xl shadow-md transition-all text-xs uppercase tracking-wider flex items-center justify-center space-x-2 mt-4 cursor-pointer"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span>{texts.confirmWhatsApp}</span>
+                  </a>
                 </div>
-              )}
+
+              </div>
 
             </div>
           ) : (
             /* CATALOG GRID VIEW */
             <>
               {/* Category Filter Pills & Currency Switch */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                <div className="flex items-center space-x-2 overflow-x-auto pb-1">
+              <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-slate-100 shrink-0">
+                <div className="flex items-center space-x-2 overflow-x-auto pb-1 max-w-full">
                   <button
+                    type="button"
                     onClick={() => setActiveCategory('all')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === 'all'
-                        ? 'bg-navy-900 text-white shadow-sm'
+                        ? 'bg-[#002B49] text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {language === 'en' ? 'All Courses' : 'Todos los Cursos'}
+                    {texts.allCategories}
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveCategory('masterclass')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === 'masterclass'
-                        ? 'bg-navy-900 text-white shadow-sm'
+                        ? 'bg-[#002B49] text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Masterclasses 4K
+                    {texts.masterclassCategory}
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveCategory('ebooks')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === 'ebooks'
-                        ? 'bg-navy-900 text-white shadow-sm'
+                        ? 'bg-[#002B49] text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {language === 'en' ? 'PDF E-Books' : 'E-books en PDF'}
+                    {texts.ebooksCategory}
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveCategory('audios')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                    className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
                       activeCategory === 'audios'
-                        ? 'bg-navy-900 text-white shadow-sm'
+                        ? 'bg-[#002B49] text-white shadow-sm'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    {language === 'en' ? 'Phonetic Audios' : 'Audios Fonéticos'}
+                    {texts.audiosCategory}
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-[11px] font-bold text-slate-500">{language === 'en' ? 'Currency:' : 'Moneda:'}</span>
+                {/* Currency Switch con soporte i18n */}
+                <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-2xl border border-slate-200 shadow-2xs shrink-0">
+                  <span className="text-[11px] font-bold text-slate-500">{texts.currencyLabel}</span>
                   <SoftSwitch3D
                     checked={currency === 'USD'}
                     onChange={(isUsd) => setCurrency(isUsd ? 'USD' : 'COP')}
                     leftLabel="COP"
                     rightLabel="USD"
                     size="sm"
-                    ariaLabel="Alternar moneda en cursos digitales"
+                    ariaLabel={texts.currencyAria}
                   />
                 </div>
               </div>
 
               {loading && products.length === 0 ? (
                 <div className="p-12 text-center text-slate-500 text-xs">
-                  <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-navy-900" />
-                  {language === 'en' ? 'Loading digital courses...' : 'Cargando catálogo de cursos digitales...'}
+                  <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#002B49]" />
+                  {texts.loading}
                 </div>
               ) : (
-                /* Product Cards Grid */
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {filteredProducts.map((prod) => (
-                    <div
-                      key={prod.id}
-                      className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col justify-between hover:border-navy-900 transition-all group"
-                    >
-                      <div>
-                        <div className="relative h-40 overflow-hidden">
-                          <img
-                            src={prod.thumbnail}
-                            alt={prod.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                          <span className="absolute top-3 right-3 bg-navy-900 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full shadow">
-                            {prod.formatBadge}
-                          </span>
-                        </div>
-
-                        <div className="p-5 space-y-2">
-                          <h4 className="font-extrabold text-navy-900 text-sm leading-snug">
-                            {prod.title}
-                          </h4>
-                          <p className="text-xs text-slate-600 leading-relaxed">
-                            {prod.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="p-5 pt-0 flex items-center justify-between border-t border-slate-200/60 mt-4">
+                /* Product Cards Grid: Altura simétrica, line-clamp y ratio compacto */
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pb-2">
+                  {filteredProducts.map((prod) => {
+                    const badges = resolveProductBadges(prod, isEn);
+                    return (
+                      <div
+                        key={prod.id}
+                        className="bg-slate-50/80 hover:bg-white rounded-2xl border border-slate-200/90 hover:border-[#002B49] shadow-xs hover:shadow-md transition-all flex flex-col justify-between overflow-hidden group"
+                      >
                         <div>
-                          <span className="text-[10px] text-slate-400 font-bold block">{language === 'en' ? 'Official Price:' : 'Precio Oficial:'}</span>
-                          <span className="text-lg font-black text-crimson-600">
-                            {formatPrice(prod)}
-                          </span>
+                          {/* Ratio compacto h-36 con badges sobre la imagen */}
+                          <div className="relative h-36 aspect-video sm:aspect-auto w-full overflow-hidden shrink-0 bg-slate-900">
+                            <img
+                              src={prod.thumbnail}
+                              alt={prod.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                            
+                            {/* Badge de Modo de Entrega (Arriba a la Izquierda) */}
+                            <span className="absolute top-2.5 left-2.5 bg-emerald-600/95 backdrop-blur-xs text-white text-[9.5px] font-bold px-2 py-0.5 rounded-full shadow-sm flex items-center gap-1">
+                              <Sparkles className="w-2.5 h-2.5 text-amber-300" />
+                              <span>{badges.delivery}</span>
+                            </span>
+
+                            {/* Badge de Formato Digital (Arriba a la Derecha) */}
+                            <span className="absolute top-2.5 right-2.5 bg-slate-950/85 backdrop-blur-xs text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-white/20 shadow-sm">
+                              {badges.format}
+                            </span>
+                          </div>
+
+                          {/* Cuerpo de la tarjeta: Badges + Título + Descripción con line-clamp */}
+                          <div className="p-4 sm:p-5 space-y-2">
+                            
+                            {/* Badges de nivel MCER y Formato descriptivo */}
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200/80">
+                                <Award className="w-3 h-3 text-blue-600 shrink-0" />
+                                <span>{badges.mcer}</span>
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200/80">
+                                <BookOpen className="w-3 h-3 text-amber-600 shrink-0" />
+                                <span>{badges.format}</span>
+                              </span>
+                            </div>
+
+                            <h4 className="font-extrabold text-slate-900 text-sm leading-snug line-clamp-2 min-h-[2.5rem]">
+                              {prod.title}
+                            </h4>
+
+                            <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 sm:line-clamp-3 min-h-[2.5rem]">
+                              {prod.description}
+                            </p>
+                          </div>
                         </div>
 
-                        <button
-                          onClick={() => handleStartCheckout(prod)}
-                          className="bg-navy-900 hover:bg-navy-800 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5"
-                        >
-                          <span>{language === 'en' ? 'Buy Now' : 'Comprar Ahora'}</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
+                        {/* Pie de tarjeta con precio y botón de compra vía WhatsApp */}
+                        <div className="p-4 sm:p-5 pt-3 flex items-center justify-between border-t border-slate-200/80 bg-white/50 shrink-0">
+                          <div>
+                            <span className="text-[10px] text-slate-400 font-bold block uppercase tracking-wider">
+                              {texts.officialPrice}
+                            </span>
+                            <span className="text-lg font-black text-red-600 tracking-tight leading-none">
+                              {formatPrice(prod)}
+                            </span>
+                          </div>
 
-                    </div>
-                  ))}
+                          <div className="flex items-center gap-1.5">
+                            {/* Botón Principal: Adquirir vía WhatsApp Directo */}
+                            <a
+                              href={buildWhatsAppUrl(prod)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label={`${texts.buyNowAria}: ${prod.title}`}
+                              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold px-3.5 py-2 rounded-xl text-xs transition-all shadow-sm flex items-center space-x-1.5 cursor-pointer whitespace-nowrap"
+                            >
+                              <MessageCircle className="w-3.5 h-3.5" />
+                              <span>{texts.buyNow} →</span>
+                            </a>
+
+                            {/* Botón secundario para personalizar datos si el usuario lo desea */}
+                            <button
+                              type="button"
+                              onClick={() => handleStartCheckout(prod)}
+                              className="p-2 text-slate-400 hover:text-[#002B49] hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                              title={texts.customizeOrder}
+                              aria-label={texts.customizeOrder}
+                            >
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </>

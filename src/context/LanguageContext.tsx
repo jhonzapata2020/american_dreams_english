@@ -16,6 +16,7 @@ export interface TranslationSchema {
     digitalCourses4k: string
     liveClassesTitle: string
     howToGetThere: string
+    about: string
   }
   hero: {
     badge: string
@@ -200,7 +201,8 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       academicPrograms: 'Programas Académicos',
       digitalCourses4k: 'Cursos Digitales 4K',
       liveClassesTitle: 'Clases en Vivo',
-      howToGetThere: 'Cómo Llegar'
+      howToGetThere: 'Cómo Llegar',
+      about: 'Nosotros'
     },
     hero: {
       badge: 'Abre las puertas del mundo al dominar el inglés',
@@ -338,7 +340,7 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       hoursSaturday: 'Sábados (Jornada Continua): 8:00 AM - 1:00 PM',
       hoursVirtual: 'Campus Virtual en Vivo: Acceso 24/7',
       phoneLabel: 'Línea Telefónica y Recepción',
-      phoneValue: '+57 (604) 827-2471 / +57 312 745 9728',
+      phoneValue: '+57 312 745 9728',
       phoneSub: 'Resolución Oficial de Educación No. 2471',
       openMaps: 'Abrir en Google Maps',
       openWaze: 'Navegar con Waze',
@@ -383,7 +385,8 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       academicPrograms: 'Academic Programs',
       digitalCourses4k: '4K Digital Courses',
       liveClassesTitle: 'Live Classes',
-      howToGetThere: 'How to Get Here'
+      howToGetThere: 'How to Get Here',
+      about: 'About'
     },
     hero: {
       badge: 'Open the doors of the world by mastering English',
@@ -521,7 +524,7 @@ export const DICTIONARY: Record<Language, TranslationSchema> = {
       hoursSaturday: 'Saturdays: 8:00 AM - 1:00 PM',
       hoursVirtual: 'Live Virtual Campus: 24/7 Global Access',
       phoneLabel: 'Direct Phone & Front Desk',
-      phoneValue: '+57 (604) 827-2471 / +57 312 745 9728',
+      phoneValue: '+57 312 745 9728',
       phoneSub: 'Official Education Resolution No. 2471',
       openMaps: 'Open in Google Maps',
       openWaze: 'Navigate with Waze',

@@ -5,6 +5,7 @@ export interface StoreProduct {
   category: 'ebooks' | 'masterclass' | 'audios' | 'libros' | 'uniformes' | 'merch'
   formatBadge: string
   copPrice: number
+  originalCopPrice?: number
   usdPrice: number
   description: string
   thumbnail: string

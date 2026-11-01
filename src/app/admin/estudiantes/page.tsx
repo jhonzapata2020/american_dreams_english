@@ -463,38 +463,39 @@ export default function AdminEstudiantesPage() {
       <div className="space-y-6 font-sans pb-12">
         
         {/* ========================================================================= */}
-        {/* CABECERA PRINCIPAL ESTILO SOFT 3D NEUMORPHIC                             */}
+        {/* 1. HEADER ESTANDARIZADO DE ESTUDIANTES                                    */}
         {/* ========================================================================= */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-2">
-          <div>
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">
-              <span className="text-blue-600 font-extrabold">Admin</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-              <span>Gestión de Estudiantes</span>
-            </div>
-            <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5 sm:gap-3">
-              <span>Lista de Estudiantes</span>
-              <span className="px-2.5 py-0.5 sm:px-3 sm:py-1 bg-blue-50 border border-blue-200 text-blue-700 text-[11px] sm:text-xs font-black rounded-full shadow-2xs">
+        <header className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/90 shadow-xs p-5 sm:p-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <Link href="/dashboard/admin" className="hover:text-blue-600 transition-colors flex items-center gap-1">
+                <span>Dashboard</span>
+              </Link>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
+              <span className="font-bold text-slate-900">Estudiantes & Matrículas</span>
+            </nav>
+            <div className="flex items-center gap-2.5 pt-0.5">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                Lista de Estudiantes Oficiales
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-black uppercase tracking-wider">
                 {students.length} Registrados
               </span>
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 sm:mt-1">
+            </div>
+            <p className="text-xs text-slate-500 font-medium">
               Control de matrículas, cursos MCER, credenciales y seguimiento por sedes de Urabá.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleOpenModal}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-xs rounded-2xl shadow-[0_4px_14px_rgba(37,99,235,0.3)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.4)] transition-all cursor-pointer"
-            >
-              <UserPlus className="w-4 h-4 text-blue-100" />
-              <span>+ Matricular Estudiante</span>
-            </motion.button>
-          </div>
-        </div>
+          <button
+            type="button"
+            onClick={handleOpenModal}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer active:scale-95"
+          >
+            <UserPlus className="w-4 h-4 stroke-[2.5]" />
+            <span>+ Matricular Estudiante</span>
+          </button>
+        </header>
 
         {/* ========================================================================= */}
         {/* 4 CARDS DE MÉTRICAS (SOFT 3D NEUMORPHIC WHITE - 2x2 on Mobile)            */}

@@ -31,9 +31,11 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Sparkles,
-  BarChart3
+  BarChart3,
+  Tv
 } from 'lucide-react'
 import { PresentationAnnotationToolbar } from './PresentationAnnotationToolbar'
+import { ThemeToggle } from '../ui/ThemeToggle'
 
 export type UserRole = 'admin' | 'teacher' | 'student'
 
@@ -75,6 +77,14 @@ export function DashboardLayout({
   const [isResizing, setIsResizing] = useState<boolean>(false)
   const sidebarRef = useRef<HTMLElement>(null)
   const isCollapsed = sidebarWidth <= 95
+
+  // Forzar inicio en Modo Claro al ingresar a cualquier vista del Dashboard
+  useEffect(() => {
+    try {
+      localStorage.setItem('ade_theme', 'light')
+      document.documentElement.classList.remove('dark')
+    } catch {}
+  }, [])
 
   useEffect(() => {
     async function loadUserProfile() {
@@ -217,7 +227,9 @@ export function DashboardLayout({
       { id: 'leads', label: 'Prospectos & Leads', href: '/dashboard/admin', icon: Inbox, badge: 'Nuevo', iconBg: 'bg-indigo-50 text-indigo-600', iconColor: 'text-indigo-600' },
       { id: 'marketing', label: 'Marketing & Telemetría', href: '/dashboard/admin', icon: BarChart3, badge: 'Métricas', iconBg: 'bg-rose-50 text-rose-600', iconColor: 'text-rose-600' },
       { id: 'estudiantes', label: 'Estudiantes & Matrículas', href: '/admin/estudiantes', icon: Users, badge: 'Prioritario', iconBg: 'bg-emerald-50 text-emerald-600', iconColor: 'text-emerald-600' },
+      { id: 'carrusel', label: 'Multimedia Carrusel', href: '/admin/carrusel', icon: Tv, badge: 'Home', iconBg: 'bg-orange-50 text-orange-600', iconColor: 'text-orange-600' },
       { id: 'docentes', label: 'Equipo Docente & Tutores', href: '/dashboard/admin', icon: GraduationCap, badge: 'Facultad', iconBg: 'bg-sky-50 text-sky-600', iconColor: 'text-sky-600' },
+      { id: 'tarifas', label: 'Tarifas & Matrículas', href: '/dashboard/admin/tarifas', icon: DollarSign, badge: 'Precios', iconBg: 'bg-emerald-50 text-emerald-600', iconColor: 'text-emerald-600' },
       { id: 'products', label: 'Catálogo Cursos & Aulas', href: '/dashboard/admin/products', icon: Package, iconBg: 'bg-purple-50 text-purple-600', iconColor: 'text-purple-600' },
       { id: 'liquidaciones', label: 'Liquidaciones CORPLEX', href: '/admin/liquidaciones', icon: Receipt, badge: 'Finanzas', iconBg: 'bg-teal-50 text-teal-600', iconColor: 'text-teal-600' },
       { id: 'becas', label: 'Postulaciones Becas Urabá', href: '/dashboard/admin', icon: Award, iconBg: 'bg-amber-50 text-amber-600', iconColor: 'text-amber-600' },
@@ -261,11 +273,11 @@ export function DashboardLayout({
   const roleBadgeInfo = roleStyles[userRole]
 
   return (
-    // LIENZO CLARO Y ESCULPIDO (NEUMORPHIC SOFT 3D CANVAS)
-    <div className="fixed inset-0 w-full h-[100dvh] bg-[#EDF2F7] text-slate-800 font-sans p-0 sm:p-3 md:p-5 flex items-center justify-center overflow-hidden z-0 select-none">
+    // LIENZO CLARO Y ESCULPIDO MODERNO
+    <div className="fixed inset-0 w-full h-[100dvh] bg-[#EDF2F7] text-slate-800 font-sans p-0 sm:p-3 md:p-5 flex items-center justify-center overflow-hidden z-0 select-none transition-colors duration-300">
       
       {/* UNIFIED CANVAS FRAME (Card 3D Flotante Gigante) */}
-      <div className="w-full max-w-[1600px] h-full sm:max-h-[96vh] bg-[#FAFBFD] rounded-none sm:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(15,23,42,0.12),0_0_1px_1px_rgba(255,255,255,1),inset_0_2px_1px_rgba(255,255,255,1)] border-0 sm:border border-slate-200/80 overflow-hidden flex flex-col lg:flex-row relative">
+      <div className="w-full max-w-[1600px] h-full sm:max-h-[96vh] bg-white rounded-none sm:rounded-[32px] shadow-[0_20px_60px_-15px_rgba(15,23,42,0.08)] border-0 sm:border border-slate-200/90 overflow-hidden flex flex-col lg:flex-row relative">
         
         {/* MOBILE TOP BAR */}
         <div className="lg:hidden bg-white/95 backdrop-blur-md text-slate-800 border-b border-slate-200/80 px-3.5 py-2.5 flex items-center justify-between sticky top-0 z-40 shrink-0">
@@ -290,6 +302,7 @@ export function DashboardLayout({
           </div>
 
           <div className="flex items-center gap-1.5">
+            <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 text-slate-700 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200/80 active:scale-95 transition-transform cursor-pointer"
@@ -309,18 +322,18 @@ export function DashboardLayout({
           />
         )}
 
-        {/* SIDEBAR RETRÁCTIL & RESIZABLE ESTILO VISUAL STUDIO CODE (LIGHT SOFT 3D) */}
+        {/* SIDEBAR RETRÁCTIL & RESIZABLE EN MODO CLARO UNIFICADO */}
         <aside
           ref={sidebarRef}
           style={{ width: mobileMenuOpen ? '290px' : `${sidebarWidth}px` }}
-          className={`fixed lg:relative top-0 left-0 z-50 lg:z-30 h-full max-w-[85vw] lg:max-w-none bg-[#F3F6FA] text-slate-800 flex flex-col justify-between shrink-0 transition-all ${
+          className={`fixed lg:relative top-0 left-0 z-50 lg:z-30 h-full max-w-[85vw] lg:max-w-none bg-[#F8FAFC] text-slate-800 flex flex-col justify-between shrink-0 transition-all ${
             isResizing ? 'transition-none' : 'duration-200'
-          } lg:translate-x-0 overflow-visible relative border-r border-slate-200/80 shadow-[8px_0_25px_rgba(0,0,0,0.12)] lg:shadow-[4px_0_15px_rgba(0,0,0,0.02)] ${
+          } lg:translate-x-0 overflow-visible relative border-r border-slate-200/90 shadow-[8px_0_25px_rgba(0,0,0,0.06)] lg:shadow-[4px_0_15px_rgba(0,0,0,0.02)] ${
             mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
           }`}
         >
           {/* HEADER DEL SIDEBAR: LOGO + TOGGLE RÁPIDO */}
-          <div className="p-4 border-b border-slate-200/70 flex flex-col justify-between shrink-0">
+          <div className="p-4 border-b border-slate-200/70 dark:border-[#1E2230] flex flex-col justify-between shrink-0">
             <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} gap-2`}>
               
               {/* Logo en modo Expandido vs Colapsado */}
@@ -329,7 +342,7 @@ export function DashboardLayout({
                   type="button"
                   onClick={() => onTabChange && onTabChange('overview')}
                   title="American Dream English"
-                  className="w-12 h-12 rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] border border-slate-200/80 flex items-center justify-center p-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+                  className="w-12 h-12 rounded-2xl bg-white dark:bg-[#151824] shadow-[0_4px_10px_rgba(0,0,0,0.06)] dark:shadow-none border border-slate-200/80 dark:border-[#232738] flex items-center justify-center p-2 hover:scale-105 active:scale-95 transition-transform cursor-pointer"
                 >
                   <img 
                     src="/logo-american-dream.png" 
@@ -343,7 +356,7 @@ export function DashboardLayout({
                     type="button"
                     onClick={() => onTabChange && onTabChange('overview')}
                     title="Visión General"
-                    className="w-11 h-11 rounded-2xl bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] border border-slate-200/80 flex items-center justify-center p-1.5 shrink-0 hover:scale-105 transition-transform cursor-pointer"
+                    className="w-11 h-11 rounded-2xl bg-white dark:bg-[#151824] shadow-[0_4px_10px_rgba(0,0,0,0.06)] dark:shadow-none border border-slate-200/80 dark:border-[#232738] flex items-center justify-center p-1.5 shrink-0 hover:scale-105 transition-transform cursor-pointer"
                   >
                     <img 
                       src="/logo-american-dream.png" 
@@ -352,10 +365,10 @@ export function DashboardLayout({
                     />
                   </button>
                   <div className="min-w-0 flex-1">
-                    <h2 className="text-xs font-black text-slate-900 tracking-tight truncate leading-tight">
+                    <h2 className="text-xs font-black text-slate-900 dark:text-white tracking-tight truncate leading-tight">
                       AMERICAN DREAM
                     </h2>
-                    <p className="text-[10px] text-slate-500 font-medium truncate">
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium truncate">
                       Sede Urabá · Admin
                     </p>
                   </div>
@@ -367,7 +380,7 @@ export function DashboardLayout({
                 type="button"
                 onClick={toggleCollapse}
                 title={isCollapsed ? 'Expandir menú lateral' : 'Colapsar a sólo iconos'}
-                className="hidden lg:flex w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-500 hover:text-blue-600 items-center justify-center border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+                className="hidden lg:flex w-8 h-8 rounded-xl bg-white dark:bg-[#151824] hover:bg-slate-100 dark:hover:bg-[#1E2232] text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-violet-400 items-center justify-center border border-slate-200 dark:border-[#232738] shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
               </button>
@@ -377,7 +390,7 @@ export function DashboardLayout({
                 type="button"
                 onClick={() => setMobileMenuOpen(false)}
                 title="Cerrar menú"
-                className="lg:hidden w-8 h-8 rounded-xl bg-white hover:bg-slate-100 text-slate-600 flex items-center justify-center border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
+                className="lg:hidden w-8 h-8 rounded-xl bg-white dark:bg-[#151824] hover:bg-slate-100 dark:hover:bg-[#1E2232] text-slate-600 dark:text-slate-300 flex items-center justify-center border border-slate-200 dark:border-[#232738] shadow-2xs transition-all active:scale-95 cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -387,10 +400,10 @@ export function DashboardLayout({
             {!isCollapsed && (
               <div className="mt-3 flex items-center justify-between">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-bold rounded-full border shadow-2xs ${roleBadgeInfo.badgeBg} ${roleBadgeInfo.badgeText} ${roleBadgeInfo.border}`}>
-                  <ShieldCheck className="w-3 h-3 text-blue-600" />
+                  <ShieldCheck className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                   <span>{roleBadgeInfo.label}</span>
                 </span>
-                <span className="text-[10px] font-mono text-slate-400">v2.4 Live</span>
+                <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">v2.4 Live</span>
               </div>
             )}
           </div>
@@ -398,7 +411,7 @@ export function DashboardLayout({
           {/* LISTA DE ENLACES DE NAVEGACIÓN */}
           <div className="p-3 space-y-1.5 overflow-y-auto overflow-x-hidden no-scrollbar flex-1 min-h-0">
             {!isCollapsed && (
-              <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wider px-2.5 mb-2">
+              <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider px-2.5 mb-2">
                 Navegación Principal
               </p>
             )}
@@ -426,7 +439,7 @@ export function DashboardLayout({
                       href={item.href}
                       onClick={(e) => {
                         setMobileMenuOpen(false)
-                        if (onTabChange && item.id && item.href.startsWith('/dashboard/admin') && !item.href.includes('/products')) {
+                        if (onTabChange && item.id && item.href === '/dashboard/admin') {
                           e.preventDefault()
                           onTabChange(item.id)
                         }
@@ -435,25 +448,25 @@ export function DashboardLayout({
                         isCollapsed ? 'justify-center p-2.5' : 'justify-between px-3 py-2.5'
                       } rounded-2xl transition-colors cursor-pointer select-none ${
                         isActive
-                          ? 'text-slate-900 font-black'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-white/60 font-semibold'
+                          ? 'text-slate-900 dark:text-white font-black'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/[0.05] font-semibold'
                       }`}
                     >
-                      {/* Píldora Deslizante LayoutId con Sombra Volumétrica Suave */}
+                      {/* Píldora Deslizante Activa en Modo Claro */}
                       {isActive && (
                         <motion.div
                           layoutId="activeAdminNavPill"
-                          className="absolute inset-0 bg-white rounded-2xl shadow-[0_4px_14px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1),inset_0_-2px_0_rgba(203,213,225,0.7)] border border-slate-200/90 -z-10"
+                          className="absolute inset-0 bg-white rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] border border-slate-200/90 -z-10"
                           transition={{ type: 'spring', stiffness: 450, damping: 30 }}
                         />
                       )}
 
                       <div className="flex items-center gap-3 min-w-0 relative z-10">
-                        {/* Cápsula del Icono 3D */}
+                        {/* Cápsula del Icono */}
                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 ${
                           isActive
-                            ? 'bg-blue-600 text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)]'
-                            : `${item.iconBg || 'bg-slate-100 text-slate-600'} group-hover:bg-blue-50 group-hover:text-blue-600 border border-slate-200/50 shadow-2xs`
+                            ? 'bg-blue-600 dark:bg-white/20 text-white shadow-[0_4px_10px_rgba(37,99,235,0.35)] dark:shadow-none'
+                            : `${item.iconBg || 'bg-slate-100 dark:bg-[#151824] text-slate-600 dark:text-slate-400'} group-hover:bg-blue-50 dark:group-hover:bg-white/10 group-hover:text-blue-600 dark:group-hover:text-white border border-slate-200/50 dark:border-[#232738] shadow-2xs`
                         }`}>
                           <Icon className="w-4 h-4" />
                         </div>
@@ -472,24 +485,24 @@ export function DashboardLayout({
                           {item.badge && (
                             <span className={`px-2 py-0.5 text-[9px] font-bold rounded-md font-mono ${
                               isActive 
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200/60' 
-                                : 'bg-slate-200/70 text-slate-600'
+                                ? 'bg-blue-50 dark:bg-white/20 text-blue-700 dark:text-white border border-blue-200/60 dark:border-transparent' 
+                                : 'bg-slate-200/70 dark:bg-[#1C2030] text-slate-600 dark:text-slate-300'
                             }`}>
                               {item.badge}
                             </span>
                           )}
                           {isActive && (
-                            <ChevronRight className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                            <ChevronRight className="w-3.5 h-3.5 text-blue-600 dark:text-white shrink-0" />
                           )}
                         </div>
                       )}
 
                       {/* TOOLTIP FLOTANTE EN MODO COLAPSADO (ESTILO VS CODE) */}
                       {isCollapsed && (
-                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
+                        <div className="absolute left-full ml-3 px-3 py-1.5 rounded-xl bg-slate-900 dark:bg-[#181B28] text-white text-xs font-bold whitespace-nowrap shadow-xl border border-transparent dark:border-[#262B3D] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50 flex items-center gap-2">
                           <span>{item.label}</span>
                           {item.badge && (
-                            <span className="px-1.5 py-0.2 bg-blue-500 text-white rounded text-[10px] font-mono">
+                            <span className="px-1.5 py-0.2 bg-violet-600 text-white rounded text-[10px] font-mono">
                               {item.badge}
                             </span>
                           )}
@@ -502,18 +515,18 @@ export function DashboardLayout({
             </nav>
           </div>
 
-          {/* FOOTER DEL SIDEBAR: PERFIL DE USUARIO Y CIERRE DE SESIÓN */}
-          <div className="p-3 border-t border-slate-200/70 bg-[#EAF0F6] shrink-0">
+          {/* FOOTER DEL SIDEBAR: PERFIL DE USUARIO Y CIERRE DE SESIÓN (SIN PARCHES CLAROS) */}
+          <div className="p-3 border-t border-slate-200/70 dark:border-[#1E2230] bg-[#EAF0F6] dark:bg-[#0E1019] shrink-0">
             {isCollapsed ? (
               <div className="flex flex-col items-center gap-2">
                 {/* Avatar Compacto con Tooltip */}
                 <div 
-                  className="group relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md cursor-default"
+                  className="group relative w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shadow-md cursor-default"
                 >
                   {userName ? userName.charAt(0).toUpperCase() : 'A'}
-                  <div className="absolute left-full ml-3 px-3 py-1 rounded-xl bg-slate-900 text-white text-[11px] whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                  <div className="absolute left-full ml-3 px-3 py-1 rounded-xl bg-slate-900 dark:bg-[#181B28] text-white text-[11px] whitespace-nowrap shadow-xl border border-transparent dark:border-[#262B3D] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
                     <p className="font-bold">{userName || 'Administrador'}</p>
-                    <p className="text-[10px] text-slate-300">{userEmail}</p>
+                    <p className="text-[10px] text-slate-300 dark:text-slate-400">{userEmail}</p>
                   </div>
                 </div>
 
@@ -522,23 +535,23 @@ export function DashboardLayout({
                   type="button"
                   onClick={handleSignOut}
                   title="Cerrar Sesión"
-                  className="group relative w-10 h-10 rounded-2xl bg-white hover:bg-rose-50 text-slate-500 hover:text-rose-600 flex items-center justify-center border border-slate-200 shadow-2xs transition-colors cursor-pointer"
+                  className="group relative w-10 h-10 rounded-2xl bg-white dark:bg-[#141622] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 flex items-center justify-center border border-slate-200 dark:border-[#232738] shadow-2xs transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
-                  <div className="absolute left-full ml-3 px-2.5 py-1 rounded-xl bg-slate-900 text-white text-[10px] font-bold whitespace-nowrap shadow-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
+                  <div className="absolute left-full ml-3 px-2.5 py-1 rounded-xl bg-slate-900 dark:bg-[#181B28] text-white text-[10px] font-bold whitespace-nowrap shadow-xl border border-transparent dark:border-[#262B3D] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity z-50">
                     Cerrar Sesión
                   </div>
                 </button>
               </div>
             ) : (
-              <div className="bg-white border border-slate-200/90 p-2.5 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs">
+              <div className="bg-white dark:bg-[#141622] border border-slate-200/90 dark:border-[#232738] p-2.5 rounded-2xl flex items-center justify-between gap-2.5 shadow-2xs dark:shadow-none">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">
                     {userName ? userName.charAt(0).toUpperCase() : 'A'}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold text-slate-900 truncate leading-tight">{userName || 'Administrador'}</p>
-                    <p className="text-[10px] text-slate-500 truncate">{userEmail || 'admin@americandream.edu.co'}</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate leading-tight">{userName || 'Administrador'}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">{userEmail || 'admin@americandream.edu.co'}</p>
                   </div>
                 </div>
 
@@ -546,7 +559,7 @@ export function DashboardLayout({
                   type="button"
                   onClick={handleSignOut}
                   title="Cerrar Sesión"
-                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors shrink-0 cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 dark:hover:text-rose-400 rounded-xl transition-colors shrink-0 cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
@@ -558,62 +571,23 @@ export function DashboardLayout({
           <div
             onMouseDown={startResizing}
             onDoubleClick={toggleCollapse}
-            className="hidden lg:flex items-center justify-center absolute top-0 -right-1 w-2.5 h-full cursor-col-resize z-50 select-none group hover:bg-blue-500/20 active:bg-blue-600/30 transition-colors"
+            className="hidden lg:flex items-center justify-center absolute top-0 -right-1 w-2.5 h-full cursor-col-resize z-50 select-none group hover:bg-violet-500/20 active:bg-violet-600/30 transition-colors"
             title="Arrastra para redimensionar o doble clic para alternar sólo iconos"
           >
             {/* Línea vertical sutil */}
-            <div className={`w-[2px] h-full transition-colors ${isResizing ? 'bg-blue-600' : 'bg-slate-200/80 group-hover:bg-blue-500'}`} />
+            <div className={`w-[2px] h-full transition-colors ${isResizing ? 'bg-violet-600' : 'bg-slate-200/80 dark:bg-[#1E2230] group-hover:bg-violet-500'}`} />
             {/* Micro-tirador central */}
-            <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-8 rounded-full bg-white shadow-md border border-slate-200 flex items-center justify-center transition-opacity pointer-events-none ${
-              isResizing ? 'opacity-100 ring-2 ring-blue-400' : 'opacity-0 group-hover:opacity-100'
+            <div className={`absolute top-1/2 -translate-y-1/2 w-3.5 h-8 rounded-full bg-white dark:bg-[#1E2230] shadow-md border border-slate-200 dark:border-[#2E344A] flex items-center justify-center transition-opacity pointer-events-none ${
+              isResizing ? 'opacity-100 ring-2 ring-violet-400' : 'opacity-0 group-hover:opacity-100'
             }`}>
-              <div className="w-0.5 h-3 bg-slate-400 rounded-full" />
+              <div className="w-0.5 h-3 bg-slate-400 dark:bg-slate-500 rounded-full" />
             </div>
           </div>
         </aside>
 
-        {/* ÁREA PRINCIPAL DE CONTENIDO (SE EXPANDE FLUIDAMENTE AL CONTRAER EL SIDEBAR) */}
-        <div className="flex-1 flex flex-col min-w-0 bg-[#FAFBFD] p-3 sm:p-5 md:p-6 pb-24 lg:pb-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full">
+        {/* ÁREA PRINCIPAL DE CONTENIDO EN MODO CLARO UNIFICADO */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[#F8FAFC] text-slate-800 p-3 sm:p-5 md:p-6 pb-24 lg:pb-6 overflow-y-auto overflow-x-hidden no-scrollbar h-full transition-colors duration-300">
           
-          {/* TOP BREADCRUMB & STATUS BAR */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-200/70 mb-4 shrink-0">
-            
-            {/* BREADCRUMB CON ESTILO NEUMÓRFICO SUAVE */}
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 overflow-x-auto no-scrollbar py-0.5">
-              <a href="https://americandreamenglish.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors flex items-center gap-1 shrink-0">
-                <Globe className="w-3.5 h-3.5 text-slate-400" />
-                <span>Inicio</span>
-              </a>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-              <span className="text-slate-600 font-medium shrink-0">Dashboard</span>
-              <ChevronRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-              <span className="text-slate-900 capitalize font-extrabold truncate">{title || roleBadgeInfo.label}</span>
-            </div>
-
-            {/* STATUS BADGES CLAROS */}
-            <div className="flex items-center gap-2 sm:gap-3 text-xs justify-between sm:justify-end">
-              {/* PRESENTACIÓN Y ANOTACIONES CON LÁSER */}
-              <PresentationAnnotationToolbar />
-
-              <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 bg-emerald-50 text-emerald-800 rounded-full border border-emerald-200/80 font-bold text-[10px] sm:text-[11px] shadow-2xs">
-                <Lock className="w-3 h-3 text-emerald-600" />
-                <span>SSL 256-bit</span>
-              </div>
-
-              <a
-                href="https://americandreamenglish.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-blue-700 font-bold rounded-xl text-xs transition-colors border border-slate-200/90 shadow-2xs flex items-center gap-1.5"
-              >
-                <Globe className="w-3.5 h-3.5 text-blue-600" />
-                <span className="hidden xs:inline">Sitio Público</span>
-                <span className="xs:hidden">Web</span>
-              </a>
-            </div>
-
-          </div>
-
           {/* CONTENIDO DE LA PÁGINA */}
           <main className="flex-1 min-w-0">
             {children}
@@ -626,7 +600,7 @@ export function DashboardLayout({
         {/* ========================================================================= */}
         <nav 
           aria-label="Navegación móvil"
-          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/90 px-2 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[calc(0.4rem+env(safe-area-inset-bottom))]"
+          className="lg:hidden fixed bottom-0 left-0 right-0 z-30 bg-white/95 dark:bg-[#0B0D14]/95 backdrop-blur-md border-t border-slate-200/90 dark:border-[#1E2230] px-2 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[calc(0.4rem+env(safe-area-inset-bottom))]"
         >
           <div className="flex items-center justify-around max-w-lg mx-auto">
             {/* 1. Resumen / Overview */}

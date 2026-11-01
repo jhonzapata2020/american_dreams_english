@@ -26,6 +26,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '../../utils/supabase/client'
 import { useCurrency } from '../../context/CurrencyContext'
+import { useAcademicPricing } from '../../context/PricingContext'
 import { SoftSwitch3D } from '../../components/ui/SoftSwitch3D'
 import { getWhatsAppUrl } from '../../config/contact'
 
@@ -139,12 +140,61 @@ export default function MatriculaPage() {
 
   // Sistema dinámico de divisas con TRM en vivo
   const { currency, setCurrency, exchangeRate, formatPrice } = useCurrency()
+  const { pricing } = useAcademicPricing()
+
+  // Tarifas dinámicas según modalidad seleccionada (Presencial Sede Turbo vs Virtual Online)
+  const isVirtual = modality === 'virtual'
+  const dynamicAdultosMonthly = isVirtual ? pricing.virtual.adultos.mensualidad : pricing.presencial.adultos.mensualidad
+  const dynamicNinosMonthly = isVirtual ? pricing.virtual.ninos.mensualidad : pricing.presencial.ninos.mensualidad
+  const dynamicMatricula = isVirtual ? pricing.virtual.adultos.matricula : pricing.presencial.adultos.matricula
+
+  // Programas con tarifas calculadas en tiempo real
+  const currentPrograms: AcademicProgram[] = [
+    {
+      id: 'prog-adultos',
+      title: 'Programa Jóvenes y Adultos',
+      targetAudience: 'adultos',
+      monthlyFeeCop: dynamicAdultosMonthly,
+      monthlyFeeUsd: Math.round(dynamicAdultosMonthly / (exchangeRate || 4050)),
+      description: isVirtual 
+        ? 'Aulas virtuales 24/7, docentes en vivo por Teams, laboratorios fonéticos y preparación MCER.'
+        : 'Inmersión conversacional presencial en campus Turbo, laboratorios fonéticos y preparación progresiva MCER (A1 a B2).',
+      badge: 'Más Solicitado'
+    },
+    {
+      id: 'prog-ninos',
+      title: 'Programa Niños (Hasta 12 Años)',
+      targetAudience: 'niños',
+      monthlyFeeCop: dynamicNinosMonthly,
+      monthlyFeeUsd: Math.round(dynamicNinosMonthly / (exchangeRate || 4050)),
+      description: 'Metodología lúdica, canciones, cuentos y fonética intuitiva para niños y niñas.',
+      badge: 'Kids & Junior'
+    },
+    {
+      id: 'prog-intensivo',
+      title: 'Programa Intensivo Conversacional',
+      targetAudience: 'adultos',
+      monthlyFeeCop: isVirtual ? 380000 : 320000,
+      monthlyFeeUsd: Math.round((isVirtual ? 380000 : 320000) / (exchangeRate || 4050)),
+      description: 'Bootcamp intensivo diario para alcanzar fluidez laboral y dominio conversacional rápido.',
+      badge: 'Inmersión Acelerada'
+    },
+    {
+      id: 'prog-empresas',
+      title: 'English for Business & Empresas',
+      targetAudience: 'adultos',
+      monthlyFeeCop: isVirtual ? 350000 : 280000,
+      monthlyFeeUsd: Math.round((isVirtual ? 350000 : 280000) / (exchangeRate || 4050)),
+      description: 'Capacitación ejecutiva a la medida para directivos, equipos corporativos y negocios globales.',
+      badge: 'B2B / Corporativo'
+    }
+  ]
 
   // Programa seleccionado
-  const selectedProgram = ACADEMIC_PROGRAMS.find((p) => p.id === selectedProgramId) || ACADEMIC_PROGRAMS[0]
+  const selectedProgram = currentPrograms.find((p) => p.id === selectedProgramId) || currentPrograms[0]
 
   // Liquidación del pago a realizar hoy
-  const matriculaAmount = MATRICULA_BASE_COP
+  const matriculaAmount = dynamicMatricula
   const tuitionDueToday = paymentMode === 'full' ? selectedProgram.monthlyFeeCop : 0
   const pendingTuitionBalance = paymentMode === 'matricula_only' ? selectedProgram.monthlyFeeCop : 0
   const addonAmount = includeAddon ? ADDON_EBOOK_MASTERCLASS_COP : 0
@@ -689,7 +739,7 @@ export default function MatriculaPage() {
 
                 {/* Listado limpio de programas formativos */}
                 <div className="space-y-2.5">
-                  {ACADEMIC_PROGRAMS.map((prog) => {
+                  {currentPrograms.map((prog) => {
                     const isSelected = prog.id === selectedProgramId
                     return (
                       <div

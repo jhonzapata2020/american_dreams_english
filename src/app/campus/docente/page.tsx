@@ -51,6 +51,7 @@ import {
   UserPlus,
   Copy
 } from 'lucide-react'
+import { ThemeToggle } from '../../../components/ui/ThemeToggle'
 import { createClient } from '../../../utils/supabase/client'
 import { StudentProfileData } from '../../../components/campus/StudentProfileModal'
 import { StudyMaterial as TeacherStudyMaterial, INITIAL_MATERIALS_BY_LEVEL, formatAudioStreamUrl } from '../../../data/studyMaterials'
@@ -1344,7 +1345,7 @@ export default function TeacherCampusPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-[#070D18] sm:bg-[#0B132B] text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start">
+    <div className="min-h-screen bg-[#070D18] sm:bg-[#0B132B] text-slate-900 flex flex-col font-sans selection:bg-amber-400 selection:text-slate-900 pb-16 sm:py-6 sm:px-4 items-center justify-start dashboard-theme-scope">
       
       {/* ========================================================================= */}
       {/* CONTENEDOR PRINCIPAL AMPLIO CON ESQUINAS REDONDEADAS TIPO APP DE ALTA GAMA */}
@@ -1404,15 +1405,18 @@ export default function TeacherCampusPage() {
                   </div>
                 </div>
 
-                {/* Botón Salir Móvil */}
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="sm:hidden inline-flex items-center justify-center p-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
-                  title="Cerrar Sesión Segura"
-                >
-                  <LogOut className="w-4 h-4" />
-                </button>
+                {/* Controles Móviles: Alternar Tema + Salir */}
+                <div className="sm:hidden flex items-center gap-1.5 shrink-0">
+                  <ThemeToggle />
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="inline-flex items-center justify-center p-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-400/30 text-rose-300 hover:text-white rounded-xl text-xs font-bold transition-colors cursor-pointer shrink-0"
+                    title="Cerrar Sesión Segura"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Bloque Derecho: Selector de Nivel con LayoutId + Ver Aula + Salir */}
@@ -1459,6 +1463,11 @@ export default function TeacherCampusPage() {
                     <span>Ver Aula {activeLevel.toUpperCase()}</span>
                   </Link>
                 </motion.div>
+
+                {/* BOTÓN CELESTIAL TEMA CLARO / OSCURO PARA EL DOCENTE */}
+                <div className="hidden sm:block">
+                  <ThemeToggle />
+                </div>
 
                 {/* Salir Desktop */}
                 <motion.button

@@ -54,3 +54,94 @@
 ::-webkit-scrollbar-thumb {
   background: transparent !important;
 }
+
+/* ========================================================================= */
+/* MODO OSCURO INTEGRAL PARA DASHBOARDS (PORTAL DOCENTE & PANEL DIRECTIVO)  */
+/* Reduce la fatiga visual de docentes y administradores sin alterar la web */
+/* ========================================================================= */
+html.dark .dashboard-theme-scope {
+  color-scheme: dark;
+}
+
+/* Contenedores y tarjetas principales */
+html.dark .dashboard-theme-scope .bg-white,
+html.dark .dashboard-theme-scope [class*="from-white"] {
+  background-color: #0E1726 !important;
+  background-image: none !important;
+  color: #F1F5F9;
+}
+
+/* Superficies secundarias suaves y divisores */
+html.dark .dashboard-theme-scope .bg-slate-50,
+html.dark .dashboard-theme-scope .bg-slate-50\/60,
+html.dark .dashboard-theme-scope .bg-slate-50\/70,
+html.dark .dashboard-theme-scope .bg-slate-50\/80,
+html.dark .dashboard-theme-scope .bg-slate-50\/90,
+html.dark .dashboard-theme-scope .bg-slate-50\/95,
+html.dark .dashboard-theme-scope .bg-slate-100,
+html.dark .dashboard-theme-scope .bg-\[\#FAFBFD\],
+html.dark .dashboard-theme-scope .bg-\[\#F3F6FA\],
+html.dark .dashboard-theme-scope .bg-\[\#EDF2F7\] {
+  background-color: #070D18 !important;
+  color: #E2E8F0;
+}
+
+/* Jerarquía tipográfica en modo noche */
+html.dark .dashboard-theme-scope .text-slate-900,
+html.dark .dashboard-theme-scope .text-slate-800 {
+  color: #F8FAFC !important;
+}
+
+html.dark .dashboard-theme-scope .text-slate-700,
+html.dark .dashboard-theme-scope .text-slate-600 {
+  color: #CBD5E1 !important;
+}
+
+html.dark .dashboard-theme-scope .text-slate-500 {
+  color: #94A3B8 !important;
+}
+
+html.dark .dashboard-theme-scope .text-slate-400 {
+  color: #64748B !important;
+}
+
+/* Bordes atenuados para descanso ocular */
+html.dark .dashboard-theme-scope .border-slate-200,
+html.dark .dashboard-theme-scope .border-slate-200\/90,
+html.dark .dashboard-theme-scope .border-slate-200\/80,
+html.dark .dashboard-theme-scope .border-slate-200\/70,
+html.dark .dashboard-theme-scope .border-slate-100 {
+  border-color: #1E293B !important;
+}
+
+/* Tablas ejecutivas, filas y encabezados */
+html.dark .dashboard-theme-scope table th {
+  background-color: #0B1526 !important;
+  color: #94A3B8 !important;
+  border-color: #1E293B !important;
+}
+
+html.dark .dashboard-theme-scope table td {
+  background-color: #0E1726 !important;
+  border-color: #1E293B !important;
+  color: #E2E8F0 !important;
+}
+
+html.dark .dashboard-theme-scope table tr:hover td {
+  background-color: #152238 !important;
+}
+
+/* Campos de entrada, selects y modales interactivos */
+html.dark .dashboard-theme-scope input,
+html.dark .dashboard-theme-scope select,
+html.dark .dashboard-theme-scope textarea {
+  background-color: #0B1322 !important;
+  color: #F1F5F9 !important;
+  border-color: #334155 !important;
+}
+
+html.dark .dashboard-theme-scope input::placeholder,
+html.dark .dashboard-theme-scope textarea::placeholder {
+  color: #64748B !important;
+}
+

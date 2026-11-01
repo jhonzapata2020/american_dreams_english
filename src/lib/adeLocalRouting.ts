@@ -65,7 +65,7 @@ export function isLikelyEnglish(input: string): boolean {
   }
 
   // 1. Palabras clave inequívocas en inglés requeridas estrictamente
-  const strictEnglishKeywords = /\b(english|talk|practice|speak|where|how|want|thank)\b/i;
+  const strictEnglishKeywords = /\b(english|talk|practice|speak|where|how|want|thank|tuition|fee|fees|pricing|price|prices|cost|costs|enroll|enrollment|register|registration|schedule|schedules|hours|access|teacher|teachers|instructor|instructors|beginner|advanced|store|books|ebook)\b/i;
   if (strictEnglishKeywords.test(normalized) || strictEnglishKeywords.test(rawLower)) {
     return true;
   }
@@ -119,6 +119,7 @@ export function isLikelyEnglish(input: string): boolean {
     /\bhave\s+a\s+good\s+day\b/i,
     /\btake\s+care\b/i,
     /\bvirtual\s+campus\b/i,
+    /\b24\s*\/\s*7\s+access\b/i,
     /\bstudent\s+portal\b/i
   ];
 
@@ -207,7 +208,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     audioUrl: '/audio/ade/es-ubicacion.mp3',
     text: 'Nuestra sede presencial principal está ubicada estratégicamente en Turbo, Urabá, sobre la Troncal, con aulas dinámicas y laboratorio de inmersión en inglés. ¡Ven a visitarnos!',
     triggers: [
-      /\b(como llegar|donde estan ubicados|donde estan|donde quedan|donde queda|donde es|ubicacion|direccion|sede|sedes|troncal|en donde estan|en donde queda|en que ciudad)\b/i
+      /\b(como llegar|donde estan ubicados|donde estan|donde esta|donde quedan|donde queda|donde es|ubicacion|direccion|sede|sedes|troncal|en donde estan|en donde queda|en que ciudad|direccion del campus|donde queda la sede)\b/i
     ]
   },
   {
@@ -216,8 +217,8 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     audioUrl: '/audio/ade/es-campus-virtual.mp3',
     text: 'En nuestro Campus Virtual ingresas a clases en directo las 24 horas por Microsoft Teams, interactuando cara a cara con docentes certificados C1 y C2 con retroalimentación inmediata.',
     triggers: [
-      /\b(cursos?|clases?|programas?|niveles?|saber de los cursos|hablame (de|sobre) los cursos|dime los cursos|cuales son los cursos|informacion de los cursos|que cursos|cuales cursos|oferta academica|estudiar ingles|aprender ingles|clases de ingles|cursos de ingles)\b/i,
-      /\b(campus virtual|clases virtuales|teams|microsoft teams|zoom)\b/i
+      /\b(cursos?|clases?|programas?|niveles?|saber de los cursos|hablame (de|sobre) los cursos|dime los cursos|cuales son los cursos|informacion de los cursos|que cursos|cuales cursos|oferta academica|estudiar ingles|aprender ingles|clases de ingles|cursos de ingles|que ofrecen|que puedo estudiar|que programas tienen|que enseñan|acceso 24\s*\/\s*7|24\s*\/\s*7|24 horas|funciona las 24 horas)\b/i,
+      /\b(campus virtual|clases virtuales|teams|microsoft teams|zoom|aula virtual|plataforma virtual)\b/i
     ]
   },
   {
@@ -354,7 +355,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'en',
     audioUrl: '/audio/ade/en-origin.mp3',
     text: 'We are based in Turbo, Urabá, with our modern campus on the Troncal highway, and we offer virtual live classes to students all around the world!',
-    triggers: [/\bwhere are you from\b/i, /\bwhere do you live\b/i, /\bwhere are you located\b/i]
+    triggers: [/\bwhere are you from\b/i, /\bwhere do you live\b/i, /\bwhere are you located\b/i, /\bwhere is (the )?(school|campus)\b/i, /\bwhat is your (location|address)\b/i, /\b(school|campus) address\b/i]
   },
   {
     id: 'en-im-fine',
@@ -376,7 +377,7 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     audioUrl: '/audio/ade/en-levels.mp3',
     text: 'We offer courses covering all CEFR proficiency levels, from beginner A1 all the way to advanced C1 and C2 fluency.',
     triggers: [
-      /\b(tell me about the courses?|what courses do you have|what courses|which courses|courses?|levels?|what levels|beginner|advanced|programs?)\b/i,
+      /\b(tell me about the courses?|what courses do you have|what courses|which courses|courses?|levels?|what levels|beginner|advanced|programs?|what do you teach|what can i study|what can i learn|what classes do you offer|what programs do you offer|what do you offer|course options|course levels|english classes|english courses|available courses|tell me about your program|academic programs)\b/i,
       /\babout (the )?courses?\b/i
     ]
   },
@@ -385,14 +386,14 @@ export const LOCAL_ADE_ROUTES: StaticAudioRoute[] = [
     lang: 'en',
     audioUrl: '/audio/ade/en-methodology.mp3',
     text: 'Unlike conventional platforms that only offer pre-recorded videos, at American Dream English you speak in real-time with certified teachers and guided groups for immediate feedback.',
-    triggers: [/\bmethodology\b/i, /\bhow do you teach\b/i]
+    triggers: [/\b(methodology|teaching method|teaching methodology|teachers?|instructors?|live classes|real[- ]time classes|how are classes|how do classes work|how do you teach|how do you learn|how does (the )?program work|virtual campus|online campus|campus|online classes|virtual classes|how does the campus work|what is the campus|24\s*\/\s*7|24 hours|all day|anytime access)\b/i]
   },
   {
     id: 'en-pricing',
     lang: 'en',
     audioUrl: '/audio/ade/en-pricing.mp3',
     text: 'We provide highly competitive tuition rates with flexible monthly options and partial scholarships through our Social Fund. Check out the Tuition section to enroll!',
-    triggers: [/\bpricing\b/i, /\bhow much\b/i, /\bcost\b/i]
+    triggers: [/\b(pricing|price|prices|cost|costs|tuition|fees?|rates?|monthly payment|monthly payments|scholarships?|enrollment|enroll|register|registration|how much|how much does|how much is|what is the price|what are the prices|what does it cost|what are your rates)\b/i]
   },
   {
     id: 'en-store',
@@ -457,20 +458,17 @@ export function matchStaticResponse(
   // Determinar idioma prioritario según el contenido real del mensaje actual
   const isEnglishDetected = isLikelyEnglish(userInput);
   const hasSpanishIndicators = Boolean(userInput.match(/[¿¡áéíóúñ]/i));
+  const hasSpanishVocabulary = /\b(hola|buenos|buenas|gracias|cursos?|clases?|programas?|niveles?|precios?|costos?|matricula|inscripcion|horarios?|cuanto|cuesta|donde|sede|profesores?|docentes?|quiero|necesito|hablame|dime|que ofrecen|campus virtual|aula virtual)\b/i.test(normalizedInput);
 
   let candidateRoutes: StaticAudioRoute[];
   if (isEnglishDetected && !hasSpanishIndicators) {
     candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
-  } else if (hasSpanishIndicators || preferredLang === 'es') {
+  } else if (hasSpanishIndicators || hasSpanishVocabulary || preferredLang === 'es') {
     candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es');
   } else if (preferredLang === 'en') {
-    // Si venía en inglés pero la frase no tiene palabras inglesas, revisar si coincide con rutas en español
-    const matchesSpanish = LOCAL_ADE_ROUTES.filter(r => r.lang === 'es').some(r =>
-      r.triggers.some(t => t instanceof RegExp ? t.test(normalizedInput) : normalizedInput.includes(normalizeText(t)))
-    );
-    candidateRoutes = matchesSpanish 
-      ? LOCAL_ADE_ROUTES.filter((r) => r.lang === 'es')
-      : LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
+    // En frases ambiguas (p. ej. "campus virtual"), respeta el idioma
+    // elegido para la escucha en vez de inferir español por una palabra compartida.
+    candidateRoutes = LOCAL_ADE_ROUTES.filter((r) => r.lang === 'en');
   } else {
     candidateRoutes = LOCAL_ADE_ROUTES;
   }
@@ -513,12 +511,12 @@ export function matchStaticResponse(
 
         // Si la frase tiene preguntas específicas (cursos, precios, horarios, etc.), penalizar el saludo genérico
         const isGreetingRoute = route.id === 'es-bienvenida' || route.id === 'en-hello';
-        const hasSpecificInquiry = /\b(curso|cursos|clase|clases|precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|matricul|inscrib|horario|horarios|donde|sede|metodo|profesor|profesores|certific|tienda|libro|libros)\b/i.test(normalizedInput);
+        const hasSpecificInquiry = /\b(curso|cursos|clase|clases|precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|matricul|inscrib|horario|horarios|donde|sede|metodo|profesor|profesores|certific|tienda|libro|libros|courses?|classes|prices?|costs?|tuition|fees?|enroll|registration|schedule|location|campus|methodology|teachers?|programs?|levels?|store|books?)\b/i.test(normalizedInput);
         const specificityBonus = (!isGreetingRoute && hasSpecificInquiry) ? 80 : 0;
         const greetingPenalty = (isGreetingRoute && hasSpecificInquiry) ? -80 : 0;
 
         // Prioridad semántica: preguntas de precios/costos/matrícula tienen mayor peso que solo mencionar "curso"
-        const isPricingInquiry = /\b(precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|cuotas|tarifa|valores|mensualidad|planes de pago)\b/i.test(normalizedInput);
+        const isPricingInquiry = /\b(precio|precios|costo|costos|cuesta|cuestan|cuanto|vale|valen|cuotas|tarifa|valores|mensualidad|planes de pago|price|prices|cost|costs|tuition|fee|fees|pricing|rate|rates|payment|payments|scholarship|scholarships|enrollment|enroll|register|registration)\b/i.test(normalizedInput);
         const pricingBonus = (isPricingInquiry && (route.id === 'es-precios' || route.id === 'es-cuotas' || route.id === 'en-pricing')) ? 150 : 0;
 
         const isMatriculaInquiry = /\b(matricul|inscrib|inscri|separar cupo|reservar cupo)\b/i.test(normalizedInput);

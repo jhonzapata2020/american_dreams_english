@@ -28,8 +28,11 @@ import {
   CreditCard,
   Building2,
   Sparkles,
-  ExternalLink
+  ExternalLink,
+  UploadCloud,
+  Loader2
 } from 'lucide-react'
+import { compressImageToWebP } from '../../../utils/imageCompressor'
 
 export interface StoreSaleTransaction {
   id: string
@@ -137,10 +140,21 @@ export default function AdminTiendaPage() {
   const [formCategory, setFormCategory] = useState<'ebooks' | 'masterclass' | 'audios' | 'libros' | 'uniformes' | 'merch'>('uniformes')
   const [formTitle, setFormTitle] = useState('')
   const [formPriceCop, setFormPriceCop] = useState<number>(55000)
+  const [formOriginalPriceCop, setFormOriginalPriceCop] = useState<number | ''>('')
   const [formDescription, setFormDescription] = useState('')
   const [formThumbnail, setFormThumbnail] = useState('/images/camiseta-oficial-ade.png')
   const [formIsActive, setFormIsActive] = useState(true)
   const [formFileType, setFormFileType] = useState<'PDF' | 'Audio MP3' | 'Video Pack' | 'Físico'>('Físico')
+
+  // Estado para compresión automática WebP
+  const [isCompressingImage, setIsCompressingImage] = useState(false)
+  const [compressionStats, setCompressionStats] = useState<{
+    originalKb: number
+    compressedKb: number
+    ratio: number
+    fileName: string
+  } | null>(null)
+  const [uploadFeedback, setUploadFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   // Historial de ventas
   const [salesRecords, setSalesRecords] = useState<StoreSaleTransaction[]>(INITIAL_SALES_RECORDS)
@@ -167,6 +181,7 @@ export default function AdminTiendaPage() {
             category: p.category || (p.title?.toLowerCase().includes('ebook') ? 'ebooks' : 'uniformes'),
             formatBadge: p.format_badge || (p.category === 'uniformes' ? 'FÍSICO (ENVÍO NACIONAL)' : 'Digital (Descarga directa)'),
             copPrice: p.price_cop || 0,
+            originalCopPrice: p.original_price_cop || p.original_cop_price || undefined,
             usdPrice: p.price_usd || Math.round((p.price_cop || 0) / 4000),
             description: p.description || '',
             thumbnail: resolveProductThumbnail(p),
@@ -214,10 +229,13 @@ export default function AdminTiendaPage() {
     setFormCategory('ebooks')
     setFormTitle('')
     setFormPriceCop(45000)
+    setFormOriginalPriceCop('')
     setFormDescription('')
     setFormThumbnail('https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&q=80&w=600')
     setFormIsActive(true)
     setFormFileType('PDF')
+    setCompressionStats(null)
+    setUploadFeedback(null)
     setIsModalOpen(true)
   }
 
@@ -228,11 +246,105 @@ export default function AdminTiendaPage() {
     setFormCategory(prod.category)
     setFormTitle(prod.title)
     setFormPriceCop(prod.copPrice)
+    setFormOriginalPriceCop(prod.originalCopPrice || '')
     setFormDescription(prod.description)
     setFormThumbnail(resolveProductThumbnail(prod))
     setFormIsActive(true)
     setFormFileType(prod.fileType || (prod.type === 'fisico' ? 'Físico' : 'PDF'))
+    setCompressionStats(null)
+    setUploadFeedback(null)
     setIsModalOpen(true)
+  }
+
+  // Procesamiento e intercepción de imágenes a WebP en cliente y subida a Supabase Storage
+  const handleImageFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsCompressingImage(true)
+    setUploadFeedback(null)
+
+    try {
+      // 1. Compresión en cliente a WebP (máx ancho 1200px, 92% calidad)
+      const compressed = await compressImageToWebP(file, 1200, 0.92)
+      setCompressionStats({
+        originalKb: compressed.originalSizeKb,
+        compressedKb: compressed.compressedSizeKb,
+        ratio: compressed.compressionRatio,
+        fileName: compressed.fileName
+      })
+
+      // 2. Subida a Supabase Storage bucket 'products' con fallback a 'carousel-media'
+      const supabase = createClient()
+      let bucketUsed = 'products'
+      
+      let uploadRes = await supabase.storage
+        .from('products')
+        .upload(compressed.fileName, compressed.blob, {
+          contentType: 'image/webp',
+          upsert: true
+        })
+
+      if (uploadRes.error) {
+        console.warn('Error subiendo a bucket products, intentando carousel-media:', uploadRes.error)
+        uploadRes = await supabase.storage
+          .from('carousel-media')
+          .upload(compressed.fileName, compressed.blob, {
+            contentType: 'image/webp',
+            upsert: true
+          })
+        bucketUsed = 'carousel-media'
+      }
+
+      if (uploadRes.error) {
+        throw new Error(uploadRes.error.message || 'Error al subir la imagen a Supabase Storage')
+      }
+
+      // 3. Obtener URL pública
+      const { data: publicUrlData } = supabase.storage
+        .from(bucketUsed)
+        .getPublicUrl(compressed.fileName)
+
+      if (publicUrlData?.publicUrl) {
+        setFormThumbnail(publicUrlData.publicUrl)
+        setUploadFeedback({
+          type: 'success',
+          message: `¡Imagen convertida a WebP y optimizada un ${compressed.compressionRatio}%!`
+        })
+      }
+    } catch (err: any) {
+      console.error('Error procesando imagen WebP:', err)
+      setUploadFeedback({
+        type: 'error',
+        message: err.message || 'No se pudo procesar la imagen seleccionada.'
+      })
+    } finally {
+      setIsCompressingImage(false)
+    }
+  }
+
+  // Eliminar productos demo / ficticios
+  const handleDeleteDemoProducts = async () => {
+    const isConfirmed = window.confirm(
+      '¿Deseas eliminar todos los productos ficticios o de demostración del catálogo?\n\n' +
+      'Esta acción eliminará los productos predeterminados y mantendrá solo los productos agregados oficialmente.'
+    )
+    if (!isConfirmed) return
+
+    try {
+      const supabase = createClient()
+      const demoIds = STORE_PRODUCTS.map(p => p.id)
+
+      await supabase.from('products').delete().in('id', demoIds)
+
+      setProducts(prev => prev.filter(p => !demoIds.includes(p.id) && !p.id.startsWith('demo-')))
+      alert('Los productos ficticios han sido eliminados correctamente.')
+    } catch (err) {
+      console.error('Error purgando productos demo:', err)
+      const demoIds = new Set(STORE_PRODUCTS.map(p => p.id))
+      setProducts(prev => prev.filter(p => !demoIds.has(p.id) && !p.id.startsWith('demo-')))
+      alert('Los productos ficticios se han removido del catálogo local.')
+    }
   }
 
   // Guardar producto
@@ -257,6 +369,7 @@ export default function AdminTiendaPage() {
       category: formCategory,
       formatBadge: newBadge,
       copPrice: formPriceCop,
+      originalCopPrice: formOriginalPriceCop ? Number(formOriginalPriceCop) : undefined,
       usdPrice: newUsd,
       description: formDescription.trim(),
       thumbnail: finalThumb,
@@ -274,6 +387,7 @@ export default function AdminTiendaPage() {
         category: updatedItem.category,
         format_badge: updatedItem.formatBadge,
         price_cop: updatedItem.copPrice,
+        original_price_cop: updatedItem.originalCopPrice || null,
         price_usd: updatedItem.usdPrice,
         description: updatedItem.description,
         image_url: updatedItem.thumbnail,
@@ -325,7 +439,7 @@ export default function AdminTiendaPage() {
   })
 
   return (
-    <DashboardLayout>
+    <DashboardLayout currentRole="admin" activeTab="products">
       <div className="space-y-6 max-w-7xl mx-auto pb-16 font-sans">
         
         {/* ========================================================================= */}
@@ -346,8 +460,19 @@ export default function AdminTiendaPage() {
               </h1>
             </div>
 
-            {/* Botón de Acción Principal */}
-            <div className="flex items-center gap-2.5">
+            {/* Botones de Acción */}
+            <div className="flex flex-wrap items-center gap-2.5">
+              <button
+                type="button"
+                onClick={handleDeleteDemoProducts}
+                className="min-h-[44px] px-3.5 bg-rose-50 hover:bg-rose-100 border border-rose-200/80 text-rose-700 font-bold text-xs rounded-xl flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+                title="Eliminar productos ficticios del catálogo"
+              >
+                <Trash2 className="w-4 h-4 text-rose-600" />
+                <span className="hidden sm:inline">Eliminar Productos Demo</span>
+                <span className="sm:hidden">Borrar Demo</span>
+              </button>
+
               <Link
                 href="/tienda"
                 target="_blank"
@@ -774,25 +899,48 @@ export default function AdminTiendaPage() {
                   />
                 </div>
 
-                {/* 4. Precio en COP */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="block text-xs font-bold text-slate-700">
-                      Precio de Venta (COP) *
-                    </label>
-                    <span className="text-[11px] font-mono font-bold text-slate-400">
-                      ≈ ${(Math.round(formPriceCop / 4000))} USD
-                    </span>
+                {/* 4. Precios en COP: Venta y Opcional Tachado */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Precio de Venta (COP) *
+                      </label>
+                      <span className="text-[10px] font-mono font-bold text-slate-400">
+                        ≈ ${(Math.round(formPriceCop / 4000))} USD
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      required
+                      min={1000}
+                      step={1000}
+                      value={formPriceCop}
+                      onChange={(e) => setFormPriceCop(Number(e.target.value))}
+                      placeholder="Ej. 45000"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-mono font-black focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                    />
                   </div>
-                  <input
-                    type="number"
-                    required
-                    min={1000}
-                    step={1000}
-                    value={formPriceCop}
-                    onChange={(e) => setFormPriceCop(Number(e.target.value))}
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-mono font-black focus:outline-none focus:ring-2 focus:ring-crimson-600"
-                  />
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-bold text-slate-700">
+                        Precio Anterior / Tachado
+                      </label>
+                      <span className="text-[10px] text-slate-400 font-medium">
+                        Opcional
+                      </span>
+                    </div>
+                    <input
+                      type="number"
+                      min={1000}
+                      step={1000}
+                      value={formOriginalPriceCop}
+                      onChange={(e) => setFormOriginalPriceCop(e.target.value ? Number(e.target.value) : '')}
+                      placeholder="Ej. 65000"
+                      className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-mono font-medium focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                    />
+                  </div>
                 </div>
 
                 {/* 5. Descripción corta (Máx. 160 caracteres) */}
@@ -818,18 +966,95 @@ export default function AdminTiendaPage() {
                   />
                 </div>
 
-                {/* 6. URL de la Imagen */}
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-700">
-                    Ruta o URL de la Imagen
+                {/* 6. Subida con Compresión WebP Automática en Cliente */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-slate-700">
+                      Imagen del Producto (Compresión WebP Automática)
+                    </label>
+                    <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                      ⚡ Max 1200px · 92% WebP
+                    </span>
+                  </div>
+
+                  {/* Dropzone de subida */}
+                  <label className="relative border-2 border-dashed border-slate-200 hover:border-crimson-500 rounded-2xl p-4 flex flex-col items-center justify-center text-center bg-slate-50/60 hover:bg-slate-50 transition-all cursor-pointer group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileSelect}
+                      disabled={isCompressingImage}
+                      className="sr-only"
+                    />
+                    {isCompressingImage ? (
+                      <div className="flex flex-col items-center gap-2 py-2">
+                        <Loader2 className="w-6 h-6 text-crimson-600 animate-spin" />
+                        <span className="text-xs font-bold text-slate-700">
+                          Procesando imagen a WebP y subiendo a Storage...
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1.5 py-1">
+                        <div className="w-10 h-10 rounded-xl bg-crimson-50 text-crimson-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <UploadCloud className="w-5 h-5" />
+                        </div>
+                        <span className="text-xs font-bold text-slate-800">
+                          Haz clic para seleccionar o arrastra una imagen
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          PNG, JPG o WebP (Se convertirá a WebP ligero de alta definición)
+                        </span>
+                      </div>
+                    )}
                   </label>
-                  <input
-                    type="text"
-                    value={formThumbnail}
-                    onChange={(e) => setFormThumbnail(e.target.value)}
-                    placeholder="/images/camiseta-oficial-ade.png o enlace web"
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-crimson-600"
-                  />
+
+                  {/* Estadísticas de compresión */}
+                  {compressionStats && (
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2 font-mono font-medium">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>WebP Optimizado:</span>
+                        <span className="font-bold">{compressionStats.originalKb} KB</span>
+                        <span>→</span>
+                        <span className="font-black text-emerald-700">{compressionStats.compressedKb} KB</span>
+                      </div>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 bg-emerald-200 text-emerald-900 rounded-md">
+                        -{compressionStats.ratio}% reducción
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Feedback de error o éxito */}
+                  {uploadFeedback && (
+                    <div className={`p-2 rounded-xl text-xs flex items-center gap-2 ${
+                      uploadFeedback.type === 'success' 
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                        : 'bg-red-50 text-red-800 border border-red-200'
+                    }`}>
+                      {uploadFeedback.type === 'success' ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                      ) : (
+                        <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                      )}
+                      <span>{uploadFeedback.message}</span>
+                    </div>
+                  )}
+
+                  {/* URL o ruta directa de respaldo */}
+                  <div className="pt-1 space-y-1">
+                    <label className="block text-[11px] font-medium text-slate-500">
+                      O ingresa una URL / ruta directa:
+                    </label>
+                    <input
+                      type="text"
+                      value={formThumbnail}
+                      onChange={(e) => setFormThumbnail(e.target.value)}
+                      placeholder="/images/camiseta-oficial-ade.png o enlace web"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 font-mono focus:outline-none focus:ring-2 focus:ring-crimson-600"
+                    />
+                  </div>
+
+                  {/* Vista previa de la imagen */}
                   {formThumbnail && (
                     <div className="flex items-center gap-3 p-2 bg-slate-50 rounded-xl border border-slate-200">
                       <img 
@@ -840,7 +1065,14 @@ export default function AdminTiendaPage() {
                           (e.target as HTMLImageElement).src = '/logo-american-dream.png'
                         }}
                       />
-                      <span className="text-[11px] text-slate-500 font-medium">Vista previa de imagen</span>
+                      <div className="truncate">
+                        <span className="text-[11px] text-slate-700 font-bold block truncate">
+                          Vista previa de imagen asignada
+                        </span>
+                        <span className="text-[10px] text-slate-400 font-mono truncate block">
+                          {formThumbnail}
+                        </span>
+                      </div>
                     </div>
                   )}
                 </div>

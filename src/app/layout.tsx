@@ -1,12 +1,18 @@
 import React from 'react'
+import Script from 'next/script'
 import '../index.css'
 import { Metadata, Viewport } from 'next'
 import { CurrencyProvider } from '../context/CurrencyContext'
 import { LanguageProvider } from '../context/LanguageContext'
+import { ThemeProvider } from '../context/ThemeContext'
+import { PricingProvider } from '../context/PricingContext'
 import { MobileBottomNav } from '../components/layout/MobileBottomNav'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://americandreamenglish.com'
+const gaId = process.env.NEXT_PUBLIC_GA_ID
+
 export const viewport: Viewport = {
-  themeColor: '#C8102E',
+  themeColor: '#002B49',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -15,8 +21,20 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'American Dream English S.A.S. - Plataforma Bilingüe',
-  description: 'Plataforma educativa con control de acceso por roles, catálogo dinámico e impacto social.',
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: 'American Dream English | Academia de Inglés en Urabá & Online',
+    template: '%s | American Dream English',
+  },
+  description: 'Aprende inglés conversacional con docentes certificados C1/C2 y tutoría interactiva. Sede oficial en Turbo, Urabá y modalidad virtual global. Res. SED 2471.',
+  keywords: [
+    'American Dream English',
+    'Inglés Urabá',
+    'Clases de inglés Turbo',
+    'Cursos de inglés Apartadó',
+    'Inglés online Colombia',
+    'Certificación MCER',
+  ],
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -26,15 +44,32 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: '/logo-american-dream.png', type: 'image/png' },
-      { url: '/favicon.ico' }
+      { url: '/favicon.ico' },
     ],
     shortcut: '/logo-american-dream.png',
     apple: '/logo-american-dream.png',
   },
   openGraph: {
-    title: 'American Dream English Institute',
-    description: 'Plataforma Bilingüe Global & Fondo de Becas Urabá',
-    images: ['/logo-american-dream.png'],
+    type: 'website',
+    locale: 'es_CO',
+    url: siteUrl,
+    siteName: 'American Dream English',
+    title: 'American Dream English | Academia de Inglés en Urabá & Online',
+    description: 'Aprende inglés conversacional con docentes certificados C1/C2 y tutoría interactiva. Sede oficial en Turbo, Urabá y modalidad virtual global. Res. SED 2471.',
+    images: [
+      {
+        url: '/images/campus/ade-banner-oficial.png',
+        width: 1200,
+        height: 630,
+        alt: 'American Dream English - Campus Oficial Urabá',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'American Dream English | Academia de Inglés en Urabá & Online',
+    description: 'Aprende inglés conversacional con docentes certificados C1/C2 y tutoría interactiva. Sede oficial en Turbo, Urabá y modalidad virtual global. Res. SED 2471.',
+    images: ['/images/campus/ade-banner-oficial.png'],
   },
 }
 
@@ -53,7 +88,57 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/logo-american-dream.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="theme-color" content="#C8102E" />
+        <meta name="theme-color" content="#002B49" />
+        
+        {/* Google Analytics 4 (Carga optimizada sin impacto en rendimiento) */}
+        {gaId && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+            />
+            <Script
+              id="google-analytics"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${gaId}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+
+        {/* Script Oficial de Wompi Colombia para Pasarela de Pagos Global */}
+        <Script
+          strategy="afterInteractive"
+          src="https://checkout.wompi.co/widget.js"
+        />
+
+        {/* Anti-FOUC (Cero Parpadeo): Inicialización de Modo Oscuro/Claro */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var storedTheme = localStorage.getItem('ade_theme');
+                  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -77,12 +162,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-white text-slate-900 font-sans antialiased pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0" suppressHydrationWarning>
-        <CurrencyProvider>
-          <LanguageProvider>
-            {children}
-            <MobileBottomNav />
-          </LanguageProvider>
-        </CurrencyProvider>
+        <ThemeProvider>
+          <CurrencyProvider>
+            <LanguageProvider>
+              <PricingProvider>
+                {children}
+                <MobileBottomNav />
+              </PricingProvider>
+            </LanguageProvider>
+          </CurrencyProvider>
+        </ThemeProvider>
         <script
           dangerouslySetInnerHTML={{
             __html: `

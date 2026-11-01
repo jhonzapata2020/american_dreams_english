@@ -25,10 +25,12 @@ import {
 import { createClient } from '../../utils/supabase/client'
 import { getWhatsAppUrl } from '../../config/contact'
 import { trackEvent } from '../../lib/analytics'
+import { useAcademicPricing } from '../../context/PricingContext'
 
 type StepNumber = 1 | 2 | 3 | 4 // 4 = Confirmación final
 
 export default function BecasPage() {
+  const { pricing, formatCop } = useAcademicPricing()
   const [currentStep, setCurrentStep] = useState<StepNumber>(1)
   
   // Paso 1: Datos Básicos
@@ -42,8 +44,8 @@ export default function BecasPage() {
   const [incomeRange, setIncomeRange] = useState<'Menos de 1 SMMLV' | '1 a 2 SMMLV' | 'Más de 2 SMMLV'>('Menos de 1 SMMLV')
   const [motivation, setMotivation] = useState('')
 
-  // Paso 3: Compromiso y Disponibilidad
-  const [modality, setModality] = useState<'Online (Microsoft Teams)' | 'Presencial (Sede Urabá)'>('Online (Microsoft Teams)')
+  // Paso 3: Compromiso y Disponibilidad (Por criterio ético de Anthony, la beca es para modalidad Presencial en Sede Física)
+  const [modality, setModality] = useState<'Presencial (Sede Física Turbo - Casanova)' | 'Online (Microsoft Teams)'>('Presencial (Sede Física Turbo - Casanova)')
   const [commitmentAccepted, setCommitmentAccepted] = useState(true)
 
   // Estado de envío
@@ -458,14 +460,43 @@ export default function BecasPage() {
               </p>
             </div>
 
+            {/* AVISO ÉTICO DEL FONDO SOCIAL */}
+            <div className="bg-amber-50/90 border border-amber-200/90 p-4 rounded-2xl text-xs text-amber-950 space-y-2">
+              <div className="flex items-start gap-2">
+                <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="font-black text-amber-900 block">
+                    Criterio Ético Institucional del Fondo Social ADE:
+                  </strong>
+                  <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                    Por principio de equidad y transparencia pedagógica establecido por el Director Anthony, las subvenciones y becas aplican <strong>exclusivamente para estudiantes locales de escasos recursos de Urabá en modalidad presencial en la sede física de Casanova (Turbo)</strong>. La modalidad virtual no cuenta con subsidio del fondo social regional.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-amber-200/60 grid grid-cols-2 gap-2 text-[11px]">
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200/50">
+                  <span className="text-slate-500 block text-[10px] font-bold">Matrícula Becada:</span>
+                  <span className="font-black text-slate-900">{formatCop(pricing.becados.adultos.matricula)}</span>
+                </div>
+                <div className="bg-white/80 p-2 rounded-xl border border-amber-200/50">
+                  <span className="text-slate-500 block text-[10px] font-bold">Mensualidad Subvencionada:</span>
+                  <span className="font-black text-rose-600">
+                    {formatCop(pricing.becados.adultos.mensualidad)} <span className="text-[9px] text-slate-400 font-normal">({formatCop(pricing.becados.ninos.mensualidad)} Niños)</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {/* Modalidad de Interés */}
             <div className="space-y-2">
               <label className="block text-xs font-bold text-slate-700">
                 Modalidad de Interés *
               </label>
               <div className="space-y-2">
-                {(['Online (Microsoft Teams)', 'Presencial (Sede Urabá)'] as const).map((mod) => {
+                {(['Presencial (Sede Física Turbo - Casanova)', 'Online (Microsoft Teams)'] as const).map((mod) => {
                   const active = modality === mod
+                  const isPresencial = mod.includes('Presencial')
                   return (
                     <button
                       key={mod}
@@ -477,11 +508,22 @@ export default function BecasPage() {
                           : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <span>{mod.includes('Online') ? '🌐' : '🏫'}</span>
-                        <span>{mod}</span>
+                      <div className="flex items-center gap-2 text-left">
+                        <span>{isPresencial ? '🏫' : '🌐'}</span>
+                        <div>
+                          <div>{mod}</div>
+                          {isPresencial ? (
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold block">
+                              ✓ 100% Elegible para Subvención Social Local
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400 font-medium block">
+                              Modalidad virtual (Aplica tarifa regular online)
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                      <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ml-2 ${
                         active ? 'border-amber-400 bg-amber-400 text-navy-950' : 'border-slate-300'
                       }`}>
                         {active && <Check className="w-3 h-3 stroke-[3]" />}

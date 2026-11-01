@@ -3,8 +3,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Currency } from '../types';
-import { Menu, X, GraduationCap, MapPin, Sparkles, ShieldCheck, ShoppingBag } from 'lucide-react';
-import { SoftSwitch3D } from './ui/SoftSwitch3D';
+import { Menu, X, Globe, ChevronDown, GraduationCap, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 interface NavbarProps {
@@ -35,17 +34,10 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   const handleGoToCampus = (e: React.MouseEvent) => {
     e.preventDefault();
-    window.location.href = '/campus/login';
-  };
-
-  const handleScrollToLocation = () => {
-    if (onOpenLocation) {
-      onOpenLocation();
+    if (onOpenStudentPortal) {
+      onOpenStudentPortal();
     } else {
-      const el = document.getElementById('sede-presencial');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+      window.location.href = '/campus/login';
     }
   };
 
@@ -58,253 +50,237 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  return (
-    <header className="sticky top-2.5 sm:top-3.5 z-50 w-full px-3 sm:px-6 transition-all duration-300 font-sans pointer-events-none">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* FLOATING ISLAND CAPSULE (ESTILO NAVBAR.GALLERY LUXURY MINIMAL PILL) */}
-        <div className="relative bg-white/85 backdrop-blur-2xl border border-slate-200/90 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.08),0_0_1px_rgba(0,0,0,0.12)] rounded-full px-3.5 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between pointer-events-auto transition-all">
-          
-          {/* Top subtle light edge */}
-          <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-white to-transparent pointer-events-none" />
+  const toggleLanguage = () => {
+    setLanguage(language === 'es' ? 'en' : 'es');
+  };
 
-          {/* LEFT: LOGO OFICIAL CON MICROINTERACCIÓN 3D */}
+  return (
+    <div className="w-full sticky top-0 z-50">
+      {/* 1. TOP ANNOUNCEMENT BAR (SERIO, INSTITUCIONAL & MINIMALISTA) */}
+      <div className="bg-slate-900 text-slate-300 text-xs py-1 px-4 text-center font-medium border-b border-slate-800 flex items-center justify-center gap-2 select-none">
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+        <span>
+          {language === 'en'
+            ? 'Official Campus Urabá & Online • Education Ministry Res. SED 2471'
+            : 'Sede Oficial Urabá & Online • Aprobación Oficial Res. SED 2471'}
+        </span>
+      </div>
+
+      {/* 2. CONTENEDOR PRINCIPAL DEL NAVBAR */}
+      <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-colors duration-300 py-3.5 px-6 lg:px-12 font-sans">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          
+          {/* ZONA IZQUIERDA: BRANDING (LOGO OFICIAL) */}
           <div className="flex items-center gap-3">
-            <motion.a 
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
+            <a 
               href="/" 
-              className="inline-flex items-center focus:outline-none flex-shrink-0"
+              className="inline-flex items-center focus:outline-none flex-shrink-0 group"
               title="American Dream English"
             >
               <img 
                 src="/logo-american-dream.png" 
                 alt="American Dream English" 
-                className="h-10 sm:h-12 w-auto object-contain filter drop-shadow-xs transition-transform duration-300"
+                className="h-10 sm:h-12 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
               />
-            </motion.a>
-
-            {/* LIVE INSTITUTIONAL BADGE (Visible in desktop/tablet) */}
-            <div className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80 text-[11px] font-bold text-slate-700 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Sede Urabá & Online · Res. 2471</span>
-            </div>
+            </a>
           </div>
 
-          {/* CENTER: ENLACES PRINCIPALES (DESKTOP) */}
-          <nav className="hidden lg:flex items-center gap-5 xl:gap-7 text-xs sm:text-[13px] font-semibold text-slate-600">
-            <button 
-              type="button"
-              onClick={onOpenProgramas}
-              className="hover:text-slate-900 transition-colors focus:outline-none cursor-pointer py-1"
+          {/* ZONA CENTRAL: NAVEGACIÓN UNIFICADA (DESKTOP) */}
+          <nav className="hidden lg:flex items-center gap-8">
+            <a 
+              href="/programas"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
             >
-              {t.nav.programs}
-            </button>
+              {t.nav.programs || 'Programas'}
+            </a>
             <button 
               type="button"
               onClick={onOpenCursosDigitales}
-              className="hover:text-slate-900 transition-colors focus:outline-none cursor-pointer py-1"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
             >
-              {t.nav.digitalCourses}
+              {t.nav.digitalCourses || 'Cursos Digitales'}
             </button>
             <button 
               type="button"
               onClick={onOpenClasesEnVivo}
-              className="hover:text-slate-900 transition-colors focus:outline-none cursor-pointer py-1"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
             >
-              {t.nav.liveClasses}
+              {t.nav.liveClasses || 'Clases en Vivo'}
             </button>
-            <motion.a 
-              whileHover={{ y: -1 }}
-              href="/como-llegar"
-              className="hover:text-red-700 transition-colors focus:outline-none cursor-pointer inline-flex items-center gap-1 py-1"
-            >
-              <MapPin className="w-3.5 h-3.5 text-red-600" />
-              <span>{language === 'en' ? 'Location' : 'Cómo llegar'}</span>
-            </motion.a>
-            <motion.a 
-              whileHover={{ scale: 1.05, y: -1 }}
-              whileTap={{ scale: 0.95 }}
+            <a 
               href="/tienda"
-              className="hover:text-slate-900 transition-all focus:outline-none cursor-pointer inline-flex items-center gap-1.5 font-bold text-slate-800 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 px-3.5 py-1.5 rounded-full border border-amber-300/80 shadow-xs group"
-              title="Tienda & Recursos Oficiales"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
             >
-              <div className="relative">
-                <ShoppingBag className="w-3.5 h-3.5 text-amber-700 group-hover:scale-110 transition-transform" />
-                <span className="absolute -top-1 -right-1 w-1.5 h-1.5 rounded-full bg-red-600 ring-1 ring-white animate-pulse" />
-              </div>
-              <span className="text-xs font-black tracking-wide text-slate-800">Tienda</span>
-            </motion.a>
+              {language === 'en' ? 'Store' : 'Tienda'}
+            </a>
+            <a 
+              href="/nosotros/anthony-cortes"
+              className="text-sm font-medium text-slate-600 hover:text-blue-700 transition-colors duration-150 cursor-pointer"
+              title={language === 'en' ? 'About CEO Teacher Anthony Cortés' : 'Semblanza del CEO Teacher Anthony Cortés'}
+            >
+              {t.nav.about || (language === 'en' ? 'About' : 'Nosotros')}
+            </a>
           </nav>
 
-          {/* RIGHT: CONTROLES DE ACCESO & MATRÍCULA */}
-          <div className="flex items-center gap-2 sm:gap-2.5">
-            
-            {/* SELECTOR DE IDIOMA 3D [ ES | EN ] */}
-            <div className="flex items-center px-1.5 py-0.5 bg-slate-100/80 rounded-full border border-slate-200/70 shadow-2xs">
-              <SoftSwitch3D
-                checked={language === 'en'}
-                onChange={(isEn) => setLanguage(isEn ? 'en' : 'es')}
-                leftLabel="ES"
-                rightLabel="EN"
-                size="sm"
-                ariaLabel="Alternar idioma entre Español e Inglés"
-              />
-            </div>
-
-            {/* BOTÓN CÓMO LLEGAR (Visible en móviles para acceso directo) */}
-            <motion.a
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
-              href="/como-llegar"
-              className="inline-flex lg:hidden items-center gap-1 text-[11px] font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200/80 px-2.5 py-1.5 rounded-full transition-all shadow-2xs whitespace-nowrap cursor-pointer"
-              title="¿Cómo llegar a la Sede Presencial?"
+          {/* ZONA DERECHA: JERARQUÍA DE ACCIONES */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* SELECTOR DE IDIOMA MINIMALISTA */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="px-3 py-1.5 rounded-full border border-slate-200 hover:border-slate-300 bg-slate-50/60 hover:bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-semibold flex items-center gap-1.5 transition-all duration-150 cursor-pointer"
+              aria-label={language === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
+              title={language === 'es' ? 'Cambiar a inglés' : 'Switch to Spanish'}
             >
-              <MapPin className="w-3.5 h-3.5 text-red-600 shrink-0" />
-              <span className="max-[380px]:hidden">{language === 'en' ? 'Map' : 'Sede'}</span>
-            </motion.a>
+              <Globe className="w-3.5 h-3.5 text-slate-500 stroke-[1.75]" />
+              <span className="uppercase tracking-wider font-bold text-slate-700">{language.toUpperCase()}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400 stroke-[2]" />
+            </button>
 
-            {/* BOTÓN CAMPUS VIRTUAL INSTITUCIONAL (Desktop / Tablet) */}
-            <motion.a 
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.96 }}
+            {/* BOTÓN SECUNDARIO: CAMPUS VIRTUAL */}
+            <a
               href="/campus/login"
               onClick={handleGoToCampus}
-              className="hidden md:inline-flex text-xs font-bold bg-[#002B49] text-white hover:bg-[#001f35] px-3.5 py-2 rounded-full transition-all items-center gap-1.5 shadow-2xs cursor-pointer whitespace-nowrap"
+              className="px-4 py-2 rounded-full border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 hover:border-slate-400 transition-all duration-150 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <GraduationCap className="w-3.5 h-3.5 text-white" />
-              <span>{t.nav.campusVirtual}</span>
-            </motion.a>
+              <GraduationCap className="w-4 h-4 text-slate-600 stroke-[1.8]" />
+              <span>{t.nav.campusVirtual || 'Campus Virtual'}</span>
+            </a>
 
-            {/* Inscribirme / Matricúlate CTA Button con Shimmer Beam */}
-            <motion.a 
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 450, damping: 22 }}
+            {/* BOTÓN PRIMARIO: MATRICÚLATE */}
+            <a
               href="/matricula"
               onClick={handleMatricularme}
-              className="relative overflow-hidden hidden sm:inline-flex text-xs font-black bg-gradient-to-r from-amber-400 via-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 px-4 py-2 rounded-full transition-shadow items-center gap-1.5 shadow-sm shadow-amber-500/20 cursor-pointer whitespace-nowrap"
+              className="px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold shadow-md shadow-blue-500/25 hover:shadow-lg hover:shadow-blue-500/35 hover:scale-[1.02] active:scale-[0.98] transition-all duration-150 flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
             >
-              <motion.span
-                className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full pointer-events-none"
-                animate={{ transform: ['translateX(-100%)', 'translateX(200%)'] }}
-                transition={{ repeat: Infinity, duration: 2.5, ease: 'easeInOut', repeatDelay: 1.5 }}
-              />
-              <span className="relative z-10">{t.nav.enroll}</span>
-            </motion.a>
+              <span>{t.nav.enroll || 'Matricúlate'}</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.2]" />
+            </a>
+          </div>
 
-            {/* Mobile Menu Toggle Button */}
-            <motion.button
-              whileTap={{ scale: 0.92 }}
+          {/* VISTA MÓVIL (< lg): IDIOMA + CTA + HAMBURGUESA */}
+          <div className="flex lg:hidden items-center gap-2 sm:gap-2.5">
+            {/* SELECTOR DE IDIOMA COMPACTO MÓVIL */}
+            <button
+              type="button"
+              onClick={toggleLanguage}
+              className="px-2.5 py-1.5 rounded-full border border-slate-200 bg-slate-50/80 text-slate-700 text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+              aria-label="Cambiar idioma"
+            >
+              <Globe className="w-3.5 h-3.5 text-slate-500 stroke-[1.8]" />
+              <span className="uppercase text-[11px] font-bold">{language.toUpperCase()}</span>
+            </button>
+
+            {/* BOTÓN PRIMARIO COMPACTO MÓVIL */}
+            <a
+              href="/matricula"
+              onClick={handleMatricularme}
+              className="px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-sm shadow-blue-500/25 flex items-center gap-1 cursor-pointer whitespace-nowrap transition-all"
+            >
+              <span>{t.nav.enroll || 'Matricúlate'}</span>
+            </a>
+
+            {/* BOTÓN HAMBURGUESA MODERNO */}
+            <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-slate-700 hover:text-slate-900 focus:outline-none rounded-full bg-slate-100 border border-slate-200 transition-colors cursor-pointer"
-              aria-label="Abrir menú"
+              className="p-2 text-slate-700 hover:text-slate-900 rounded-full bg-slate-100 hover:bg-slate-200/80 transition-colors cursor-pointer focus:outline-none"
+              aria-label={mobileMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-            </motion.button>
-
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
 
         </div>
 
-        {/* MOBILE APP DRAWER CON CRISTAL ESMERILADO (FROSTED GLASS) */}
+        {/* MENÚ MÓVIL DESPLEGABLE INSTITUCIONAL */}
         <AnimatePresence>
           {mobileMenuOpen && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
-              transition={{ duration: 0.22, ease: 'easeInOut' }}
-              className="lg:hidden pointer-events-auto mt-2 bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-3xl p-4 sm:p-5 space-y-4 shadow-2xl overflow-hidden"
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="lg:hidden overflow-hidden border-t border-slate-100 mt-3 pt-3"
             >
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{t.nav.navigationMenu}</span>
-                
-                <div className="flex items-center px-2 py-0.5 bg-slate-100 rounded-full border border-slate-200">
-                  <SoftSwitch3D
-                    checked={language === 'en'}
-                    onChange={(isEn) => setLanguage(isEn ? 'en' : 'es')}
-                    leftLabel="ES"
-                    rightLabel="EN"
-                    size="sm"
-                    ariaLabel="Alternar idioma"
-                  />
-                </div>
-              </div>
-
-              <nav className="flex flex-col space-y-2 text-sm font-semibold text-slate-800">
-                <button 
-                  type="button"
-                  onClick={() => { setMobileMenuOpen(false); if (onOpenProgramas) onOpenProgramas(); }} 
-                  className="py-2.5 px-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full transition-colors cursor-pointer"
-                >
-                  <span>{t.nav.academicPrograms}</span>
-                  <span className="text-xs text-slate-400">→</span>
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => { setMobileMenuOpen(false); if (onOpenCursosDigitales) onOpenCursosDigitales(); }} 
-                  className="py-2.5 px-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full transition-colors cursor-pointer"
-                >
-                  <span>{t.nav.digitalCourses4k}</span>
-                  <span className="text-xs text-slate-400">→</span>
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => { setMobileMenuOpen(false); if (onOpenClasesEnVivo) onOpenClasesEnVivo(); }} 
-                  className="py-2.5 px-3.5 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-100 flex items-center justify-between text-left w-full transition-colors cursor-pointer"
-                >
-                  <span>{t.nav.liveClassesTitle}</span>
-                  <span className="text-xs text-slate-400">→</span>
-                </button>
-                <a 
-                  href="/como-llegar"
+              <div className="py-2 space-y-1 text-sm font-medium text-slate-700">
+                <a
+                  href="/programas"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 px-3.5 rounded-2xl bg-red-50/70 hover:bg-red-100/80 border border-red-200/70 flex items-center justify-between text-left w-full text-red-950 font-bold transition-colors cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
                 >
-                  <span className="flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-red-600" />
-                    <span>{language === 'en' ? 'Location (Campus Map)' : '¿Cómo Llegar? (Mapa y Sede)'}</span>
-                  </span>
-                  <span className="text-xs text-red-700 font-bold">→</span>
+                  <span>{t.nav.programs || 'Programas'}</span>
+                  <span className="text-xs text-slate-400">→</span>
                 </a>
-                <a 
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); if (onOpenCursosDigitales) onOpenCursosDigitales(); }}
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
+                >
+                  <span>{t.nav.digitalCourses || 'Cursos Digitales'}</span>
+                  <span className="text-xs text-slate-400">→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); if (onOpenClasesEnVivo) onOpenClasesEnVivo(); }}
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
+                >
+                  <span>{t.nav.liveClasses || 'Clases en Vivo'}</span>
+                  <span className="text-xs text-slate-400">→</span>
+                </button>
+                <a
                   href="/tienda"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="py-2.5 px-3.5 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200/80 flex items-center justify-between text-left w-full text-amber-950 font-bold transition-colors cursor-pointer"
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
+                >
+                  <span>{language === 'en' ? 'Store' : 'Tienda'}</span>
+                  <span className="text-xs text-slate-400">→</span>
+                </a>
+                <a
+                  href="/nosotros/anthony-cortes"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <ShoppingBag className="w-4 h-4 text-amber-700" />
-                    <span>Tienda Oficial</span>
+                    <span>🎓</span>
+                    <span>{language === 'en' ? 'About (Teacher Anthony)' : 'Nosotros (Teacher Anthony)'}</span>
                   </span>
-                  <span className="text-xs text-amber-700 font-bold">→</span>
+                  <span className="text-xs text-slate-400">→</span>
                 </a>
-              </nav>
+                <a
+                  href="/como-llegar"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-50 transition-colors flex items-center justify-between text-slate-800 font-semibold cursor-pointer"
+                >
+                  <span>{language === 'en' ? 'Campus Location' : 'Sede Presencial (Cómo llegar)'}</span>
+                  <span className="text-xs text-slate-400">→</span>
+                </a>
+              </div>
 
-              <div className="pt-2 flex flex-col gap-2.5">
-                <motion.a
-                  whileTap={{ scale: 0.98 }}
+              {/* ACCIONES INFERIORES EN MÓVIL */}
+              <div className="pt-3 pb-1 border-t border-slate-100 flex flex-col gap-2">
+                <a
+                  href="/campus/login"
+                  onClick={(e) => { setMobileMenuOpen(false); handleGoToCampus(e); }}
+                  className="w-full py-2.5 px-4 rounded-full border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 text-center flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <GraduationCap className="w-4 h-4 text-slate-600" />
+                  <span>{t.nav.campusVirtual || 'Campus Virtual'}</span>
+                </a>
+
+                <a
                   href="/matricula"
                   onClick={(e) => { setMobileMenuOpen(false); handleMatricularme(e); }}
-                  className="w-full py-3 rounded-full text-xs sm:text-sm font-black text-slate-950 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+                  className="w-full py-3 px-4 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-sm font-bold text-center flex items-center justify-center gap-2 shadow-md shadow-blue-500/25 transition-all cursor-pointer"
                 >
-                  <span>{t.nav.enroll}</span>
-                </motion.a>
-                <motion.a
-                  whileTap={{ scale: 0.98 }}
-                  href="/campus/login"
-                  onClick={handleGoToCampus}
-                  className="w-full py-3 rounded-full text-xs font-bold text-white bg-[#002B49] hover:bg-[#001f35] text-center flex items-center justify-center gap-2 shadow-sm cursor-pointer"
-                >
-                  <GraduationCap className="w-4 h-4 text-white" />
-                  <span>{t.nav.campusVirtual}</span>
-                </motion.a>
+                  <span>{t.nav.enroll || 'Matricúlate'}</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.2]" />
+                </a>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
-      </div>
-    </header>
+      </header>
+    </div>
   );
 };

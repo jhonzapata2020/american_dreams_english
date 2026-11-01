@@ -7,7 +7,7 @@ export const CONTACT_CONFIG = {
   // Número oficial de WhatsApp y atención (Profe Anthony / Admisiones)
   whatsappRaw: '573127459728',
   whatsappFormatted: '+57 312 745 9728',
-  phoneLandline: '+57 (604) 827-2471',
+  phoneLandline: '+57 312 745 9728',
   email: 'contacto@americandreams.edu.co',
   location: {
     address: 'Vereda Casanova, Kilómetro 3 Vía Turbo - Apartadó',

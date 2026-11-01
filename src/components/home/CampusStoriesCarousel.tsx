@@ -10,18 +10,40 @@ import {
   Tv,
   Sparkles,
   MessageCircle,
-  Radio
+  Radio,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
-import FloatingADECompanion from './FloatingADECompanion';
+
 
 interface CampusSlide {
-  id: number;
+  id: string | number;
   src: string;
+  type?: 'image' | 'video';
   category: string;
   title: string;
   description: string;
   tag: string;
+}
+
+function getEmbedUrl(url: string): string {
+  if (!url) return '';
+  if (url.includes('/embed/')) return url;
+
+  // YouTube watch?v= or youtu.be
+  const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  if (ytMatch && ytMatch[1]) {
+    return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`;
+  }
+
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/i);
+  if (vimeoMatch && vimeoMatch[1]) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+
+  return url;
 }
 
 const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
@@ -65,6 +87,14 @@ const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
       tag: 'INFRAESTRUCTURA',
       title: 'Espacios de Alto Rendimiento',
       description: 'Ambientes diseñados para aprender con total enfoque y comodidad.'
+    },
+    {
+      id: 6,
+      src: '/images/campus/ade-estudiantes-american-dream.png',
+      category: 'Orgullo ADE',
+      tag: 'NUEVA GENERACIÓN',
+      title: 'Soñadoras Bilingües',
+      description: 'Jóvenes construyendo su futuro bilingüe con confianza.'
     }
   ],
   en: [
@@ -107,6 +137,14 @@ const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
       tag: 'CAMPUS SPACES',
       title: 'High-Performance Facilities',
       description: 'Designed for deep focus, comfort, and interactive engagement.'
+    },
+    {
+      id: 6,
+      src: '/images/campus/ade-estudiantes-american-dream.png',
+      category: 'ADE Pride',
+      tag: 'NEW GENERATION',
+      title: 'Bilingual Dreamers',
+      description: 'Young talents building an international future with real spoken English.'
     }
   ]
 };
@@ -114,11 +152,87 @@ const SLIDES_BY_LANG: Record<'es' | 'en', CampusSlide[]> = {
 export default function CampusStoriesCarousel({ showADE = true }: { showADE?: boolean } = {}) {
   const { language } = useLanguage();
   const currentLang = language === 'en' ? 'en' : 'es';
-  const slides = SLIDES_BY_LANG[currentLang];
+  const defaultSlides = SLIDES_BY_LANG[currentLang];
 
+  const [slides, setSlides] = useState<CampusSlide[]>(defaultSlides);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isManuallyPaused, setIsManuallyPaused] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Fetch dynamic items from carousel_items API
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadCarouselItems() {
+      try {
+        const res = await fetch('/api/carousel');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!isCancelled && Array.isArray(data.items) && data.items.length > 0) {
+          const mapped: CampusSlide[] = data.items.map((it: any) => ({
+            id: it.id,
+            src: it.media_url,
+            type: it.type === 'video' ? 'video' : 'image',
+            category: it.type === 'video'
+              ? (currentLang === 'en' ? 'Featured Video' : 'Video Destacado')
+              : (currentLang === 'en' ? 'Campus ADE' : 'Campus Oficial'),
+            tag: it.type === 'video' ? 'MULTIMEDIA' : 'CAMPUS LIVE',
+            title: it.title,
+            description: it.type === 'video'
+              ? (currentLang === 'en' ? 'Interactive video immersion & speaking training' : 'Inmersión lingüística y fluidez conversacional en video')
+              : (currentLang === 'en' ? 'Accelerated conversational methodology for bilingual dreamers.' : 'Metodología conversacional acelerada para soñadores bilingües.')
+          }));
+          setSlides(mapped);
+          setCurrentIndex(0);
+        }
+      } catch (err) {
+        // Keep fallback on error
+      }
+    }
+
+    loadCarouselItems();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [currentLang]);
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+      setIsManuallyPaused(true);
+    } else {
+      setIsPlaying(true);
+      setIsManuallyPaused(false);
+    }
+  };
+
+  useEffect(() => {
+    const syncFullscreenState = () => {
+      if (document.fullscreenElement === carouselRef.current) {
+        setIsExpanded(true);
+      } else if (!document.fullscreenElement) {
+        setIsExpanded(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isExpanded && !document.fullscreenElement) {
+        setIsExpanded(false);
+      }
+    };
+
+    document.addEventListener('fullscreenchange', syncFullscreenState);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', syncFullscreenState);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isExpanded]);
 
   // Auto-advance slides every 5.5s
   useEffect(() => {
@@ -141,17 +255,45 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
     setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
+  const toggleExpanded = async () => {
+    if (isExpanded) {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        await document.exitFullscreen().catch(() => setIsExpanded(false));
+      } else {
+        setIsExpanded(false);
+      }
+      return;
+    }
+
+    const carousel = carouselRef.current;
+    if (carousel?.requestFullscreen) {
+      try {
+        await carousel.requestFullscreen();
+        return;
+      } catch {
+        // Use the fixed-position fallback if browser fullscreen is unavailable.
+      }
+    }
+
+    setIsExpanded(true);
+  };
+
   const currentSlide = slides[currentIndex] || slides[0];
 
   return (
-    <div className="w-full max-w-[340px] flex flex-col space-y-2.5 mx-auto">
+    <div
+      ref={carouselRef}
+      className={isExpanded
+        ? 'fixed inset-0 z-[100] flex h-dvh w-screen flex-col gap-3 overflow-y-auto bg-slate-950 p-3 sm:p-5'
+        : 'w-full max-w-[400px] sm:max-w-[430px] rounded-2xl overflow-hidden shadow-xl border border-slate-200/60 bg-slate-950 flex flex-col mx-auto'}
+    >
       {/* ========================================================= */}
       {/* 1. MONITOR DE ESTUDIO / TELEVISOR 16:10 CON BORDES 90°    */}
       {/* ========================================================= */}
-      <div className="w-full rounded-none overflow-hidden bg-slate-950 border border-slate-700/80 shadow-xl select-none">
+      <div className={`w-full overflow-hidden bg-slate-950 select-none ${isExpanded ? 'flex min-h-0 flex-1 flex-col' : ''}`}>
         
         {/* Header del televisor */}
-        <div className="relative z-20 px-3 pt-2 pb-1.5 bg-gradient-to-b from-black/40 via-black/10 to-transparent">
+        <div className="relative z-20 shrink-0 px-3 pt-2 pb-1.5 bg-gradient-to-b from-black/40 via-black/10 to-transparent">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center space-x-1.5">
               <span className="flex h-1.5 w-1.5 relative">
@@ -169,12 +311,26 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
               <span>{slides.length}</span>
               <button
                 type="button"
-                onClick={() => setIsPlaying(!isPlaying)}
-                className="p-0.5 hover:text-white transition-colors text-white/80"
-                title={isPlaying ? 'Pausar' : 'Reproducir'}
-                aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
+                onClick={togglePlayPause}
+                className="p-0.5 hover:text-white transition-colors text-white/80 cursor-pointer"
+                title={isPlaying ? (currentLang === 'en' ? 'Pause' : 'Pausar') : (currentLang === 'en' ? 'Play' : 'Reproducir')}
+                aria-label={isPlaying ? (currentLang === 'en' ? 'Pause' : 'Pausar') : (currentLang === 'en' ? 'Play' : 'Reproducir')}
               >
-                {isPlaying ? <Play className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5" />}
+                {isPlaying ? <Pause className="w-2.5 h-2.5" /> : <Play className="w-2.5 h-2.5" />}
+              </button>
+              <button
+                type="button"
+                onClick={toggleExpanded}
+                className="p-1 hover:text-white transition-colors text-white/80"
+                title={isExpanded
+                  ? (currentLang === 'en' ? 'Restore normal size' : 'Volver a tamaño normal')
+                  : (currentLang === 'en' ? 'Expand to full screen' : 'Expandir a pantalla completa')}
+                aria-label={isExpanded
+                  ? (currentLang === 'en' ? 'Restore normal size' : 'Volver a tamaño normal')
+                  : (currentLang === 'en' ? 'Expand to full screen' : 'Expandir a pantalla completa')}
+                aria-pressed={isExpanded}
+              >
+                {isExpanded ? <Minimize2 className="w-3 h-3" /> : <Maximize2 className="w-3 h-3" />}
               </button>
             </div>
           </div>
@@ -209,11 +365,15 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
           </div>
         </div>
 
-        {/* Pantalla 16:10 iluminada y nítida */}
+        {/* Pantalla compacta horizontal max-h-[280px] sm:max-h-[300px] */}
         <div 
-          className="relative w-full aspect-[16/10] overflow-hidden bg-slate-900 flex items-center justify-center group"
+          className={`relative w-full overflow-hidden bg-slate-900 flex items-center justify-center group ${isExpanded ? 'min-h-0 flex-1' : 'aspect-[16/10] max-h-[280px] sm:max-h-[300px]'}`}
           onMouseEnter={() => setIsPlaying(false)}
-          onMouseLeave={() => setIsPlaying(true)}
+          onMouseLeave={() => {
+            if (!isManuallyPaused) {
+              setIsPlaying(true);
+            }
+          }}
         >
           <AnimatePresence mode="wait">
             <motion.div
@@ -224,19 +384,33 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
               transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
               className="absolute inset-0 w-full h-full"
             >
-              {/* Ambient Glow */}
-              <div
-                className="absolute inset-0 bg-cover bg-center filter blur-xl scale-125 opacity-30 transition-all duration-500 pointer-events-none"
-                style={{ backgroundImage: `url(${currentSlide.src})` }}
-              />
+              {currentSlide.type === 'video' ? (
+                <div className="relative z-10 w-full h-full flex items-center justify-center bg-black">
+                  <iframe
+                    src={getEmbedUrl(currentSlide.src)}
+                    title={currentSlide.title}
+                    className="w-full h-full aspect-video border-0"
+                    allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <>
+                  {/* Fondo ambiental desenfocado que rellena la pantalla armónicamente */}
+                  <div
+                    className="absolute inset-0 bg-cover bg-center filter blur-xl scale-125 opacity-35 transition-all duration-500 pointer-events-none"
+                    style={{ backgroundImage: `url(${currentSlide.src})` }}
+                  />
 
-              {/* Imagen nítida e iluminada */}
-              <img
-                src={currentSlide.src}
-                alt={currentSlide.title}
-                className="relative z-10 w-full h-full object-contain p-0.5"
-                loading="lazy"
-              />
+                  {/* Imagen completa sin recortes (cabezas, rostros y composición 100% visibles) */}
+                  <img
+                    src={currentSlide.src}
+                    alt={currentSlide.title}
+                    className="relative z-10 w-full h-full object-contain p-0.5"
+                    loading="lazy"
+                  />
+                </>
+              )}
 
               {/* Viñeta inferior suave */}
               <div className="absolute bottom-0 inset-x-0 h-16 z-10 bg-gradient-to-t from-slate-950/80 to-transparent pointer-events-none" />
@@ -304,7 +478,7 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
       {/* ========================================================= */}
       {/* 2. CINTILLO INFORMATIVO DE SEDE Y METODOLOGÍA (ELEGANTE)  */}
       {/* ========================================================= */}
-      <div className="w-full bg-slate-900 border border-slate-800 p-2.5 flex items-center justify-between text-left select-none">
+      <div className="w-full bg-slate-900 border-t border-slate-800/80 py-1.5 px-3 flex items-center justify-between text-left select-none">
         <div className="flex items-center space-x-2">
           <div className="w-7 h-7 bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 flex-shrink-0">
             <Radio className="w-3.5 h-3.5 text-blue-400 animate-pulse" />
@@ -330,14 +504,6 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
         </a>
       </div>
 
-      {/* ========================================================= */}
-      {/* 3. AVATAR ADE CENTRADO EXACTAMENTE DEBAJO DEL CARRUSEL      */}
-      {/* ========================================================= */}
-      {showADE && (
-        <div className="w-full flex flex-col items-center justify-center pt-1 select-none">
-          <FloatingADECompanion />
-        </div>
-      )}
 
     </div>
   );

@@ -206,5 +206,41 @@ SET text_response = EXCLUDED.text_response,
     audio_url = EXCLUDED.audio_url;
 
 -- ====================================================================
+-- 10. TABLA CAROUSEL_ITEMS (GESTOR MULTIMEDIA DEL HOME)
+-- ====================================================================
+CREATE TABLE IF NOT EXISTS public.carousel_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  type VARCHAR(20) NOT NULL CHECK (type IN ('image', 'video')),
+  media_url TEXT NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS
+ALTER TABLE public.carousel_items ENABLE ROW LEVEL SECURITY;
+
+-- Política de lectura pública (cualquier visitante puede ver los slides activos)
+DO $$ BEGIN
+  CREATE POLICY "Acceso público lectura carousel_items" 
+    ON public.carousel_items FOR SELECT 
+    USING (true);
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+-- Política de administración total para rol de servicio
+DO $$ BEGIN
+  CREATE POLICY "Acceso total admin carousel_items" 
+    ON public.carousel_items FOR ALL 
+    TO service_role
+    USING (true)
+    WITH CHECK (true);
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+-- ====================================================================
 -- END OF SCHEMA
 -- ====================================================================

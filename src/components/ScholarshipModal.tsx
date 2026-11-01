@@ -19,6 +19,7 @@ import { DONATION_TIERS, SCHOLARSHIP_RECIPIENTS } from '../data/sprint1Data';
 import { formatCOPK } from '../utils/formatters';
 import { createClient } from '../utils/supabase/client';
 import { getWhatsAppUrl } from '../config/contact';
+import { useAcademicPricing } from '../context/PricingContext';
 
 interface ScholarshipModalProps {
   isOpen: boolean;
@@ -31,6 +32,7 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
   onClose,
   currency = 'COP',
 }) => {
+  const { pricing, formatCop } = useAcademicPricing();
   const [activeTab, setActiveTab] = useState<'apply' | 'donate'>('apply');
   
   // Student Application State
@@ -252,13 +254,31 @@ export const ScholarshipModal: React.FC<ScholarshipModalProps> = ({
                     </div>
                   )}
 
-                  <div className="bg-orange-50 border border-orange-200 p-4 rounded-2xl text-xs text-orange-900 space-y-1">
-                    <strong className="font-bold flex items-center gap-1">
-                      <Building2 className="w-4 h-4 text-orange-600" /> Requisitos de Postulación:
-                    </strong>
-                    <p className="text-[11px] text-orange-800 leading-relaxed">
-                      Residir en municipios de Urabá (Turbo, Apartadó, Currulao, Necoclí, Carepa, Chigorodó) y contar con disposición para clases presenciales o virtuales.
-                    </p>
+                  <div className="bg-amber-50/90 border border-amber-200/90 p-4 rounded-2xl text-xs text-amber-950 space-y-2.5">
+                    <div className="flex items-start gap-2">
+                      <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                      <div>
+                        <strong className="font-black text-amber-900 block">
+                          Criterio Ético Institucional del Fondo Social ADE:
+                        </strong>
+                        <p className="text-[11px] text-amber-800 leading-relaxed mt-0.5">
+                          Por política ética del Director Anthony y la dirección académica, las subvenciones del Fondo de Becas están destinadas <strong>exclusivamente a estudiantes locales de escasos recursos de Urabá en modalidad presencial en la sede física de Turbo</strong>. La formación virtual no aplica para estos subsidios comunitarios locales.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-amber-200/60 grid grid-cols-2 gap-2 text-[11px]">
+                      <div className="bg-white/80 p-2 rounded-xl border border-amber-200/50">
+                        <span className="text-slate-500 block text-[10px] font-bold">Matrícula Subvencionada:</span>
+                        <span className="font-black text-slate-900">{formatCop(pricing.becados.adultos.matricula)}</span>
+                      </div>
+                      <div className="bg-white/80 p-2 rounded-xl border border-amber-200/50">
+                        <span className="text-slate-500 block text-[10px] font-bold">Mensualidad Subvencionada:</span>
+                        <span className="font-black text-rose-600">
+                          {formatCop(pricing.becados.adultos.mensualidad)} <span className="text-[9px] text-slate-400 font-normal">({formatCop(pricing.becados.ninos.mensualidad)} Niños)</span>
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
                   <div>
