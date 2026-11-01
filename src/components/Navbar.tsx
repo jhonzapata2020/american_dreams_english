@@ -56,29 +56,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <div className="w-full sticky top-0 z-50">
-      {/* 1. TOP ANNOUNCEMENT BAR (BANNER LIMPIO DE MARKETING - SIN BOTÓN REPETITIVO) */}
-      <a
-        href="/matricula"
-        onClick={handleMatricularme}
-        className="block bg-gradient-to-r from-[#FF5A00] via-[#FF7A00] to-[#FF5A00] hover:brightness-105 transition-all text-white text-xs py-2 px-3 sm:px-4 shadow-sm border-b border-orange-600/30 select-none relative overflow-hidden group cursor-pointer"
-      >
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-center flex-wrap gap-x-2.5 gap-y-1 text-center">
-          <span className="text-sm shrink-0">🔥</span>
-          <span className="font-black uppercase tracking-wider bg-white/20 px-2 py-0.5 rounded-md text-[10px] sm:text-xs shrink-0">
-            {language === 'en' ? 'OPEN ENROLLMENT' : '¡MATRÍCULAS ABIERTAS!'}
-          </span>
-          <span className="text-white/95 font-medium text-[11px] sm:text-xs">
-            {language === 'en'
-              ? 'Start live classes with certified teachers. Special tuition offer for a limited time!'
-              : 'Inicia tus clases en vivo con docentes certificados. ¡Aprovecha la promoción en matrículas por tiempo limitado!'}
-          </span>
-          <span className="inline-flex items-center text-white/90 group-hover:text-white font-bold text-[11px] sm:text-xs underline decoration-white/50 group-hover:decoration-white group-hover:translate-x-0.5 transition-all shrink-0">
-            {language === 'en' ? 'Learn more →' : 'Ver más →'}
-          </span>
-        </div>
-      </a>
-
-      {/* 2. CONTENEDOR PRINCIPAL DEL NAVBAR */}
+      {/* CONTENEDOR PRINCIPAL DEL NAVBAR */}
       <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-colors duration-300 py-3.5 px-6 lg:px-12 font-sans">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           
