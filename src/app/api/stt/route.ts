@@ -161,8 +161,30 @@ function createProviderForm(file: File, format: { extension: string; mimeType: s
   return formData;
 }
 
+function getGroqKey(): string {
+  if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim()) {
+    return process.env.GROQ_API_KEY.trim().replace(/^["']|["']$/g, '');
+  }
+  if (process.env['GROQ_API_KEY'] && process.env['GROQ_API_KEY'].trim()) {
+    return process.env['GROQ_API_KEY'].trim().replace(/^["']|["']$/g, '');
+  }
+  if (process.env.NEXT_PUBLIC_GROQ_API_KEY && process.env.NEXT_PUBLIC_GROQ_API_KEY.trim()) {
+    return process.env.NEXT_PUBLIC_GROQ_API_KEY.trim().replace(/^["']|["']$/g, '');
+  }
+  if (process.env['NEXT_PUBLIC_GROQ_API_KEY'] && process.env['NEXT_PUBLIC_GROQ_API_KEY'].trim()) {
+    return process.env['NEXT_PUBLIC_GROQ_API_KEY'].trim().replace(/^["']|["']$/g, '');
+  }
+  const entry = Object.entries(process.env).find(
+    ([k]) => k.trim().toUpperCase() === 'GROQ_API_KEY' || k.trim().toUpperCase() === 'NEXT_PUBLIC_GROQ_API_KEY'
+  );
+  if (entry && typeof entry[1] === 'string' && entry[1].trim()) {
+    return entry[1].trim().replace(/^["']|["']$/g, '');
+  }
+  return '';
+}
+
 async function transcribeWithGroq(file: File, lang: 'en' | 'es', format: { extension: string; mimeType: string }): Promise<ProviderAttempt> {
-  const groqKey = (process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY)?.trim();
+  const groqKey = getGroqKey();
   if (!groqKey) return { text: null, category: 'authentication' };
 
   const formData = createProviderForm(file, format);
@@ -288,7 +310,8 @@ export async function POST(req: Request) {
       return failure('unsupported_audio_format', 'none', 415);
     }
 
-    const groqConfigured = Boolean((process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY)?.trim());
+    const groqKey = getGroqKey();
+    const groqConfigured = Boolean(groqKey);
     const elevenFallbackAllowed = Boolean(
       process.env.ELEVENLABS_API_KEY?.trim() && process.env.ADE_STT_ALLOW_ELEVENLABS_FALLBACK === 'true'
     );

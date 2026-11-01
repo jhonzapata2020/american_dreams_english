@@ -223,6 +223,7 @@ function FloatingADECompanionInner() {
   // Detección de arrastre vs clic sin conflictos de puntero
   const dragStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const isDraggingRef = useRef(false);
+  const touchCountRef = useRef(0);
 
   // Inicialización de sessionToken y turnos en localStorage
   useEffect(() => {
@@ -1350,70 +1351,120 @@ function FloatingADECompanionInner() {
     setVoiceStatusMessage('');
     const isEn = currentLang === 'en';
 
-    // Primer toque o saludo amigable de bienvenida (cero consumo, audio local de alta fidelidad)
-    if (!hasPlayedGreetingRef.current) {
-      hasPlayedGreetingRef.current = true;
-      markFirstInteraction();
+    // Catálogo interactivo de temas para toques sucesivos en el Avatar (CERO consumo, audio local)
+    const TOUCH_TOPICS_ES = [
+      {
+        text: "¡Hola! Soy ADE, tutora virtual y asesora de admisiones de American Dream English. ¿Te gustaría practicar en vivo o conocer nuestro Campus y Tienda Digital?",
+        audioUrl: '/audio/ade/es-bienvenida.mp3',
+        id: 'es-bienvenida'
+      },
+      {
+        text: "¿Quieres conocer nuestra metodología? En American Dream English te garantizamos práctica conversacional en vivo desde el primer día.",
+        audioUrl: '/audio/ade/es-metodologia.mp3',
+        id: 'es-metodologia'
+      },
+      {
+        text: "Nuestros horarios son 100% flexibles: mañanas, tardes y noches con docentes certificados C1 en tiempo real.",
+        audioUrl: '/audio/ade/es-horarios.mp3',
+        id: 'es-horarios'
+      },
+      {
+        text: "Nuestros planes tienen facilidades de pago, mensualidades cómodas y becas con descuento especial del 40% en matrículas.",
+        audioUrl: '/audio/ade/es-precios.mp3',
+        id: 'es-precios'
+      },
+      {
+        text: "¡Qué bueno saludarte! Cuéntame, ¿qué meta quieres alcanzar con tu inglés hoy? Puedes presionar el micrófono abajo para hablarme.",
+        audioUrl: '/audio/ade/es-charla-informal.mp3',
+        id: 'es-charla-informal'
+      },
+      {
+        text: "Para matricularte es muy sencillo: haz clic en el botón Matricúlate arriba o déjanos tus datos en el formulario para apartar tu cupo.",
+        audioUrl: '/audio/ade/es-matricula.mp3',
+        id: 'es-matricula'
+      }
+    ];
 
-      const firstGreetingText = isEn
-        ? FIRST_GREETING_TEXT
-        : "¡Hola! Soy ADE, tutora virtual y asesora de admisiones de American Dream English. ¿Te gustaría practicar en vivo o conocer nuestro Campus y Tienda Digital?";
-      const firstGreetingAudio = isEn ? FIRST_GREETING_AUDIO : '/audio/ade/es-bienvenida.mp3';
-      const firstGreetingId = isEn ? 'en-hello' : 'es-bienvenida';
+    const TOUCH_TOPICS_EN = [
+      {
+        text: FIRST_GREETING_TEXT,
+        audioUrl: FIRST_GREETING_AUDIO,
+        id: 'en-hello'
+      },
+      {
+        text: "Let's practice your English speaking skills! Tap the microphone button below to talk with me.",
+        audioUrl: '/audio/ade/en-practice.mp3',
+        id: 'en-practice'
+      },
+      {
+        text: "We offer programs from level A1 all the way to advanced C1 with certified live native teachers.",
+        audioUrl: '/audio/ade/en-levels.mp3',
+        id: 'en-levels'
+      },
+      {
+        text: "Our accelerated methodology focuses 100% on real-world conversations and confidence.",
+        audioUrl: '/audio/ade/en-methodology.mp3',
+        id: 'en-methodology'
+      },
+      {
+        text: "We currently have an exclusive special tuition offer. Tap enroll above to claim your spot!",
+        audioUrl: '/audio/ade/en-pricing.mp3',
+        id: 'en-pricing'
+      }
+    ];
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'ade',
-          text: firstGreetingText,
-          audioUrl: firstGreetingAudio,
-          intentKey: firstGreetingId,
-          lang: isEn ? 'en' : 'es'
-        }
-      ]);
-      speakFemaleVoice(firstGreetingText, isEn ? 'en' : 'es', firstGreetingId, firstGreetingAudio);
-      return;
-    }
+    const topics = isEn ? TOUCH_TOPICS_EN : TOUCH_TOPICS_ES;
+    const currentIdx = touchCountRef.current % topics.length;
+    touchCountRef.current += 1;
 
-    // Saludo amigable subsiguiente
-    const welcomeText = isEn
-      ? "Hi! What would you like to practice today? Tap the mic to talk with me or open the chat."
-      : "¡Hola! ¿Qué te gustaría practicar hoy? Toca el botón del micrófono para hablar conmigo o abre el chat.";
-    const welcomeAudio = isEn ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
-    const welcomeId = isEn ? 'en-hello' : 'es-bienvenida';
+    hasPlayedGreetingRef.current = true;
+    markFirstInteraction();
 
-    speakFemaleVoice(welcomeText, isEn ? 'en' : 'es', welcomeId, welcomeAudio);
+    const selectedTopic = topics[currentIdx];
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'ade',
+        text: selectedTopic.text,
+        audioUrl: selectedTopic.audioUrl,
+        intentKey: selectedTopic.id,
+        lang: isEn ? 'en' : 'es'
+      }
+    ]);
+    speakFemaleVoice(selectedTopic.text, isEn ? 'en' : 'es', selectedTopic.id, selectedTopic.audioUrl);
   };
 
   return (
     <>
       {/* ========================================================= */}
-      {/* 1. COMPONENTE FLOTANTE DE ADE (CLICK-TO-TALK DIRECTO EN EL AVATAR) */}
+      {/* 1. BOTÓN MINIMIZADO: CIRCULAR, ELEGANTE Y COMPACTO */}
       {/* ========================================================= */}
       {!isChatOpen && isMinimized && (
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
-          className="fixed bottom-4 right-4 z-50 select-none pointer-events-auto"
+          className="fixed bottom-5 right-5 z-50 select-none pointer-events-auto"
         >
           <button
             type="button"
             onClick={() => setIsMinimized(false)}
-            className="group flex items-center gap-2 bg-[#002B49] hover:bg-[#003B64] text-white px-3 py-2 rounded-full shadow-2xl border border-white/20 text-xs font-bold transition-all active:scale-95 cursor-pointer"
-            title={currentLang === 'en' ? 'Open ADE Assistant' : 'Abrir tutora ADE'}
+            className="relative w-11 h-11 rounded-full bg-gradient-to-tr from-[#002B49] via-[#003B64] to-blue-600 p-0.5 shadow-xl hover:shadow-blue-500/30 border border-white/30 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer group"
+            title={currentLang === 'en' ? 'Open ADE' : 'Abrir tutora ADE'}
             aria-label="Abrir asistente virtual ADE"
           >
-            <div className="relative w-6 h-6 rounded-full overflow-hidden bg-white/10 shrink-0">
-              <img
+            <div className="relative w-full h-full rounded-full overflow-hidden bg-white/10 flex items-end justify-center">
+              <Image
                 src="/images/avatar-ade.png"
                 alt="ADE"
-                className="w-full h-full object-contain object-bottom"
+                width={44}
+                height={44}
+                priority
+                className="w-full h-full object-contain object-bottom filter drop-shadow select-none pointer-events-none"
               />
             </div>
-            <span className="font-black text-[11px] text-amber-300">ADE</span>
-            <span className="hidden sm:inline text-[11px] text-slate-200 font-semibold">Tutor</span>
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-xs animate-pulse" />
           </button>
         </motion.div>
       )}
