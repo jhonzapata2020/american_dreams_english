@@ -86,6 +86,7 @@ export default function RootLayout({
         <link rel="icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="shortcut icon" type="image/png" href="/logo-american-dream.png" />
         <link rel="apple-touch-icon" href="/logo-american-dream.png" />
+        <link rel="preload" as="image" href="/images/avatar-ade.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="theme-color" content="#002B49" />

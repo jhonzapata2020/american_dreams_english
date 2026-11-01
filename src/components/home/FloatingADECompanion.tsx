@@ -1507,6 +1507,8 @@ function FloatingADECompanionInner() {
               <img
                 src="/images/avatar-ade.png"
                 alt="ADE - Mentora Virtual Bilingüe"
+                loading="eager"
+                decoding="async"
                 className="w-full h-full object-contain object-bottom filter drop-shadow-2xl pointer-events-none select-none"
               />
 
