@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
 import { createAdminClient } from '../../../../utils/supabase/admin'
 
+export const dynamic = 'force-dynamic'
+
 /**
  * Endpoint de Servidor Protegido para Google Analytics 4 Data API y Leads de Supabase.
  * Nunca expone credenciales ni claves privadas al cliente.
