@@ -262,11 +262,12 @@ export async function GET() {
   const elevenKey = process.env.ELEVENLABS_API_KEY?.trim() || '';
 
   const envNames = Object.keys(process.env).filter((k) =>
-    ['GROQ', 'ELEVEN', 'WOMPI', 'SUPABASE', 'VERCEL'].some((p) => k.toUpperCase().includes(p))
+    ['GROQ', 'ELEVEN', 'WOMPI', 'SUPABASE', 'GA', 'VERCEL'].some((p) => k.toUpperCase().includes(p))
   );
 
   return NextResponse.json({
     status: 'ok',
+    vercelProject: process.env.VERCEL_PROJECT_NAME || 'unknown',
     vercelEnv: process.env.VERCEL_ENV || 'unknown',
     vercelBranch: process.env.VERCEL_GIT_COMMIT_REF || 'unknown',
     vercelCommit: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || 'unknown',
