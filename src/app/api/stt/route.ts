@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_MAX_AUDIO_BYTES = 2 * 1024 * 1024;
 const MAX_CONFIGURED_AUDIO_BYTES = DEFAULT_MAX_AUDIO_BYTES;
 const MAX_MULTIPART_OVERHEAD_BYTES = 64 * 1024;
@@ -160,7 +162,7 @@ function createProviderForm(file: File, format: { extension: string; mimeType: s
 }
 
 async function transcribeWithGroq(file: File, lang: 'en' | 'es', format: { extension: string; mimeType: string }): Promise<ProviderAttempt> {
-  const groqKey = process.env.GROQ_API_KEY?.trim();
+  const groqKey = (process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY)?.trim();
   if (!groqKey) return { text: null, category: 'authentication' };
 
   const formData = createProviderForm(file, format);
@@ -286,7 +288,7 @@ export async function POST(req: Request) {
       return failure('unsupported_audio_format', 'none', 415);
     }
 
-    const groqConfigured = Boolean(process.env.GROQ_API_KEY?.trim());
+    const groqConfigured = Boolean((process.env.GROQ_API_KEY || process.env.NEXT_PUBLIC_GROQ_API_KEY)?.trim());
     const elevenFallbackAllowed = Boolean(
       process.env.ELEVENLABS_API_KEY?.trim() && process.env.ADE_STT_ALLOW_ELEVENLABS_FALLBACK === 'true'
     );

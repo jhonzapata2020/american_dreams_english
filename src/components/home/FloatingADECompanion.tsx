@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, Component, ErrorInfo, ReactNode } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic,
@@ -343,19 +344,7 @@ function FloatingADECompanionInner() {
 
       const speakWithBrowserVoice = () => {
         if (!isCurrentSpeech()) return;
-        if (!('speechSynthesis' in window) || typeof SpeechSynthesisUtterance === 'undefined') {
-          setIsSpeaking(false);
-          return;
-        }
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = langToUse === 'en' ? 'en-US' : 'es-CO';
-        const voice = window.speechSynthesis.getVoices().find((item) =>
-          item.lang.toLowerCase().startsWith(langToUse === 'en' ? 'en' : 'es')
-        );
-        if (voice) utterance.voice = voice;
-        utterance.onend = () => { if (isCurrentSpeech()) setIsSpeaking(false); };
-        utterance.onerror = () => { if (isCurrentSpeech()) setIsSpeaking(false); };
-        window.speechSynthesis.speak(utterance);
+        setIsSpeaking(false);
       };
 
       // 2. Si no es un audio estático local, sintetizar dinámicamente mediante /api/tts
@@ -1345,31 +1334,55 @@ function FloatingADECompanionInner() {
     // Si el usuario estaba arrastrando, no ejecutar el clic
     if (isDraggingRef.current) return;
 
-    // El primer toque siempre debe reproducir hello.mp3, incluso si sessionStorage
-    // conserva una interacción anterior de una carga ya terminada.
-    if (!hasPlayedGreetingRef.current) {
-      setVoiceStatusMessage('');
-      playFirstGreeting();
-      return;
-    }
-
-    // No interrumpir hello.mp3 si la persona vuelve a tocar mientras suena.
-    if (voiceState === 'speaking') return;
-
-    // Mantener en móvil el mismo toggle de voz que ya usa producción.
-    const isMobileLayout = window.matchMedia('(max-width: 1023px)').matches;
-    if (isMobileLayout && hasInteractedRef.current) {
-      handleToggleVoice();
-      return;
-    }
-
-    if (voiceState === 'processing') return;
+    // Si ADE ya está hablando, un clic la silencia inmediatamente
     if (isSpeaking) {
-      startVoiceInput();
+      stopSpeaking();
       return;
     }
 
-    handleToggleVoice();
+    // Inicializar audio táctil en móvil (iOS Safari / Android)
+    if (sharedAudioRef.current) {
+      try {
+        sharedAudioRef.current.load();
+      } catch (err) {}
+    }
+
+    setVoiceStatusMessage('');
+    const isEn = currentLang === 'en';
+
+    // Primer toque o saludo amigable de bienvenida (cero consumo, audio local de alta fidelidad)
+    if (!hasPlayedGreetingRef.current) {
+      hasPlayedGreetingRef.current = true;
+      markFirstInteraction();
+
+      const firstGreetingText = isEn
+        ? FIRST_GREETING_TEXT
+        : "¡Hola! Soy ADE, tutora virtual y asesora de admisiones de American Dream English. ¿Te gustaría practicar en vivo o conocer nuestro Campus y Tienda Digital?";
+      const firstGreetingAudio = isEn ? FIRST_GREETING_AUDIO : '/audio/ade/es-bienvenida.mp3';
+      const firstGreetingId = isEn ? 'en-hello' : 'es-bienvenida';
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'ade',
+          text: firstGreetingText,
+          audioUrl: firstGreetingAudio,
+          intentKey: firstGreetingId,
+          lang: isEn ? 'en' : 'es'
+        }
+      ]);
+      speakFemaleVoice(firstGreetingText, isEn ? 'en' : 'es', firstGreetingId, firstGreetingAudio);
+      return;
+    }
+
+    // Saludo amigable subsiguiente
+    const welcomeText = isEn
+      ? "Hi! What would you like to practice today? Tap the mic to talk with me or open the chat."
+      : "¡Hola! ¿Qué te gustaría practicar hoy? Toca el botón del micrófono para hablar conmigo o abre el chat.";
+    const welcomeAudio = isEn ? '/audio/ade/en-hello.mp3' : '/audio/ade/es-bienvenida.mp3';
+    const welcomeId = isEn ? 'en-hello' : 'es-bienvenida';
+
+    speakFemaleVoice(welcomeText, isEn ? 'en' : 'es', welcomeId, welcomeAudio);
   };
 
   return (
@@ -1418,36 +1431,35 @@ function FloatingADECompanionInner() {
             <X className="w-3.5 h-3.5 text-white" />
           </button>
           
-          {/* AVATAR DE ADE CON COMPORTAMIENTO CLICK-TO-TALK DIRECTO */}
+          {/* AVATAR DE ADE CON TOQUE DIRECTO PARA ESCUCHARLA HABLAR */}
           <button
             type="button"
-            onClick={handleToggleVoice}
-            disabled={voiceState === 'processing'}
+            onClick={handleTouchAvatar}
             aria-label={
-              voiceState === 'listening'
-                ? (currentLang === 'en' ? 'Stop listening' : 'Detener escucha')
-                : (currentLang === 'en' ? 'Talk with ADE' : 'Haz clic para hablar con ADE')
+              isSpeaking
+                ? (currentLang === 'en' ? 'Stop ADE voice' : 'Detener voz de ADE')
+                : (currentLang === 'en' ? 'Listen to ADE' : 'Toca para escuchar a ADE')
             }
             className="relative group flex items-center justify-center focus:outline-none cursor-pointer select-none"
           >
             {/* TOOLTIP DISCRETO SUPERIOR EN HOVER (ESTADO IDLE) */}
             <div className="absolute -top-9 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-30">
               <div className="bg-slate-900/90 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full shadow-lg font-medium">
-                {voiceState === 'listening'
-                  ? (currentLang === 'en' ? 'Click to stop & send' : 'Clic para enviar')
-                  : voiceState === 'speaking'
-                  ? (currentLang === 'en' ? 'ADE is speaking...' : 'ADE respondiendo...')
+                {isSpeaking
+                  ? (currentLang === 'en' ? 'Click to stop' : 'Clic para silenciar')
+                  : voiceState === 'listening'
+                  ? (currentLang === 'en' ? 'Listening...' : 'Escuchando...')
                   : voiceState === 'processing'
                   ? (currentLang === 'en' ? 'Thinking...' : 'Pensando...')
-                  : (currentLang === 'en' ? 'Click to talk' : 'Haz clic para hablar')}
+                  : (currentLang === 'en' ? 'Tap to listen to ADE' : 'Tócame para hablarte')}
               </div>
             </div>
 
             {/* ONDAS SONORAS CONCÉNTRICAS (ESTADO ESCUCHANDO) */}
             {voiceState === 'listening' && (
               <>
-                <span className="absolute inset-0 rounded-full border-2 border-blue-500 animate-ping opacity-60 pointer-events-none" />
-                <span className="absolute -inset-2 rounded-full border-2 border-blue-400 animate-ping opacity-40 [animation-delay:350ms] pointer-events-none" />
+                <span className="absolute inset-0 rounded-full border-2 border-red-500 animate-ping opacity-60 pointer-events-none" />
+                <span className="absolute -inset-2 rounded-full border-2 border-red-400 animate-ping opacity-40 [animation-delay:350ms] pointer-events-none" />
               </>
             )}
 
@@ -1487,9 +1499,9 @@ function FloatingADECompanionInner() {
               }
               className={`relative z-10 w-20 h-20 lg:w-24 lg:h-24 rounded-full flex items-end justify-center transition-all duration-200 group-hover:scale-105 ${
                 voiceState === 'listening'
-                  ? 'ring-4 ring-blue-400/30 shadow-[0_0_25px_rgba(59,130,246,0.5)]'
+                  ? 'ring-4 ring-red-400/40 shadow-[0_0_25px_rgba(239,68,68,0.5)]'
                   : voiceState === 'speaking'
-                  ? 'ring-4 ring-indigo-400/40 shadow-[0_0_25px_rgba(99,102,241,0.5)]'
+                  ? 'ring-4 ring-emerald-400/40 shadow-[0_0_25px_rgba(16,185,129,0.5)]'
                   : 'shadow-lg shadow-slate-900/10'
               }`}
             >
@@ -1499,30 +1511,31 @@ function FloatingADECompanionInner() {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: [0.35, 0.7, 0.35], scale: [0.95, 1.08, 0.95] }}
                   transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-                  className="absolute inset-0 bg-indigo-400/25 rounded-full blur-xl pointer-events-none"
+                  className="absolute inset-0 bg-emerald-400/25 rounded-full blur-xl pointer-events-none"
                 />
               )}
 
-              {/* Imagen 100% transparente sin fondo */}
-              <img
+              {/* Imagen con next/image optimizada para carga instantánea */}
+              <Image
                 src="/images/avatar-ade.png"
                 alt="ADE - Mentora Virtual Bilingüe"
-                loading="eager"
-                decoding="async"
+                width={96}
+                height={96}
+                priority
                 className="w-full h-full object-contain object-bottom filter drop-shadow-2xl pointer-events-none select-none"
               />
 
               {/* Ecualizador activo sobre diadema cuando habla */}
               {isSpeaking && (
-                <div className="absolute top-0 right-0 flex items-center space-x-1 bg-black/90 px-1.5 py-0.5 rounded-full border border-indigo-400 shadow-md backdrop-blur-xs pointer-events-none">
-                  <Volume2 className="w-2.5 h-2.5 text-indigo-300 animate-pulse" />
-                  <span className="text-[7.5px] font-mono text-indigo-200 font-bold uppercase">
+                <div className="absolute top-0 right-0 flex items-center space-x-1 bg-black/90 px-1.5 py-0.5 rounded-full border border-emerald-400 shadow-md backdrop-blur-xs pointer-events-none">
+                  <Volume2 className="w-2.5 h-2.5 text-emerald-300 animate-pulse" />
+                  <span className="text-[7.5px] font-mono text-emerald-200 font-bold uppercase">
                     ADE
                   </span>
                   <div className="flex items-center space-x-0.5 ml-0.5">
-                    <span className="w-0.5 h-2 bg-indigo-400 animate-pulse" />
-                    <span className="w-0.5 h-3 bg-indigo-400 animate-pulse" />
-                    <span className="w-0.5 h-1.5 bg-indigo-400 animate-pulse" />
+                    <span className="w-0.5 h-2 bg-emerald-400 animate-pulse" />
+                    <span className="w-0.5 h-3 bg-emerald-400 animate-pulse" />
+                    <span className="w-0.5 h-1.5 bg-emerald-400 animate-pulse" />
                   </div>
                 </div>
               )}
@@ -1532,16 +1545,53 @@ function FloatingADECompanionInner() {
           {/* SOMBRA DE SUELO DIFUMINADA */}
           <div className="w-14 lg:w-16 h-1 bg-black/20 rounded-full blur-xs pointer-events-none" />
 
-          {/* CONTROL COMPACTO DE TEXTO: MICRO-BOTÓN CIRCULAR BLANCO */}
-          <button
-            type="button"
-            onClick={() => setIsChatOpen(true)}
-            className="w-8 h-8 rounded-full bg-white/90 border border-slate-200 shadow-md text-slate-600 hover:text-blue-600 hover:scale-110 active:scale-95 transition-all flex items-center justify-center cursor-pointer mt-0.5"
-            title={currentLang === 'en' ? 'Open text chat' : 'Abrir chat escrito'}
-            aria-label="Abrir chat escrito"
-          >
-            <MessageCircle className="w-3.5 h-3.5" />
-          </button>
+          {/* DOCK DE ACCIONES DEDICADO: BOTÓN DE HABLAR (MICRÓFONO) + BOTÓN DE CHAT */}
+          <div className="flex items-center gap-1.5 mt-1 bg-slate-900/85 backdrop-blur-md px-2 py-1 rounded-full shadow-lg border border-white/20">
+            {/* BOTÓN TOGGLE DE MICRÓFONO PARA HABLAR CON ADE */}
+            <button
+              type="button"
+              onClick={handleToggleVoice}
+              disabled={voiceState === 'processing'}
+              className={`p-1.5 rounded-full text-white transition-all cursor-pointer flex items-center justify-center ${
+                voiceState === 'listening'
+                  ? 'bg-red-600 animate-pulse ring-2 ring-red-400'
+                  : voiceState === 'processing'
+                  ? 'bg-amber-600 cursor-wait'
+                  : voiceState === 'speaking'
+                  ? 'bg-emerald-600 ring-2 ring-emerald-400'
+                  : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-95'
+              }`}
+              title={
+                voiceState === 'listening'
+                  ? (currentLang === 'en' ? 'Stop listening' : 'Detener escucha')
+                  : voiceState === 'processing'
+                  ? (currentLang === 'en' ? 'Thinking...' : 'Pensando...')
+                  : voiceState === 'speaking'
+                  ? (currentLang === 'en' ? 'ADE speaking' : 'ADE respondiendo')
+                  : (currentLang === 'en' ? 'Tap to speak with ADE' : 'Toca para hablar con ADE')
+              }
+              aria-label="Hablar por voz con ADE"
+            >
+              {voiceState === 'processing' ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : voiceState === 'speaking' ? (
+                <Volume2 className="w-3.5 h-3.5" />
+              ) : (
+                <Mic className="w-3.5 h-3.5" />
+              )}
+            </button>
+
+            {/* BOTÓN PARA ABRIR CHAT ESCRITO */}
+            <button
+              type="button"
+              onClick={() => setIsChatOpen(true)}
+              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95"
+              title={currentLang === 'en' ? 'Open text chat' : 'Abrir chat escrito'}
+              aria-label="Abrir chat escrito"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+            </button>
+          </div>
 
           {/* AVISO O DIAGNÓSTICO DE MICRÓFONO */}
           {voiceStatusMessage && (
