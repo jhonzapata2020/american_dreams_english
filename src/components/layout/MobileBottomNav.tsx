@@ -178,7 +178,6 @@ export function MobileBottomNav() {
                   <a
                     key={item.label}
                     href={item.href}
-                    target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => {
                       setSelectedIdx(index)

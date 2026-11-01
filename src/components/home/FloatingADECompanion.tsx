@@ -581,7 +581,13 @@ function FloatingADECompanionInner() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
       mediaStreamRef.current = stream;
       audioVADAvailableRef.current = false;
       speechDetectedInRecordingRef.current = false;
@@ -1445,12 +1451,12 @@ function FloatingADECompanionInner() {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
-          className="fixed bottom-5 right-5 z-50 select-none pointer-events-auto"
+          className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 select-none pointer-events-auto"
         >
           <button
             type="button"
             onClick={() => setIsMinimized(false)}
-            className="relative w-11 h-11 rounded-full bg-gradient-to-tr from-[#002B49] via-[#003B64] to-blue-600 p-0.5 shadow-xl hover:shadow-blue-500/30 border border-white/30 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer group"
+            className="relative w-12 h-12 rounded-full bg-gradient-to-tr from-[#002B49] via-[#003B64] to-blue-600 p-0.5 shadow-2xl hover:shadow-blue-500/40 border border-white/30 flex items-center justify-center transition-transform hover:scale-110 active:scale-95 cursor-pointer touch-manipulation group"
             title={currentLang === 'en' ? 'Open ADE' : 'Abrir tutora ADE'}
             aria-label="Abrir asistente virtual ADE"
           >
@@ -1458,19 +1464,19 @@ function FloatingADECompanionInner() {
               <Image
                 src="/images/avatar-ade.png"
                 alt="ADE"
-                width={44}
-                height={44}
+                width={48}
+                height={48}
                 priority
                 className="w-full h-full object-contain object-bottom filter drop-shadow select-none pointer-events-none"
               />
             </div>
-            <span className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full shadow-xs animate-pulse" />
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs animate-pulse" />
           </button>
         </motion.div>
       )}
 
       {!isChatOpen && !isMinimized && (
-        <div className="fixed bottom-5 right-5 lg:right-6 z-50 flex flex-col items-center gap-1 select-none pointer-events-auto">
+        <div className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 flex flex-col items-center gap-1 select-none pointer-events-auto">
           {/* BOTÓN DISCRETO PARA MINIMIZAR/COLAPSAR ADE (EVITA SOLAPAMIENTO EN MÓVILES) */}
           <button
             type="button"
@@ -1597,20 +1603,20 @@ function FloatingADECompanionInner() {
           <div className="w-14 lg:w-16 h-1 bg-black/20 rounded-full blur-xs pointer-events-none" />
 
           {/* DOCK DE ACCIONES DEDICADO: BOTÓN DE HABLAR (MICRÓFONO) + BOTÓN DE CHAT */}
-          <div className="flex items-center gap-1.5 mt-1 bg-slate-900/85 backdrop-blur-md px-2 py-1 rounded-full shadow-lg border border-white/20">
+          <div className="flex items-center gap-2 mt-1.5 bg-slate-900/90 backdrop-blur-md px-2.5 py-1.5 rounded-full shadow-2xl border border-white/25">
             {/* BOTÓN TOGGLE DE MICRÓFONO PARA HABLAR CON ADE */}
             <button
               type="button"
               onClick={handleToggleVoice}
               disabled={voiceState === 'processing'}
-              className={`p-1.5 rounded-full text-white transition-all cursor-pointer flex items-center justify-center ${
+              className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full text-white transition-all cursor-pointer flex items-center justify-center touch-manipulation select-none shadow-md ${
                 voiceState === 'listening'
                   ? 'bg-red-600 animate-pulse ring-2 ring-red-400'
                   : voiceState === 'processing'
                   ? 'bg-amber-600 cursor-wait'
                   : voiceState === 'speaking'
                   ? 'bg-emerald-600 ring-2 ring-emerald-400'
-                  : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-95'
+                  : 'bg-blue-600 hover:bg-blue-500 hover:scale-105 active:scale-90'
               }`}
               title={
                 voiceState === 'listening'
@@ -1624,11 +1630,11 @@ function FloatingADECompanionInner() {
               aria-label="Hablar por voz con ADE"
             >
               {voiceState === 'processing' ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : voiceState === 'speaking' ? (
-                <Volume2 className="w-3.5 h-3.5" />
+                <Volume2 className="w-4 h-4" />
               ) : (
-                <Mic className="w-3.5 h-3.5" />
+                <Mic className="w-4 h-4" />
               )}
             </button>
 
@@ -1636,11 +1642,11 @@ function FloatingADECompanionInner() {
             <button
               type="button"
               onClick={() => setIsChatOpen(true)}
-              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer flex items-center justify-center hover:scale-105 active:scale-95"
+              className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer flex items-center justify-center hover:scale-105 active:scale-90 touch-manipulation select-none"
               title={currentLang === 'en' ? 'Open text chat' : 'Abrir chat escrito'}
               aria-label="Abrir chat escrito"
             >
-              <MessageCircle className="w-3.5 h-3.5" />
+              <MessageCircle className="w-4 h-4" />
             </button>
           </div>
 

@@ -22,5 +22,5 @@ export const CONTACT_CONFIG = {
 export function getWhatsAppUrl(customMessage?: string): string {
   const defaultMsg = 'Hola Anthony, vengo de la página web de American Dream English y quiero más información sobre los cursos.';
   const message = encodeURIComponent(customMessage || defaultMsg);
-  return `https://wa.me/${CONTACT_CONFIG.whatsappRaw}?text=${message}`;
+  return `https://api.whatsapp.com/send?phone=${CONTACT_CONFIG.whatsappRaw}&text=${message}`;
 }
