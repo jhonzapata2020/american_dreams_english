@@ -3,6 +3,17 @@ import { createAdminClient } from '../../../../utils/supabase/admin';
 import fs from 'fs';
 import path from 'path';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+  'CDN-Cache-Control': 'no-store',
+  'Vercel-CDN-Cache-Control': 'no-store',
+  Pragma: 'no-cache',
+  Expires: '0'
+};
+
 export interface CarouselItem {
   id: string;
   type: 'image' | 'video';
@@ -44,17 +55,17 @@ export async function GET() {
       .order('order_index', { ascending: true });
 
     if (!error && data && data.length > 0) {
-      return NextResponse.json({ success: true, items: data });
+      return NextResponse.json({ success: true, items: data }, { headers: NO_CACHE_HEADERS });
     }
 
     const fallback = readFallback();
     fallback.sort((a, b) => a.order_index - b.order_index);
-    return NextResponse.json({ success: true, items: fallback });
+    return NextResponse.json({ success: true, items: fallback }, { headers: NO_CACHE_HEADERS });
   } catch (err) {
     console.warn('[Admin Carousel API] Using fallback:', err);
     const fallback = readFallback();
     fallback.sort((a, b) => a.order_index - b.order_index);
-    return NextResponse.json({ success: true, items: fallback });
+    return NextResponse.json({ success: true, items: fallback }, { headers: NO_CACHE_HEADERS });
   }
 }
 

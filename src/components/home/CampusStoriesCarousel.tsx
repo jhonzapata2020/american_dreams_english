@@ -168,7 +168,7 @@ export default function CampusStoriesCarousel({ showADE = true }: { showADE?: bo
 
     async function loadCarouselItems() {
       try {
-        const res = await fetch('/api/carousel');
+        const res = await fetch('/api/carousel', { cache: 'no-store' });
         if (!res.ok) return;
         const data = await res.json();
         if (!isCancelled && Array.isArray(data.items) && data.items.length > 0) {

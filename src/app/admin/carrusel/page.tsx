@@ -147,7 +147,7 @@ export default function AdminCarruselPage() {
   const loadCarouselItems = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/admin/carousel')
+      const res = await fetch('/api/admin/carousel', { cache: 'no-store' })
       const data = await res.json()
       if (data?.items) {
         setItems(data.items)
@@ -283,16 +283,17 @@ export default function AdminCarruselPage() {
             upsert: true
           })
 
-        if (!uploadError) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('carousel-media')
-            .getPublicUrl(fileName)
-          finalMediaUrl = publicUrl
-        } else {
-          // Fallback con FileReader si el bucket no tiene permisos en cliente
-          console.warn('Subida directa con storage reportó error, usando preview:', uploadError)
-          finalMediaUrl = imagePreview || ''
+        if (uploadError) {
+          console.error('Error al subir imagen a Supabase Storage:', uploadError)
+          showToast(`Error al subir imagen: ${uploadError.message || 'Fallo de red'}`, 'error')
+          setIsSubmitting(false)
+          return
         }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('carousel-media')
+          .getPublicUrl(fileName)
+        finalMediaUrl = publicUrl
       } else {
         // Video de YouTube / Vimeo
         if (!videoInput.trim()) {
